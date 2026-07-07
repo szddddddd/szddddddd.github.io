@@ -1,28 +1,72 @@
 ---
 import { profile } from '../data/profile';
+import { getCopy, getPath, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const display = profile.display[lang];
+const displayName = display.name;
+const alternateName = display.alternateName;
+const identity = [
+  { label: t.hero.identityLabels.role, value: display.role },
+  { label: t.hero.identityLabels.university, value: display.university },
+  { label: t.hero.identityLabels.lab, value: profile.lab },
+  { label: t.hero.identityLabels.major, value: display.major },
+];
+const points = [
+  [14, 20, 1.2], [23, 36, 0.9], [34, 22, 1.5], [48, 18, 0.8], [62, 29, 1.1], [74, 18, 0.9],
+  [18, 56, 0.7], [30, 68, 1.0], [43, 51, 1.3], [54, 64, 0.9], [69, 52, 1.6], [83, 66, 0.8],
+  [21, 82, 1.1], [39, 86, 0.7], [58, 80, 1.0], [76, 84, 1.2], [88, 42, 0.9], [10, 44, 0.8],
+];
 ---
 
 <section class="hero" id="home" aria-labelledby="hero-title">
-  <div class="hero-copy">
-    <p class="eyebrow">Academic portfolio / Visual research identity</p>
-    <h1 id="hero-title">
-      <span>{profile.name}</span>
-      <em>{profile.role}</em>
-    </h1>
-    <p class="hero-lede">{profile.affiliation}</p>
+  <div class="hero-copy reveal-block">
+    <p class="eyebrow">{t.hero.eyebrow}</p>
+    <div class="hero-title-stack">
+      <h1 id="hero-title">{displayName}</h1>
+      <p class="name-alt">{alternateName}</p>
+    </div>
+    <p class="hero-role">{display.role} · {display.university} · {profile.lab}</p>
+    <p class="hero-lede">{t.hero.statement}</p>
+    <ul class="tag-list hero-tags" aria-label={t.about.interestsTitle}>
+      {profile.researchInterests.map((interest) => <li>{interest}</li>)}
+    </ul>
     <div class="hero-actions" aria-label="Primary actions">
-      <a class="button button-primary" href="/projects">View research</a>
-      <a class="button button-secondary" href="/contact">Contact</a>
+      <a class="button button-primary" href={getPath(lang, 'projects')}>{t.hero.primaryAction}</a>
+      <a class="button button-secondary" href={profile.githubUrl} target="_blank" rel="noreferrer">{t.hero.githubAction}</a>
+      <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
+      {
+        profile.cv.url ? (
+          <a class="button button-secondary" href={profile.cv.url}>{t.hero.cvAction}</a>
+        ) : (
+          <span class="button button-disabled" aria-disabled="true">{t.hero.cvAction}: {t.common.comingSoon}</span>
+        )
+      }
     </div>
   </div>
 
-  <div class="hero-visual" aria-hidden="true">
-    <div class="visual-frame visual-frame-one"></div>
-    <div class="visual-frame visual-frame-two"></div>
-    <div class="visual-orb visual-orb-one"></div>
-    <div class="visual-orb visual-orb-two"></div>
-    <div class="visual-axis visual-axis-x"></div>
-    <div class="visual-axis visual-axis-y"></div>
-    <span class="visual-index">01 / identity</span>
+  <div class="hero-visual reveal-block" aria-hidden="true">
+    <div class="visual-plane visual-plane-a"></div>
+    <div class="visual-plane visual-plane-b"></div>
+    <div class="point-cloud">
+      {points.map(([x, y, s]) => <span class="cloud-point" style={`--x:${x}%;--y:${y}%;--s:${s};`} />)}
+    </div>
+    <div class="visual-rings"></div>
+    <div class="visual-core"></div>
+    <span class="visual-index">{t.hero.visualIndex}</span>
+  </div>
+
+  <div class="identity-strip" aria-label="Academic identity">
+    {identity.map((item) => (
+      <article>
+        <span>{item.label}</span>
+        <strong>{item.value}</strong>
+      </article>
+    ))}
   </div>
 </section>

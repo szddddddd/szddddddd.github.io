@@ -1,0 +1,17 @@
+---
+import { getCopy, getOppositeLang, getPath, type Lang, type PageKey } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page: PageKey;
+}
+
+const { lang, page } = Astro.props as Props;
+const nextLang = getOppositeLang(lang);
+const t = getCopy(lang);
+const target = getPath(nextLang, page);
+---
+
+<a class="language-toggle" href={target} hreflang={nextLang} aria-label={`Switch language to ${t.switchLabel}`}>
+  <span>{t.switchLabel}</span>
+</a>

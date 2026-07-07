@@ -1,20 +1,5 @@
 ---
-import ProjectCard from '../components/ProjectCard.astro';
-import Section from '../components/Section.astro';
-import { profile } from '../data/profile';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import LocalizedPage from '../components/LocalizedPage.astro';
 ---
 
-<BaseLayout title={`Projects — ${profile.name}`} description="Research and project placeholders.">
-  <section class="page-hero page-hero-compact">
-    <p class="eyebrow">Research / Projects</p>
-    <h1>Project index</h1>
-    <p>Placeholder cards for future research projects, technical systems, and creative artifacts.</p>
-  </section>
-
-  <Section title="Selected projects" intro="Edit src/data/profile.ts to replace these placeholders with real projects.">
-    <div class="project-grid">
-      {profile.projects.map((project) => <ProjectCard project={project} />)}
-    </div>
-  </Section>
-</BaseLayout>
+<LocalizedPage lang="en" page="projects" />

@@ -1,25 +1,40 @@
 ---
+import LanguageToggle from './LanguageToggle.astro';
 import { profile } from '../data/profile';
+import { getCopy, getPath, type Lang, type PageKey } from '../i18n';
 
-const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/#about', label: 'About' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/publications', label: 'Publications' },
-  { href: '/notes', label: 'Notes' },
-  { href: '/contact', label: 'Contact' },
+interface Props {
+  lang: Lang;
+  page: PageKey;
+}
+
+const { lang, page } = Astro.props as Props;
+const t = getCopy(lang);
+const display = profile.display[lang];
+const displayName = display.name;
+const navItems: { href: string; label: string }[] = [
+  { href: getPath(lang, 'home'), label: t.nav.home },
+  { href: getPath(lang, 'about'), label: t.nav.about },
+  { href: getPath(lang, 'projects'), label: t.nav.projects },
+  { href: getPath(lang, 'publications'), label: t.nav.publications },
+  { href: getPath(lang, 'coursework'), label: t.nav.coursework },
+  { href: getPath(lang, 'notes'), label: t.nav.notes },
+  { href: getPath(lang, 'contact'), label: t.nav.contact },
 ];
 ---
 
 <header class="navbar">
-  <a class="brand" href="/" aria-label={`${profile.name} home`}>
-    <span class="brand-mark">SZ</span>
+  <a class="brand" href={getPath(lang, 'home')} aria-label={`${displayName} home`}>
+    <span class="brand-mark">SZD</span>
     <span class="brand-copy">
-      <strong>{profile.name}</strong>
-      <small>{profile.role}</small>
+      <strong>{displayName}</strong>
+      <small>{display.role} · {profile.lab}</small>
     </span>
   </a>
-  <nav class="nav-links" aria-label="Primary navigation">
-    {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
-  </nav>
+  <div class="nav-cluster">
+    <nav class="nav-links" aria-label="Primary navigation">
+      {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+    <LanguageToggle lang={lang} page={page} />
+  </div>
 </header>

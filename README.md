@@ -1,8 +1,28 @@
 # szddddddd.github.io
 
-A minimal Astro-powered GitHub Pages personal homepage for `szddddddd`.
+Modern academic portfolio website for GitHub user `szddddddd`.
 
-The site is designed as a dark, editorial, academic portfolio with placeholder-only personal information. No real affiliation, research record, publication, email, or CV content is included yet.
+Live site:
+
+```text
+https://szddddddd.github.io
+```
+
+The site is built with Astro and TypeScript, uses a custom dark visual system, and deploys to GitHub Pages through GitHub Actions. It is static-only: no backend, no database, no CMS, and no client-side SPA framework.
+
+## Content policy
+
+Only the provided personal information is included:
+
+- 宋梓冬 / Song Zidong
+- Undergraduate Student
+- ShanghaiTech University
+- VRVC Lab
+- Major in Computer Science
+- Email: `songzd2024@shanghaitech.edu.cn`
+- GitHub: `https://github.com/szddddddd`
+
+Projects, publications, coursework, CV, and notes remain placeholders until real content is provided.
 
 ## Local development
 
@@ -11,7 +31,11 @@ npm install
 npm run dev
 ```
 
-Open the local URL shown by Astro, usually `http://localhost:4321`.
+Open the local URL shown by Astro, usually:
+
+```text
+http://localhost:4321
+```
 
 ## Build
 
@@ -19,40 +43,109 @@ Open the local URL shown by Astro, usually `http://localhost:4321`.
 npm run build
 ```
 
-The static site is generated in `dist/`.
+The static site is generated in:
+
+```text
+dist/
+```
 
 ## Deployment
 
-This repository is configured for GitHub Pages through GitHub Actions.
+This repository is configured for GitHub Pages using GitHub Actions.
 
-- Repository name: `szddddddd.github.io`
-- Branch: `main`
-- Site URL: `https://szddddddd.github.io`
-- Astro `site`: `https://szddddddd.github.io`
-- No `base` path is required for a GitHub user homepage repository.
+Repository settings:
 
-After pushing to `main`, GitHub Actions runs `npm ci`, builds the Astro site, and deploys `dist/` to GitHub Pages.
+1. Open `Settings` → `Pages`.
+2. Under `Build and deployment`, set `Source` to `GitHub Actions`.
+3. Push to the `main` branch.
+4. The workflow in `.github/workflows/deploy.yml` runs `npm ci`, builds the Astro site, and deploys `dist/`.
 
-If GitHub asks for a Pages source, choose **GitHub Actions** in repository settings.
+Important configuration:
 
-## Edit personal information
+```js
+site: 'https://szddddddd.github.io'
+```
 
-Update this file first:
+Because this is a GitHub user homepage repository named `szddddddd.github.io`, no Astro `base` path is configured.
+
+## Edit content
+
+Primary personal/profile data:
 
 ```text
 src/data/profile.ts
 ```
 
-It contains:
+This contains:
 
-- name
+- names
 - role
-- affiliation
-- bio
-- researchInterests
-- education / affiliation placeholders
-- projects
-- publications
-- links: email, GitHub, CV
+- university
+- lab
+- major
+- email
+- GitHub URL
+- research interests
+- CV placeholder
+- placeholder projects
+- publication data structure
+- course project data structure
 
-Most pages read from this data file, so routine content edits should not require changing layout or component files.
+English UI and page text:
+
+```text
+src/i18n/en.ts
+```
+
+Chinese UI and page text:
+
+```text
+src/i18n/zh.ts
+```
+
+Main pages:
+
+```text
+src/pages/index.astro
+src/pages/about.astro
+src/pages/projects.astro
+src/pages/publications.astro
+src/pages/coursework.astro
+src/pages/notes.astro
+src/pages/contact.astro
+src/pages/zh/*.astro
+```
+
+Most page layout is shared through:
+
+```text
+src/components/LocalizedPage.astro
+```
+
+Visual system:
+
+```text
+src/styles/global.css
+```
+
+## Routes
+
+English:
+
+- `/`
+- `/about`
+- `/projects`
+- `/publications`
+- `/coursework`
+- `/notes`
+- `/contact`
+
+Chinese:
+
+- `/zh/`
+- `/zh/about`
+- `/zh/projects`
+- `/zh/publications`
+- `/zh/coursework`
+- `/zh/notes`
+- `/zh/contact`

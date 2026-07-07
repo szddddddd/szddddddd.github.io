@@ -1,13 +1,20 @@
+export type Lang = 'en' | 'zh';
+
+export type LocalizedText = Record<Lang, string>;
+
+export type ProjectLinkSet = {
+  paper: string;
+  code: string;
+  demo: string;
+};
+
 export type Project = {
-  title: string;
+  title: LocalizedText;
   year: string;
-  description: string;
+  description: LocalizedText;
   tags: string[];
-  links: {
-    paper: string;
-    code: string;
-    demo: string;
-  };
+  image: string;
+  links: ProjectLinkSet;
 };
 
 export type Publication = {
@@ -15,73 +22,119 @@ export type Publication = {
   authors: string;
   venue: string;
   year: string;
-  note: string;
+  paperUrl: string;
+  codeUrl: string;
+  bibtex: string;
+  doi: string;
+};
+
+export type CourseProject = {
+  title: LocalizedText;
+  course: string;
+  year: string;
+  description: LocalizedText;
+  tags: string[];
   links: {
-    bibtex: string;
-    doi: string;
-    pdf: string;
+    report: string;
+    code: string;
+    demo: string;
   };
 };
 
-export const profile: {
-  name: string;
-  role: string;
-  affiliation: string;
-  bio: string;
-  researchInterests: string[];
-  education: string[];
-  links: {
-    email: string;
-    github: string;
-    cv: string;
-  };
-  projects: Project[];
-  publications: Publication[];
-  notes: {
-    title: string;
-    description: string;
-  };
-} = {
-  name: 'Your Name',
-  role: 'Researcher / Student / Developer',
-  affiliation: 'Your Affiliation',
-  bio: 'A short academic bio will be added here.',
-  researchInterests: ['Your research interests here'],
-  education: ['Your Affiliation'],
-  links: {
-    email: 'your.email@example.com',
-    github: 'https://github.com/szddddddd',
-    cv: 'Coming soon',
+export const profile = {
+  nameZh: '宋梓冬',
+  nameEn: 'Song Zidong',
+  githubUsername: 'szddddddd',
+  email: 'songzd2024@shanghaitech.edu.cn',
+  githubUrl: 'https://github.com/szddddddd',
+  role: 'Undergraduate Student',
+  university: 'ShanghaiTech University',
+  lab: 'VRVC Lab',
+  major: 'Computer Science',
+  display: {
+    en: {
+      name: 'Song Zidong',
+      alternateName: '宋梓冬',
+      role: 'Undergraduate Student',
+      university: 'ShanghaiTech University',
+      major: 'Computer Science',
+    },
+    zh: {
+      name: '宋梓冬',
+      alternateName: 'Song Zidong',
+      role: '本科生',
+      university: '上海科技大学',
+      major: '计算机科学',
+    },
+  },
+  researchInterests: [
+    'Computer Vision',
+    '3D Reconstruction',
+    'Gaussian Splatting',
+    'World Models',
+    'Neural Rendering',
+    'Generative World Models',
+  ],
+  cv: {
+    label: 'Coming soon',
+    url: '',
   },
   projects: [
     {
-      title: 'Project Title',
+      title: {
+        en: '3D Vision Project',
+        zh: '3D Vision 项目',
+      },
       year: 'Coming soon',
-      description: 'Coming soon',
-      tags: ['Research Area', 'Method', 'Artifact'],
+      description: {
+        en: 'Coming soon. Project details will be added later.',
+        zh: '即将更新。项目细节将后续补充。',
+      },
+      tags: ['3D Vision', 'Reconstruction'],
+      image: '',
       links: {
-        paper: 'Coming soon',
-        code: 'Coming soon',
-        demo: 'Coming soon',
+        paper: '',
+        code: '',
+        demo: '',
       },
     },
-  ],
-  publications: [
     {
-      title: 'Publication Title',
-      authors: 'Your Name',
-      venue: 'Venue / Journal / Conference',
+      title: {
+        en: 'Gaussian Splatting Project',
+        zh: 'Gaussian Splatting 项目',
+      },
       year: 'Coming soon',
-      note: 'Coming soon',
+      description: {
+        en: 'Coming soon. Project details will be added later.',
+        zh: '即将更新。项目细节将后续补充。',
+      },
+      tags: ['Gaussian Splatting', 'Rendering'],
+      image: '',
       links: {
-        bibtex: 'Coming soon',
-        doi: 'Coming soon',
-        pdf: 'Coming soon',
+        paper: '',
+        code: '',
+        demo: '',
       },
     },
-  ],
-  notes: {
-    title: 'Notes / Blog',
-    description: 'Short research notes and technical writing will be added here.',
-  },
+    {
+      title: {
+        en: 'World Models Project',
+        zh: 'World Models 项目',
+      },
+      year: 'Coming soon',
+      description: {
+        en: 'Coming soon. Project details will be added later.',
+        zh: '即将更新。项目细节将后续补充。',
+      },
+      tags: ['World Models', 'Generative Models'],
+      image: '',
+      links: {
+        paper: '',
+        code: '',
+        demo: '',
+      },
+    },
+  ] satisfies Project[],
+  publications: [] satisfies Publication[],
+  courseProjects: [] satisfies CourseProject[],
 };

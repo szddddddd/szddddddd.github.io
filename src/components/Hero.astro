@@ -1,0 +1,28 @@
+---
+import { profile } from '../data/profile';
+---
+
+<section class="hero" id="home" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <p class="eyebrow">Academic portfolio / Visual research identity</p>
+    <h1 id="hero-title">
+      <span>{profile.name}</span>
+      <em>{profile.role}</em>
+    </h1>
+    <p class="hero-lede">{profile.affiliation}</p>
+    <div class="hero-actions" aria-label="Primary actions">
+      <a class="button button-primary" href="/projects">View research</a>
+      <a class="button button-secondary" href="/contact">Contact</a>
+    </div>
+  </div>
+
+  <div class="hero-visual" aria-hidden="true">
+    <div class="visual-frame visual-frame-one"></div>
+    <div class="visual-frame visual-frame-two"></div>
+    <div class="visual-orb visual-orb-one"></div>
+    <div class="visual-orb visual-orb-two"></div>
+    <div class="visual-axis visual-axis-x"></div>
+    <div class="visual-axis visual-axis-y"></div>
+    <span class="visual-index">01 / identity</span>
+  </div>
+</section>

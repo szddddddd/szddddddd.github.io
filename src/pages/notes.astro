@@ -1,0 +1,20 @@
+---
+import Section from '../components/Section.astro';
+import { profile } from '../data/profile';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title={`Notes — ${profile.name}`} description={profile.notes.description}>
+  <section class="page-hero page-hero-compact">
+    <p class="eyebrow">Notes / Blog</p>
+    <h1>{profile.notes.title}</h1>
+    <p>{profile.notes.description}</p>
+  </section>
+
+  <Section title="Writing archive" intro="A minimal placeholder is kept here until real notes are added.">
+    <div class="note-placeholder">
+      <span>Coming soon</span>
+      <p>No articles have been published yet.</p>
+    </div>
+  </Section>
+</BaseLayout>

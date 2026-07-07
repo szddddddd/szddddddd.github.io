@@ -1,0 +1,25 @@
+---
+import { profile } from '../data/profile';
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/#about', label: 'About' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/publications', label: 'Publications' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/contact', label: 'Contact' },
+];
+---
+
+<header class="navbar">
+  <a class="brand" href="/" aria-label={`${profile.name} home`}>
+    <span class="brand-mark">SZ</span>
+    <span class="brand-copy">
+      <strong>{profile.name}</strong>
+      <small>{profile.role}</small>
+    </span>
+  </a>
+  <nav class="nav-links" aria-label="Primary navigation">
+    {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+  </nav>
+</header>

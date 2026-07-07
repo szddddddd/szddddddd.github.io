@@ -1,0 +1,20 @@
+---
+import PublicationItem from '../components/PublicationItem.astro';
+import Section from '../components/Section.astro';
+import { profile } from '../data/profile';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title={`Publications — ${profile.name}`} description="Publication placeholders.">
+  <section class="page-hero page-hero-compact">
+    <p class="eyebrow">Publications</p>
+    <h1>Publication list</h1>
+    <p>Structured for future papers, preprints, workshop abstracts, BibTeX, DOI, and PDF links.</p>
+  </section>
+
+  <Section title="Papers and manuscripts" intro="Replace the placeholder entry in src/data/profile.ts when publication information is ready.">
+    <div class="publication-list">
+      {profile.publications.map((publication) => <PublicationItem publication={publication} />)}
+    </div>
+  </Section>
+</BaseLayout>

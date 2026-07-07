@@ -1,0 +1,30 @@
+---
+import type { Publication } from '../data/profile';
+
+const { publication } = Astro.props as { publication: Publication };
+const links = Object.entries(publication.links).map(([label, value]) => ({ label, value }));
+const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
+const linkLabel = (label: string) => label.toUpperCase();
+---
+
+<article class="publication-item">
+  <div class="publication-year">{publication.year}</div>
+  <div class="publication-copy">
+    <h3>{publication.title}</h3>
+    <p class="publication-meta">{publication.authors}. <em>{publication.venue}</em>.</p>
+    <p>{publication.note}</p>
+    <div class="inline-links" aria-label={`${publication.title} publication links`}>
+      {
+        links.map(({ label, value }) =>
+          isUrl(value) ? (
+            <a href={value} target={value.startsWith('http') ? '_blank' : undefined} rel={value.startsWith('http') ? 'noreferrer' : undefined}>
+              {linkLabel(label)}
+            </a>
+          ) : (
+            <span>{linkLabel(label)}: {value}</span>
+          )
+        )
+      }
+    </div>
+  </div>
+</article>

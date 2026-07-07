@@ -1,0 +1,33 @@
+---
+import type { Project } from '../data/profile';
+
+const { project } = Astro.props as { project: Project };
+const links = Object.entries(project.links).map(([label, value]) => ({ label, value }));
+const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
+const linkLabel = (label: string) => label.charAt(0).toUpperCase() + label.slice(1);
+---
+
+<article class="project-card">
+  <div class="card-topline">
+    <span>{project.year}</span>
+    <span>Project</span>
+  </div>
+  <h3>{project.title}</h3>
+  <p>{project.description}</p>
+  <ul class="tag-list" aria-label={`${project.title} tags`}>
+    {project.tags.map((tag) => <li>{tag}</li>)}
+  </ul>
+  <div class="inline-links" aria-label={`${project.title} links`}>
+    {
+      links.map(({ label, value }) =>
+        isUrl(value) ? (
+          <a href={value} target={value.startsWith('http') ? '_blank' : undefined} rel={value.startsWith('http') ? 'noreferrer' : undefined}>
+            {linkLabel(label)}
+          </a>
+        ) : (
+          <span>{linkLabel(label)}: {value}</span>
+        )
+      )
+    }
+  </div>
+</article>

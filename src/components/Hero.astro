@@ -9,8 +9,8 @@ interface Props {
 const { lang } = Astro.props as Props;
 const t = getCopy(lang);
 const display = profile.display[lang];
-const displayName = display.name;
-const alternateName = display.alternateName;
+const displayName = profile.nameEn;
+const alternateName = profile.nameZh;
 const identity = [
   { label: t.hero.identityLabels.role, value: display.role },
   { label: t.hero.identityLabels.university, value: display.university },

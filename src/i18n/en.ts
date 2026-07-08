@@ -350,17 +350,17 @@ export const en = {
     lossCards: [
       {
         title: 'Mask-constrained L1 loss',
-        formula: 'L_mask_L1 = | M ⊙ (I − Î) |_1',
+        tex: String.raw`\mathcal{L}_{\text{mask-L1}} = \left\| M \odot \left(I - \hat{I}\right) \right\|_1`,
         text: 'The foreground mask limits pixel-wise supervision to the target object and suppresses background fitting during optimization.',
       },
       {
         title: 'Composite-image SSIM loss',
-        formula: 'I_comp = M ⊙ Î + (1 − M) ⊙ I',
+        tex: String.raw`I_{\text{comp}} = M \odot \hat{I} + \left(1 - M\right) \odot I`,
         text: 'Rendered foreground pixels are blended with the original background before SSIM is computed, reducing boundary instability.',
       },
       {
         title: 'Compound objective',
-        formula: 'L = λ1 L_mask_L1 + λ2 L_mask_SSIM',
+        tex: String.raw`\mathcal{L} = \lambda_1 \mathcal{L}_{\text{mask-L1}} + \lambda_2 \mathcal{L}_{\text{mask-SSIM}}`,
         text: 'The final objective balances foreground photometric accuracy and structural consistency for cleaner object-centric 3DGS.',
       },
     ],
@@ -440,8 +440,18 @@ export const en = {
       'Qualitative comparisons show cleaner boundaries, fewer floating artifacts, and less background fitting.',
       'The report notes particularly visible gains on Bowl, TeddyBear, and Apple scenes.',
     ],
+    featuredVisual: {
+      eyebrow: 'Qualitative Comparison',
+      title: 'Key Visual Result',
+      intro:
+        'The qualitative comparison highlights the main visual effect of MOF3R: mask-guided training and geometry-aware pruning suppress background fitting, remove floating artifacts, and produce cleaner object-centric reconstructions.',
+      src: '/projects/cs182/comparsion.png',
+      alt: 'Qualitative comparison between original 3DGS, mask-guided reconstruction, and MOF3R with pruning.',
+      caption:
+        'Qualitative comparison between vanilla 3DGS, mask-guided reconstruction, and MOF3R. The full pipeline produces cleaner object boundaries and fewer floating artifacts.',
+    },
     galleryIntro:
-      'Selected figures copied from the CS182 project report assets. They show the pipeline, quantitative visualization, and qualitative reconstruction comparisons.',
+      'Selected figures copied from the CS182 project report assets. They show the pipeline and quantitative visualization.',
     gallery: [
       {
         src: '/projects/cs182/MOF3R_overview.png',

@@ -344,17 +344,17 @@ export const zh = {
     lossCards: [
       {
         title: 'Mask-constrained L1 loss',
-        formula: 'L_mask_L1 = | M ⊙ (I − Î) |_1',
+        tex: String.raw`\mathcal{L}_{\text{mask-L1}} = \left\| M \odot \left(I - \hat{I}\right) \right\|_1`,
         text: '前景 mask 将像素级监督限制在目标物体区域，从而在优化过程中抑制背景拟合。',
       },
       {
         title: 'Composite-image SSIM loss',
-        formula: 'I_comp = M ⊙ Î + (1 − M) ⊙ I',
+        tex: String.raw`I_{\text{comp}} = M \odot \hat{I} + \left(1 - M\right) \odot I`,
         text: '渲染前景与原始背景组合后再计算 SSIM，可以降低物体边界附近的不稳定性。',
       },
       {
         title: '组合优化目标',
-        formula: 'L = λ1 L_mask_L1 + λ2 L_mask_SSIM',
+        tex: String.raw`\mathcal{L} = \lambda_1 \mathcal{L}_{\text{mask-L1}} + \lambda_2 \mathcal{L}_{\text{mask-SSIM}}`,
         text: '最终目标在前景光度精度和结构一致性之间取得平衡，用于更干净的物体中心 3DGS。',
       },
     ],
@@ -434,7 +434,17 @@ export const zh = {
       '定性对比展示出更干净的边界、更少的 floating artifacts 和更弱的背景拟合。',
       '报告中指出 Bowl、TeddyBear 和 Apple 场景上的改进较为明显。',
     ],
-    galleryIntro: '以下图示来自 CS182 项目报告素材，展示整体流程、定量结果可视化和定性重建对比。',
+    featuredVisual: {
+      eyebrow: '定性对比',
+      title: '关键可视化结果',
+      intro:
+        '该对比图展示了 MOF3R 最直观的视觉效果：通过 mask-guided training 与 geometry-aware pruning，方法能够减少背景拟合、浮动伪影和边界噪声，从而获得更干净的物体中心重建结果。',
+      src: '/projects/cs182/comparsion.png',
+      alt: '原始 3DGS、mask-guided reconstruction 与带 pruning 的 MOF3R 定性对比。',
+      caption:
+        '原始 3DGS、mask-guided reconstruction 与 MOF3R 的定性对比。完整流程能够产生更干净的物体边界，并减少 floating artifacts。',
+    },
+    galleryIntro: '以下图示来自 CS182 项目报告素材，展示整体流程和定量结果可视化。',
     gallery: [
       {
         src: '/projects/cs182/MOF3R_overview.png',

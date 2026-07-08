@@ -1,4 +1,5 @@
 ---
+import MathBlock from './MathBlock.astro';
 import Section from './Section.astro';
 import { cs182CourseProject, profile } from '../data/profile';
 import { getCopy, type Lang } from '../i18n';
@@ -13,6 +14,7 @@ const t = getCopy(lang);
 const copy = t.cs182;
 const project = cs182CourseProject;
 const typeLabel = project.type?.[lang] ?? t.common.courseProject;
+const galleryItems = copy.gallery.filter((item) => item.src !== '/projects/cs182/comparsion.png');
 const details = [
   { label: copy.labels.course, value: project.course ?? 'CS182: Introduction to Machine Learning' },
   { label: copy.labels.type, value: typeLabel },
@@ -122,7 +124,7 @@ const codeHref = resolveLink(project.links.code);
           <article class="panel formula-card">
             <p class="panel-label">{copy.sections.loss}</p>
             <h3>{card.title}</h3>
-            <p class="formula-text">{card.formula}</p>
+            <MathBlock tex={card.tex} />
             <p>{card.text}</p>
           </article>
         ))}
@@ -191,9 +193,26 @@ const codeHref = resolveLink(project.links.code);
       </figure>
     </Section>
 
+    <Section
+      className="featured-visual-result"
+      eyebrow={copy.featuredVisual.eyebrow}
+      title={copy.featuredVisual.title}
+      intro={copy.featuredVisual.intro}
+    >
+      <figure class="featured-comparison-figure">
+        <img
+          src={copy.featuredVisual.src}
+          alt={copy.featuredVisual.alt}
+          loading="eager"
+          decoding="async"
+        />
+        <figcaption>{copy.featuredVisual.caption}</figcaption>
+      </figure>
+    </Section>
+
     <Section title={copy.sections.gallery} intro={copy.galleryIntro}>
       <div class="gallery-grid">
-        {copy.gallery.map((item) => (
+        {galleryItems.map((item) => (
           <figure class="detail-figure">
             <img src={item.src} alt={item.alt} loading="lazy" />
             <figcaption>{item.caption}</figcaption>

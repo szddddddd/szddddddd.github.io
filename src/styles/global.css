@@ -1370,6 +1370,38 @@ main {
   grid-column: 1 / -1;
 }
 
+.featured-visual-result {
+  margin-top: clamp(4rem, 8vw, 7rem);
+}
+
+.featured-comparison-figure {
+  width: 100%;
+  margin: 0;
+  margin-top: clamp(1.75rem, 4vw, 3rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.35);
+  padding: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.featured-comparison-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  object-fit: contain;
+}
+
+.featured-comparison-figure figcaption {
+  margin-top: 0.9rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 .formula-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1385,20 +1417,40 @@ main {
   line-height: 1.12;
 }
 
-.formula-card p:not(.panel-label):not(.formula-text) {
+.formula-card > p:not(.panel-label) {
   color: var(--muted);
 }
 
-.formula-text {
+.math-figure {
+  margin: 1.5rem 0 1.75rem;
+}
+
+.math-block {
   overflow-x: auto;
-  border: 1px solid rgba(125, 211, 252, 0.18);
-  border-radius: 0.9rem;
-  background: rgba(125, 211, 252, 0.07);
-  padding: 0.85rem;
-  color: var(--cyan);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: clamp(0.86rem, 1.2vw, 1rem);
-  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.055);
+  padding: 1.1rem 1.25rem;
+  color: var(--text);
+}
+
+.math-display {
+  text-align: center;
+}
+
+.math-block .katex-display {
+  margin: 0;
+}
+
+.math-block .katex {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+}
+
+.math-figure figcaption {
+  margin-top: 0.6rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .wide-result-figure {

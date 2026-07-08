@@ -1,0 +1,141 @@
+---
+import Section from './Section.astro';
+import { si100bCourseProject } from '../data/profile';
+import { getCopy, type Lang } from '../i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const copy = t.si100b;
+const project = si100bCourseProject;
+const typeLabel = project.type?.[lang] ?? t.common.courseProject;
+const codeHref = typeof project.links.code === 'string' ? project.links.code : '';
+const details = [
+  { label: copy.labels.course, value: project.course ?? 'SI100B Course Project' },
+  { label: copy.labels.type, value: typeLabel },
+  { label: copy.labels.term, value: project.year },
+  { label: copy.labels.team, value: copy.authors.join(' · ') },
+];
+---
+
+<BaseLayout lang={lang} page="projectSi100b" title={copy.metaTitle} description={copy.metaDescription}>
+  <article class="project-detail si100b-detail">
+    <header class="project-detail-hero">
+      <div class="detail-hero-copy reveal-block">
+        <p class="eyebrow">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title">{copy.hero.title}</h1>
+        <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
+        <p class="detail-affiliation">{copy.hero.affiliation}</p>
+        <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
+          {copy.metadata.map((item) => <li>{item}</li>)}
+        </ul>
+        <div class="hero-actions detail-actions">
+          {codeHref && <a class="button button-secondary" href={codeHref} target="_blank" rel="noreferrer">GitHub</a>}
+          <a class="button button-secondary" href={copy.links[1].href} target="_blank" rel="noreferrer">README</a>
+          <a class="button button-secondary" href="#course-context">{copy.sections.courseContext}</a>
+        </div>
+      </div>
+      <figure class="detail-hero-figure reveal-block">
+        <img src={project.image} alt={copy.gallery[0].alt} loading="eager" />
+        <figcaption>{copy.gallery[0].caption}</figcaption>
+      </figure>
+    </header>
+
+    <section class="metadata-grid" aria-label="Project metadata">
+      {details.map((item) => (
+        <article>
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+        </article>
+      ))}
+    </section>
+
+    <Section eyebrow="SI100B" title={copy.sections.overview} intro={copy.overview}>
+      <div class="detail-two-column">
+        <div class="panel project-summary-panel">
+          <p class="panel-label">{copy.labels.summary}</p>
+          <ul class="interest-list">
+            {copy.overviewBullets.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+        <figure class="detail-figure compact-figure si100b-asset-figure">
+          <img src={copy.gallery[1].src} alt={copy.gallery[1].alt} loading="lazy" />
+          <figcaption>{copy.gallery[1].caption}</figcaption>
+        </figure>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.gameplay} intro={copy.gameplayIntro}>
+      <div class="method-grid">
+        {copy.gameplayCards.map((card) => (
+          <article class="method-card si100b-card">
+            <p class="panel-label">{copy.labels.gameplay}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.systems} intro={copy.systemIntro}>
+      <div class="method-grid si100b-system-grid">
+        {copy.systemCards.map((card) => (
+          <article class="method-card si100b-card">
+            <p class="panel-label">{copy.labels.system}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <figure class="detail-figure wide-result-figure si100b-asset-figure">
+        <img src={copy.gallery[3].src} alt={copy.gallery[3].alt} loading="lazy" />
+        <figcaption>{copy.gallery[3].caption}</figcaption>
+      </figure>
+    </Section>
+
+    <Section title={copy.sections.contribution} intro={copy.contributionIntro}>
+      <div class="panel highlight-panel">
+        <p class="panel-label">{copy.labels.contribution}</p>
+        <ul class="highlight-list">
+          {copy.contributionBullets.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.gallery} intro={copy.galleryIntro}>
+      <div class="gallery-grid">
+        {copy.gallery.map((item) => (
+          <figure class="detail-figure si100b-asset-figure">
+            <img src={item.src} alt={item.alt} loading="lazy" />
+            <figcaption>{item.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </Section>
+
+    <Section id="course-context" title={copy.sections.courseContext}>
+      <div class="panel narrative-panel">
+        <p>{copy.courseContext}</p>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.links}>
+      <div class="portal-grid si100b-links-grid">
+        {copy.links.map((item) => (
+          <a class="portal-card" href={item.href} target="_blank" rel="noreferrer">
+            <span>{item.title}</span>
+            <p>{item.text}</p>
+          </a>
+        ))}
+      </div>
+    </Section>
+  </article>
+</BaseLayout>

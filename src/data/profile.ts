@@ -35,6 +35,34 @@ export type Publication = {
 
 export type CourseProject = Project;
 
+export const si100bCourseProject: CourseProject = {
+  title: {
+    en: 'SAVE MY LINEAR ALGEBRA: A Pygame Roguelike',
+    zh: 'SAVE MY LINEAR ALGEBRA：Pygame Roguelike 游戏项目',
+  },
+  type: {
+    en: '2D Roguelike Game',
+    zh: '2D Roguelike 游戏',
+  },
+  course: 'SI100B Course Project',
+  year: '2024 Fall',
+  description: {
+    en:
+      'A SI100B course project implemented with Pygame, featuring room-based exploration, real-time shooting, enemy systems, NPC interactions, resource UI, and boss encounters.',
+    zh:
+      '一个使用 Pygame 实现的 SI100B 课程项目，包含房间探索、实时射击、敌人系统、NPC 交互、资源 UI 与 Boss 战等机制。',
+  },
+  tags: ['SI100B', 'Pygame', 'Python', 'Roguelike', 'Game Development', 'Course Project'],
+  image: '/projects/si100b/hero.png',
+  links: {
+    details: {
+      en: '/projects/si100b',
+      zh: '/zh/projects/si100b',
+    },
+    code: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
+  },
+};
+
 export const bme1312CourseProject: CourseProject = {
   title: {
     en: 'Multi-contrast MRI Reconstruction from Undersampled Data',
@@ -140,6 +168,7 @@ export const profile = {
   projects: [
     bme1312CourseProject,
     cs182CourseProject,
+    si100bCourseProject,
     {
       title: {
         en: 'Gaussian Splatting Project',
@@ -178,5 +207,5 @@ export const profile = {
     },
   ] satisfies Project[],
   publications: [] satisfies Publication[],
-  courseProjects: [bme1312CourseProject, cs182CourseProject] satisfies CourseProject[],
+  courseProjects: [bme1312CourseProject, cs182CourseProject, si100bCourseProject] satisfies CourseProject[],
 };

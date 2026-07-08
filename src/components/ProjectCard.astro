@@ -24,8 +24,8 @@ const hasDetailLinks = Boolean(project.links.details || project.links.report);
 const links = hasDetailLinks
   ? [
       { key: 'details', label: labels.details, value: project.links.details },
-      { key: 'report', label: labels.report, value: project.links.report },
-      { key: 'code', label: labels.code, value: project.links.code },
+      ...(project.links.report !== undefined ? [{ key: 'report', label: labels.report, value: project.links.report }] : []),
+      ...(project.links.code !== undefined ? [{ key: 'code', label: labels.code, value: project.links.code }] : []),
     ]
   : [
       { key: 'paper', label: labels.paper, value: project.links.paper },

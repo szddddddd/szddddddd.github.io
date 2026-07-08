@@ -8,6 +8,7 @@ export type PageKey =
   | 'projects'
   | 'projectBme1312'
   | 'projectCs182'
+  | 'projectSi100b'
   | 'publications'
   | 'coursework'
   | 'notes'
@@ -21,6 +22,7 @@ export const pages: Record<PageKey, { en: string; zh: string }> = {
   projects: { en: '/projects', zh: '/zh/projects' },
   projectBme1312: { en: '/projects/bme1312', zh: '/zh/projects/bme1312' },
   projectCs182: { en: '/projects/cs182', zh: '/zh/projects/cs182' },
+  projectSi100b: { en: '/projects/si100b', zh: '/zh/projects/si100b' },
   publications: { en: '/publications', zh: '/zh/publications' },
   coursework: { en: '/coursework', zh: '/zh/coursework' },
   notes: { en: '/notes', zh: '/zh/notes' },

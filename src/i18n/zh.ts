@@ -232,6 +232,161 @@ export const zh = {
       '在更广泛的临床数据集上进行验证。',
     ],
   },
+  si100b: {
+    metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame 项目 — 宋梓冬',
+    metaDescription:
+      'SI100B 课程项目，使用 Pygame 实现了一个受《以撒的结合》启发的 2D Roguelike 游戏，包含房间探索、实时射击、敌人、NPC 交互、资源 UI 和 Boss 战。',
+    hero: {
+      eyebrow: '课程项目 / SI100B',
+      title: 'SAVE MY LINEAR ALGEBRA：Pygame Roguelike 游戏项目',
+      subtitle: '一个小组合作完成的 SI100B Pygame 课程项目，受《以撒的结合》的房间式 Roguelike 结构启发。',
+      affiliation: 'SI100B 课程项目 · 上海科技大学 · 2024 Fall',
+    },
+    authors: ['潘佑邦', '吴俊阳', '宋梓冬'],
+    metadata: [
+      'SI100B',
+      'Pygame',
+      'Python',
+      '2D Roguelike Game',
+      '课程项目',
+      '房间探索',
+      '敌人系统',
+      'NPC 交互',
+    ],
+    labels: {
+      course: '课程',
+      type: '类型',
+      term: '学期',
+      team: '团队',
+      summary: '摘要',
+      gameplay: '玩法',
+      system: '系统',
+      contribution: '贡献',
+      links: '链接',
+    },
+    sections: {
+      overview: '项目概述',
+      gameplay: '玩法设计',
+      systems: '系统设计',
+      contribution: '我的贡献',
+      gallery: '视觉展示',
+      courseContext: '课程背景',
+      links: '相关链接',
+    },
+    overview:
+      'Team SAVE MY LINEAR ALGEBRA 是一个使用 Pygame 实现的 SI100B 课程项目。项目是受《以撒的结合》启发的 2D Roguelike 原型，包含过程式连接房间、实时移动与射击、敌人遭遇、资源 UI、NPC 交互、抽奖机、炸弹、冲刺机制以及动画场景等内容。',
+    overviewBullets: [
+      '该游戏以团队课程项目形式展示，不是商业发布作品。',
+      '玩家需要探索连接房间、清理怪物、收集金币、遇见 NPC，并挑战最终 Boss。',
+      '实现内容结合了 Pygame 场景、精灵动画、房间逻辑、战斗逻辑和 UI 系统。',
+      'README 中列出的团队成员为潘佑邦、吴俊阳和宋梓冬。',
+    ],
+    gameplayIntro:
+      'README 描述了一个键盘驱动的 Roguelike 循环：进入房间、实时射击、使用冲刺和炸弹、与特殊对象交互，并积累资源挑战 Boss。',
+    gameplayCards: [
+      {
+        title: '移动与战斗',
+        items: [
+          'WASD 控制八方向移动。',
+          '方向键控制八方向射击。',
+          'LSHIFT 用于冲刺和快速调整位置。',
+        ],
+      },
+      {
+        title: '探索循环',
+        items: [
+          '玩家进入房间、清理怪物，并解锁相邻房间的门。',
+          '主要目标包括收集金币、提升能力，并在最终 Boss 前尽可能变强。',
+          'E 键可以放置炸弹，作为额外的资源型动作。',
+        ],
+      },
+      {
+        title: '交互机制',
+        items: [
+          'Q 键用于与抽奖机和 NPC 交互。',
+          '玩家在探索过程中可以遇到 Trainer 和 Merchant。',
+          '完整流程最终进入 Boss 战。',
+        ],
+      },
+    ],
+    systemIntro:
+      '项目通过地图生成、房间类型、场景管理、敌人系统、资源 UI、NPC 系统和 hardship coefficient 组织游戏流程；击败 Boss 后难度会继续提升。',
+    systemCards: [
+      {
+        title: '地图与房间',
+        items: [
+          '基于二叉树的地图生成。',
+          '使用随机生成和迭代式回溯。',
+          '房间类型包括 Common room、Boss room、Lucky room 和 NPC room。',
+        ],
+      },
+      {
+        title: '资源与 UI',
+        items: [
+          'Health 显示剩余生命值。',
+          'Coin 记录收集到的金币数量。',
+          'Attack 和 Bomb UI 展示战斗与资源状态。',
+        ],
+      },
+      {
+        title: '敌人与 Boss',
+        items: [
+          'Fly / BloodyFly 会移动，并在接触玩家时造成伤害。',
+          'Bug 会在四个方向上随机冲刺。',
+          'Boss GURDY 会发射 bloody bullets，并召唤 BloodyFly 敌人。',
+        ],
+      },
+      {
+        title: '特殊系统',
+        items: [
+          '抽奖机消耗 5 个金币，可能获得金币、攻击力或生命值。',
+          'NPC Trainer 会根据回答给予奖励或惩罚。',
+          'NPC Merchant 会用金币或 HP 交换治疗、炸弹和攻击强化等资源。',
+        ],
+      },
+    ],
+    contributionIntro:
+      '我的贡献主要集中在敌人逻辑、游戏管理、动画、UI / 场景以及 README 文档整理。',
+    contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
+    galleryIntro:
+      '以下视觉素材来自项目仓库中的真实文件，部分图像由仓库中的房间贴图、角色精灵、UI 资源、NPC 和 Boss 素材组合而成，没有使用生成式图片。',
+    gallery: [
+      {
+        src: '/projects/si100b/hero.png',
+        alt: 'SI100B Pygame 项目的初始房间与操作提示贴图。',
+        caption: '来自项目素材的初始房间与操作提示贴图。',
+      },
+      {
+        src: '/projects/si100b/gameplay.png',
+        alt: '使用项目真实房间、玩家、敌人、Boss、子弹和资源精灵组合的玩法视觉图。',
+        caption: '由真实项目精灵与房间贴图组合的玩法视觉图。',
+      },
+      {
+        src: '/projects/si100b/room-types.png',
+        alt: '展示 start、shop、treasure 和 blue womb 风格房间的房间类型贴图网格。',
+        caption: '基于仓库场景素材整理的房间类型贴图网格。',
+      },
+      {
+        src: '/projects/si100b/systems.png',
+        alt: '由 Boss、敌人、资源、Merchant 和 Trainer 精灵组成的系统视觉图。',
+        caption: '来自项目仓库的敌人、资源、NPC 与 Boss 素材组合。',
+      },
+    ],
+    courseContext:
+      '该项目完成于上海科技大学 2024 Fall 的 SI100B 课程，是一个小组合作的 Pygame 课程项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
+    links: [
+      {
+        title: 'GitHub 仓库',
+        text: '打开 Team SAVE MY LINEAR ALGEBRA 项目仓库。',
+        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
+      },
+      {
+        title: 'README 来源',
+        text: '项目概述、操作方式、团队成员与分工信息均整理自仓库 README。',
+        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
+      },
+    ],
+  },
   cs182: {
     metaTitle: 'CS182 MOF3R 三维商品重建课程项目 — 宋梓冬',
     metaDescription:

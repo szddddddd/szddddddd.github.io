@@ -237,6 +237,162 @@ export const en = {
       'Validation on broader clinical datasets.',
     ],
   },
+  si100b: {
+    metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame Project — Song Zidong',
+    metaDescription:
+      'SI100B course project on a Binding-of-Isaac-inspired 2D roguelike game implemented with Pygame, featuring room exploration, real-time shooting, enemies, NPC interactions, resource UI, and boss encounters.',
+    hero: {
+      eyebrow: 'Course Project / SI100B',
+      title: 'SAVE MY LINEAR ALGEBRA: A Pygame Roguelike',
+      subtitle:
+        'A team-based SI100B Pygame course project inspired by the room-based roguelike structure of The Binding of Isaac.',
+      affiliation: 'SI100B Course Project · ShanghaiTech University · 2024 Fall',
+    },
+    authors: ['潘佑邦', '吴俊阳', '宋梓冬'],
+    metadata: [
+      'SI100B',
+      'Pygame',
+      'Python',
+      '2D Roguelike Game',
+      'Course Project',
+      'Room Exploration',
+      'Enemy System',
+      'NPC Interaction',
+    ],
+    labels: {
+      course: 'Course',
+      type: 'Type',
+      term: 'Term',
+      team: 'Team',
+      summary: 'Summary',
+      gameplay: 'Gameplay',
+      system: 'System',
+      contribution: 'Contribution',
+      links: 'Links',
+    },
+    sections: {
+      overview: 'Overview',
+      gameplay: 'Gameplay Design',
+      systems: 'System Design',
+      contribution: 'My Contribution',
+      gallery: 'Visual Gallery',
+      courseContext: 'Course Context',
+      links: 'Links',
+    },
+    overview:
+      'Team SAVE MY LINEAR ALGEBRA is a SI100B course project implemented with Pygame. The project presents a Binding-of-Isaac-inspired 2D roguelike prototype with procedurally connected rooms, real-time movement and shooting, enemy encounters, resource UI, NPC interactions, a raffle machine, bombs, dash mechanics, and animated game scenes.',
+    overviewBullets: [
+      'The game is presented as a team course project rather than a commercial release.',
+      'Players explore connected rooms, defeat monsters, collect coins, meet NPCs, and fight a final boss.',
+      'The implementation combines Pygame scenes, sprite animation, room logic, combat logic, and UI systems.',
+      'The README identifies the team members as 潘佑邦, 吴俊阳, and 宋梓冬.',
+    ],
+    gameplayIntro:
+      'The README describes a keyboard-driven roguelike loop: move through rooms, shoot in real time, use mobility and bombs, interact with special objects, and build enough resources to challenge the boss.',
+    gameplayCards: [
+      {
+        title: 'Movement and combat',
+        items: [
+          'WASD controls eight-direction movement.',
+          'Arrow keys fire in eight directions.',
+          'LSHIFT triggers a dash for quick repositioning.',
+        ],
+      },
+      {
+        title: 'Exploration loop',
+        items: [
+          'Players enter rooms, clear monsters, and unlock adjacent doors.',
+          'The objective loop includes collecting coins and becoming stronger before the final boss.',
+          'E plants bombs as an additional resource-based action.',
+        ],
+      },
+      {
+        title: 'Interactions',
+        items: [
+          'Q interacts with the raffle machine and NPCs.',
+          'Players can meet a Trainer or Merchant during room exploration.',
+          'The final loop culminates in a boss encounter.',
+        ],
+      },
+    ],
+    systemIntro:
+      'The project organizes gameplay through map generation, room types, scene management, enemies, resource UI, NPC systems, and a hardship coefficient that increases difficulty after boss clears.',
+    systemCards: [
+      {
+        title: 'Map and rooms',
+        items: [
+          'Binary-tree based map generation.',
+          'Random generation with iterative backtracking.',
+          'Room types include Common room, Boss room, Lucky room, and NPC room.',
+        ],
+      },
+      {
+        title: 'Resources and UI',
+        items: [
+          'Health displays remaining HP.',
+          'Coin tracks collected gold coins.',
+          'Attack and Bomb UI expose combat and resource state.',
+        ],
+      },
+      {
+        title: 'Enemies and boss',
+        items: [
+          'Fly / BloodyFly units move and damage the player on contact.',
+          'Bug units sprint randomly in four directions.',
+          'Boss GURDY fires bloody bullets and summons BloodyFly enemies.',
+        ],
+      },
+      {
+        title: 'Special systems',
+        items: [
+          'A raffle machine costs 5 coins and can return coins, attack, or HP.',
+          'NPC Trainer rewards or punishes answers.',
+          'NPC Merchant trades resources such as coins or HP for heals, bombs, and attack boosts.',
+        ],
+      },
+    ],
+    contributionIntro:
+      'My contribution focused on enemy logic, game management, animations, UI/scenes, and README documentation.',
+    contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
+    galleryIntro:
+      'Selected visual assets are copied or composed from real files in the project repository. Composite images use the repository room textures, sprites, UI resources, NPCs, and boss assets rather than generated artwork.',
+    gallery: [
+      {
+        src: '/projects/si100b/hero.png',
+        alt: 'Start room control texture from the SI100B Pygame project.',
+        caption: 'Start room and control guide texture from the project assets.',
+      },
+      {
+        src: '/projects/si100b/gameplay.png',
+        alt: 'Composed gameplay visual using real project room, player, enemy, boss, projectile, and resource sprites.',
+        caption: 'Composed gameplay visual assembled from real project sprites and room textures.',
+      },
+      {
+        src: '/projects/si100b/room-types.png',
+        alt: 'Room type texture grid showing start, shop, treasure, and blue womb style rooms.',
+        caption: 'Room type texture grid based on the repository scene assets.',
+      },
+      {
+        src: '/projects/si100b/systems.png',
+        alt: 'Composed systems visual with boss, enemies, resources, merchant, and trainer sprites.',
+        caption: 'Enemy, resource, NPC, and boss asset composition from the project repository.',
+      },
+    ],
+    courseContext:
+      'This work was completed as a team SI100B course project at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
+    links: [
+      {
+        title: 'GitHub repository',
+        text: 'Open the Team SAVE MY LINEAR ALGEBRA repository.',
+        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
+      },
+      {
+        title: 'README source',
+        text: 'Project overview, controls, team members, and division of labor are summarized from the repository README.',
+        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
+      },
+    ],
+  },
   cs182: {
     metaTitle: 'CS182 MOF3R 3D Product Reconstruction Project — Song Zidong',
     metaDescription:

@@ -1457,6 +1457,25 @@ main {
   margin-top: 1rem;
 }
 
+.si100b-card {
+  background:
+    linear-gradient(145deg, rgba(18, 24, 38, 0.82), rgba(40, 28, 24, 0.42)),
+    radial-gradient(circle at 15% 10%, rgba(253, 230, 138, 0.09), transparent 10rem);
+}
+
+.si100b-system-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.si100b-asset-figure img {
+  background: #070a12;
+}
+
+.si100b-links-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: 0;
+}
+
 .narrative-panel p {
   max-width: 62rem;
   color: var(--muted);
@@ -1484,6 +1503,7 @@ main {
 
 @media (max-width: 1060px) {
   .method-grid,
+  .si100b-system-grid,
   .formula-grid,
   .metric-cards,
   .future-grid,
@@ -1501,11 +1521,13 @@ main {
 @media (max-width: 680px) {
   .coursework-grid,
   .method-grid,
+  .si100b-system-grid,
   .formula-grid,
   .metric-cards,
   .future-grid,
   .metadata-grid,
   .gallery-grid,
+  .si100b-links-grid,
   .highlight-list {
     grid-template-columns: 1fr;
   }

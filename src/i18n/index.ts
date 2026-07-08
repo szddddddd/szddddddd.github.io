@@ -2,7 +2,15 @@ import { en } from './en';
 import { zh } from './zh';
 
 export type Lang = 'en' | 'zh';
-export type PageKey = 'home' | 'about' | 'projects' | 'publications' | 'coursework' | 'notes' | 'contact';
+export type PageKey =
+  | 'home'
+  | 'about'
+  | 'projects'
+  | 'projectBme1312'
+  | 'publications'
+  | 'coursework'
+  | 'notes'
+  | 'contact';
 
 export const i18n = { en, zh } as const;
 
@@ -10,6 +18,7 @@ export const pages: Record<PageKey, { en: string; zh: string }> = {
   home: { en: '/', zh: '/zh/' },
   about: { en: '/about', zh: '/zh/about' },
   projects: { en: '/projects', zh: '/zh/projects' },
+  projectBme1312: { en: '/projects/bme1312', zh: '/zh/projects/bme1312' },
   publications: { en: '/publications', zh: '/zh/publications' },
   coursework: { en: '/coursework', zh: '/zh/coursework' },
   notes: { en: '/notes', zh: '/zh/notes' },

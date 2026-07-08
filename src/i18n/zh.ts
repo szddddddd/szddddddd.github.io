@@ -6,7 +6,7 @@ export const zh = {
   meta: {
     siteTitle: '宋梓冬 — 学术个人主页',
     description:
-      '宋梓冬的学术个人主页，展示 3D Vision、Generative World Models 与 Neural Rendering 等研究兴趣。',
+      '宋梓冬的学术个人主页，展示 3D Vision、Generative World Models、Neural Rendering 以及医学影像课程项目等研究兴趣。',
   },
   common: {
     skipToContent: '跳转到正文',
@@ -61,11 +61,13 @@ export const zh = {
   projects: {
     eyebrow: '研究 / 项目',
     title: '作为视觉研究载体的项目展示',
-    intro: '当前保留项目占位卡片，后续可补充真实研究项目、课程成果、代码、演示与论文链接。',
+    intro: '这里整理研究原型、课程项目、代码、演示与论文链接等项目内容。',
     fullTitle: '项目索引',
-    fullIntro: '目前包含三个占位项目。后续添加真实项目时无需大幅调整页面结构。',
+    fullIntro: 'BME1312 MRI 重建项目已作为正式 academic course project 加入，其他未来研究项目保留结构化占位。',
     viewAll: '打开项目索引',
     labels: {
+      details: '详情',
+      report: '报告',
       paper: '论文',
       code: '代码',
       demo: '演示',
@@ -87,7 +89,7 @@ export const zh = {
   coursework: {
     eyebrow: '课程 / 课程项目',
     title: '课程项目',
-    intro: '这里为后续课程项目和课程技术产出预留空间。',
+    intro: '这里展示课程中的技术项目与学术实践成果。',
     empty: '课程项目将后续补充。',
   },
   notes: {
@@ -103,5 +105,124 @@ export const zh = {
     email: '邮箱',
     github: 'GitHub',
     cv: 'CV',
+  },
+  bme1312: {
+    metaTitle: 'BME1312 MRI 重建课程项目 — 宋梓冬',
+    metaDescription:
+      'BME1312 医学影像人工智能课程项目，研究基于欠采样 k-space 数据的多对比度 MRI 加速重建，包含 U-Net baseline、多模态 unrolled reconstruction、data consistency、wavelet loss 与 perceptual objectives。',
+    hero: {
+      eyebrow: '课程项目 / 医学影像',
+      title: '基于欠采样数据的多对比度 MRI 重建',
+      subtitle: '一个关于多对比度 MRI 加速重建的 BME1312 课程项目，结合多模态结构先验与 unrolled deep reconstruction。',
+      affiliation: '上海科技大学课程项目',
+    },
+    metadata: ['BME1312', '课程项目', '医学影像', 'MRI 重建', '深度学习', '2026'],
+    labels: {
+      course: '课程',
+      type: '类型',
+      year: '年份',
+      context: '背景',
+      summary: '摘要',
+      method: '方法',
+      highlights: '方法亮点',
+      metricChanges: '核心指标变化',
+    },
+    sections: {
+      overview: '项目概览',
+      method: '方法设计',
+      results: '实验结果',
+      gallery: '视觉展示',
+      contribution: '我的参与',
+      courseContext: '课程背景',
+      future: '后续改进方向',
+    },
+    overview:
+      '本课程项目研究基于深度学习的多对比度 MRI 加速重建问题。项目首先实现了以 U-Net 为基础的单模态 T2 重建模型，随后进一步构建了多模态 unrolled reconstruction framework，利用 fully sampled T1 图像作为解剖结构先验来辅助 undersampled T2 图像重建。方法结合特征融合、迭代式 data consistency、wavelet loss 与 perceptual loss，以提升重建图像的定量指标与视觉质量。',
+    overviewBullets: [
+      '临床 MRI 采集时间较长，因此加速采集具有实际研究意义。',
+      'k-space 欠采样可以缩短采集过程，但会在重建图像中引入 aliasing artifacts。',
+      '项目基于 BraTS 数据模拟欠采样 MRI 重建，并尝试恢复高质量 T2 图像。',
+      '整体流程从单模态 U-Net baseline 扩展到 T1 引导的多模态 unrolled reconstruction network。',
+    ],
+    methodCards: [
+      {
+        title: 'U-Net Baseline',
+        items: [
+          '针对 undersampled input 进行单模态 T2 重建。',
+          '采用带 skip connections 的 encoder-decoder 架构。',
+          '以 L2 / MSE objective 作为初始重建 baseline。',
+        ],
+      },
+      {
+        title: 'Multi-modal Unrolled Reconstruction',
+        items: [
+          '利用 fully sampled T1 图像作为解剖结构先验。',
+          '通过特征融合辅助 undersampled T2 图像重建。',
+          '在迭代式重建过程中加入 k-space data consistency。',
+        ],
+      },
+      {
+        title: 'Perceptual and Frequency-aware Objectives',
+        items: [
+          '使用 wavelet loss 强化高频结构恢复。',
+          '使用 perceptual loss 提升 feature-level fidelity。',
+          '使用 DISTS 与 LPIPS 补充 PSNR 和 SSIM 的评价局限。',
+        ],
+      },
+    ],
+    highlights: [
+      '模拟基于 undersampled k-space data 的 MRI 加速重建任务。',
+      '实现了用于单模态 T2 重建的 U-Net baseline。',
+      '构建了利用 fully sampled T1 guidance 的多模态 unrolled reconstruction network。',
+      '加入 data consistency layers，在迭代重建中约束 k-space fidelity。',
+      '探索 wavelet loss 与 perceptual loss，以减少过度平滑并改善高频细节恢复。',
+      '使用 PSNR、SSIM、LPIPS 与 DISTS 对重建质量进行评估。',
+      '通过 pixel-shift experiment 分析 PSNR 的局限性。',
+    ],
+    resultsIntro:
+      '与 U-Net baseline 相比，提出的多模态 unrolled reconstruction framework 在 PSNR、SSIM、LPIPS 和 DISTS 上均有提升，说明其在 pixel-level fidelity、结构一致性与感知重建质量方面表现更好。',
+    galleryIntro: '精选课程报告中的整理后图示，用于展示数据处理、模型结构与实验分析。',
+    resultColumns: ['模型', 'DISTS ↓', 'LPIPS ↓', 'PSNR ↑', 'SSIM ↑'],
+    resultRows: [
+      ['Task 2 U-Net', '0.1558', '0.0205', '37.21', '0.885'],
+      ['Task 3 Proposed', '0.0936', '0.0090', '41.11', '0.954'],
+    ],
+    gallery: [
+      {
+        src: '/projects/bme1312/data-processing.png',
+        alt: '数据处理与 k-space 欠采样模拟流程。',
+        caption: '数据处理与 variable-density k-space undersampling simulation。',
+      },
+      {
+        src: '/projects/bme1312/unet-baseline.png',
+        alt: 'U-Net baseline 重建流程。',
+        caption: 'Task 2 U-Net baseline，用于单模态 T2 图像重建。',
+      },
+      {
+        src: '/projects/bme1312/unrolled-reconstruction.png',
+        alt: '多模态 unrolled reconstruction 流程。',
+        caption: 'Task 3 多模态 unrolled reconstruction，结合 T1 guidance 与 data consistency。',
+      },
+      {
+        src: '/projects/bme1312/qualitative-comparison.png',
+        alt: 'Aliased input、ground truth、Task 2 与 Task 3 重建结果的定性对比。',
+        caption: 'Baseline 与 proposed reconstruction outputs 的定性对比。',
+      },
+      {
+        src: '/projects/bme1312/psnr-analysis.png',
+        alt: '分析 PSNR 对空间位移敏感性的 pixel-shift experiment。',
+        caption: 'Pixel-shift experiment 展示 PSNR 等 pixel-aligned metrics 的局限性。',
+      },
+    ],
+    contribution:
+      '我在该团队课程项目中参与了深度 MRI 重建流程的实现与分析，对 baseline 与 advanced reconstruction model 进行了实验比较，并使用多种重建指标进行评估，同时参与了最终报告中的实验结果整理与可视化分析。',
+    courseContext:
+      '该项目完成于上海科技大学 BME1312: Applications of Artificial Intelligence in Medical Imaging 课程。网页中不会公开展示其他组员的学号或个人邮箱。',
+    future: [
+      '更好的 edge-aware constraints。',
+      '更稳健的多模态 registration。',
+      '更强的 frequency-domain modeling。',
+      '在更广泛的临床数据集上进行验证。',
+    ],
   },
 } as const;

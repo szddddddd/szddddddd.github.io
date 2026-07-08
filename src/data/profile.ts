@@ -1,15 +1,20 @@
 export type Lang = 'en' | 'zh';
 
 export type LocalizedText = Record<Lang, string>;
+export type LinkValue = string | LocalizedText;
 
 export type ProjectLinkSet = {
-  paper: string;
-  code: string;
-  demo: string;
+  details?: LinkValue;
+  report?: LinkValue;
+  paper?: LinkValue;
+  code?: LinkValue;
+  demo?: LinkValue;
 };
 
 export type Project = {
   title: LocalizedText;
+  type?: LocalizedText;
+  course?: string;
   year: string;
   description: LocalizedText;
   tags: string[];
@@ -28,17 +33,42 @@ export type Publication = {
   doi: string;
 };
 
-export type CourseProject = {
-  title: LocalizedText;
-  course: string;
-  year: string;
-  description: LocalizedText;
-  tags: string[];
+export type CourseProject = Project;
+
+export const bme1312CourseProject: CourseProject = {
+  title: {
+    en: 'Multi-contrast MRI Reconstruction from Undersampled Data',
+    zh: '基于欠采样数据的多对比度 MRI 重建',
+  },
+  type: {
+    en: 'Course Project',
+    zh: '课程项目',
+  },
+  course: 'BME1312: Applications of Artificial Intelligence in Medical Imaging',
+  year: '2026',
+  description: {
+    en:
+      'Deep learning-based accelerated MRI reconstruction using U-Net baselines, multi-modal fusion, unrolled data consistency, wavelet loss, and perceptual objectives.',
+    zh:
+      '基于深度学习的 MRI 加速重建课程项目，涉及 U-Net baseline、多模态融合、unrolled data consistency、wavelet loss 与 perceptual objectives。',
+  },
+  tags: [
+    'Medical Imaging',
+    'MRI Reconstruction',
+    'Deep Learning',
+    'U-Net',
+    'Unrolled Network',
+    'Data Consistency',
+  ],
+  image: '/projects/bme1312/qualitative-comparison.png',
   links: {
-    report: string;
-    code: string;
-    demo: string;
-  };
+    details: {
+      en: '/projects/bme1312',
+      zh: '/zh/projects/bme1312',
+    },
+    report: '',
+    code: '',
+  },
 };
 
 export const profile = {
@@ -80,24 +110,7 @@ export const profile = {
     url: '',
   },
   projects: [
-    {
-      title: {
-        en: '3D Vision Project',
-        zh: '3D Vision 项目',
-      },
-      year: 'Coming soon',
-      description: {
-        en: 'Coming soon. Project details will be added later.',
-        zh: '即将更新。项目细节将后续补充。',
-      },
-      tags: ['3D Vision', 'Reconstruction'],
-      image: '',
-      links: {
-        paper: '',
-        code: '',
-        demo: '',
-      },
-    },
+    bme1312CourseProject,
     {
       title: {
         en: 'Gaussian Splatting Project',
@@ -136,5 +149,5 @@ export const profile = {
     },
   ] satisfies Project[],
   publications: [] satisfies Publication[],
-  courseProjects: [] satisfies CourseProject[],
+  courseProjects: [bme1312CourseProject] satisfies CourseProject[],
 };

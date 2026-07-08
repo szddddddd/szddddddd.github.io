@@ -20,6 +20,7 @@ const titles: Record<PageKey, string> = {
   home: t.meta.siteTitle,
   about: `${t.nav.about} — ${display.name}`,
   projects: `${t.nav.projects} — ${display.name}`,
+  projectBme1312: t.bme1312.metaTitle,
   publications: `${t.nav.publications} — ${display.name}`,
   coursework: `${t.nav.coursework} — ${display.name}`,
   notes: `${t.nav.notes} — ${display.name}`,
@@ -30,6 +31,7 @@ const descriptions: Record<PageKey, string> = {
   home: t.meta.description,
   about: t.about.intro,
   projects: t.projects.fullIntro,
+  projectBme1312: t.bme1312.metaDescription,
   publications: t.publications.intro,
   coursework: t.coursework.intro,
   notes: t.notes.intro,
@@ -198,10 +200,18 @@ const quickLinks = [
       </section>
 
       <Section title={t.coursework.title} intro={t.coursework.intro}>
-        <div class="empty-state">
-          <span>{t.common.comingSoon}</span>
-          <p>{t.coursework.empty}</p>
-        </div>
+        {profile.courseProjects.length > 0 ? (
+          <div class="project-grid coursework-grid">
+            {profile.courseProjects.map((project) => (
+              <ProjectCard project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <span>{t.common.comingSoon}</span>
+            <p>{t.coursework.empty}</p>
+          </div>
+        )}
       </Section>
     </div>
   )}

@@ -5,6 +5,8 @@ interface Props {
   project: Project;
   lang: Lang;
   labels: {
+    details: string;
+    report: string;
     paper: string;
     code: string;
     demo: string;
@@ -17,11 +19,23 @@ const { project, lang, labels, comingSoon, placeholder } = Astro.props as Props;
 const title = project.title[lang];
 const description = project.description[lang];
 const year = project.year === 'Coming soon' ? comingSoon : project.year;
-const links = [
-  { key: 'paper', label: labels.paper, value: project.links.paper },
-  { key: 'code', label: labels.code, value: project.links.code },
-  { key: 'demo', label: labels.demo, value: project.links.demo },
-];
+const typeLabel = project.type?.[lang] ?? placeholder;
+const hasDetailLinks = Boolean(project.links.details || project.links.report);
+const links = hasDetailLinks
+  ? [
+      { key: 'details', label: labels.details, value: project.links.details },
+      { key: 'report', label: labels.report, value: project.links.report },
+      { key: 'code', label: labels.code, value: project.links.code },
+    ]
+  : [
+      { key: 'paper', label: labels.paper, value: project.links.paper },
+      { key: 'code', label: labels.code, value: project.links.code },
+      { key: 'demo', label: labels.demo, value: project.links.demo },
+    ];
+const resolveLink = (value: typeof links[number]['value']) => {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value[lang];
+};
 const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
 ---
 
@@ -31,24 +45,26 @@ const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/
   </div>
   <div class="card-topline">
     <span>{year}</span>
-    <span>{placeholder}</span>
+    <span>{typeLabel}</span>
   </div>
   <h3>{title}</h3>
+  {project.course && <p class="project-course">{project.course}</p>}
   <p>{description}</p>
   <ul class="tag-list" aria-label={`${title} tags`}>
     {project.tags.map((tag) => <li>{tag}</li>)}
   </ul>
   <div class="inline-links" aria-label={`${title} links`}>
     {
-      links.map(({ label, value }) =>
-        value && isUrl(value) ? (
-          <a href={value} target={value.startsWith('http') ? '_blank' : undefined} rel={value.startsWith('http') ? 'noreferrer' : undefined}>
+      links.map(({ label, value }) => {
+        const href = resolveLink(value);
+        return href && isUrl(href) ? (
+          <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined}>
             {label}
           </a>
         ) : (
           <span class="disabled-link">{label}: {comingSoon}</span>
-        )
-      )
+        );
+      })
     }
   </div>
 </article>

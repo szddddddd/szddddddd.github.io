@@ -22,7 +22,7 @@ Only the provided personal information is included:
 - Email: `songzd2024@shanghaitech.edu.cn`
 - GitHub: `https://github.com/szddddddd`
 
-Projects, publications, coursework, CV, and notes remain placeholders until real content is provided.
+The BME1312 MRI reconstruction course project is included as a real academic course project. Publications, CV, notes, and other future projects remain placeholders until real content is provided.
 
 ## Local development
 
@@ -87,7 +87,8 @@ This contains:
 - GitHub URL
 - research interests
 - CV placeholder
-- placeholder projects
+- BME1312 course project card
+- future project placeholders
 - publication data structure
 - course project data structure
 
@@ -109,6 +110,7 @@ Main pages:
 src/pages/index.astro
 src/pages/about.astro
 src/pages/projects.astro
+src/pages/projects/bme1312.astro
 src/pages/publications.astro
 src/pages/coursework.astro
 src/pages/notes.astro
@@ -128,6 +130,12 @@ Visual system:
 src/styles/global.css
 ```
 
+BME1312 project assets:
+
+```text
+public/projects/bme1312/
+```
+
 ## Routes
 
 English:
@@ -135,6 +143,7 @@ English:
 - `/`
 - `/about`
 - `/projects`
+- `/projects/bme1312`
 - `/publications`
 - `/coursework`
 - `/notes`
@@ -145,6 +154,7 @@ Chinese:
 - `/zh/`
 - `/zh/about`
 - `/zh/projects`
+- `/zh/projects/bme1312`
 - `/zh/publications`
 - `/zh/coursework`
 - `/zh/notes`

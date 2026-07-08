@@ -1,0 +1,57 @@
+---
+import type { ShadertoyWork } from '../data/shadertoy';
+
+interface Props {
+  work: ShadertoyWork;
+  index: number;
+  labels: {
+    stats: string;
+    openShader: string;
+    loadEmbed: string;
+    shaderId: string;
+  };
+}
+
+const { work, index, labels } = Astro.props as Props;
+const stats = work.views !== null && work.likes !== null ? `${work.views} / ${work.likes}` : 'Unknown';
+---
+
+<article class="shader-work-card reveal-card">
+  <a class="shader-work-thumb" href={work.shaderUrl} target="_blank" rel="noreferrer" aria-label={`${labels.openShader}: ${work.title}`}>
+    <img src={work.thumbnail} alt={`${work.title} Shadertoy thumbnail`} loading="lazy" decoding="async" />
+  </a>
+
+  <div class="shader-work-body">
+    <div class="shader-work-meta">
+      <span>#{String(index).padStart(2, '0')}</span>
+      <span>{labels.shaderId}: {work.shaderId}</span>
+    </div>
+
+    <h3>{work.title}</h3>
+
+    <div class="shader-work-stats">
+      <span>{labels.stats}</span>
+      <strong>{stats}</strong>
+    </div>
+
+    <div class="project-row-tags shader-work-tags" aria-label={`${work.title} tags`}>
+      {work.tags.map((tag) => <span>{tag}</span>)}
+    </div>
+
+    <div class="project-row-links shader-work-links">
+      <a href={work.shaderUrl} target="_blank" rel="noreferrer">{labels.openShader}</a>
+    </div>
+
+    <details class="shader-embed" data-shader-embed>
+      <summary>{labels.loadEmbed}</summary>
+      <div class="shader-embed-frame">
+        <iframe
+          data-src={work.embedUrl}
+          title={`${work.title} Shadertoy embed`}
+          loading="lazy"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </details>
+  </div>
+</article>

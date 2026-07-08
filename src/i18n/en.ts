@@ -73,6 +73,7 @@ export const en = {
     viewAll: 'Open project index',
     labels: {
       details: 'Details',
+      shadertoy: 'Shadertoy',
       report: 'Report',
       paper: 'Paper',
       code: 'Code',
@@ -446,6 +447,77 @@ export const en = {
         title: 'README source',
         text: 'Team members and division of labor are summarized from the repository README.',
         href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
+      },
+    ],
+  },
+  arts1308: {
+    metaTitle: 'ARTS1308 Shader Art Collection — Song Zidong',
+    metaDescription:
+      'ARTS1308 Pixel Shading Art course project collecting GLSL fragment shader artworks created on Shadertoy by Song Zidong.',
+    hero: {
+      eyebrow: 'Course Project / ARTS1308 Pixel Shading Art',
+      title: 'Shader Art Experiments on Shadertoy',
+      subtitle:
+        'A collection of GLSL fragment shader artworks exploring procedural visual generation, color, motion, and pixel-level image synthesis.',
+      affiliation: 'ARTS1308 Pixel Shading Art · Course Project · ShanghaiTech University',
+    },
+    metadata: [
+      'ARTS1308 Course Project',
+      'Shader Art Collection',
+      'Creative Coding',
+      'Pixel Shading Art',
+      'GLSL / Shadertoy',
+    ],
+    labels: {
+      course: 'Course',
+      type: 'Type',
+      context: 'Context',
+      account: 'Account',
+      works: 'Works',
+      stats: 'Views / Likes',
+      openShader: 'Open on Shadertoy',
+      profile: 'View Shadertoy Profile',
+      embed: 'Optional interactive embed',
+      loadEmbed: 'Load paused Shadertoy embed',
+      shaderId: 'Shader ID',
+    },
+    sections: {
+      overview: 'Overview',
+      gallery: 'Visual Gallery',
+      technicalFocus: 'Technical Focus',
+      courseContext: 'Course Context',
+      relatedLinks: 'Related Links',
+    },
+    overview:
+      'This project collects my shader artworks created in the ARTS1308 Pixel Shading Art course. Instead of relying on traditional image assets, the works are generated through code, mathematical functions, color operations, procedural patterns, and time-dependent transformations in GLSL.',
+    overviewBullets: [
+      'Course project and creative coding portfolio, not a commercial project.',
+      'All works are fragment-shader experiments published under the Shadertoy account szd.',
+      'The gallery uses real Shadertoy thumbnails from the original shader pages.',
+      'Interactive embeds are optional and are loaded only after opening an individual work.',
+    ],
+    galleryIntro:
+      'Selected works from the Shadertoy profile sorted by popularity. Each card keeps the original Shadertoy title, shader link, thumbnail, and visible view / like counts.',
+    technicalFocus: [
+      'GLSL fragment shaders',
+      'Procedural patterns',
+      'Color composition',
+      'Time-based animation',
+      'Pixel-level image synthesis',
+      'Shader-based visual art',
+    ],
+    courseContext:
+      'ARTS1308 Pixel Shading Art course project. All works were created by Song Zidong under the Shadertoy account szd.',
+    relatedLinks: [
+      {
+        title: 'Shadertoy profile',
+        text: 'Browse the original shader collection on Shadertoy.',
+        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=0&num=8',
+      },
+      {
+        title: 'Second Shadertoy page',
+        text: 'Open the second result page used to collect the remaining works.',
+        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=8&num=8',
       },
     ],
   },

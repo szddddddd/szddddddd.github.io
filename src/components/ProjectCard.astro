@@ -7,6 +7,7 @@ interface Props {
   labels: {
     details: string;
     report: string;
+    shadertoy: string;
     paper: string;
     code: string;
     demo: string;
@@ -20,10 +21,12 @@ const title = project.title[lang];
 const description = project.description[lang];
 const year = project.year === 'Coming soon' ? comingSoon : project.year;
 const typeLabel = project.type?.[lang] ?? placeholder;
+const courseLabel = typeof project.course === 'string' ? project.course : project.course?.[lang];
 const hasDetailLinks = Boolean(project.links.details || project.links.report);
 const links = hasDetailLinks
   ? [
       { key: 'details', label: labels.details, value: project.links.details },
+      ...(project.links.shadertoy !== undefined ? [{ key: 'shadertoy', label: labels.shadertoy, value: project.links.shadertoy }] : []),
       ...(project.links.report !== undefined ? [{ key: 'report', label: labels.report, value: project.links.report }] : []),
       ...(project.links.code !== undefined ? [{ key: 'code', label: labels.code, value: project.links.code }] : []),
     ]
@@ -48,7 +51,7 @@ const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/
     <span>{typeLabel}</span>
   </div>
   <h3>{title}</h3>
-  {project.course && <p class="project-course">{project.course}</p>}
+  {courseLabel && <p class="project-course">{courseLabel}</p>}
   <p>{description}</p>
   <ul class="tag-list" aria-label={`${title} tags`}>
     {project.tags.map((tag) => <li>{tag}</li>)}

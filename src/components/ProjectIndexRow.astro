@@ -7,6 +7,7 @@ interface Props {
   labels: {
     details: string;
     report: string;
+    shadertoy: string;
     paper: string;
     code: string;
     demo: string;
@@ -20,8 +21,10 @@ const title = project.title[lang];
 const description = project.description[lang];
 const year = project.year === 'Coming soon' ? comingSoon : project.year;
 const typeLabel = project.type?.[lang] ?? placeholder;
+const courseLabel = typeof project.course === 'string' ? project.course : project.course?.[lang];
 const links: { label: string; value: LinkValue | undefined }[] = [
   { label: labels.details, value: project.links.details },
+  ...(project.links.shadertoy !== undefined ? [{ label: labels.shadertoy, value: project.links.shadertoy }] : []),
   ...(project.links.report !== undefined ? [{ label: labels.report, value: project.links.report }] : []),
   ...(project.links.code !== undefined ? [{ label: labels.code, value: project.links.code }] : []),
   ...(project.links.paper !== undefined ? [{ label: labels.paper, value: project.links.paper }] : []),
@@ -47,7 +50,7 @@ const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/
 
     <h2>{title}</h2>
 
-    {project.course && <p class="project-row-context">{project.course}</p>}
+    {courseLabel && <p class="project-row-context">{courseLabel}</p>}
     <p class="project-row-description">{description}</p>
 
     <div class="project-row-tags" aria-label={`${title} tags`}>

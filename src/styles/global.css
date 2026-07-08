@@ -1628,11 +1628,200 @@ main {
   line-height: 1.2;
 }
 
+.arts1308-detail {
+  --shader-accent: #fb7185;
+}
+
+.arts-hero-figure {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(251, 113, 133, 0.2), transparent 18rem),
+    radial-gradient(circle at 82% 68%, rgba(125, 211, 252, 0.16), transparent 18rem),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.84), rgba(15, 23, 42, 0.42));
+}
+
+.arts-hero-mosaic {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem;
+  overflow: hidden;
+}
+
+.arts-hero-mosaic::before,
+.shader-work-card::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgba(125, 211, 252, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(251, 113, 133, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.arts-hero-mosaic img {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  border-radius: 1rem;
+  background: #05070d;
+  object-fit: cover;
+}
+
+.arts-preview-figure img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #05070d;
+  object-fit: cover;
+}
+
+.shader-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.shader-work-card {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(251, 113, 133, 0.12), transparent 16rem),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.42));
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.22);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.shader-work-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(125, 211, 252, 0.34);
+  box-shadow: 0 24px 80px rgba(125, 211, 252, 0.08);
+}
+
+.shader-work-thumb {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #05070d;
+}
+
+.shader-work-thumb img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  background: #05070d;
+  object-fit: cover;
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.shader-work-card:hover .shader-work-thumb img {
+  transform: scale(1.025);
+  filter: saturate(1.12);
+}
+
+.shader-work-body {
+  position: relative;
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+}
+
+.shader-work-meta,
+.shader-work-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--dim);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.shader-work-body h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.15rem, 1.6vw, 1.45rem);
+  font-weight: 760;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.shader-work-stats strong {
+  color: var(--cyan);
+  font-size: 0.82rem;
+}
+
+.shader-work-tags,
+.shader-work-links {
+  margin-top: 0;
+}
+
+.shader-embed {
+  border-top: 1px solid rgba(226, 232, 240, 0.1);
+  padding-top: 0.85rem;
+}
+
+.shader-embed summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.shader-embed summary:hover {
+  color: var(--cyan);
+}
+
+.shader-embed-frame {
+  margin-top: 0.85rem;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  border-radius: 0.9rem;
+  background: #05070d;
+}
+
+.shader-embed-frame iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 0;
+}
+
+.shader-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.shader-focus-card {
+  min-height: 10rem;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(251, 113, 133, 0.1), transparent 10rem),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.4));
+}
+
+.arts-links-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: 0;
+}
+
 @media (max-width: 1060px) {
   .method-grid,
   .si100b-system-grid,
   .formula-grid,
   .metric-cards,
+  .shader-gallery-grid,
+  .shader-focus-grid,
   .future-grid,
   .metadata-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1657,11 +1846,18 @@ main {
   .si100b-system-grid,
   .formula-grid,
   .metric-cards,
+  .shader-gallery-grid,
+  .shader-focus-grid,
   .future-grid,
   .metadata-grid,
   .gallery-grid,
   .si100b-links-grid,
+  .arts-links-grid,
   .highlight-list {
+    grid-template-columns: 1fr;
+  }
+
+  .arts-hero-mosaic {
     grid-template-columns: 1fr;
   }
 

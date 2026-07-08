@@ -5,6 +5,7 @@ export type LinkValue = string | LocalizedText;
 
 export type ProjectLinkSet = {
   details?: LinkValue;
+  shadertoy?: LinkValue;
   report?: LinkValue;
   paper?: LinkValue;
   code?: LinkValue;
@@ -14,7 +15,7 @@ export type ProjectLinkSet = {
 export type Project = {
   title: LocalizedText;
   type?: LocalizedText;
-  course?: string;
+  course?: string | LocalizedText;
   year: string;
   description: LocalizedText;
   tags: string[];
@@ -129,6 +130,45 @@ export const cs182CourseProject: CourseProject = {
   },
 };
 
+export const arts1308CourseProject: CourseProject = {
+  title: {
+    en: 'Shader Art Experiments on Shadertoy',
+    zh: 'ARTS1308 像素着色艺术：Shadertoy 作品集',
+  },
+  type: {
+    en: 'Creative Coding / Shader Art',
+    zh: '创意编程 / Shader Art',
+  },
+  course: {
+    en: 'ARTS1308 Pixel Shading Art · Course Project',
+    zh: 'ARTS1308 像素着色艺术 · 课程项目',
+  },
+  year: 'ARTS1308',
+  description: {
+    en:
+      'A collection of GLSL fragment shader artworks created on Shadertoy, exploring procedural image synthesis, motion, color, and pixel-level visual expression.',
+    zh:
+      '一个基于 Shadertoy 的 GLSL fragment shader 课程作品集，探索程序化图像生成、运动、色彩与像素级视觉表达。',
+  },
+  tags: [
+    'ARTS1308',
+    'Shadertoy',
+    'GLSL',
+    'Shader Art',
+    'Creative Coding',
+    'Procedural Visuals',
+    'Pixel Shading',
+  ],
+  image: '/projects/arts1308/shader-01.jpg',
+  links: {
+    details: {
+      en: '/projects/arts1308',
+      zh: '/zh/projects/arts1308',
+    },
+    shadertoy: 'https://www.shadertoy.com/user/szd/sort=popular&from=0&num=8',
+  },
+};
+
 export const profile = {
   nameZh: '宋梓冬',
   nameEn: 'Song Zidong',
@@ -170,7 +210,8 @@ export const profile = {
     cs182CourseProject,
     bme1312CourseProject,
     si100bCourseProject,
+    arts1308CourseProject,
   ] satisfies Project[],
   publications: [] satisfies Publication[],
-  courseProjects: [cs182CourseProject, bme1312CourseProject, si100bCourseProject] satisfies CourseProject[],
+  courseProjects: [cs182CourseProject, bme1312CourseProject, si100bCourseProject, arts1308CourseProject] satisfies CourseProject[],
 };

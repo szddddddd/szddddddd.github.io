@@ -70,6 +70,7 @@ export const zh = {
     viewAll: '打开项目索引',
     labels: {
       details: '详情',
+      shadertoy: 'Shadertoy',
       report: '报告',
       paper: '论文',
       code: '代码',
@@ -440,6 +441,76 @@ export const zh = {
         title: 'README 来源',
         text: '团队成员与分工信息整理自仓库 README。',
         href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
+      },
+    ],
+  },
+  arts1308: {
+    metaTitle: 'ARTS1308 像素着色艺术：Shadertoy 作品集 — 宋梓冬',
+    metaDescription:
+      '宋梓冬在 ARTS1308 像素着色艺术课程中完成的 Shadertoy GLSL fragment shader 作品集。',
+    hero: {
+      eyebrow: '课程项目 / ARTS1308 像素着色艺术',
+      title: 'ARTS1308 像素着色艺术：Shadertoy 作品集',
+      subtitle: '一个探索程序化视觉生成、色彩、运动与像素级图像合成的 GLSL fragment shader 作品集。',
+      affiliation: 'ARTS1308 像素着色艺术 · 课程项目 · 上海科技大学',
+    },
+    metadata: [
+      'ARTS1308 课程项目',
+      'Shader Art 作品集',
+      '创意编程',
+      '像素着色艺术',
+      'GLSL / Shadertoy',
+    ],
+    labels: {
+      course: '课程',
+      type: '类型',
+      context: '背景',
+      account: '账号',
+      works: '作品数量',
+      stats: '浏览 / 喜欢',
+      openShader: '在 Shadertoy 打开',
+      profile: '查看 Shadertoy 主页',
+      embed: '可选交互嵌入',
+      loadEmbed: '加载暂停状态的 Shadertoy 嵌入',
+      shaderId: 'Shader ID',
+    },
+    sections: {
+      overview: '项目概述',
+      gallery: '作品展示',
+      technicalFocus: '技术关注点',
+      courseContext: '课程背景',
+      relatedLinks: '相关链接',
+    },
+    overview:
+      '该项目整理了我在 ARTS1308 像素着色艺术课程中完成的 shader art 作品。这些作品并不依赖传统图像素材，而是通过 GLSL 中的数学函数、色彩运算、程序化图案和随时间变化的变换生成视觉效果。',
+    overviewBullets: [
+      '该页面展示课程作品集与创意编程练习，不将其表述为商业项目。',
+      '所有作品均发布在 Shadertoy 账号 szd 下。',
+      '作品展示区使用来自原始 Shadertoy 页面中的真实缩略图。',
+      '交互式嵌入为可选内容，只有展开单个作品时才会加载。',
+    ],
+    galleryIntro:
+      '以下作品来自按热度排序的 Shadertoy 主页。每个作品保留原始 Shadertoy 标题、链接、缩略图和页面可见的浏览 / 喜欢数量。',
+    technicalFocus: [
+      'GLSL fragment shader',
+      '程序化图案',
+      '色彩构成',
+      '时间驱动动画',
+      '像素级图像合成',
+      'Shader 视觉艺术',
+    ],
+    courseContext:
+      '这些作品来自 ARTS1308 像素着色艺术课程，均由宋梓冬在 Shadertoy 账号 szd 下完成。',
+    relatedLinks: [
+      {
+        title: 'Shadertoy 主页',
+        text: '在 Shadertoy 查看原始 shader 作品集。',
+        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=0&num=8',
+      },
+      {
+        title: 'Shadertoy 第二页',
+        text: '打开用于整理剩余作品的第二个结果页。',
+        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=8&num=8',
       },
     ],
   },

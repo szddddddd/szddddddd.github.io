@@ -17,7 +17,7 @@
   --green: #86efac;
   --danger: #fda4af;
   --shadow: 0 28px 90px rgba(0, 0, 0, 0.44);
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-serif: "Iowan Old Style", "New York", "Noto Serif", "Times New Roman", Georgia, serif;
   --max-width: 1180px;
 }
@@ -34,7 +34,7 @@ html {
 }
 
 html:lang(zh-CN) {
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", "Times New Roman", serif;
 }
 
@@ -92,16 +92,29 @@ ul {
   left: 1rem;
   top: 1rem;
   z-index: 40;
-  transform: translateY(-160%);
-  border: 1px solid var(--line-strong);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
   border-radius: 999px;
   background: var(--surface-strong);
-  padding: 0.65rem 1rem;
+  padding: 0;
   color: var(--text);
+  white-space: nowrap;
+  transform: translateY(-1rem);
   transition: transform 180ms ease;
 }
 
-.skip-link:focus {
+.skip-link:focus,
+.skip-link:focus-visible {
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  border: 1px solid var(--line-strong);
+  padding: 0.65rem 1rem;
+  white-space: normal;
   transform: translateY(0);
 }
 
@@ -728,25 +741,29 @@ main {
 }
 
 .project-row {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
   gap: clamp(1.25rem, 3vw, 2.5rem);
   align-items: stretch;
+  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 28px;
   background:
     radial-gradient(circle at 12% 15%, rgba(125, 211, 252, 0.09), transparent 16rem),
     rgba(255, 255, 255, 0.045);
   padding: clamp(1.25rem, 3vw, 2rem);
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 
-.project-row:hover {
+.project-row:hover,
+.project-row:focus-within {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.22);
   background:
     radial-gradient(circle at 12% 15%, rgba(125, 211, 252, 0.12), transparent 16rem),
     rgba(255, 255, 255, 0.065);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
 }
 
 .project-row-media {
@@ -780,6 +797,7 @@ main {
   font-size: clamp(1.45rem, 2.5vw, 2.25rem);
   line-height: 1.08;
   letter-spacing: -0.035em;
+  transition: color 160ms ease;
 }
 
 .project-row-meta {
@@ -849,17 +867,37 @@ main {
 }
 
 .project-card {
+  position: relative;
   display: grid;
   min-height: 28rem;
   gap: 1rem;
+  overflow: hidden;
   padding: clamp(1rem, 2vw, 1.35rem);
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 
-.project-card:hover {
+.project-card:hover,
+.project-card:focus-within {
   transform: translateY(-4px);
   border-color: rgba(125, 211, 252, 0.36);
   background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.55));
+  box-shadow: 0 26px 84px rgba(0, 0, 0, 0.3);
+}
+
+.project-card.is-clickable,
+.project-row.is-clickable {
+  cursor: pointer;
+}
+
+.card-cover-link {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+.card-cover-link:focus-visible {
+  outline: none;
 }
 
 .project-media {
@@ -917,6 +955,14 @@ main {
   font-weight: 740;
   letter-spacing: -0.035em;
   line-height: 1.08;
+  transition: color 160ms ease;
+}
+
+.project-card.is-clickable:hover h3,
+.project-card.is-clickable:focus-within h3,
+.project-row.is-clickable:hover h2,
+.project-row.is-clickable:focus-within h2 {
+  color: var(--cyan);
 }
 
 .project-card p,
@@ -945,6 +991,12 @@ main {
 .inline-links .disabled-link {
   border-bottom-color: rgba(226, 232, 240, 0.14);
   color: var(--dim);
+}
+
+.inline-links a,
+.project-row-links a {
+  position: relative;
+  z-index: 3;
 }
 
 .text-link {
@@ -1184,6 +1236,7 @@ main {
 
   .button:hover,
   .project-card:hover,
+  .project-row:hover,
   .portal-card:hover {
     transform: none;
   }

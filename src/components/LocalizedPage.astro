@@ -52,11 +52,6 @@ const identityRows = [
   { label: t.hero.identityLabels.major, value: display.major },
 ];
 
-const quickLinks = [
-  { title: t.nav.projects, text: t.projects.intro, href: getPath(lang, 'projects') },
-  { title: t.nav.publications, text: t.publications.empty, href: getPath(lang, 'publications') },
-  { title: t.nav.contact, text: profile.email, href: getPath(lang, 'contact') },
-];
 ---
 
 <BaseLayout lang={lang} page={page} title={titles[page]} description={descriptions[page]}>
@@ -78,14 +73,6 @@ const quickLinks = [
         </div>
       </Section>
 
-      <section class="portal-grid" aria-label="Site sections">
-        {quickLinks.map((item) => (
-          <a class="portal-card" href={item.href}>
-            <span>{item.title}</span>
-            <p>{item.text}</p>
-          </a>
-        ))}
-      </section>
     </div>
   )}
 

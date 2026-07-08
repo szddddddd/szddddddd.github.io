@@ -40,9 +40,12 @@ const resolveLink = (value: typeof links[number]['value']) => {
   return typeof value === 'string' ? value : value[lang];
 };
 const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
+const detailHref = resolveLink(project.links.details);
+const hasDetailLink = Boolean(detailHref && isUrl(detailHref));
 ---
 
-<article class="project-card reveal-card">
+<article class:list={['project-card', 'reveal-card', hasDetailLink && 'is-clickable']}>
+  {hasDetailLink && <a class="card-cover-link" href={detailHref} aria-label={`${labels.details}: ${title}`}></a>}
   <div class="project-media" aria-hidden="true">
     {project.image ? <img src={project.image} alt="" loading="lazy" /> : <div class="project-field"><span></span><span></span><span></span></div>}
   </div>

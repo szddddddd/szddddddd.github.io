@@ -63,7 +63,7 @@ export const zh = {
   projects: {
     eyebrow: '研究 / 项目',
     pageTitle: '项目',
-    title: '作为视觉研究载体的项目展示',
+    title: '代表性研究与技术项目',
     intro: '这里整理研究原型、课程项目、代码、演示与论文链接等项目内容。',
     fullTitle: '项目索引',
     fullIntro: '研究原型、课程项目与技术作品的统一索引。',

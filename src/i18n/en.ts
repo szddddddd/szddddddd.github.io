@@ -64,7 +64,7 @@ export const en = {
   projects: {
     eyebrow: 'Research / Projects',
     pageTitle: 'Projects',
-    title: 'Projects as visual research artifacts',
+    title: 'Selected Research and Technical Projects',
     intro:
       'A curated project index for research prototypes, course projects, code, demos, and paper links.',
     fullTitle: 'Project index',

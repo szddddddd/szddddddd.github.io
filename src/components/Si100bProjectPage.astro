@@ -15,7 +15,7 @@ const project = si100bCourseProject;
 const typeLabel = project.type?.[lang] ?? t.common.courseProject;
 const codeHref = typeof project.links.code === 'string' ? project.links.code : '';
 const reportHref = typeof project.links.report === 'string' ? project.links.report : '';
-const readmeHref = copy.links.find((item) => item.href.includes('#readme'))?.href ?? '';
+const readmeHref = typeof project.links.readme === 'string' ? project.links.readme : project.links.readme?.[lang] ?? '';
 const details = [
   { label: copy.labels.course, value: project.course ?? 'SI100B: Introduction to Information Science and Technology' },
   { label: copy.labels.type, value: typeLabel },
@@ -39,12 +39,11 @@ const details = [
           {codeHref && <a class="button button-secondary" href={codeHref} target="_blank" rel="noreferrer">GitHub</a>}
           {reportHref && <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>}
           {readmeHref && <a class="button button-secondary" href={readmeHref} target="_blank" rel="noreferrer">README</a>}
-          <a class="button button-secondary" href="#course-context">{copy.sections.courseContext}</a>
         </div>
       </div>
-      <figure class="detail-hero-figure reveal-block">
-        <img src={project.image} alt={copy.gallery[0].alt} loading="eager" />
-        <figcaption>{copy.gallery[0].caption}</figcaption>
+      <figure class="detail-hero-figure si100b-cover-figure reveal-block">
+        <img src={project.image} alt={copy.cover.alt} loading="eager" />
+        <figcaption>{copy.cover.caption}</figcaption>
       </figure>
     </header>
 
@@ -129,28 +128,11 @@ const details = [
 
     <Section title={copy.sections.gallery} intro={copy.galleryIntro}>
       <div class="gallery-grid">
-        {copy.gallery.map((item) => (
-          <figure class="detail-figure si100b-asset-figure">
+        {copy.gallery.map((item, index) => (
+          <figure class:list={['detail-figure', 'si100b-asset-figure', 'si100b-gallery-card', (index === 3 || index === 5) && 'is-contain']}>
             <img src={item.src} alt={item.alt} loading="lazy" />
             <figcaption>{item.caption}</figcaption>
           </figure>
-        ))}
-      </div>
-    </Section>
-
-    <Section id="course-context" title={copy.sections.courseContext}>
-      <div class="panel narrative-panel">
-        <p>{copy.courseContext}</p>
-      </div>
-    </Section>
-
-    <Section title={copy.sections.links}>
-      <div class="portal-grid si100b-links-grid">
-        {copy.links.map((item) => (
-          <a class="portal-card" href={item.href} target="_blank" rel="noreferrer">
-            <span>{item.title}</span>
-            <p>{item.text}</p>
-          </a>
         ))}
       </div>
     </Section>

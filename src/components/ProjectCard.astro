@@ -11,6 +11,7 @@ interface Props {
     paper: string;
     code: string;
     demo: string;
+    readme: string;
   };
   comingSoon: string;
   placeholder: string;
@@ -22,6 +23,7 @@ const description = project.description[lang];
 const year = project.year === 'Coming soon' ? comingSoon : project.year;
 const typeLabel = project.type?.[lang] ?? placeholder;
 const courseLabel = typeof project.course === 'string' ? project.course : project.course?.[lang];
+const isSi100bProject = project.image.startsWith('/projects/si100b/');
 const hasDetailLinks = Boolean(project.links.details || project.links.report);
 const links = hasDetailLinks
   ? [
@@ -29,6 +31,7 @@ const links = hasDetailLinks
       ...(project.links.shadertoy !== undefined ? [{ key: 'shadertoy', label: labels.shadertoy, value: project.links.shadertoy }] : []),
       ...(project.links.report !== undefined ? [{ key: 'report', label: labels.report, value: project.links.report }] : []),
       ...(project.links.code !== undefined ? [{ key: 'code', label: labels.code, value: project.links.code }] : []),
+      ...(project.links.readme !== undefined ? [{ key: 'readme', label: labels.readme, value: project.links.readme }] : []),
     ]
   : [
       { key: 'paper', label: labels.paper, value: project.links.paper },
@@ -44,7 +47,7 @@ const detailHref = resolveLink(project.links.details);
 const hasDetailLink = Boolean(detailHref && isUrl(detailHref));
 ---
 
-<article class:list={['project-card', 'reveal-card', hasDetailLink && 'is-clickable']}>
+<article class:list={['project-card', 'reveal-card', hasDetailLink && 'is-clickable', isSi100bProject && 'si100b-project-preview']}>
   {hasDetailLink && <a class="card-cover-link" href={detailHref} aria-label={`${labels.details}: ${title}`}></a>}
   <div class="project-media" aria-hidden="true">
     {project.image ? <img src={project.image} alt="" loading="lazy" /> : <div class="project-field"><span></span><span></span><span></span></div>}

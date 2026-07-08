@@ -78,6 +78,7 @@ export const en = {
       paper: 'Paper',
       code: 'Code',
       demo: 'Demo',
+      readme: 'README',
     },
   },
   publications: {
@@ -272,7 +273,6 @@ export const en = {
       gameplay: 'Gameplay',
       system: 'System',
       contribution: 'Contribution',
-      links: 'Links',
       report: 'Report',
     },
     sections: {
@@ -282,8 +282,10 @@ export const en = {
       reportDesign: 'Design Notes',
       contribution: 'My Contribution',
       gallery: 'Visual Gallery',
-      courseContext: 'Course Context',
-      links: 'Links',
+    },
+    cover: {
+      alt: 'Cropped gameplay cover showing the GURDY boss encounter.',
+      caption: 'Optimized cover: centered boss-room gameplay crop used across the project cards and detail page.',
     },
     overview:
       'SAVE MY LINEAR ALGEBRA is the final project for SI100B: Introduction to Information Science and Technology. The game is a Pygame roguelike prototype inspired by The Binding of Isaac: the player controls Isaac, shoots tears, plants bombs, clears monsters, collects rewards, talks to NPCs, and ultimately defeats the boss. Isaac has limited health, so the game ends when HP reaches zero.',
@@ -428,25 +430,6 @@ export const en = {
         src: '/projects/si100b/report-ui.png',
         alt: 'Screenshot of the health, coin, attack, and bomb UI.',
         caption: 'Project screenshot: resource UI for health, coin, attack, and bomb state.',
-      },
-    ],
-    courseContext:
-      'This work was completed as a team final project for SI100B: Introduction to Information Science and Technology at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
-    links: [
-      {
-        title: 'Final report PDF',
-        text: 'Open the converted SI100B project final report.',
-        href: '/projects/si100b/report.pdf',
-      },
-      {
-        title: 'GitHub repository',
-        text: 'Open the Team SAVE MY LINEAR ALGEBRA repository.',
-        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
-      },
-      {
-        title: 'README source',
-        text: 'Team members and division of labor are summarized from the repository README.',
-        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
       },
     ],
   },

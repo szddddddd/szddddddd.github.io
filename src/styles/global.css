@@ -787,6 +787,14 @@ main {
   border-radius: 18px;
 }
 
+.si100b-project-preview .project-row-media img {
+  height: 100%;
+  max-height: none;
+  background: #070a12;
+  object-fit: cover;
+  object-position: center;
+}
+
 .project-row-main {
   display: grid;
   align-content: start;
@@ -918,6 +926,12 @@ main {
   height: 100%;
   background: #f8fafc;
   object-fit: contain;
+}
+
+.si100b-project-preview .project-media img {
+  background: #070a12;
+  object-fit: cover;
+  object-position: center;
 }
 
 .project-field {
@@ -1341,6 +1355,14 @@ main {
   max-height: 720px;
 }
 
+.si100b-cover-figure img {
+  aspect-ratio: 16 / 9;
+  max-height: none;
+  background: #070a12;
+  object-fit: cover;
+  object-position: center;
+}
+
 .detail-hero-figure figcaption,
 .detail-figure figcaption {
   border-top: 1px solid var(--line);
@@ -1550,6 +1572,45 @@ main {
   grid-column: 1 / -1;
 }
 
+.si100b-detail .gallery-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.si100b-detail .gallery-grid .detail-figure:nth-child(4) {
+  grid-column: auto;
+}
+
+.si100b-gallery-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: 1.15rem;
+  box-shadow: 0 18px 58px rgba(0, 0, 0, 0.22);
+}
+
+.si100b-gallery-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  background: #070a12;
+  object-fit: cover;
+  object-position: center;
+}
+
+.si100b-gallery-card.is-contain img {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(125, 211, 252, 0.08), transparent 12rem),
+    rgba(7, 10, 18, 0.86);
+  object-fit: contain;
+  padding: 0.75rem;
+}
+
+.si100b-gallery-card figcaption {
+  min-height: 4.35rem;
+  line-height: 1.45;
+}
+
 .featured-visual-result {
   margin-top: clamp(4rem, 8vw, 7rem);
 }
@@ -1649,11 +1710,6 @@ main {
 
 .si100b-asset-figure img {
   background: #070a12;
-}
-
-.si100b-links-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding-bottom: 0;
 }
 
 .narrative-panel p {
@@ -1844,7 +1900,8 @@ main {
   .metric-cards,
   .shader-gallery-grid,
   .future-grid,
-  .metadata-grid {
+  .metadata-grid,
+  .si100b-detail .gallery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1870,8 +1927,8 @@ main {
   .shader-gallery-grid,
   .future-grid,
   .metadata-grid,
+  .si100b-detail .gallery-grid,
   .gallery-grid,
-  .si100b-links-grid,
   .highlight-list {
     grid-template-columns: 1fr;
   }

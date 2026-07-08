@@ -75,6 +75,7 @@ export const zh = {
       paper: '论文',
       code: '代码',
       demo: '演示',
+      readme: 'README',
     },
   },
   publications: {
@@ -266,7 +267,6 @@ export const zh = {
       gameplay: '玩法',
       system: '系统',
       contribution: '贡献',
-      links: '链接',
       report: '报告',
     },
     sections: {
@@ -276,8 +276,10 @@ export const zh = {
       reportDesign: '设计补充',
       contribution: '我的贡献',
       gallery: '视觉展示',
-      courseContext: '课程背景',
-      links: '相关链接',
+    },
+    cover: {
+      alt: '裁切后的 GURDY Boss 房游戏封面图。',
+      caption: '优化后的封面：居中的 Boss 房游戏画面裁切，用于项目卡片和详情页。',
     },
     overview:
       'SAVE MY LINEAR ALGEBRA 是 SI100B: Introduction to Information Science and Technology 的期末项目。该项目是一个使用 Pygame 实现、受《以撒的结合》启发的 2D Roguelike 原型：玩家操纵 Isaac 发射子弹、放置炸弹、击杀怪物、获取奖励、与 NPC 对话，并最终击败 Boss。Isaac 的血量有限，血量清零时游戏结束。',
@@ -422,25 +424,6 @@ export const zh = {
         src: '/projects/si100b/report-ui.png',
         alt: '生命、金币、攻击和炸弹资源 UI 截图。',
         caption: '项目截图：生命、金币、攻击和炸弹资源 UI。',
-      },
-    ],
-    courseContext:
-      '该项目完成于上海科技大学 2024 Fall 的 SI100B: Introduction to Information Science and Technology 课程，是一个小组合作的 Pygame 期末项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
-    links: [
-      {
-        title: '最终报告 PDF',
-        text: '打开转换后的 SI100B 项目最终报告。',
-        href: '/projects/si100b/report.pdf',
-      },
-      {
-        title: 'GitHub 仓库',
-        text: '打开 Team SAVE MY LINEAR ALGEBRA 项目仓库。',
-        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
-      },
-      {
-        title: 'README 来源',
-        text: '团队成员与分工信息整理自仓库 README。',
-        href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
       },
     ],
   },

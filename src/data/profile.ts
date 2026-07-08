@@ -10,6 +10,7 @@ export type ProjectLinkSet = {
   paper?: LinkValue;
   code?: LinkValue;
   demo?: LinkValue;
+  readme?: LinkValue;
 };
 
 export type Project = {
@@ -54,7 +55,7 @@ export const si100bCourseProject: CourseProject = {
       '一个使用 Pygame 实现的 SI100B: Introduction to Information Science and Technology 期末项目，包含 Isaac 式房间探索、射击、炸弹、障碍物与碰撞系统、NPC 对话、资源 UI 和最终 Boss 战。',
   },
   tags: ['SI100B', 'Pygame', 'Python', 'Roguelike', 'Game Development', 'Course Project'],
-  image: '/projects/si100b/report-main-menu.png',
+  image: '/projects/si100b/cover.png',
   links: {
     details: {
       en: '/projects/si100b',
@@ -62,6 +63,7 @@ export const si100bCourseProject: CourseProject = {
     },
     report: '/projects/si100b/report.pdf',
     code: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
+    readme: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
   },
 };
 

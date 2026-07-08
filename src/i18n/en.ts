@@ -243,24 +243,24 @@ export const en = {
   si100b: {
     metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame Project — Song Zidong',
     metaDescription:
-      'SI100B course project on a Binding-of-Isaac-inspired 2D roguelike game implemented with Pygame, featuring room exploration, real-time shooting, enemies, NPC interactions, resource UI, and boss encounters.',
+      'SI100B: 信息技术导论 final project on a Binding-of-Isaac-inspired 2D roguelike game implemented with Pygame, covering scene design, doors, obstacles, collision handling, NPC dialogue, resource UI, animation, and a final boss encounter.',
     hero: {
-      eyebrow: 'Course Project / SI100B',
+      eyebrow: 'Course Project / SI100B 信息技术导论',
       title: 'SAVE MY LINEAR ALGEBRA: A Pygame Roguelike',
       subtitle:
-        'A team-based SI100B Pygame course project inspired by the room-based roguelike structure of The Binding of Isaac.',
-      affiliation: 'SI100B Course Project · ShanghaiTech University · 2024 Fall',
+        'A team-based Pygame final project for SI100B: 信息技术导论, documented through the project final report and in-game screenshots.',
+      affiliation: 'SI100B: 信息技术导论 · ShanghaiTech University · 2024 Fall',
     },
-    authors: ['潘佑邦', '吴俊阳', '宋梓冬'],
+    authors: ['潘佑邦', '宋梓冬', '吴俊阳'],
     metadata: [
-      'SI100B',
+      'SI100B 信息技术导论',
       'Pygame',
       'Python',
       '2D Roguelike Game',
       'Course Project',
-      'Room Exploration',
-      'Enemy System',
-      'NPC Interaction',
+      'Scene Design',
+      'Collision System',
+      'NPC Dialogue',
     ],
     labels: {
       course: 'Course',
@@ -276,147 +276,132 @@ export const en = {
     },
     sections: {
       overview: 'Overview',
-      gameplay: 'Gameplay Design',
-      systems: 'System Design',
+      gameplay: 'Gameplay from the Report',
+      systems: 'Implementation Design',
       reportDesign: 'Report Design Notes',
       contribution: 'My Contribution',
-      gallery: 'Visual Gallery',
+      gallery: 'Report Screenshots',
       courseContext: 'Course Context',
       links: 'Links',
     },
     overview:
-      'Team SAVE MY LINEAR ALGEBRA is a SI100B course project implemented with Pygame. The project presents a Binding-of-Isaac-inspired 2D roguelike prototype with procedurally connected rooms, real-time movement and shooting, enemy encounters, resource UI, NPC interactions, a raffle machine, bombs, dash mechanics, and animated game scenes.',
+      'SAVE MY LINEAR ALGEBRA is the final project for SI100B: 信息技术导论. According to the final report, the game is a Pygame roguelike prototype inspired by The Binding of Isaac: the player controls Isaac, shoots tears, plants bombs, clears monsters, collects rewards, talks to NPCs, and ultimately defeats the boss. Isaac has limited health, so the game ends when HP reaches zero.',
     overviewBullets: [
-      'The game is presented as a team course project rather than a commercial release.',
-      'Players explore connected rooms, defeat monsters, collect coins, meet NPCs, and fight a final boss.',
-      'The implementation combines Pygame scenes, sprite animation, room logic, combat logic, and UI systems.',
-      'The README identifies the team members as 潘佑邦, 吴俊阳, and 宋梓冬.',
+      'The final report frames the work as a SI100B course final project rather than a commercial game.',
+      'The game prototype and visual materials are explicitly inspired by The Binding of Isaac.',
+      'Core play combines room exploration, shooting, bomb placement, monster clearing, NPC rewards, and a final boss fight.',
+      'The report authors are listed as 潘佑邦, 宋梓冬, and 吴俊阳.',
     ],
     gameplayIntro:
-      'The README describes a keyboard-driven roguelike loop: move through rooms, shoot in real time, use mobility and bombs, interact with special objects, and build enough resources to challenge the boss.',
+      'The report describes the game from the player loop and scene structure: Isaac starts from StartRoom, learns the controls, enters reward or combat rooms, unlocks doors by clearing enemies, and follows the boss-room hint toward the final encounter.',
     gameplayCards: [
       {
-        title: 'Movement and combat',
+        title: 'Player control',
         items: [
-          'WASD controls eight-direction movement.',
-          'Arrow keys fire in eight directions.',
-          'LSHIFT triggers a dash for quick repositioning.',
+          'W, A, S, and D move Isaac, with diagonal movement represented through the movement vector.',
+          'Arrow keys fire tears in different directions, and tear attack can be strengthened during play.',
+          'LShift accelerates movement, while E plants bombs that can damage enemies and also hurt Isaac.',
         ],
       },
       {
-        title: 'Exploration loop',
+        title: 'Room progression',
         items: [
-          'Players enter rooms, clear monsters, and unlock adjacent doors.',
-          'The objective loop includes collecting coins and becoming stronger before the final boss.',
-          'E plants bombs as an additional resource-based action.',
+          'StartRoom introduces movement, attack, and bomb placement.',
+          'Combat rooms close their doors during fights and reopen after all enemies are killed.',
+          'Each run contains one BossRoom, and defeating the boss enters the win scene.',
         ],
       },
       {
-        title: 'Interactions',
+        title: 'Rewards and failure state',
         items: [
-          'Q interacts with the raffle machine and NPCs.',
-          'Players can meet a Trainer or Merchant during room exploration.',
-          'The final loop culminates in a boss encounter.',
+          'Lucky Room provides a raffle machine that consumes coins and grants health, attack, or coin rewards.',
+          'NPC Room lets players talk with Trainer or Merchant for hidden rewards or trades.',
+          'Isaac dies and the game ends when health is depleted.',
         ],
       },
     ],
     systemIntro:
-      'The project organizes gameplay through map generation, room types, scene management, enemies, resource UI, NPC systems, and a hardship coefficient that increases difficulty after boss clears.',
+      'The report focuses on implementation details including room scenes, door logic, obstacles, camera-like transitions, character behavior, a binary-tree map structure, collision handling, resource UI, NPC decision logic, menu scenes, and audio feedback.',
     systemCards: [
       {
-        title: 'Map and rooms',
+        title: 'Scenes, doors, and transitions',
         items: [
-          'Binary-tree based map generation.',
-          'Random generation with iterative backtracking.',
-          'Room types include Common room, Boss room, Lucky room, and NPC room.',
+          'The game uses StartRoom, reward rooms, combat rooms, and one BossRoom.',
+          'Doors can appear on four sides, and door types determine the next room type.',
+          'Room switching uses transition animation with a camera-follow effect between scenes.',
         ],
       },
       {
-        title: 'Resources and UI',
+        title: 'Map and room generation',
         items: [
-          'Health displays remaining HP.',
-          'Coin tracks collected gold coins.',
-          'Attack and Bomb UI expose combat and resource state.',
+          'A binary tree stores the room structure, with StartRoom as the root.',
+          'The map extends rightward and downward for four layers, producing 15 rooms.',
+          'The BossRoom is guaranteed to appear on the fourth layer, and each node keeps parent and child information for iteration and backtracking.',
         ],
       },
       {
-        title: 'Enemies and boss',
+        title: 'Obstacles and collision',
         items: [
-          'Fly / BloodyFly units move and damage the player on contact.',
-          'Bug units sprint randomly in four directions.',
-          'Boss GURDY fires bloody bullets and summons BloodyFly enemies.',
+          'Rooms include Rock and Shit obstacles with different destruction rules.',
+          'Combat rooms randomize Rock positions and Shit patterns.',
+          'Collision handling covers player-scene, projectile-scene, projectile-enemy, player-enemy, NPC, and item interactions, including pixel-level mask collision.',
         ],
       },
       {
-        title: 'Special systems',
+        title: 'NPC, resources, and feedback',
         items: [
-          'A raffle machine costs 5 coins and can return coins, attack, or HP.',
-          'NPC Trainer rewards or punishes answers.',
-          'NPC Merchant trades resources such as coins or HP for heals, bombs, and attack boosts.',
+          'Trainer asks math questions and can heal Isaac or strengthen attack patterns.',
+          'Merchant trades coins or HP for healing, bombs, attack boosts, and attack-speed boosts.',
+          'Health, coins, attack, bombs, and boss-room hints are updated in the UI, while actions trigger animations and sounds.',
         ],
       },
     ],
     reportIntro:
-      'The final report adds concrete implementation notes and screenshots for scene structure, room transitions, obstacles, collision handling, resource updates, NPC dialogue, and menu animation.',
+      'The final report records implementation choices and screenshots for scenes, doors, obstacles, collisions, character logic, NPC dialogue, resources, UI, menu animation, BGM, and hidden effects.',
     reportCards: [
       {
-        title: 'Scenes, doors, and rooms',
+        title: 'Character and boss design',
         items: [
-          'The start room teaches movement, attacks, and bomb placement.',
-          'Reward rooms include Lucky Room and NPC Room, while combat rooms close doors until enemies are cleared.',
-          'A single Boss Room is generated each run, with the UI hinting its position.',
+          'Normal enemies move around and damage the player on collision.',
+          'Bug has normal and sprint states, while Fly moves irregularly.',
+          'Gurdy has 100 HP, summons flies, fires bullets toward the player, and is implemented with separated body and attack classes.',
         ],
       },
       {
-        title: 'Obstacles and collisions',
+        title: 'NPC / LLM agent system',
         items: [
-          'Rooms contain Rock and Shit obstacles with different break rules.',
-          'Combat rooms randomize obstacle placement patterns.',
-          'Collision logic covers player-scene, projectile-scene, projectile-enemy, player-enemy, NPC, and item interactions.',
+          'Players approach NPCs and press Q to enter the chatbox.',
+          'Dialogue history and current player state are passed into the NPC decision process.',
+          'Trainer and Merchant produce different rewards, penalties, or trades based on dialogue and resources.',
         ],
       },
       {
-        title: 'NPC and LLM dialogue',
+        title: 'UI, hints, and hidden effects',
         items: [
-          'Trainer asks math questions and can heal or strengthen attacks.',
-          'Merchant trades coins or HP for healing, bombs, attack boosts, or attack speed boosts.',
-          'Dialogue state and player resources are passed into the NPC decision flow.',
+          'The UI updates health, coin, attack, and bomb values in real time.',
+          'A boss-room hint helps the player infer the path to the BossRoom.',
+          'Bomb self-damage can trigger a hidden split-body effect where Isaac’s head floats irregularly.',
         ],
       },
       {
-        title: 'Animation and UI',
+        title: 'Code organization',
         items: [
-          'The report highlights animations for the menu, movement, bullets, enemy hits, deaths, and scene transitions.',
-          'Health, coins, attack, bombs, and boss-room hints are updated in real time.',
-          'Bomb self-damage can trigger a hidden split-body effect.',
+          'The report describes modular object-oriented implementation.',
+          'GameManager acts as the main control module, while Characters, Scenes, TmpTools, and UI folders separate responsibilities.',
+          'Main.py and Statics.py are placed at the project root for running and shared data.',
         ],
       },
     ],
     contributionIntro:
-      'My contribution focused on enemy logic, game management, animations, UI/scenes, and README documentation.',
+      'My contribution focused on enemy logic, game management, animations, UI/scenes, and README documentation, while the final report documents the overall team design and implementation.',
     contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
     galleryIntro:
-      'Selected visual assets include repository textures, composed sprite views, and screenshots extracted from the final report document. No generated artwork is used.',
+      'The gallery now uses screenshots and diagrams extracted from the final report document.',
     gallery: [
       {
-        src: '/projects/si100b/hero.png',
-        alt: 'Start room control texture from the SI100B Pygame project.',
-        caption: 'Start room and control guide texture from the project assets.',
-      },
-      {
-        src: '/projects/si100b/gameplay.png',
-        alt: 'Composed gameplay visual using real project room, player, enemy, boss, projectile, and resource sprites.',
-        caption: 'Composed gameplay visual assembled from real project sprites and room textures.',
-      },
-      {
-        src: '/projects/si100b/room-types.png',
-        alt: 'Room type texture grid showing start, shop, treasure, and blue womb style rooms.',
-        caption: 'Room type texture grid based on the repository scene assets.',
-      },
-      {
-        src: '/projects/si100b/systems.png',
-        alt: 'Composed systems visual with boss, enemies, resources, merchant, and trainer sprites.',
-        caption: 'Enemy, resource, NPC, and boss asset composition from the project repository.',
+        src: '/projects/si100b/report-main-menu.png',
+        alt: 'Final report screenshot of the animated start menu.',
+        caption: 'Final report screenshot: animated main menu scene.',
       },
       {
         src: '/projects/si100b/report-boss-room.png',
@@ -427,11 +412,6 @@ export const en = {
         src: '/projects/si100b/report-obstacle-room.png',
         alt: 'Final report screenshot showing room obstacles and combat-room layout.',
         caption: 'Final report screenshot: combat room with randomized obstacle layout.',
-      },
-      {
-        src: '/projects/si100b/report-main-menu.png',
-        alt: 'Final report screenshot of the animated start menu.',
-        caption: 'Final report screenshot: animated main menu scene.',
       },
       {
         src: '/projects/si100b/report-map-generation.png',
@@ -450,7 +430,7 @@ export const en = {
       },
     ],
     courseContext:
-      'This work was completed as a team SI100B course project at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
+      'This work was completed as a team final project for SI100B: 信息技术导论 at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
     links: [
       {
         title: 'Final report PDF',
@@ -464,7 +444,7 @@ export const en = {
       },
       {
         title: 'README source',
-        text: 'Project overview, controls, team members, and division of labor are summarized from the repository README.',
+        text: 'Team members and division of labor are summarized from the repository README.',
         href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
       },
     ],

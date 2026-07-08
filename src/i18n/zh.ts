@@ -238,23 +238,23 @@ export const zh = {
   si100b: {
     metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame 项目 — 宋梓冬',
     metaDescription:
-      'SI100B 课程项目，使用 Pygame 实现了一个受《以撒的结合》启发的 2D Roguelike 游戏，包含房间探索、实时射击、敌人、NPC 交互、资源 UI 和 Boss 战。',
+      'SI100B《信息技术导论》期末项目，使用 Pygame 实现了一个受《以撒的结合》启发的 2D Roguelike 游戏，报告记录了场景、房门、障碍物、碰撞、NPC 对话、资源 UI、动画和 Boss 战等设计。',
     hero: {
-      eyebrow: '课程项目 / SI100B',
+      eyebrow: '课程项目 / SI100B 信息技术导论',
       title: 'SAVE MY LINEAR ALGEBRA：Pygame Roguelike 游戏项目',
-      subtitle: '一个小组合作完成的 SI100B Pygame 课程项目，受《以撒的结合》的房间式 Roguelike 结构启发。',
-      affiliation: 'SI100B 课程项目 · 上海科技大学 · 2024 Fall',
+      subtitle: '一个小组合作完成的 SI100B《信息技术导论》Pygame 期末项目，页面内容以项目最终报告和游戏截图为主要依据。',
+      affiliation: 'SI100B：信息技术导论 · 上海科技大学 · 2024 Fall',
     },
-    authors: ['潘佑邦', '吴俊阳', '宋梓冬'],
+    authors: ['潘佑邦', '宋梓冬', '吴俊阳'],
     metadata: [
-      'SI100B',
+      'SI100B 信息技术导论',
       'Pygame',
       'Python',
       '2D Roguelike Game',
       '课程项目',
-      '房间探索',
-      '敌人系统',
-      'NPC 交互',
+      '场景设计',
+      '碰撞系统',
+      'NPC 对话',
     ],
     labels: {
       course: '课程',
@@ -270,147 +270,132 @@ export const zh = {
     },
     sections: {
       overview: '项目概述',
-      gameplay: '玩法设计',
-      systems: '系统设计',
+      gameplay: '报告中的玩法设计',
+      systems: '实现设计',
       reportDesign: '报告设计补充',
       contribution: '我的贡献',
-      gallery: '视觉展示',
+      gallery: '报告截图',
       courseContext: '课程背景',
       links: '相关链接',
     },
     overview:
-      'Team SAVE MY LINEAR ALGEBRA 是一个使用 Pygame 实现的 SI100B 课程项目。项目是受《以撒的结合》启发的 2D Roguelike 原型，包含过程式连接房间、实时移动与射击、敌人遭遇、资源 UI、NPC 交互、抽奖机、炸弹、冲刺机制以及动画场景等内容。',
+      'SAVE MY LINEAR ALGEBRA 是 SI100B《信息技术导论》的期末项目。根据最终报告，该项目是一个使用 Pygame 实现、受《以撒的结合》启发的 2D Roguelike 原型：玩家操纵 Isaac 发射子弹、放置炸弹、击杀怪物、获取奖励、与 NPC 对话，并最终击败 Boss。Isaac 的血量有限，血量清零时游戏结束。',
     overviewBullets: [
-      '该游戏以团队课程项目形式展示，不是商业发布作品。',
-      '玩家需要探索连接房间、清理怪物、收集金币、遇见 NPC，并挑战最终 Boss。',
-      '实现内容结合了 Pygame 场景、精灵动画、房间逻辑、战斗逻辑和 UI 系统。',
-      'README 中列出的团队成员为潘佑邦、吴俊阳和宋梓冬。',
+      '最终报告将该项目定位为 SI100B 课程期末项目，而不是商业游戏。',
+      '游戏原型和素材明确来自 / 参考《以撒的结合》。',
+      '核心玩法包括房间探索、射击、放置炸弹、清理怪物、NPC 奖励和最终 Boss 战。',
+      '报告作者列为潘佑邦、宋梓冬和吴俊阳。',
     ],
     gameplayIntro:
-      'README 描述了一个键盘驱动的 Roguelike 循环：进入房间、实时射击、使用冲刺和炸弹、与特殊对象交互，并积累资源挑战 Boss。',
+      '报告从玩家循环和场景结构描述游戏：Isaac 从 StartRoom 出生并学习操作，随后进入奖励房或战斗房，清理敌人后解锁房门，并根据 Boss 房间提示前往最终战斗。',
     gameplayCards: [
       {
-        title: '移动与战斗',
+        title: '角色控制',
         items: [
-          'WASD 控制八方向移动。',
-          '方向键控制八方向射击。',
-          'LSHIFT 用于冲刺和快速调整位置。',
+          'W、A、S、D 控制 Isaac 移动，并通过移动向量支持斜向移动。',
+          '方向键控制 Isaac 向不同方向发射 tear，子弹攻击力和形态可以在游戏中增强。',
+          'LShift 用于加速移动，E 键放置炸弹；炸弹可以伤害敌人，也可能误伤 Isaac。',
         ],
       },
       {
-        title: '探索循环',
+        title: '房间推进',
         items: [
-          '玩家进入房间、清理怪物，并解锁相邻房间的门。',
-          '主要目标包括收集金币、提升能力，并在最终 Boss 前尽可能变强。',
-          'E 键可以放置炸弹，作为额外的资源型动作。',
+          'StartRoom 展示移动、攻击和放置炸弹等基本操作。',
+          '战斗房在战斗过程中会关闭房门，只有清除所有敌人后才会重新打开。',
+          '每轮游戏有且仅有一个 BossRoom，击败 Boss 后进入胜利结算画面。',
         ],
       },
       {
-        title: '交互机制',
+        title: '奖励与失败状态',
         items: [
-          'Q 键用于与抽奖机和 NPC 交互。',
-          '玩家在探索过程中可以遇到 Trainer 和 Merchant。',
-          '完整流程最终进入 Boss 战。',
+          'Lucky Room 中的抽奖机会消耗金币，并给予血量、攻击力或金币增益。',
+          'NPC Room 中玩家可以与 Trainer 或 Merchant 对话，获得隐藏奖励或进行交易。',
+          'Isaac 血量清零时死亡，游戏进入结束状态。',
         ],
       },
     ],
     systemIntro:
-      '项目通过地图生成、房间类型、场景管理、敌人系统、资源 UI、NPC 系统和 hardship coefficient 组织游戏流程；击败 Boss 后难度会继续提升。',
+      '报告重点记录了房间场景、房门逻辑、障碍物、场景切换、角色行为、二叉树地图结构、碰撞处理、资源 UI、NPC 决策、菜单场景和音效反馈等实现细节。',
     systemCards: [
       {
-        title: '地图与房间',
+        title: '场景、房门与转场',
         items: [
-          '基于二叉树的地图生成。',
-          '使用随机生成和迭代式回溯。',
-          '房间类型包括 Common room、Boss room、Lucky room 和 NPC room。',
+          '游戏包含 StartRoom、奖励房、战斗房和一个 BossRoom。',
+          '门可能出现在上、下、左、右四个方向，门的类型决定即将进入的房间类型。',
+          '房间切换时使用过渡动画，使镜头产生跟随移动的转场效果。',
         ],
       },
       {
-        title: '资源与 UI',
+        title: '地图与房间生成',
         items: [
-          'Health 显示剩余生命值。',
-          'Coin 记录收集到的金币数量。',
-          'Attack 和 Bomb UI 展示战斗与资源状态。',
-        ],
-      },
-      {
-        title: '敌人与 Boss',
-        items: [
-          'Fly / BloodyFly 会移动，并在接触玩家时造成伤害。',
-          'Bug 会在四个方向上随机冲刺。',
-          'Boss GURDY 会发射 bloody bullets，并召唤 BloodyFly 敌人。',
-        ],
-      },
-      {
-        title: '特殊系统',
-        items: [
-          '抽奖机消耗 5 个金币，可能获得金币、攻击力或生命值。',
-          'NPC Trainer 会根据回答给予奖励或惩罚。',
-          'NPC Merchant 会用金币或 HP 交换治疗、炸弹和攻击强化等资源。',
-        ],
-      },
-    ],
-    reportIntro:
-      '最终报告补充记录了场景结构、房间切换、障碍物、碰撞处理、资源更新、NPC 对话与菜单动画等具体实现设计，并包含多张游戏截图。',
-    reportCards: [
-      {
-        title: '场景、门与房间',
-        items: [
-          'StartRoom 用于展示移动、攻击和放置炸弹等基本操作。',
-          '奖励房包括 Lucky Room 和 NPC Room；战斗房会在敌人清除前关闭房门。',
-          '每轮游戏生成一个 Boss Room，并通过 UI 提示其所在位置。',
+          '游戏通过二叉树存储地图结构，StartRoom 是根节点。',
+          '地图向右方和下方延伸四层，总计 15 个房间。',
+          'BossRoom 保证在第四层生成，每个节点保存父节点和左右子节点，便于迭代和回溯。',
         ],
       },
       {
         title: '障碍物与碰撞',
         items: [
-          '房间中包含 Rock 和 Shit 两类障碍物，二者具有不同的破坏规则。',
-          '战斗房中的障碍物位置和模式会随机生成。',
-          '碰撞逻辑覆盖玩家与场景、子弹与场景、子弹与敌人、玩家与敌人、NPC 和道具交互。',
+          '房间中包含 Rock 和 Shit 两类障碍物，破坏规则不同。',
+          '战斗房中 Rock 的位置随机，Shit 会从多种模式中随机生成。',
+          '碰撞处理覆盖玩家与场景、子弹与场景、子弹与敌人、玩家与敌人、NPC 和道具交互，并包含像素级 mask 碰撞。',
         ],
       },
       {
-        title: 'NPC 与 LLM 对话',
+        title: 'NPC、资源与反馈',
         items: [
-          'Trainer 会提出数学问题，并可能回复生命值或增强攻击方式。',
-          'Merchant 会用金币或 HP 交换治疗、炸弹、攻击力和攻速强化。',
-          'NPC 决策流程会接收对话状态和玩家当前资源。',
+          'Trainer 提出数学问题，并可能回复血量或强化攻击方式。',
+          'Merchant 可用金币或 HP 交换治疗、炸弹、攻击力和攻击速度加成。',
+          '生命、金币、攻击、炸弹和 Boss 房间提示会在 UI 中实时更新，动作会触发动画和音效。',
+        ],
+      },
+    ],
+    reportIntro:
+      '最终报告记录了场景、房门、障碍物、碰撞、角色逻辑、NPC 对话、资源、UI、菜单动画、BGM 和隐藏效果等设计，并提供了对应游戏截图。',
+    reportCards: [
+      {
+        title: '角色与 Boss 设计',
+        items: [
+          '普通敌人不会主动攻击玩家，而是在移动中与玩家碰撞造成扣血。',
+          'Bug 具有普通形态和冲刺形态，Fly 会进行无规则飞行。',
+          'Gurdy 拥有 100 点血量，会召唤 Fly 并向玩家方向发射子弹；实现上将 Boss 身体和攻击机制拆分为两个类。',
         ],
       },
       {
-        title: '动画与 UI',
+        title: 'NPC / LLM Agent 系统',
         items: [
-          '报告记录了菜单、移动、子弹、敌人受击、死亡和场景切换等动画效果。',
-          '生命、金币、攻击、炸弹和 Boss 房间提示会在游戏中实时更新。',
-          '炸弹误伤玩家时会触发隐藏的分尸效果。',
+          '玩家靠近 NPC 并按 Q 键进入对话框。',
+          '对话历史和玩家当前状态会传入 NPC 决策流程。',
+          'Trainer 与 Merchant 会根据对话和资源状态产生不同奖励、惩罚或交易结果。',
+        ],
+      },
+      {
+        title: 'UI、提示与隐藏效果',
+        items: [
+          '游戏实时更新血量、金币、攻击力和炸弹数量。',
+          '右上角 Boss Room 位置提示帮助玩家推断前往 Boss 房间的路径。',
+          'Isaac 被自己的炸弹炸伤时会触发分尸隐藏效果，头颅进行无规则飘动。',
+        ],
+      },
+      {
+        title: '代码组织',
+        items: [
+          '报告描述了面向对象和模块化封装的实现方式。',
+          'GameManager 是主要总控部分，Characters、Scenes、TmpTools 和 UI 等目录分离不同功能。',
+          'Main.py 和 Statics.py 位于项目根目录，用于运行程序和保存共享数据。',
         ],
       },
     ],
     contributionIntro:
-      '我的贡献主要集中在敌人逻辑、游戏管理、动画、UI / 场景以及 README 文档整理。',
+      '我的贡献主要集中在敌人逻辑、游戏管理、动画、UI / 场景以及 README 文档整理；最终报告则记录了团队整体设计与实现。',
     contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
     galleryIntro:
-      '以下视觉素材包含仓库真实贴图、精灵组合图以及从最终报告文档中提取的游戏截图，没有使用生成式图片。',
+      '视觉展示使用从最终报告文档中提取的截图和示意图。',
     gallery: [
       {
-        src: '/projects/si100b/hero.png',
-        alt: 'SI100B Pygame 项目的初始房间与操作提示贴图。',
-        caption: '来自项目素材的初始房间与操作提示贴图。',
-      },
-      {
-        src: '/projects/si100b/gameplay.png',
-        alt: '使用项目真实房间、玩家、敌人、Boss、子弹和资源精灵组合的玩法视觉图。',
-        caption: '由真实项目精灵与房间贴图组合的玩法视觉图。',
-      },
-      {
-        src: '/projects/si100b/room-types.png',
-        alt: '展示 start、shop、treasure 和 blue womb 风格房间的房间类型贴图网格。',
-        caption: '基于仓库场景素材整理的房间类型贴图网格。',
-      },
-      {
-        src: '/projects/si100b/systems.png',
-        alt: '由 Boss、敌人、资源、Merchant 和 Trainer 精灵组成的系统视觉图。',
-        caption: '来自项目仓库的敌人、资源、NPC 与 Boss 素材组合。',
+        src: '/projects/si100b/report-main-menu.png',
+        alt: '最终报告中的动画主菜单截图。',
+        caption: '最终报告截图：动画主菜单场景。',
       },
       {
         src: '/projects/si100b/report-boss-room.png',
@@ -421,11 +406,6 @@ export const zh = {
         src: '/projects/si100b/report-obstacle-room.png',
         alt: '最终报告中展示房间障碍物和战斗房布局的截图。',
         caption: '最终报告截图：包含随机障碍物布局的战斗房。',
-      },
-      {
-        src: '/projects/si100b/report-main-menu.png',
-        alt: '最终报告中的动画主菜单截图。',
-        caption: '最终报告截图：动画主菜单场景。',
       },
       {
         src: '/projects/si100b/report-map-generation.png',
@@ -444,7 +424,7 @@ export const zh = {
       },
     ],
     courseContext:
-      '该项目完成于上海科技大学 2024 Fall 的 SI100B 课程，是一个小组合作的 Pygame 课程项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
+      '该项目完成于上海科技大学 2024 Fall 的 SI100B《信息技术导论》课程，是一个小组合作的 Pygame 期末项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
     links: [
       {
         title: '最终报告 PDF',
@@ -458,7 +438,7 @@ export const zh = {
       },
       {
         title: 'README 来源',
-        text: '项目概述、操作方式、团队成员与分工信息均整理自仓库 README。',
+        text: '团队成员与分工信息整理自仓库 README。',
         href: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA#readme',
       },
     ],

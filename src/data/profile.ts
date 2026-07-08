@@ -44,16 +44,16 @@ export const si100bCourseProject: CourseProject = {
     en: '2D Roguelike Game',
     zh: '2D Roguelike 游戏',
   },
-  course: 'SI100B Course Project',
+  course: 'SI100B: 信息技术导论',
   year: '2024 Fall',
   description: {
     en:
-      'A SI100B course project implemented with Pygame, featuring room-based exploration, real-time shooting, enemy systems, NPC interactions, resource UI, and boss encounters.',
+      'A SI100B: 信息技术导论 final project implemented with Pygame, featuring Isaac-style room exploration, shooting, bombs, obstacle and collision systems, NPC dialogue, resource UI, and a final boss encounter.',
     zh:
-      '一个使用 Pygame 实现的 SI100B 课程项目，包含房间探索、实时射击、敌人系统、NPC 交互、资源 UI 与 Boss 战等机制。',
+      '一个使用 Pygame 实现的 SI100B《信息技术导论》期末项目，包含 Isaac 式房间探索、射击、炸弹、障碍物与碰撞系统、NPC 对话、资源 UI 和最终 Boss 战。',
   },
   tags: ['SI100B', 'Pygame', 'Python', 'Roguelike', 'Game Development', 'Course Project'],
-  image: '/projects/si100b/hero.png',
+  image: '/projects/si100b/report-main-menu.png',
   links: {
     details: {
       en: '/projects/si100b',

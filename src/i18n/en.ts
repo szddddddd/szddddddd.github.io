@@ -49,18 +49,21 @@ export const en = {
   },
   about: {
     eyebrow: 'About',
+    pageTitle: 'About',
     title: 'A research-oriented academic profile',
     intro:
       'This page keeps the content precise and editable, with space for future education, coursework, awards, and research updates.',
     bio:
       'I am an undergraduate student majoring in Computer Science at ShanghaiTech University and affiliated with VRVC Lab. My current interests focus on 3D Vision, Generative World Models, and Neural Rendering.',
-    identityTitle: 'Academic identity',
+    profileTitle: 'Profile',
+    identityTitle: 'Academic details',
     interestsTitle: 'Research interests',
-    futureTitle: 'Future additions',
+    futureTitle: 'Future updates',
     futureItems: ['Education details', 'Coursework', 'Awards', 'Research updates'],
   },
   projects: {
     eyebrow: 'Research / Projects',
+    pageTitle: 'Research / Projects',
     title: 'Projects as visual research artifacts',
     intro:
       'A curated project index for research prototypes, course projects, code, demos, and paper links.',
@@ -78,6 +81,7 @@ export const en = {
   },
   publications: {
     eyebrow: 'Publications',
+    pageTitle: 'Publications',
     title: 'Publications',
     intro: 'The publication list is intentionally empty until real papers or manuscripts are provided.',
     empty: 'Publications coming soon.',
@@ -91,18 +95,21 @@ export const en = {
   },
   coursework: {
     eyebrow: 'Coursework / Course Projects',
+    pageTitle: 'Coursework / Course Projects',
     title: 'Course projects',
     intro: 'A dedicated area for course-based technical artifacts and academic project work.',
     empty: 'Course projects will be added later.',
   },
   notes: {
     eyebrow: 'Notes / Blog',
+    pageTitle: 'Notes / Blog',
     title: 'Notes',
     intro: 'A minimal writing space for future research notes, technical reflections, and reading summaries.',
     empty: 'Notes coming soon.',
   },
   contact: {
     eyebrow: 'Contact',
+    pageTitle: 'Contact',
     title: 'Contact',
     intro: 'The current contact section includes only the provided email, GitHub profile, and CV placeholder.',
     email: 'Email',

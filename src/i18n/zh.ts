@@ -49,17 +49,20 @@ export const zh = {
   },
   about: {
     eyebrow: '关于',
+    pageTitle: '关于我',
     title: '面向研究的学术主页',
     intro: '页面内容保持克制、清晰、可维护，后续可继续补充教育经历、课程、奖项与研究动态。',
     bio:
       '我是上海科技大学计算机科学专业本科生，目前在 VRVC Lab，研究兴趣集中在 3D Vision、Generative World Models 与 Neural Rendering 等方向。',
-    identityTitle: '学术身份',
+    profileTitle: '个人简介',
+    identityTitle: '学术信息',
     interestsTitle: '研究兴趣',
-    futureTitle: '后续可补充',
+    futureTitle: '后续更新',
     futureItems: ['教育经历', '课程学习', '奖项荣誉', '研究动态'],
   },
   projects: {
     eyebrow: '研究 / 项目',
+    pageTitle: '研究 / 项目',
     title: '作为视觉研究载体的项目展示',
     intro: '这里整理研究原型、课程项目、代码、演示与论文链接等项目内容。',
     fullTitle: '项目索引',
@@ -75,6 +78,7 @@ export const zh = {
   },
   publications: {
     eyebrow: '论文',
+    pageTitle: '论文与学术产出',
     title: '论文与学术产出',
     intro: '在提供真实论文或 manuscript 信息之前，此处保持为空。',
     empty: '论文与学术产出将后续补充。',
@@ -88,18 +92,21 @@ export const zh = {
   },
   coursework: {
     eyebrow: '课程 / 课程项目',
+    pageTitle: '课程项目',
     title: '课程项目',
     intro: '这里展示课程中的技术项目与学术实践成果。',
     empty: '课程项目将后续补充。',
   },
   notes: {
     eyebrow: '笔记 / 博客',
+    pageTitle: '笔记',
     title: '笔记',
     intro: '这里将作为后续研究笔记、技术反思与阅读总结的轻量写作空间。',
     empty: '笔记将后续补充。',
   },
   contact: {
     eyebrow: '联系',
+    pageTitle: '联系',
     title: '联系方式',
     intro: '当前仅展示已提供的邮箱、GitHub 主页与 CV 占位信息。',
     email: '邮箱',

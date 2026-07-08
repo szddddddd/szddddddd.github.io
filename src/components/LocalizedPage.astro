@@ -111,15 +111,14 @@ const quickLinks = [
   {page === 'about' && (
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.about.eyebrow}</p>
-        <h1>{t.about.title}</h1>
+        <h1>{t.about.pageTitle}</h1>
         <p>{t.about.intro}</p>
       </section>
 
-      <Section title={t.about.identityTitle} intro={t.about.bio}>
+      <Section>
         <div class="about-grid">
           <article class="panel panel-large">
-            <p class="panel-label">{display.name}</p>
+            <p class="panel-label">{t.about.profileTitle}</p>
             <p class="large-copy">{t.about.bio}</p>
           </article>
           <article class="panel">
@@ -153,12 +152,11 @@ const quickLinks = [
   {page === 'projects' && (
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.projects.eyebrow}</p>
-        <h1>{t.projects.fullTitle}</h1>
+        <h1>{t.projects.pageTitle}</h1>
         <p>{t.projects.fullIntro}</p>
       </section>
 
-      <Section title={t.projects.title} intro={t.projects.intro}>
+      <Section>
         <div class="project-grid">
           {profile.projects.map((project) => <ProjectCard project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />)}
         </div>
@@ -169,12 +167,11 @@ const quickLinks = [
   {page === 'publications' && (
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.publications.eyebrow}</p>
-        <h1>{t.publications.title}</h1>
+        <h1>{t.publications.pageTitle}</h1>
         <p>{t.publications.intro}</p>
       </section>
 
-      <Section title={t.publications.title} intro={t.publications.support}>
+      <Section>
         {profile.publications.length > 0 ? (
           <div class="publication-list">
             {profile.publications.map((publication) => (
@@ -194,12 +191,11 @@ const quickLinks = [
   {page === 'coursework' && (
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.coursework.eyebrow}</p>
-        <h1>{t.coursework.title}</h1>
+        <h1>{t.coursework.pageTitle}</h1>
         <p>{t.coursework.intro}</p>
       </section>
 
-      <Section title={t.coursework.title} intro={t.coursework.intro}>
+      <Section>
         {profile.courseProjects.length > 0 ? (
           <div class="project-grid coursework-grid">
             {profile.courseProjects.map((project) => (
@@ -219,12 +215,11 @@ const quickLinks = [
   {page === 'notes' && (
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.notes.eyebrow}</p>
-        <h1>{t.notes.title}</h1>
+        <h1>{t.notes.pageTitle}</h1>
         <p>{t.notes.intro}</p>
       </section>
 
-      <Section title={t.notes.title} intro={t.notes.intro}>
+      <Section>
         <div class="empty-state">
           <span>{t.common.comingSoon}</span>
           <p>{t.notes.empty}</p>
@@ -236,12 +231,11 @@ const quickLinks = [
   {page === 'contact' && (
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.contact.eyebrow}</p>
-        <h1>{t.contact.title}</h1>
+        <h1>{t.contact.pageTitle}</h1>
         <p>{t.contact.intro}</p>
       </section>
 
-      <Section title={t.contact.title} intro={t.contact.intro}>
+      <Section>
         <div class="contact-grid">
           <article class="panel">
             <p class="panel-label">{t.contact.email}</p>

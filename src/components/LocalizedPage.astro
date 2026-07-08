@@ -21,6 +21,7 @@ const titles: Record<PageKey, string> = {
   about: `${t.nav.about} — ${display.name}`,
   projects: `${t.nav.projects} — ${display.name}`,
   projectBme1312: t.bme1312.metaTitle,
+  projectCs182: t.cs182.metaTitle,
   publications: `${t.nav.publications} — ${display.name}`,
   coursework: `${t.nav.coursework} — ${display.name}`,
   notes: `${t.nav.notes} — ${display.name}`,
@@ -32,6 +33,7 @@ const descriptions: Record<PageKey, string> = {
   about: t.about.intro,
   projects: t.projects.fullIntro,
   projectBme1312: t.bme1312.metaDescription,
+  projectCs182: t.cs182.metaDescription,
   publications: t.publications.intro,
   coursework: t.coursework.intro,
   notes: t.notes.intro,
@@ -58,7 +60,7 @@ const quickLinks = [
       <Hero lang={lang} />
 
       <Section id="about" eyebrow={t.about.eyebrow} title={t.about.title} intro={t.about.intro}>
-        <div class="about-grid">
+        <div class="about-grid home-about-grid">
           <article class="panel panel-large">
             <p class="panel-label">{t.common.bio}</p>
             <p class="large-copy">{t.about.bio}</p>
@@ -73,12 +75,6 @@ const quickLinks = [
                 </div>
               ))}
             </dl>
-          </article>
-          <article class="panel">
-            <p class="panel-label">{t.about.interestsTitle}</p>
-            <ul class="interest-list">
-              {profile.researchInterests.map((interest) => <li>{interest}</li>)}
-            </ul>
           </article>
         </div>
       </Section>

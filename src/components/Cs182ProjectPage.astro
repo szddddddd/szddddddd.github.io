@@ -1,0 +1,223 @@
+---
+import Section from './Section.astro';
+import { cs182CourseProject, profile } from '../data/profile';
+import { getCopy, type Lang } from '../i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const copy = t.cs182;
+const project = cs182CourseProject;
+const typeLabel = project.type?.[lang] ?? t.common.courseProject;
+const details = [
+  { label: copy.labels.course, value: project.course ?? 'CS182: Introduction to Machine Learning' },
+  { label: copy.labels.type, value: typeLabel },
+  { label: copy.labels.year, value: project.year },
+  { label: copy.labels.authors, value: copy.authors.join(' · ') },
+];
+const resolveLink = (value: string | { en: string; zh: string } | undefined) => {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value[lang];
+};
+const reportHref = resolveLink(project.links.report);
+const codeHref = resolveLink(project.links.code);
+---
+
+<BaseLayout lang={lang} page="projectCs182" title={copy.metaTitle} description={copy.metaDescription}>
+  <article class="project-detail cs182-detail">
+    <header class="project-detail-hero">
+      <div class="detail-hero-copy reveal-block">
+        <p class="eyebrow">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title">{copy.hero.title}</h1>
+        <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
+        <p class="detail-affiliation">{copy.hero.affiliation}</p>
+        <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
+          {copy.metadata.map((item) => <li>{item}</li>)}
+        </ul>
+        <div class="hero-actions detail-actions">
+          <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
+          <a class="button button-secondary" href="#course-context">{copy.labels.courseProject}</a>
+          {
+            reportHref ? (
+              <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>
+            ) : (
+              <span class="button button-disabled" aria-disabled="true">{t.projects.labels.report}: {t.common.comingSoon}</span>
+            )
+          }
+          {
+            codeHref ? (
+              <a class="button button-secondary" href={codeHref}>{t.projects.labels.code}</a>
+            ) : (
+              <span class="button button-disabled" aria-disabled="true">{t.projects.labels.code}: {t.common.comingSoon}</span>
+            )
+          }
+        </div>
+      </div>
+      <figure class="detail-hero-figure reveal-block">
+        <img src={project.image} alt={copy.gallery[0].alt} loading="eager" />
+        <figcaption>{copy.gallery[0].caption}</figcaption>
+      </figure>
+    </header>
+
+    <section class="metadata-grid" aria-label="Project metadata">
+      {details.map((item) => (
+        <article>
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+        </article>
+      ))}
+    </section>
+
+    <Section eyebrow="CS182" title={copy.sections.overview} intro={copy.overview}>
+      <div class="detail-two-column">
+        <div class="panel project-summary-panel">
+          <p class="panel-label">{copy.labels.summary}</p>
+          <ul class="interest-list">
+            {copy.overviewBullets.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div class="panel narrative-panel">
+          <p>{copy.hero.affiliation}</p>
+          <p>{copy.authors.join(' · ')}</p>
+          <p>{profile.email}</p>
+        </div>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.motivation} intro={copy.motivationIntro}>
+      <div class="method-grid">
+        {copy.motivationCards.map((card) => (
+          <article class="method-card">
+            <p class="panel-label">{copy.sections.motivation}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.method} intro={copy.methodIntro}>
+      <div class="method-grid">
+        {copy.methodCards.map((card) => (
+          <article class="method-card">
+            <p class="panel-label">{copy.labels.method}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.loss} intro={copy.lossIntro}>
+      <div class="formula-grid">
+        {copy.lossCards.map((card) => (
+          <article class="panel formula-card">
+            <p class="panel-label">{copy.sections.loss}</p>
+            <h3>{card.title}</h3>
+            <p class="formula-text">{card.formula}</p>
+            <p>{card.text}</p>
+          </article>
+        ))}
+      </div>
+      <div class="panel highlight-panel">
+        <p class="panel-label">{copy.labels.summary}</p>
+        <ul class="highlight-list">
+          {copy.lossHighlights.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.pruning} intro={copy.pruningIntro}>
+      <div class="method-grid">
+        {copy.pruningCards.map((card) => (
+          <article class="method-card">
+            <p class="panel-label">{copy.sections.pruning}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.experiments} intro={copy.experimentsIntro}>
+      <div class="method-grid">
+        {copy.experimentCards.map((card) => (
+          <article class="method-card">
+            <p class="panel-label">{copy.sections.experiments}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.results} intro={copy.resultsIntro}>
+      <div class="metric-table" role="table" aria-label="CS182 MOF3R quantitative comparison">
+        <div class="metric-row metric-row-3 metric-head" role="row">
+          {copy.resultColumns.map((column) => <span role="columnheader">{column}</span>)}
+        </div>
+        {copy.resultRows.map((row) => (
+          <div class="metric-row metric-row-3" role="row">
+            {row.map((cell, index) => <span role="cell" class:list={{ 'metric-model': index === 0 }}>{cell}</span>)}
+          </div>
+        ))}
+      </div>
+      <div class="metric-cards metric-cards-three" aria-label={copy.labels.metricChanges}>
+        <article><span>PSNR</span><strong>19.07 → 23.56</strong></article>
+        <article><span>SSIM</span><strong>0.592 → 0.935</strong></article>
+        <article><span>LPIPS</span><strong>0.629 → 0.120</strong></article>
+      </div>
+      <div class="panel highlight-panel">
+        <p class="panel-label">{copy.sections.results}</p>
+        <ul class="highlight-list">
+          {copy.resultHighlights.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+      <figure class="detail-figure wide-result-figure">
+        <img src={copy.gallery[2].src} alt={copy.gallery[2].alt} loading="lazy" />
+        <figcaption>{copy.gallery[2].caption}</figcaption>
+      </figure>
+    </Section>
+
+    <Section title={copy.sections.gallery} intro={copy.galleryIntro}>
+      <div class="gallery-grid">
+        {copy.gallery.map((item) => (
+          <figure class="detail-figure">
+            <img src={item.src} alt={item.alt} loading="lazy" />
+            <figcaption>{item.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.contribution}>
+      <div class="panel narrative-panel">
+        <p>{copy.contribution}</p>
+      </div>
+    </Section>
+
+    <Section id="course-context" title={copy.sections.courseContext}>
+      <div class="panel narrative-panel">
+        <p>{copy.courseContext}</p>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.future}>
+      <div class="future-grid">
+        {copy.future.map((item) => <article class="panel future-card"><p>{item}</p></article>)}
+      </div>
+    </Section>
+  </article>
+</BaseLayout>

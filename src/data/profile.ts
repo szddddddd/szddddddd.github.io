@@ -71,6 +71,35 @@ export const bme1312CourseProject: CourseProject = {
   },
 };
 
+export const cs182CourseProject: CourseProject = {
+  title: {
+    en: 'MOF3R: Mask-Guided 3D Product Reconstruction',
+    zh: 'MOF3R：基于 SAM2 与 3DGS 的 Mask-Guided 三维商品重建',
+  },
+  type: {
+    en: 'Course Project',
+    zh: '课程项目',
+  },
+  course: 'CS182: Introduction to Machine Learning',
+  year: '2026',
+  description: {
+    en:
+      'A CS182 course project for object-centric 3D reconstruction using SAM2-guided masks, 3D Gaussian Splatting, and geometry-aware Gaussian pruning.',
+    zh:
+      'CS182《机器学习引论》课程项目，使用 SAM2 前景分割、3D Gaussian Splatting 与几何感知 Gaussian pruning 进行物体中心三维重建。',
+  },
+  tags: ['CS182', '3DGS', 'SAM2', 'Object-Centric Reconstruction', 'CO3Dv2'],
+  image: '/projects/cs182/MOF3R_overview.png',
+  links: {
+    details: {
+      en: '/projects/cs182',
+      zh: '/zh/projects/cs182',
+    },
+    report: '/projects/cs182/report.pdf',
+    code: '',
+  },
+};
+
 export const profile = {
   nameZh: '宋梓冬',
   nameEn: 'Song Zidong',
@@ -101,9 +130,8 @@ export const profile = {
     'Computer Vision',
     '3D Reconstruction',
     'Gaussian Splatting',
-    'World Models',
     'Neural Rendering',
-    'Generative World Models',
+    'World Models',
   ],
   cv: {
     label: 'Coming soon',
@@ -111,6 +139,7 @@ export const profile = {
   },
   projects: [
     bme1312CourseProject,
+    cs182CourseProject,
     {
       title: {
         en: 'Gaussian Splatting Project',
@@ -149,5 +178,5 @@ export const profile = {
     },
   ] satisfies Project[],
   publications: [] satisfies Publication[],
-  courseProjects: [bme1312CourseProject] satisfies CourseProject[],
+  courseProjects: [bme1312CourseProject, cs182CourseProject] satisfies CourseProject[],
 };

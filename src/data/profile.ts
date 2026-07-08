@@ -59,6 +59,7 @@ export const si100bCourseProject: CourseProject = {
       en: '/projects/si100b',
       zh: '/zh/projects/si100b',
     },
+    report: '/projects/si100b/report.pdf',
     code: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
   },
 };

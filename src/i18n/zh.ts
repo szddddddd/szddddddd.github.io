@@ -266,11 +266,13 @@ export const zh = {
       system: '系统',
       contribution: '贡献',
       links: '链接',
+      report: '报告',
     },
     sections: {
       overview: '项目概述',
       gameplay: '玩法设计',
       systems: '系统设计',
+      reportDesign: '报告设计补充',
       contribution: '我的贡献',
       gallery: '视觉展示',
       courseContext: '课程背景',
@@ -348,11 +350,47 @@ export const zh = {
         ],
       },
     ],
+    reportIntro:
+      '最终报告补充记录了场景结构、房间切换、障碍物、碰撞处理、资源更新、NPC 对话与菜单动画等具体实现设计，并包含多张游戏截图。',
+    reportCards: [
+      {
+        title: '场景、门与房间',
+        items: [
+          'StartRoom 用于展示移动、攻击和放置炸弹等基本操作。',
+          '奖励房包括 Lucky Room 和 NPC Room；战斗房会在敌人清除前关闭房门。',
+          '每轮游戏生成一个 Boss Room，并通过 UI 提示其所在位置。',
+        ],
+      },
+      {
+        title: '障碍物与碰撞',
+        items: [
+          '房间中包含 Rock 和 Shit 两类障碍物，二者具有不同的破坏规则。',
+          '战斗房中的障碍物位置和模式会随机生成。',
+          '碰撞逻辑覆盖玩家与场景、子弹与场景、子弹与敌人、玩家与敌人、NPC 和道具交互。',
+        ],
+      },
+      {
+        title: 'NPC 与 LLM 对话',
+        items: [
+          'Trainer 会提出数学问题，并可能回复生命值或增强攻击方式。',
+          'Merchant 会用金币或 HP 交换治疗、炸弹、攻击力和攻速强化。',
+          'NPC 决策流程会接收对话状态和玩家当前资源。',
+        ],
+      },
+      {
+        title: '动画与 UI',
+        items: [
+          '报告记录了菜单、移动、子弹、敌人受击、死亡和场景切换等动画效果。',
+          '生命、金币、攻击、炸弹和 Boss 房间提示会在游戏中实时更新。',
+          '炸弹误伤玩家时会触发隐藏的分尸效果。',
+        ],
+      },
+    ],
     contributionIntro:
       '我的贡献主要集中在敌人逻辑、游戏管理、动画、UI / 场景以及 README 文档整理。',
     contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
     galleryIntro:
-      '以下视觉素材来自项目仓库中的真实文件，部分图像由仓库中的房间贴图、角色精灵、UI 资源、NPC 和 Boss 素材组合而成，没有使用生成式图片。',
+      '以下视觉素材包含仓库真实贴图、精灵组合图以及从最终报告文档中提取的游戏截图，没有使用生成式图片。',
     gallery: [
       {
         src: '/projects/si100b/hero.png',
@@ -374,10 +412,45 @@ export const zh = {
         alt: '由 Boss、敌人、资源、Merchant 和 Trainer 精灵组成的系统视觉图。',
         caption: '来自项目仓库的敌人、资源、NPC 与 Boss 素材组合。',
       },
+      {
+        src: '/projects/si100b/report-boss-room.png',
+        alt: '最终报告中的 GURDY Boss 房截图，包含生命 UI 和 Boss 房间提示。',
+        caption: '最终报告截图：GURDY Boss 战，包含生命、资源和 Boss 房间提示。',
+      },
+      {
+        src: '/projects/si100b/report-obstacle-room.png',
+        alt: '最终报告中展示房间障碍物和战斗房布局的截图。',
+        caption: '最终报告截图：包含随机障碍物布局的战斗房。',
+      },
+      {
+        src: '/projects/si100b/report-main-menu.png',
+        alt: '最终报告中的动画主菜单截图。',
+        caption: '最终报告截图：动画主菜单场景。',
+      },
+      {
+        src: '/projects/si100b/report-map-generation.png',
+        alt: '最终报告中展示二叉树房间生成结构的示意图。',
+        caption: '最终报告示意图：从 Start Room 到 Boss Room 的二叉树房间结构。',
+      },
+      {
+        src: '/projects/si100b/report-npc-chat.png',
+        alt: '最终报告中的 NPC 对话界面截图。',
+        caption: '最终报告截图：NPC 对话与 Merchant 决策界面。',
+      },
+      {
+        src: '/projects/si100b/report-ui.png',
+        alt: '最终报告中的生命、金币、攻击和炸弹资源 UI 截图。',
+        caption: '最终报告截图：生命、金币、攻击和炸弹资源 UI。',
+      },
     ],
     courseContext:
       '该项目完成于上海科技大学 2024 Fall 的 SI100B 课程，是一个小组合作的 Pygame 课程项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
     links: [
+      {
+        title: '最终报告 PDF',
+        text: '打开转换后的 SI100B 项目最终报告。',
+        href: '/projects/si100b/report.pdf',
+      },
       {
         title: 'GitHub 仓库',
         text: '打开 Team SAVE MY LINEAR ALGEBRA 项目仓库。',

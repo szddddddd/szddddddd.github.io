@@ -14,6 +14,8 @@ const copy = t.si100b;
 const project = si100bCourseProject;
 const typeLabel = project.type?.[lang] ?? t.common.courseProject;
 const codeHref = typeof project.links.code === 'string' ? project.links.code : '';
+const reportHref = typeof project.links.report === 'string' ? project.links.report : '';
+const readmeHref = copy.links.find((item) => item.href.includes('#readme'))?.href ?? '';
 const details = [
   { label: copy.labels.course, value: project.course ?? 'SI100B Course Project' },
   { label: copy.labels.type, value: typeLabel },
@@ -35,7 +37,8 @@ const details = [
         </ul>
         <div class="hero-actions detail-actions">
           {codeHref && <a class="button button-secondary" href={codeHref} target="_blank" rel="noreferrer">GitHub</a>}
-          <a class="button button-secondary" href={copy.links[1].href} target="_blank" rel="noreferrer">README</a>
+          {reportHref && <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>}
+          {readmeHref && <a class="button button-secondary" href={readmeHref} target="_blank" rel="noreferrer">README</a>}
           <a class="button button-secondary" href="#course-context">{copy.sections.courseContext}</a>
         </div>
       </div>
@@ -99,6 +102,20 @@ const details = [
         <img src={copy.gallery[3].src} alt={copy.gallery[3].alt} loading="lazy" />
         <figcaption>{copy.gallery[3].caption}</figcaption>
       </figure>
+    </Section>
+
+    <Section title={copy.sections.reportDesign} intro={copy.reportIntro}>
+      <div class="method-grid si100b-system-grid">
+        {copy.reportCards.map((card) => (
+          <article class="method-card si100b-card">
+            <p class="panel-label">{copy.labels.report}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
     </Section>
 
     <Section title={copy.sections.contribution} intro={copy.contributionIntro}>

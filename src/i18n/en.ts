@@ -272,11 +272,13 @@ export const en = {
       system: 'System',
       contribution: 'Contribution',
       links: 'Links',
+      report: 'Report',
     },
     sections: {
       overview: 'Overview',
       gameplay: 'Gameplay Design',
       systems: 'System Design',
+      reportDesign: 'Report Design Notes',
       contribution: 'My Contribution',
       gallery: 'Visual Gallery',
       courseContext: 'Course Context',
@@ -354,11 +356,47 @@ export const en = {
         ],
       },
     ],
+    reportIntro:
+      'The final report adds concrete implementation notes and screenshots for scene structure, room transitions, obstacles, collision handling, resource updates, NPC dialogue, and menu animation.',
+    reportCards: [
+      {
+        title: 'Scenes, doors, and rooms',
+        items: [
+          'The start room teaches movement, attacks, and bomb placement.',
+          'Reward rooms include Lucky Room and NPC Room, while combat rooms close doors until enemies are cleared.',
+          'A single Boss Room is generated each run, with the UI hinting its position.',
+        ],
+      },
+      {
+        title: 'Obstacles and collisions',
+        items: [
+          'Rooms contain Rock and Shit obstacles with different break rules.',
+          'Combat rooms randomize obstacle placement patterns.',
+          'Collision logic covers player-scene, projectile-scene, projectile-enemy, player-enemy, NPC, and item interactions.',
+        ],
+      },
+      {
+        title: 'NPC and LLM dialogue',
+        items: [
+          'Trainer asks math questions and can heal or strengthen attacks.',
+          'Merchant trades coins or HP for healing, bombs, attack boosts, or attack speed boosts.',
+          'Dialogue state and player resources are passed into the NPC decision flow.',
+        ],
+      },
+      {
+        title: 'Animation and UI',
+        items: [
+          'The report highlights animations for the menu, movement, bullets, enemy hits, deaths, and scene transitions.',
+          'Health, coins, attack, bombs, and boss-room hints are updated in real time.',
+          'Bomb self-damage can trigger a hidden split-body effect.',
+        ],
+      },
+    ],
     contributionIntro:
       'My contribution focused on enemy logic, game management, animations, UI/scenes, and README documentation.',
     contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
     galleryIntro:
-      'Selected visual assets are copied or composed from real files in the project repository. Composite images use the repository room textures, sprites, UI resources, NPCs, and boss assets rather than generated artwork.',
+      'Selected visual assets include repository textures, composed sprite views, and screenshots extracted from the final report document. No generated artwork is used.',
     gallery: [
       {
         src: '/projects/si100b/hero.png',
@@ -380,10 +418,45 @@ export const en = {
         alt: 'Composed systems visual with boss, enemies, resources, merchant, and trainer sprites.',
         caption: 'Enemy, resource, NPC, and boss asset composition from the project repository.',
       },
+      {
+        src: '/projects/si100b/report-boss-room.png',
+        alt: 'Final report screenshot of the GURDY boss room with health UI and boss-room hint.',
+        caption: 'Final report screenshot: GURDY boss encounter with health, resources, and boss-room hint.',
+      },
+      {
+        src: '/projects/si100b/report-obstacle-room.png',
+        alt: 'Final report screenshot showing room obstacles and combat-room layout.',
+        caption: 'Final report screenshot: combat room with randomized obstacle layout.',
+      },
+      {
+        src: '/projects/si100b/report-main-menu.png',
+        alt: 'Final report screenshot of the animated start menu.',
+        caption: 'Final report screenshot: animated main menu scene.',
+      },
+      {
+        src: '/projects/si100b/report-map-generation.png',
+        alt: 'Final report diagram of the binary-tree room generation structure.',
+        caption: 'Final report diagram: binary-tree room structure from Start Room to Boss Room.',
+      },
+      {
+        src: '/projects/si100b/report-npc-chat.png',
+        alt: 'Final report screenshot of the NPC dialogue interface.',
+        caption: 'Final report screenshot: NPC dialogue and merchant decision interface.',
+      },
+      {
+        src: '/projects/si100b/report-ui.png',
+        alt: 'Final report screenshot of the health, coin, attack, and bomb UI.',
+        caption: 'Final report screenshot: resource UI for health, coin, attack, and bomb state.',
+      },
     ],
     courseContext:
       'This work was completed as a team SI100B course project at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
     links: [
+      {
+        title: 'Final report PDF',
+        text: 'Open the converted SI100B project final report.',
+        href: '/projects/si100b/report.pdf',
+      },
       {
         title: 'GitHub repository',
         text: 'Open the Team SAVE MY LINEAR ALGEBRA repository.',

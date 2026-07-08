@@ -14,7 +14,7 @@ const t = getCopy(lang);
 const copy = t.cs182;
 const project = cs182CourseProject;
 const typeLabel = project.type?.[lang] ?? t.common.courseProject;
-const galleryItems = copy.gallery.filter((item) => item.src !== '/projects/cs182/comparsion.png');
+const visualItems = copy.gallery;
 const details = [
   { label: copy.labels.course, value: project.course ?? 'CS182: Introduction to Machine Learning' },
   { label: copy.labels.type, value: typeLabel },
@@ -27,6 +27,11 @@ const resolveLink = (value: string | { en: string; zh: string } | undefined) => 
 };
 const reportHref = resolveLink(project.links.report);
 const codeHref = resolveLink(project.links.code);
+const authorSentence =
+  lang === 'zh'
+    ? `该项目由 ${copy.authors[0]}、${copy.authors[1]} 和 ${copy.authors[2]} 作为 CS182 课程项目完成。`
+    : `This project was completed as a CS182 course project by ${copy.authors[0]}, ${copy.authors[1]}, and ${copy.authors[2]}.`;
+const compoundLoss = copy.lossCards[2];
 ---
 
 <BaseLayout lang={lang} page="projectCs182" title={copy.metaTitle} description={copy.metaDescription}>
@@ -42,7 +47,6 @@ const codeHref = resolveLink(project.links.code);
         </ul>
         <div class="hero-actions detail-actions">
           <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
-          <a class="button button-secondary" href="#course-context">{copy.labels.courseProject}</a>
           {
             reportHref ? (
               <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>
@@ -59,10 +63,6 @@ const codeHref = resolveLink(project.links.code);
           }
         </div>
       </div>
-      <figure class="detail-hero-figure reveal-block">
-        <img src={project.image} alt={copy.gallery[0].alt} loading="eager" />
-        <figcaption>{copy.gallery[0].caption}</figcaption>
-      </figure>
     </header>
 
     <section class="metadata-grid" aria-label="Project metadata">
@@ -74,7 +74,7 @@ const codeHref = resolveLink(project.links.code);
       ))}
     </section>
 
-    <Section eyebrow="CS182" title={copy.sections.overview} intro={copy.overview}>
+    <Section id="overview" eyebrow="CS182" title={copy.sections.overview} intro={copy.overview}>
       <div class="detail-two-column">
         <div class="panel project-summary-panel">
           <p class="panel-label">{copy.labels.summary}</p>
@@ -83,28 +83,12 @@ const codeHref = resolveLink(project.links.code);
           </ul>
         </div>
         <div class="panel narrative-panel">
-          <p>{copy.hero.affiliation}</p>
-          <p>{copy.authors.join(' · ')}</p>
-          <p>{profile.email}</p>
+          <p>{authorSentence}</p>
         </div>
       </div>
     </Section>
 
-    <Section title={copy.sections.motivation} intro={copy.motivationIntro}>
-      <div class="method-grid">
-        {copy.motivationCards.map((card) => (
-          <article class="method-card">
-            <p class="panel-label">{copy.sections.motivation}</p>
-            <h3>{card.title}</h3>
-            <ul class="interest-list">
-              {card.items.map((item) => <li>{item}</li>)}
-            </ul>
-          </article>
-        ))}
-      </div>
-    </Section>
-
-    <Section title={copy.sections.method} intro={copy.methodIntro}>
+    <Section id="method" title={copy.sections.method} intro={copy.methodIntro}>
       <div class="method-grid">
         {copy.methodCards.map((card) => (
           <article class="method-card">
@@ -116,56 +100,30 @@ const codeHref = resolveLink(project.links.code);
           </article>
         ))}
       </div>
-    </Section>
 
-    <Section title={copy.sections.loss} intro={copy.lossIntro}>
-      <div class="formula-grid">
-        {copy.lossCards.map((card) => (
-          <article class="panel formula-card">
-            <p class="panel-label">{copy.sections.loss}</p>
-            <h3>{card.title}</h3>
-            <MathBlock tex={card.tex} />
-            <p>{card.text}</p>
-          </article>
-        ))}
-      </div>
-      <div class="panel highlight-panel">
-        <p class="panel-label">{copy.labels.summary}</p>
-        <ul class="highlight-list">
-          {copy.lossHighlights.map((item) => <li>{item}</li>)}
-        </ul>
-      </div>
-    </Section>
+      <div class="method-detail-grid">
+        <article class="panel formula-card method-technical-panel">
+          <p class="panel-label">{copy.sections.loss}</p>
+          <MathBlock tex={compoundLoss.tex} />
+          <p>{copy.lossIntro}</p>
+          <ul class="interest-list compact-interest-list">
+            {copy.lossHighlights.map((item) => <li>{item}</li>)}
+          </ul>
+        </article>
 
-    <Section title={copy.sections.pruning} intro={copy.pruningIntro}>
-      <div class="method-grid">
-        {copy.pruningCards.map((card) => (
-          <article class="method-card">
-            <p class="panel-label">{copy.sections.pruning}</p>
-            <h3>{card.title}</h3>
-            <ul class="interest-list">
-              {card.items.map((item) => <li>{item}</li>)}
-            </ul>
-          </article>
-        ))}
+        <article class="panel method-technical-panel">
+          <p class="panel-label">{copy.sections.pruning}</p>
+          <p>{copy.pruningIntro}</p>
+          <ul class="interest-list compact-interest-list">
+            {copy.pruningCards.map((card) => (
+              <li><strong>{card.title}:</strong> {card.items[card.items.length - 1]}</li>
+            ))}
+          </ul>
+        </article>
       </div>
     </Section>
 
-    <Section title={copy.sections.experiments} intro={copy.experimentsIntro}>
-      <div class="method-grid">
-        {copy.experimentCards.map((card) => (
-          <article class="method-card">
-            <p class="panel-label">{copy.sections.experiments}</p>
-            <h3>{card.title}</h3>
-            <ul class="interest-list">
-              {card.items.map((item) => <li>{item}</li>)}
-            </ul>
-          </article>
-        ))}
-      </div>
-    </Section>
-
-    <Section title={copy.sections.results} intro={copy.resultsIntro}>
+    <Section id="experiments-results" title={copy.sections.experiments} intro={copy.experimentsIntro}>
       <div class="metric-table" role="table" aria-label="CS182 MOF3R quantitative comparison">
         <div class="metric-row metric-row-3 metric-head" role="row">
           {copy.resultColumns.map((column) => <span role="columnheader">{column}</span>)}
@@ -182,60 +140,21 @@ const codeHref = resolveLink(project.links.code);
         <article><span>LPIPS</span><strong>0.629 → 0.120</strong></article>
       </div>
       <div class="panel highlight-panel">
-        <p class="panel-label">{copy.sections.results}</p>
+        <p class="panel-label">{copy.labels.summary}</p>
         <ul class="highlight-list">
           {copy.resultHighlights.map((item) => <li>{item}</li>)}
         </ul>
       </div>
-      <figure class="detail-figure wide-result-figure">
-        <img src={copy.gallery[2].src} alt={copy.gallery[2].alt} loading="lazy" />
-        <figcaption>{copy.gallery[2].caption}</figcaption>
-      </figure>
     </Section>
 
-    <Section
-      className="featured-visual-result"
-      eyebrow={copy.featuredVisual.eyebrow}
-      title={copy.featuredVisual.title}
-      intro={copy.featuredVisual.intro}
-    >
-      <figure class="featured-comparison-figure">
-        <img
-          src={copy.featuredVisual.src}
-          alt={copy.featuredVisual.alt}
-          loading="eager"
-          decoding="async"
-        />
-        <figcaption>{copy.featuredVisual.caption}</figcaption>
-      </figure>
-    </Section>
-
-    <Section title={copy.sections.gallery} intro={copy.galleryIntro}>
-      <div class="gallery-grid">
-        {galleryItems.map((item) => (
+    <Section id="visual-results" title={copy.sections.gallery} intro={copy.galleryIntro}>
+      <div class="gallery-grid cs182-visual-grid">
+        {visualItems.map((item) => (
           <figure class="detail-figure">
             <img src={item.src} alt={item.alt} loading="lazy" />
             <figcaption>{item.caption}</figcaption>
           </figure>
         ))}
-      </div>
-    </Section>
-
-    <Section title={copy.sections.contribution}>
-      <div class="panel narrative-panel">
-        <p>{copy.contribution}</p>
-      </div>
-    </Section>
-
-    <Section id="course-context" title={copy.sections.courseContext}>
-      <div class="panel narrative-panel">
-        <p>{copy.courseContext}</p>
-      </div>
-    </Section>
-
-    <Section title={copy.sections.future}>
-      <div class="future-grid">
-        {copy.future.map((item) => <article class="panel future-card"><p>{item}</p></article>)}
       </div>
     </Section>
   </article>

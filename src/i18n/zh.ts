@@ -498,64 +498,32 @@ export const zh = {
       course: '课程',
       type: '类型',
       year: '年份',
-      context: '背景',
       authors: '作者',
       summary: '摘要',
       method: '方法',
-      courseProject: '课程项目',
       metricChanges: '课程项目实验指标',
     },
     sections: {
       overview: '项目概述',
-      motivation: '研究动机',
       method: '方法',
       loss: 'Mask-Guided 损失',
       pruning: '几何感知 Pruning',
-      experiments: '实验设置',
-      results: '实验结果',
+      experiments: '实验与结果',
       gallery: '可视化结果',
-      contribution: '我的贡献',
-      courseContext: '课程背景',
-      future: '后续改进',
     },
     overview:
-      'MOF3R 是一个面向物体中心三维重建的课程项目，基于 3D Gaussian Splatting，并引入 SAM2 生成的前景 mask 作为语义先验。项目通过 Mask-Guided Compound Loss 抑制背景拟合，并使用多视角 mask 一致性、局部密度和各向异性分析进行几何感知 pruning，从而减少 floating artifacts 和边界噪声。CO3Dv2 上的课程项目实验显示，相比原始 3DGS，该流程可以得到边界更清晰、背景伪影更少的物体重建结果。',
+      'MOF3R 是一个面向物体中心三维重建的课程项目，基于 3D Gaussian Splatting，并引入 SAM2 生成的前景 mask 作为语义先验。项目通过 foreground-aware compound loss 优化 3DGS，并使用几何感知 pruning 移除 floating Gaussians 和边界伪影。CO3Dv2 上的实验显示，相比原始 3DGS，该流程可以得到边界更清晰、背景伪影更少的物体重建结果。',
     overviewBullets: [
       '输入单目视频先经过 COLMAP 估计相机参数，并使用 SAM2 生成前景 mask。',
       '前景 mask 用于指导 3DGS 训练，使优化更集中于目标物体而不是杂乱背景。',
-      '训练后的 pruning 阶段结合 mask 一致性、局部密度、各向异性过滤和自适应缩放。',
+      '训练后的细化阶段结合 mask 一致性、局部密度、各向异性过滤和自适应缩放。',
       '项目在代表性的 CO3Dv2 序列上评估物体中心重建质量。',
     ],
-    motivationIntro:
-      '日常拍摄的手机视频适合用于构建三维物体资产，但背景杂乱、视角有限和图像退化会使原始 3DGS 将 Gaussian primitives 分配到无关区域。',
-    motivationCards: [
-      {
-        title: '从日常视频生成物体资产',
-        items: [
-          '项目目标是从单目视频序列中获得干净的三维商品或物体资产。',
-          '报告中将这一设定与电商、虚拟现实和数字内容创作等应用联系起来。',
-        ],
-      },
-      {
-        title: '原始 3DGS 的局限',
-        items: [
-          '标准 3DGS 对所有像素进行同等优化，容易拟合目标物体周围的背景区域。',
-          '这会带来 floating artifacts、嘈杂结构和不准确的物体边界。',
-        ],
-      },
-      {
-        title: '用于重建的语义先验',
-        items: [
-          'SAM2 可以根据第一帧提示在视频中生成较可靠的前景 mask。',
-          'MOF3R 将这些 mask 用于优化和几何细化，而不仅作为预处理结果。',
-        ],
-      },
-    ],
     methodIntro:
-      '整体流程结合 mask-guided 优化和几何感知细化。项目先获得相机位姿和物体 mask，再使用前景监督训练 3DGS 表示，最后通过多指标 pruning 移除残留伪影。',
+      '方法被整理为三个紧凑阶段：相机与 mask 预处理、mask-guided 3DGS 优化，以及用于移除残余伪影的几何感知 pruning。',
     methodCards: [
       {
-        title: '预处理',
+        title: '使用 COLMAP 与 SAM2 进行预处理',
         items: [
           '从输入视频序列中抽取帧。',
           '使用 COLMAP 估计相机内参和外参。',
@@ -563,7 +531,7 @@ export const zh = {
         ],
       },
       {
-        title: 'Mask-guided 3DGS 训练',
+        title: 'Mask-guided 3DGS 优化',
         items: [
           '将 SAM2 mask 作为前景语义先验。',
           '使用 mask-constrained L1 监督，使光度训练聚焦于目标物体。',
@@ -571,16 +539,16 @@ export const zh = {
         ],
       },
       {
-        title: '几何感知细化',
+        title: '几何感知 pruning',
         items: [
           '将 Gaussians 投影到可见视角，并通过前景 mask 进行投票。',
-          '分析局部 KNN 密度和各向异性以寻找异常 primitives。',
-          '对不确定的边界 Gaussians 使用自适应缩放。',
+          '分析局部 KNN 密度和各向异性以识别异常 primitives。',
+          '对不确定 Gaussians 进行缩放或删除，在保留细节的同时平滑轮廓。',
         ],
       },
     ],
     lossIntro:
-      'Mask-Guided Compound Loss 将光度监督限制在前景区域，并通过 composite image 上的 SSIM 计算保持结构稳定性。',
+      '组合目标将 mask-constrained L1 与 composite-image SSIM 结合，使前景重建质量提升，同时避免模型过度拟合杂乱背景。',
     lossCards: [
       {
         title: 'Mask-constrained L1 loss',
@@ -599,13 +567,13 @@ export const zh = {
       },
     ],
     lossHighlights: [
-      '来自 SAM2 的前景语义先验。',
-      'Mask-constrained L1 监督。',
-      'Composite-image SSIM 损失。',
-      '减少 3DGS 优化过程中的背景拟合。',
+      'SAM2 前景 mask 提供语义监督。',
+      'Mask-constrained L1 将像素损失集中在目标物体上。',
+      'Composite-image SSIM 稳定边界结构。',
+      '该目标减少 3DGS 优化过程中的背景拟合。',
     ],
     pruningIntro:
-      '重建完成后，MOF3R 使用几何感知多指标 pruning 移除残留 floating Gaussians 和细长的边界伪影。',
+      '重建完成后，MOF3R 通过多指标 pruning 移除残留 floating Gaussians 和细长边界伪影。',
     pruningCards: [
       {
         title: '多视角 mask 一致性',
@@ -633,35 +601,7 @@ export const zh = {
       },
     ],
     experimentsIntro:
-      '课程项目在 CO3Dv2 上评估该方法，重点关注具有多样视角、杂乱背景、自遮挡和复杂形状的真实物体序列。',
-    experimentCards: [
-      {
-        title: '数据集',
-        items: [
-          'CO3Dv2 包含真实世界物体的多视角视频采集。',
-          '代表性类别包括 Bowl、Teddy 和 Apple。',
-          '报告中特别关注薄壁结构、自遮挡和复杂几何。',
-        ],
-      },
-      {
-        title: 'Baseline',
-        items: [
-          '原始 3D Gaussian Splatting 直接在原始视频帧上训练。',
-          'Baseline 不使用 segmentation guidance。',
-          '比较重点是物体中心的重建质量。',
-        ],
-      },
-      {
-        title: '评价指标',
-        items: [
-          'PSNR 和 SSIM 用于评价保真度与结构相似性。',
-          'LPIPS 用于评价感知距离。',
-          '报告中的定量指标在前景 mask 区域内计算。',
-        ],
-      },
-    ],
-    resultsIntro:
-      '以下数值来自课程项目报告中的实验结果，不是正式论文发表结果。相比原始 3DGS，mask-guided 训练和完整 MOF3R 流程在代表性 CO3Dv2 序列的前景区域上提升了 PSNR、SSIM 和 LPIPS。',
+      '实验使用 CO3Dv2 物体序列，与原始 3D Gaussian Splatting 进行对比，并报告前景 mask 区域内的 PSNR、SSIM 和 LPIPS。以下数值来自代表性真实物体序列上的课程项目实验结果，不作为正式论文发表结论。',
     resultColumns: ['方法', 'PSNR ↑', 'SSIM ↑', 'LPIPS ↓'],
     resultRows: [
       ['Original 3DGS', '19.07', '0.592', '0.629'],
@@ -669,48 +609,27 @@ export const zh = {
       ['MOF3R', '23.56', '0.935', '0.120'],
     ],
     resultHighlights: [
-      '平均 PSNR 从原始 3DGS 的 19.07 dB 提升到 MOF3R 的 23.56 dB。',
-      'LPIPS 从 0.629 降低到 0.120，说明评估前景区域中的感知伪影减少。',
-      '定性对比展示出更干净的边界、更少的 floating artifacts 和更弱的背景拟合。',
-      '报告中指出 Bowl、TeddyBear 和 Apple 场景上的改进较为明显。',
+      'PSNR 从原始 3DGS 的 19.07 dB 提升到 MOF3R 的 23.56 dB。',
+      'SSIM 从 0.592 提升到 0.935，说明前景结构一致性更强。',
+      'LPIPS 从 0.629 降低到 0.120，与可见感知伪影的减少一致。',
     ],
-    featuredVisual: {
-      eyebrow: '定性对比',
-      title: '关键可视化结果',
-      intro:
-        '该对比图展示了 MOF3R 最直观的视觉效果：通过 mask-guided training 与 geometry-aware pruning，方法能够减少背景拟合、浮动伪影和边界噪声，从而获得更干净的物体中心重建结果。',
-      src: '/projects/cs182/comparsion.png',
-      alt: '原始 3DGS、mask-guided reconstruction 与带 pruning 的 MOF3R 定性对比。',
-      caption:
-        '原始 3DGS、mask-guided reconstruction 与 MOF3R 的定性对比。完整流程能够产生更干净的物体边界，并减少 floating artifacts。',
-    },
-    galleryIntro: '以下图示来自 CS182 项目报告素材，展示整体流程和定量结果可视化。',
+    galleryIntro: '单一可视化区块集中展示项目报告中的整体 pipeline、定性重建对比和定量结果对比。',
     gallery: [
       {
         src: '/projects/cs182/MOF3R_overview.png',
         alt: 'MOF3R 整体流程，包含 SAM2 mask、mask-guided 3DGS 训练和 pruning。',
-        caption: 'MOF3R 的整体流程。',
+        caption: 'Overall pipeline。',
       },
       {
         src: '/projects/cs182/comparsion.png',
         alt: '原始 3DGS、mask-guided reconstruction 和 MOF3R 的定性对比。',
-        caption: '原始 3DGS、mask-guided reconstruction 与完整 MOF3R 流程的定性对比。',
+        caption: 'Qualitative reconstruction comparison。',
       },
       {
         src: '/projects/cs182/result.png',
         alt: '代表性 CO3Dv2 序列上的定量结果对比。',
-        caption: '代表性 CO3Dv2 序列上的定量结果对比。',
+        caption: 'Quantitative comparison。',
       },
-    ],
-    contribution:
-      '报告将 Zidong Song、Boyang Zhou 和 Zian Chen 列为上海科技大学作者，并标注为共同第一作者。在个人主页中，我将 MOF3R 展示为团队 CS182 课程项目；除报告作者身份外，页面不进一步声明未经确认的个人任务划分。',
-    courseContext:
-      '该项目完成于上海科技大学 2026 年 CS182: Introduction to Machine Learning 课程。页面会明确将其作为课程项目展示，而不是表述为已发表论文。',
-    future: [
-      '更紧密地结合 segmentation 与 reconstruction。',
-      '更稳健的几何正则化方法。',
-      '更好地处理透明物体和反光表面。',
-      '提升对高遮挡物体序列的鲁棒性。',
     ],
   },
 } as const;

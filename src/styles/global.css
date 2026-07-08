@@ -1442,6 +1442,35 @@ main {
   line-height: 1.08;
 }
 
+.method-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.method-technical-panel {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.method-technical-panel .math-figure {
+  margin: 0;
+}
+
+.method-technical-panel > p:not(.panel-label) {
+  color: var(--muted);
+}
+
+.compact-interest-list {
+  gap: 0.65rem;
+}
+
+.compact-interest-list strong {
+  color: var(--text);
+}
+
 .highlight-panel {
   margin-top: 0.2rem;
 }
@@ -1569,6 +1598,20 @@ main {
 }
 
 .gallery-grid .detail-figure:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+.cs182-visual-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.cs182-visual-grid .detail-figure:first-child {
+  grid-column: span 2;
+}
+
+.cs182-visual-grid .detail-figure:nth-child(3) {
   grid-column: 1 / -1;
 }
 
@@ -1895,6 +1938,7 @@ main {
 
 @media (max-width: 1060px) {
   .method-grid,
+  .method-detail-grid,
   .si100b-system-grid,
   .formula-grid,
   .metric-cards,
@@ -1903,6 +1947,15 @@ main {
   .metadata-grid,
   .si100b-detail .gallery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cs182-visual-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cs182-visual-grid .detail-figure:first-child,
+  .cs182-visual-grid .detail-figure:nth-child(3) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1921,6 +1974,7 @@ main {
 @media (max-width: 680px) {
   .coursework-grid,
   .method-grid,
+  .method-detail-grid,
   .si100b-system-grid,
   .formula-grid,
   .metric-cards,
@@ -1934,6 +1988,11 @@ main {
   }
 
   .gallery-grid .detail-figure:nth-child(4) {
+    grid-column: auto;
+  }
+
+  .cs182-visual-grid .detail-figure:first-child,
+  .cs182-visual-grid .detail-figure:nth-child(3) {
     grid-column: auto;
   }
 

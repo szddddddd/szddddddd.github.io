@@ -506,64 +506,32 @@ export const en = {
       course: 'Course',
       type: 'Type',
       year: 'Year',
-      context: 'Context',
       authors: 'Authors',
       summary: 'Summary',
       method: 'Method',
-      courseProject: 'Course Project',
       metricChanges: 'Course project metrics',
     },
     sections: {
       overview: 'Overview',
-      motivation: 'Motivation',
       method: 'Method',
       loss: 'Mask-Guided Compound Loss',
       pruning: 'Geometry-Aware Multi-Metric Pruning',
-      experiments: 'Experiments',
-      results: 'Results',
-      gallery: 'Visual gallery',
-      contribution: 'My contribution',
-      courseContext: 'Course context',
-      future: 'Future improvements',
+      experiments: 'Experiments and Results',
+      gallery: 'Visual Results',
     },
     overview:
-      'MOF3R is a segmentation-guided object-centric 3D reconstruction course project built on 3D Gaussian Splatting. It uses SAM2-generated foreground masks as semantic priors, introduces a Mask-Guided Compound Loss to suppress background fitting, and applies a geometry-aware multi-metric pruning strategy to remove floating Gaussians and boundary artifacts. Experiments on CO3Dv2 show cleaner object reconstructions with sharper boundaries and fewer background artifacts compared with vanilla 3DGS.',
+      'MOF3R is a segmentation-guided object-centric 3D reconstruction course project built on 3D Gaussian Splatting. It uses SAM2-generated foreground masks as semantic priors, optimizes 3DGS with a foreground-aware compound loss, and applies geometry-aware pruning to remove floating Gaussians and boundary artifacts. Experiments on CO3Dv2 show cleaner object reconstructions with sharper boundaries and fewer background artifacts than vanilla 3DGS.',
     overviewBullets: [
       'Input monocular videos are processed with COLMAP for camera parameters and SAM2 for foreground masks.',
-      'Foreground masks guide 3DGS training so that optimization focuses on target objects instead of cluttered backgrounds.',
-      'A post-training pruning stage combines mask consistency, local density, anisotropy filtering, and adaptive shrinkage.',
+      'Foreground masks guide 3DGS training so optimization focuses on target objects instead of cluttered backgrounds.',
+      'Post-training refinement combines mask consistency, local density, anisotropy filtering, and adaptive shrinkage.',
       'The project evaluates object-centric reconstruction quality on representative CO3Dv2 sequences.',
     ],
-    motivationIntro:
-      'Casual mobile videos are attractive for creating 3D object assets, but cluttered backgrounds, limited viewpoints, and image degradations make vanilla 3DGS allocate Gaussian primitives to irrelevant regions.',
-    motivationCards: [
-      {
-        title: 'Object assets from casual videos',
-        items: [
-          'The project targets clean 3D product or object assets from monocular video sequences.',
-          'The report motivates this setting through applications in e-commerce, virtual reality, and digital content creation.',
-        ],
-      },
-      {
-        title: 'Limits of vanilla 3DGS',
-        items: [
-          'Standard 3DGS optimizes all pixels equally and may fit surrounding background regions.',
-          'This can create floating artifacts, noisy geometry, and inaccurate object boundaries.',
-        ],
-      },
-      {
-        title: 'Semantic priors for reconstruction',
-        items: [
-          'SAM2 provides reliable video foreground masks from a prompt on the first frame.',
-          'MOF3R uses these masks during optimization and geometric refinement instead of only as preprocessing.',
-        ],
-      },
-    ],
     methodIntro:
-      'The pipeline combines mask-guided optimization with geometry-aware refinement. It first obtains camera poses and object masks, then trains a 3DGS representation with foreground supervision, and finally removes residual artifacts with multi-metric pruning.',
+      'The method is organized as a compact three-stage pipeline: camera and mask preprocessing, mask-guided 3DGS optimization, and geometry-aware pruning for residual artifacts.',
     methodCards: [
       {
-        title: 'Preprocessing',
+        title: 'Preprocessing with COLMAP and SAM2',
         items: [
           'Extract frames from the input video sequence.',
           'Estimate camera intrinsics and extrinsics with COLMAP.',
@@ -571,7 +539,7 @@ export const en = {
         ],
       },
       {
-        title: 'Mask-guided 3DGS training',
+        title: 'Mask-guided 3DGS optimization',
         items: [
           'Use SAM2 masks as foreground semantic priors.',
           'Apply mask-constrained L1 supervision to focus photometric training on the object.',
@@ -579,16 +547,16 @@ export const en = {
         ],
       },
       {
-        title: 'Geometry-aware refinement',
+        title: 'Geometry-aware pruning',
         items: [
           'Project Gaussians into visible views and vote with foreground masks.',
-          'Analyze local KNN density and anisotropy to find outlier primitives.',
-          'Apply adaptive shrinkage for uncertain boundary Gaussians.',
+          'Analyze local KNN density and anisotropy to identify outlier primitives.',
+          'Shrink or remove uncertain Gaussians to smooth silhouettes while preserving object detail.',
         ],
       },
     ],
     lossIntro:
-      'The Mask-Guided Compound Loss restricts photometric supervision to foreground regions while keeping SSIM stable by evaluating structural consistency on a composite image.',
+      'The compound objective combines a mask-constrained L1 term with composite-image SSIM so foreground reconstruction improves without encouraging the model to fit background clutter.',
     lossCards: [
       {
         title: 'Mask-constrained L1 loss',
@@ -607,13 +575,13 @@ export const en = {
       },
     ],
     lossHighlights: [
-      'Foreground semantic prior from SAM2.',
-      'Mask-constrained L1 supervision.',
-      'Composite-image SSIM loss.',
-      'Reduced background fitting during 3DGS optimization.',
+      'SAM2 foreground masks provide semantic supervision.',
+      'Mask-constrained L1 focuses pixel loss on the object.',
+      'Composite-image SSIM stabilizes boundary structure.',
+      'The objective reduces background fitting during 3DGS optimization.',
     ],
     pruningIntro:
-      'After reconstruction, MOF3R removes residual floating Gaussians and elongated boundary artifacts through a geometry-aware multi-metric pruning strategy.',
+      'After reconstruction, MOF3R removes residual floating Gaussians and elongated boundary artifacts through a multi-metric pruning pass.',
     pruningCards: [
       {
         title: 'Multi-view mask consistency',
@@ -641,35 +609,7 @@ export const en = {
       },
     ],
     experimentsIntro:
-      'The course project evaluates the method on CO3Dv2, focusing on real object sequences with diverse views, cluttered backgrounds, self-occlusions, and challenging shapes.',
-    experimentCards: [
-      {
-        title: 'Dataset',
-        items: [
-          'CO3Dv2 multi-view video captures of real-world objects.',
-          'Representative categories include Bowl, Teddy, and Apple.',
-          'The report highlights thin-walled structures, self-occlusions, and complex geometries.',
-        ],
-      },
-      {
-        title: 'Baseline',
-        items: [
-          'Original 3D Gaussian Splatting trained directly on original video frames.',
-          'No segmentation guidance is used in the baseline.',
-          'The comparison focuses on object-centered reconstruction quality.',
-        ],
-      },
-      {
-        title: 'Metrics',
-        items: [
-          'PSNR and SSIM evaluate fidelity and structural similarity.',
-          'LPIPS evaluates perceptual distance.',
-          'The reported quantitative metrics are evaluated within foreground mask regions.',
-        ],
-      },
-    ],
-    resultsIntro:
-      'The following numbers are course project experiment results reported in the project report, not publication claims. Compared with original 3DGS, mask-guided training and the full MOF3R pipeline improve foreground-region PSNR, SSIM, and LPIPS on representative CO3Dv2 sequences.',
+      'Experiments use CO3Dv2 object sequences, compare against original 3D Gaussian Splatting, and report foreground-mask PSNR, SSIM, and LPIPS. The numbers below are course project results from representative real object sequences rather than publication claims.',
     resultColumns: ['Method', 'PSNR ↑', 'SSIM ↑', 'LPIPS ↓'],
     resultRows: [
       ['Original 3DGS', '19.07', '0.592', '0.629'],
@@ -677,50 +617,28 @@ export const en = {
       ['MOF3R', '23.56', '0.935', '0.120'],
     ],
     resultHighlights: [
-      'Average PSNR improves from 19.07 dB for original 3DGS to 23.56 dB for MOF3R.',
-      'LPIPS is reduced from 0.629 to 0.120, indicating fewer perceptual artifacts in the evaluated foreground regions.',
-      'Qualitative comparisons show cleaner boundaries, fewer floating artifacts, and less background fitting.',
-      'The report notes particularly visible gains on Bowl, TeddyBear, and Apple scenes.',
+      'PSNR improves from 19.07 dB for original 3DGS to 23.56 dB for MOF3R.',
+      'SSIM increases from 0.592 to 0.935, indicating stronger foreground structural consistency.',
+      'LPIPS decreases from 0.629 to 0.120, matching the reduction in visible perceptual artifacts.',
     ],
-    featuredVisual: {
-      eyebrow: 'Qualitative Comparison',
-      title: 'Key Visual Result',
-      intro:
-        'The qualitative comparison highlights the main visual effect of MOF3R: mask-guided training and geometry-aware pruning suppress background fitting, remove floating artifacts, and produce cleaner object-centric reconstructions.',
-      src: '/projects/cs182/comparsion.png',
-      alt: 'Qualitative comparison between original 3DGS, mask-guided reconstruction, and MOF3R with pruning.',
-      caption:
-        'Qualitative comparison between vanilla 3DGS, mask-guided reconstruction, and MOF3R. The full pipeline produces cleaner object boundaries and fewer floating artifacts.',
-    },
     galleryIntro:
-      'Selected figures copied from the CS182 project report assets. They show the pipeline and quantitative visualization.',
+      'A single visual section collects the core pipeline, qualitative reconstruction comparison, and quantitative comparison from the project report.',
     gallery: [
       {
         src: '/projects/cs182/MOF3R_overview.png',
         alt: 'Overall pipeline of MOF3R with SAM2 masks, mask-guided 3DGS training, and pruning.',
-        caption: 'Overall pipeline of MOF3R.',
+        caption: 'Overall pipeline.',
       },
       {
         src: '/projects/cs182/comparsion.png',
         alt: 'Qualitative comparison between original 3DGS, mask-guided reconstruction, and MOF3R.',
-        caption:
-          'Qualitative comparison between vanilla 3DGS, mask-guided reconstruction, and the full MOF3R pipeline.',
+        caption: 'Qualitative reconstruction comparison.',
       },
       {
         src: '/projects/cs182/result.png',
         alt: 'Quantitative comparison across representative CO3Dv2 sequences.',
-        caption: 'Quantitative comparison across representative CO3Dv2 sequences.',
+        caption: 'Quantitative comparison.',
       },
-    ],
-    contribution:
-      'The report lists Zidong Song, Boyang Zhou, and Zian Chen from ShanghaiTech University as co-first authors. On this personal site, I present MOF3R as a team CS182 course project and do not claim a finer individual task split beyond my participation as one of the report authors.',
-    courseContext:
-      'This work was completed as a course project for CS182: Introduction to Machine Learning at ShanghaiTech University in 2026. The page intentionally presents it as coursework rather than a published paper.',
-    future: [
-      'Tighter integration between segmentation and reconstruction.',
-      'More robust geometric regularization.',
-      'Better handling of transparent objects and reflective surfaces.',
-      'Improved robustness for highly occluded object sequences.',
     ],
   },
 } as const;

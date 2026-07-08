@@ -477,9 +477,6 @@ export const zh = {
     sections: {
       overview: '项目概述',
       gallery: '作品展示',
-      technicalFocus: '技术关注点',
-      courseContext: '课程背景',
-      relatedLinks: '相关链接',
     },
     overview:
       '该项目整理了我在 ARTS1308 像素着色艺术课程中完成的 shader art 作品。这些作品并不依赖传统图像素材，而是通过 GLSL 中的数学函数、色彩运算、程序化图案和随时间变化的变换生成视觉效果。',
@@ -491,28 +488,6 @@ export const zh = {
     ],
     galleryIntro:
       '以下作品来自按热度排序的 Shadertoy 主页。每个作品保留原始 Shadertoy 标题、链接、缩略图和页面可见的浏览 / 喜欢数量。',
-    technicalFocus: [
-      'GLSL fragment shader',
-      '程序化图案',
-      '色彩构成',
-      '时间驱动动画',
-      '像素级图像合成',
-      'Shader 视觉艺术',
-    ],
-    courseContext:
-      '这些作品来自 ARTS1308 像素着色艺术课程，均由宋梓冬在 Shadertoy 账号 szd 下完成。',
-    relatedLinks: [
-      {
-        title: 'Shadertoy 主页',
-        text: '在 Shadertoy 查看原始 shader 作品集。',
-        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=0&num=8',
-      },
-      {
-        title: 'Shadertoy 第二页',
-        text: '打开用于整理剩余作品的第二个结果页。',
-        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=8&num=8',
-      },
-    ],
   },
   cs182: {
     metaTitle: 'CS182 MOF3R 三维商品重建课程项目 — 宋梓冬',

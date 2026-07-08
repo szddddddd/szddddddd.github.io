@@ -17,6 +17,7 @@ const project = arts1308CourseProject;
 const typeLabel = project.type?.[lang] ?? t.common.courseProject;
 const courseValue = lang === 'zh' ? 'ARTS1308 像素着色艺术' : 'ARTS1308 Pixel Shading Art';
 const contextValue = lang === 'zh' ? '课程项目 · 上海科技大学' : 'Course Project · ShanghaiTech University';
+const coverWork = shadertoyWorks.find((work) => work.thumbnail === project.image) ?? shadertoyWorks[5];
 const details = [
   { label: copy.labels.course, value: courseValue },
   { label: copy.labels.type, value: typeLabel },
@@ -39,14 +40,20 @@ const details = [
         <div class="hero-actions detail-actions">
           <a class="button button-secondary" href={shadertoyProfileUrl} target="_blank" rel="noreferrer">{copy.labels.profile}</a>
           <a class="button button-secondary" href="#visual-gallery">{copy.sections.gallery}</a>
-          <a class="button button-secondary" href="#course-context">{copy.sections.courseContext}</a>
         </div>
       </div>
       <figure class="detail-hero-figure arts-hero-figure reveal-block">
-        <div class="arts-hero-mosaic" aria-label="Selected Shadertoy thumbnails">
-          {shadertoyWorks.slice(0, 4).map((work) => <img src={work.thumbnail} alt={`${work.title} thumbnail`} loading="eager" decoding="async" />)}
-        </div>
-        <figcaption>{copy.hero.subtitle}</figcaption>
+        <img
+          class="arts-hero-cover"
+          src={project.image}
+          alt={`${coverWork.title} Shadertoy thumbnail`}
+          width="672"
+          height="378"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+        <figcaption>{coverWork.title}</figcaption>
       </figure>
     </header>
 
@@ -68,8 +75,8 @@ const details = [
           </ul>
         </div>
         <figure class="detail-figure compact-figure arts-preview-figure">
-          <img src={shadertoyWorks[5].thumbnail} alt={`${shadertoyWorks[5].title} thumbnail`} loading="lazy" />
-          <figcaption>{shadertoyWorks[5].title}</figcaption>
+          <img src={coverWork.thumbnail} alt={`${coverWork.title} thumbnail`} loading="lazy" />
+          <figcaption>{coverWork.title}</figcaption>
         </figure>
       </div>
     </Section>
@@ -78,34 +85,6 @@ const details = [
       <div class="shader-gallery-grid">
         {shadertoyWorks.map((work, index) => (
           <ShaderWorkCard work={work} index={index + 1} labels={copy.labels} />
-        ))}
-      </div>
-    </Section>
-
-    <Section title={copy.sections.technicalFocus}>
-      <div class="shader-focus-grid">
-        {copy.technicalFocus.map((item) => (
-          <article class="method-card shader-focus-card">
-            <p class="panel-label">GLSL</p>
-            <h3>{item}</h3>
-          </article>
-        ))}
-      </div>
-    </Section>
-
-    <Section id="course-context" title={copy.sections.courseContext}>
-      <div class="panel narrative-panel">
-        <p>{copy.courseContext}</p>
-      </div>
-    </Section>
-
-    <Section title={copy.sections.relatedLinks}>
-      <div class="portal-grid arts-links-grid">
-        {copy.relatedLinks.map((item) => (
-          <a class="portal-card" href={item.href} target="_blank" rel="noreferrer">
-            <span>{item.title}</span>
-            <p>{item.text}</p>
-          </a>
         ))}
       </div>
     </Section>

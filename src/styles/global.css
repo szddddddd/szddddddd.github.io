@@ -1692,16 +1692,6 @@ main {
     linear-gradient(145deg, rgba(15, 23, 42, 0.84), rgba(15, 23, 42, 0.42));
 }
 
-.arts-hero-mosaic {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  padding: 0.85rem;
-  overflow: hidden;
-}
-
-.arts-hero-mosaic::before,
 .shader-work-card::before {
   position: absolute;
   inset: 0;
@@ -1714,13 +1704,10 @@ main {
   pointer-events: none;
 }
 
-.arts-hero-mosaic img {
-  position: relative;
+.arts-hero-figure .arts-hero-cover {
   width: 100%;
   aspect-ratio: 16 / 9;
   height: auto;
-  border: 1px solid rgba(226, 232, 240, 0.12);
-  border-radius: 1rem;
   background: #05070d;
   object-fit: cover;
 }
@@ -1850,31 +1837,12 @@ main {
   border: 0;
 }
 
-.shader-focus-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.shader-focus-card {
-  min-height: 10rem;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(251, 113, 133, 0.1), transparent 10rem),
-    linear-gradient(145deg, rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.4));
-}
-
-.arts-links-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding-bottom: 0;
-}
-
 @media (max-width: 1060px) {
   .method-grid,
   .si100b-system-grid,
   .formula-grid,
   .metric-cards,
   .shader-gallery-grid,
-  .shader-focus-grid,
   .future-grid,
   .metadata-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1900,17 +1868,11 @@ main {
   .formula-grid,
   .metric-cards,
   .shader-gallery-grid,
-  .shader-focus-grid,
   .future-grid,
   .metadata-grid,
   .gallery-grid,
   .si100b-links-grid,
-  .arts-links-grid,
   .highlight-list {
-    grid-template-columns: 1fr;
-  }
-
-  .arts-hero-mosaic {
     grid-template-columns: 1fr;
   }
 

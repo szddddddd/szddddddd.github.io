@@ -484,9 +484,6 @@ export const en = {
     sections: {
       overview: 'Overview',
       gallery: 'Visual Gallery',
-      technicalFocus: 'Technical Focus',
-      courseContext: 'Course Context',
-      relatedLinks: 'Related Links',
     },
     overview:
       'This project collects my shader artworks created in the ARTS1308 Pixel Shading Art course. Instead of relying on traditional image assets, the works are generated through code, mathematical functions, color operations, procedural patterns, and time-dependent transformations in GLSL.',
@@ -498,28 +495,6 @@ export const en = {
     ],
     galleryIntro:
       'Selected works from the Shadertoy profile sorted by popularity. Each card keeps the original Shadertoy title, shader link, thumbnail, and visible view / like counts.',
-    technicalFocus: [
-      'GLSL fragment shaders',
-      'Procedural patterns',
-      'Color composition',
-      'Time-based animation',
-      'Pixel-level image synthesis',
-      'Shader-based visual art',
-    ],
-    courseContext:
-      'ARTS1308 Pixel Shading Art course project. All works were created by Song Zidong under the Shadertoy account szd.',
-    relatedLinks: [
-      {
-        title: 'Shadertoy profile',
-        text: 'Browse the original shader collection on Shadertoy.',
-        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=0&num=8',
-      },
-      {
-        title: 'Second Shadertoy page',
-        text: 'Open the second result page used to collect the remaining works.',
-        href: 'https://www.shadertoy.com/user/szd/sort=popular&from=8&num=8',
-      },
-    ],
   },
   cs182: {
     metaTitle: 'CS182 MOF3R 3D Product Reconstruction Project — Song Zidong',

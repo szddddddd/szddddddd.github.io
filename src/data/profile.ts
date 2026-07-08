@@ -159,7 +159,7 @@ export const arts1308CourseProject: CourseProject = {
     'Procedural Visuals',
     'Pixel Shading',
   ],
-  image: '/projects/arts1308/shader-01.jpg',
+  image: '/projects/arts1308/shader-06.jpg',
   links: {
     details: {
       en: '/projects/arts1308',

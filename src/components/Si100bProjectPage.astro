@@ -17,7 +17,7 @@ const codeHref = typeof project.links.code === 'string' ? project.links.code : '
 const reportHref = typeof project.links.report === 'string' ? project.links.report : '';
 const readmeHref = copy.links.find((item) => item.href.includes('#readme'))?.href ?? '';
 const details = [
-  { label: copy.labels.course, value: project.course ?? 'SI100B: 信息技术导论' },
+  { label: copy.labels.course, value: project.course ?? 'SI100B: Introduction to Information Science and Technology' },
   { label: copy.labels.type, value: typeLabel },
   { label: copy.labels.term, value: project.year },
   { label: copy.labels.team, value: copy.authors.join(' · ') },

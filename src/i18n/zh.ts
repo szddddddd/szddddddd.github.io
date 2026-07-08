@@ -238,16 +238,16 @@ export const zh = {
   si100b: {
     metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame 项目 — 宋梓冬',
     metaDescription:
-      'SI100B《信息技术导论》期末项目，使用 Pygame 实现了一个受《以撒的结合》启发的 2D Roguelike 游戏，报告记录了场景、房门、障碍物、碰撞、NPC 对话、资源 UI、动画和 Boss 战等设计。',
+      'SI100B: Introduction to Information Science and Technology 期末项目，使用 Pygame 实现了一个受《以撒的结合》启发的 2D Roguelike 游戏，报告记录了场景、房门、障碍物、碰撞、NPC 对话、资源 UI、动画和 Boss 战等设计。',
     hero: {
-      eyebrow: '课程项目 / SI100B 信息技术导论',
+      eyebrow: '课程项目 / SI100B: Introduction to Information Science and Technology',
       title: 'SAVE MY LINEAR ALGEBRA：Pygame Roguelike 游戏项目',
-      subtitle: '一个小组合作完成的 SI100B《信息技术导论》Pygame 期末项目，页面内容以项目最终报告和游戏截图为主要依据。',
-      affiliation: 'SI100B：信息技术导论 · 上海科技大学 · 2024 Fall',
+      subtitle: '一个小组合作完成的 SI100B: Introduction to Information Science and Technology Pygame 期末项目。',
+      affiliation: 'SI100B: Introduction to Information Science and Technology · 上海科技大学 · 2024 Fall',
     },
     authors: ['潘佑邦', '宋梓冬', '吴俊阳'],
     metadata: [
-      'SI100B 信息技术导论',
+      'SI100B: Introduction to Information Science and Technology',
       'Pygame',
       'Python',
       '2D Roguelike Game',
@@ -279,7 +279,7 @@ export const zh = {
       links: '相关链接',
     },
     overview:
-      'SAVE MY LINEAR ALGEBRA 是 SI100B《信息技术导论》的期末项目。根据最终报告，该项目是一个使用 Pygame 实现、受《以撒的结合》启发的 2D Roguelike 原型：玩家操纵 Isaac 发射子弹、放置炸弹、击杀怪物、获取奖励、与 NPC 对话，并最终击败 Boss。Isaac 的血量有限，血量清零时游戏结束。',
+      'SAVE MY LINEAR ALGEBRA 是 SI100B: Introduction to Information Science and Technology 的期末项目。根据最终报告，该项目是一个使用 Pygame 实现、受《以撒的结合》启发的 2D Roguelike 原型：玩家操纵 Isaac 发射子弹、放置炸弹、击杀怪物、获取奖励、与 NPC 对话，并最终击败 Boss。Isaac 的血量有限，血量清零时游戏结束。',
     overviewBullets: [
       '最终报告将该项目定位为 SI100B 课程期末项目，而不是商业游戏。',
       '游戏原型和素材明确来自 / 参考《以撒的结合》。',
@@ -424,7 +424,7 @@ export const zh = {
       },
     ],
     courseContext:
-      '该项目完成于上海科技大学 2024 Fall 的 SI100B《信息技术导论》课程，是一个小组合作的 Pygame 期末项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
+      '该项目完成于上海科技大学 2024 Fall 的 SI100B: Introduction to Information Science and Technology 课程，是一个小组合作的 Pygame 期末项目。页面将其作为受《以撒的结合》启发的课程原型展示，不表述为原创商业游戏，也不表述为个人独立完成。',
     links: [
       {
         title: '最终报告 PDF',

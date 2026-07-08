@@ -243,17 +243,17 @@ export const en = {
   si100b: {
     metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame Project — Song Zidong',
     metaDescription:
-      'SI100B: 信息技术导论 final project on a Binding-of-Isaac-inspired 2D roguelike game implemented with Pygame, covering scene design, doors, obstacles, collision handling, NPC dialogue, resource UI, animation, and a final boss encounter.',
+      'SI100B: Introduction to Information Science and Technology final project on a Binding-of-Isaac-inspired 2D roguelike game implemented with Pygame, covering scene design, doors, obstacles, collision handling, NPC dialogue, resource UI, animation, and a final boss encounter.',
     hero: {
-      eyebrow: 'Course Project / SI100B 信息技术导论',
+      eyebrow: 'Course Project / SI100B: Introduction to Information Science and Technology',
       title: 'SAVE MY LINEAR ALGEBRA: A Pygame Roguelike',
       subtitle:
-        'A team-based Pygame final project for SI100B: 信息技术导论, documented through the project final report and in-game screenshots.',
-      affiliation: 'SI100B: 信息技术导论 · ShanghaiTech University · 2024 Fall',
+        'A team-based Pygame final project for SI100B: Introduction to Information Science and Technology.',
+      affiliation: 'SI100B: Introduction to Information Science and Technology · ShanghaiTech University · 2024 Fall',
     },
     authors: ['潘佑邦', '宋梓冬', '吴俊阳'],
     metadata: [
-      'SI100B 信息技术导论',
+      'SI100B: Introduction to Information Science and Technology',
       'Pygame',
       'Python',
       '2D Roguelike Game',
@@ -285,7 +285,7 @@ export const en = {
       links: 'Links',
     },
     overview:
-      'SAVE MY LINEAR ALGEBRA is the final project for SI100B: 信息技术导论. According to the final report, the game is a Pygame roguelike prototype inspired by The Binding of Isaac: the player controls Isaac, shoots tears, plants bombs, clears monsters, collects rewards, talks to NPCs, and ultimately defeats the boss. Isaac has limited health, so the game ends when HP reaches zero.',
+      'SAVE MY LINEAR ALGEBRA is the final project for SI100B: Introduction to Information Science and Technology. According to the final report, the game is a Pygame roguelike prototype inspired by The Binding of Isaac: the player controls Isaac, shoots tears, plants bombs, clears monsters, collects rewards, talks to NPCs, and ultimately defeats the boss. Isaac has limited health, so the game ends when HP reaches zero.',
     overviewBullets: [
       'The final report frames the work as a SI100B course final project rather than a commercial game.',
       'The game prototype and visual materials are explicitly inspired by The Binding of Isaac.',
@@ -430,7 +430,7 @@ export const en = {
       },
     ],
     courseContext:
-      'This work was completed as a team final project for SI100B: 信息技术导论 at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
+      'This work was completed as a team final project for SI100B: Introduction to Information Science and Technology at ShanghaiTech University in 2024 Fall. The page presents it as a course-based Pygame prototype inspired by The Binding of Isaac, not as an original commercial game or a solo project.',
     links: [
       {
         title: 'Final report PDF',

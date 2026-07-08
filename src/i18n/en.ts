@@ -276,24 +276,24 @@ export const en = {
     },
     sections: {
       overview: 'Overview',
-      gameplay: 'Gameplay from the Report',
+      gameplay: 'Gameplay Design',
       systems: 'Implementation Design',
-      reportDesign: 'Report Design Notes',
+      reportDesign: 'Design Notes',
       contribution: 'My Contribution',
-      gallery: 'Report Screenshots',
+      gallery: 'Visual Gallery',
       courseContext: 'Course Context',
       links: 'Links',
     },
     overview:
-      'SAVE MY LINEAR ALGEBRA is the final project for SI100B: Introduction to Information Science and Technology. According to the final report, the game is a Pygame roguelike prototype inspired by The Binding of Isaac: the player controls Isaac, shoots tears, plants bombs, clears monsters, collects rewards, talks to NPCs, and ultimately defeats the boss. Isaac has limited health, so the game ends when HP reaches zero.',
+      'SAVE MY LINEAR ALGEBRA is the final project for SI100B: Introduction to Information Science and Technology. The game is a Pygame roguelike prototype inspired by The Binding of Isaac: the player controls Isaac, shoots tears, plants bombs, clears monsters, collects rewards, talks to NPCs, and ultimately defeats the boss. Isaac has limited health, so the game ends when HP reaches zero.',
     overviewBullets: [
-      'The final report frames the work as a SI100B course final project rather than a commercial game.',
+      'The work is presented as a SI100B course final project rather than a commercial game.',
       'The game prototype and visual materials are explicitly inspired by The Binding of Isaac.',
       'Core play combines room exploration, shooting, bomb placement, monster clearing, NPC rewards, and a final boss fight.',
       'The report authors are listed as 潘佑邦, 宋梓冬, and 吴俊阳.',
     ],
     gameplayIntro:
-      'The report describes the game from the player loop and scene structure: Isaac starts from StartRoom, learns the controls, enters reward or combat rooms, unlocks doors by clearing enemies, and follows the boss-room hint toward the final encounter.',
+      'The player loop is organized around room exploration and combat: Isaac starts from StartRoom, learns the controls, enters reward or combat rooms, unlocks doors by clearing enemies, and follows the boss-room hint toward the final encounter.',
     gameplayCards: [
       {
         title: 'Player control',
@@ -321,7 +321,7 @@ export const en = {
       },
     ],
     systemIntro:
-      'The report focuses on implementation details including room scenes, door logic, obstacles, camera-like transitions, character behavior, a binary-tree map structure, collision handling, resource UI, NPC decision logic, menu scenes, and audio feedback.',
+      'The implementation covers room scenes, door logic, obstacles, camera-like transitions, character behavior, a binary-tree map structure, collision handling, resource UI, NPC decision logic, menu scenes, and audio feedback.',
     systemCards: [
       {
         title: 'Scenes, doors, and transitions',
@@ -357,7 +357,7 @@ export const en = {
       },
     ],
     reportIntro:
-      'The final report records implementation choices and screenshots for scenes, doors, obstacles, collisions, character logic, NPC dialogue, resources, UI, menu animation, BGM, and hidden effects.',
+      'The project design includes scenes, doors, obstacles, collisions, character logic, NPC dialogue, resources, UI, menu animation, BGM, and hidden effects.',
     reportCards: [
       {
         title: 'Character and boss design',
@@ -393,40 +393,40 @@ export const en = {
       },
     ],
     contributionIntro:
-      'My contribution focused on enemy logic, game management, animations, UI/scenes, and README documentation, while the final report documents the overall team design and implementation.',
+      'My contribution focused on enemy logic, game management, animations, UI/scenes, and README documentation as part of the team project.',
     contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
     galleryIntro:
-      'The gallery now uses screenshots and diagrams extracted from the final report document.',
+      'Selected in-game screenshots and design diagrams from the project materials are shown below.',
     gallery: [
       {
         src: '/projects/si100b/report-main-menu.png',
-        alt: 'Final report screenshot of the animated start menu.',
-        caption: 'Final report screenshot: animated main menu scene.',
+        alt: 'Screenshot of the animated start menu.',
+        caption: 'Project screenshot: animated main menu scene.',
       },
       {
         src: '/projects/si100b/report-boss-room.png',
-        alt: 'Final report screenshot of the GURDY boss room with health UI and boss-room hint.',
-        caption: 'Final report screenshot: GURDY boss encounter with health, resources, and boss-room hint.',
+        alt: 'Screenshot of the GURDY boss room with health UI and boss-room hint.',
+        caption: 'Project screenshot: GURDY boss encounter with health, resources, and boss-room hint.',
       },
       {
         src: '/projects/si100b/report-obstacle-room.png',
-        alt: 'Final report screenshot showing room obstacles and combat-room layout.',
-        caption: 'Final report screenshot: combat room with randomized obstacle layout.',
+        alt: 'Screenshot showing room obstacles and combat-room layout.',
+        caption: 'Project screenshot: combat room with randomized obstacle layout.',
       },
       {
         src: '/projects/si100b/report-map-generation.png',
-        alt: 'Final report diagram of the binary-tree room generation structure.',
-        caption: 'Final report diagram: binary-tree room structure from Start Room to Boss Room.',
+        alt: 'Diagram of the binary-tree room generation structure.',
+        caption: 'Design diagram: binary-tree room structure from Start Room to Boss Room.',
       },
       {
         src: '/projects/si100b/report-npc-chat.png',
-        alt: 'Final report screenshot of the NPC dialogue interface.',
-        caption: 'Final report screenshot: NPC dialogue and merchant decision interface.',
+        alt: 'Screenshot of the NPC dialogue interface.',
+        caption: 'Project screenshot: NPC dialogue and merchant decision interface.',
       },
       {
         src: '/projects/si100b/report-ui.png',
-        alt: 'Final report screenshot of the health, coin, attack, and bomb UI.',
-        caption: 'Final report screenshot: resource UI for health, coin, attack, and bomb state.',
+        alt: 'Screenshot of the health, coin, attack, and bomb UI.',
+        caption: 'Project screenshot: resource UI for health, coin, attack, and bomb state.',
       },
     ],
     courseContext:

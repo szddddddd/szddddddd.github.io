@@ -270,24 +270,24 @@ export const zh = {
     },
     sections: {
       overview: '项目概述',
-      gameplay: '报告中的玩法设计',
+      gameplay: '玩法设计',
       systems: '实现设计',
-      reportDesign: '报告设计补充',
+      reportDesign: '设计补充',
       contribution: '我的贡献',
-      gallery: '报告截图',
+      gallery: '视觉展示',
       courseContext: '课程背景',
       links: '相关链接',
     },
     overview:
-      'SAVE MY LINEAR ALGEBRA 是 SI100B: Introduction to Information Science and Technology 的期末项目。根据最终报告，该项目是一个使用 Pygame 实现、受《以撒的结合》启发的 2D Roguelike 原型：玩家操纵 Isaac 发射子弹、放置炸弹、击杀怪物、获取奖励、与 NPC 对话，并最终击败 Boss。Isaac 的血量有限，血量清零时游戏结束。',
+      'SAVE MY LINEAR ALGEBRA 是 SI100B: Introduction to Information Science and Technology 的期末项目。该项目是一个使用 Pygame 实现、受《以撒的结合》启发的 2D Roguelike 原型：玩家操纵 Isaac 发射子弹、放置炸弹、击杀怪物、获取奖励、与 NPC 对话，并最终击败 Boss。Isaac 的血量有限，血量清零时游戏结束。',
     overviewBullets: [
-      '最终报告将该项目定位为 SI100B 课程期末项目，而不是商业游戏。',
+      '该项目定位为 SI100B 课程期末项目，而不是商业游戏。',
       '游戏原型和素材明确来自 / 参考《以撒的结合》。',
       '核心玩法包括房间探索、射击、放置炸弹、清理怪物、NPC 奖励和最终 Boss 战。',
       '报告作者列为潘佑邦、宋梓冬和吴俊阳。',
     ],
     gameplayIntro:
-      '报告从玩家循环和场景结构描述游戏：Isaac 从 StartRoom 出生并学习操作，随后进入奖励房或战斗房，清理敌人后解锁房门，并根据 Boss 房间提示前往最终战斗。',
+      '玩家循环围绕房间探索与战斗展开：Isaac 从 StartRoom 出生并学习操作，随后进入奖励房或战斗房，清理敌人后解锁房门，并根据 Boss 房间提示前往最终战斗。',
     gameplayCards: [
       {
         title: '角色控制',
@@ -315,7 +315,7 @@ export const zh = {
       },
     ],
     systemIntro:
-      '报告重点记录了房间场景、房门逻辑、障碍物、场景切换、角色行为、二叉树地图结构、碰撞处理、资源 UI、NPC 决策、菜单场景和音效反馈等实现细节。',
+      '实现内容覆盖房间场景、房门逻辑、障碍物、场景切换、角色行为、二叉树地图结构、碰撞处理、资源 UI、NPC 决策、菜单场景和音效反馈等细节。',
     systemCards: [
       {
         title: '场景、房门与转场',
@@ -351,7 +351,7 @@ export const zh = {
       },
     ],
     reportIntro:
-      '最终报告记录了场景、房门、障碍物、碰撞、角色逻辑、NPC 对话、资源、UI、菜单动画、BGM 和隐藏效果等设计，并提供了对应游戏截图。',
+      '项目设计包括场景、房门、障碍物、碰撞、角色逻辑、NPC 对话、资源、UI、菜单动画、BGM 和隐藏效果等内容。',
     reportCards: [
       {
         title: '角色与 Boss 设计',
@@ -387,40 +387,40 @@ export const zh = {
       },
     ],
     contributionIntro:
-      '我的贡献主要集中在敌人逻辑、游戏管理、动画、UI / 场景以及 README 文档整理；最终报告则记录了团队整体设计与实现。',
+      '作为团队项目的一部分，我的贡献主要集中在敌人逻辑、游戏管理、动画、UI / 场景以及 README 文档整理。',
     contributionBullets: ['Enemies.py', 'GameManager.py', 'Animations', 'UI / Scenes', 'README.md'],
     galleryIntro:
-      '视觉展示使用从最终报告文档中提取的截图和示意图。',
+      '下方展示项目材料中的游戏截图和设计示意图。',
     gallery: [
       {
         src: '/projects/si100b/report-main-menu.png',
-        alt: '最终报告中的动画主菜单截图。',
-        caption: '最终报告截图：动画主菜单场景。',
+        alt: '动画主菜单截图。',
+        caption: '项目截图：动画主菜单场景。',
       },
       {
         src: '/projects/si100b/report-boss-room.png',
-        alt: '最终报告中的 GURDY Boss 房截图，包含生命 UI 和 Boss 房间提示。',
-        caption: '最终报告截图：GURDY Boss 战，包含生命、资源和 Boss 房间提示。',
+        alt: 'GURDY Boss 房截图，包含生命 UI 和 Boss 房间提示。',
+        caption: '项目截图：GURDY Boss 战，包含生命、资源和 Boss 房间提示。',
       },
       {
         src: '/projects/si100b/report-obstacle-room.png',
-        alt: '最终报告中展示房间障碍物和战斗房布局的截图。',
-        caption: '最终报告截图：包含随机障碍物布局的战斗房。',
+        alt: '展示房间障碍物和战斗房布局的截图。',
+        caption: '项目截图：包含随机障碍物布局的战斗房。',
       },
       {
         src: '/projects/si100b/report-map-generation.png',
-        alt: '最终报告中展示二叉树房间生成结构的示意图。',
-        caption: '最终报告示意图：从 Start Room 到 Boss Room 的二叉树房间结构。',
+        alt: '展示二叉树房间生成结构的示意图。',
+        caption: '设计示意图：从 Start Room 到 Boss Room 的二叉树房间结构。',
       },
       {
         src: '/projects/si100b/report-npc-chat.png',
-        alt: '最终报告中的 NPC 对话界面截图。',
-        caption: '最终报告截图：NPC 对话与 Merchant 决策界面。',
+        alt: 'NPC 对话界面截图。',
+        caption: '项目截图：NPC 对话与 Merchant 决策界面。',
       },
       {
         src: '/projects/si100b/report-ui.png',
-        alt: '最终报告中的生命、金币、攻击和炸弹资源 UI 截图。',
-        caption: '最终报告截图：生命、金币、攻击和炸弹资源 UI。',
+        alt: '生命、金币、攻击和炸弹资源 UI 截图。',
+        caption: '项目截图：生命、金币、攻击和炸弹资源 UI。',
       },
     ],
     courseContext:

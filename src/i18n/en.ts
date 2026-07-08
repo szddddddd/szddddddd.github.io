@@ -63,13 +63,13 @@ export const en = {
   },
   projects: {
     eyebrow: 'Research / Projects',
-    pageTitle: 'Research / Projects',
+    pageTitle: 'Projects',
     title: 'Projects as visual research artifacts',
     intro:
       'A curated project index for research prototypes, course projects, code, demos, and paper links.',
     fullTitle: 'Project index',
     fullIntro:
-      'The BME1312 MRI reconstruction and CS182 MOF3R reconstruction projects are included as academic course projects, while future research projects remain structured placeholders.',
+      'A curated index of research prototypes, course projects, and visual technical artifacts.',
     viewAll: 'Open project index',
     labels: {
       details: 'Details',
@@ -97,8 +97,11 @@ export const en = {
     eyebrow: 'Coursework / Course Projects',
     pageTitle: 'Coursework / Course Projects',
     title: 'Course projects',
-    intro: 'A dedicated area for course-based technical artifacts and academic project work.',
+    intro: 'Course projects have been merged into the Projects index.',
     empty: 'Course projects will be added later.',
+    mergedTitle: 'Merged into Projects',
+    mergedIntro: 'Course projects have been merged into Projects.',
+    viewProjects: 'View Projects',
   },
   notes: {
     eyebrow: 'Notes / Blog',

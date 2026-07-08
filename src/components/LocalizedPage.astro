@@ -1,6 +1,7 @@
 ---
 import Hero from './Hero.astro';
 import ProjectCard from './ProjectCard.astro';
+import ProjectIndexRow from './ProjectIndexRow.astro';
 import PublicationItem from './PublicationItem.astro';
 import Section from './Section.astro';
 import { profile } from '../data/profile';
@@ -135,8 +136,8 @@ const quickLinks = [
       </section>
 
       <Section>
-        <div class="project-grid">
-          {profile.projects.map((project) => <ProjectCard project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />)}
+        <div class="project-index">
+          {profile.projects.map((project) => <ProjectIndexRow project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />)}
         </div>
       </Section>
     </div>
@@ -170,22 +171,15 @@ const quickLinks = [
     <div class="page-stack">
       <section class="page-hero page-hero-compact">
         <h1>{t.coursework.pageTitle}</h1>
-        <p>{t.coursework.intro}</p>
+        <p>{t.coursework.mergedIntro}</p>
       </section>
 
       <Section>
-        {profile.courseProjects.length > 0 ? (
-          <div class="project-grid coursework-grid">
-            {profile.courseProjects.map((project) => (
-              <ProjectCard project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />
-            ))}
-          </div>
-        ) : (
-          <div class="empty-state">
-            <span>{t.common.comingSoon}</span>
-            <p>{t.coursework.empty}</p>
-          </div>
-        )}
+        <div class="empty-state coursework-merged-notice">
+          <span>{t.coursework.mergedTitle}</span>
+          <p>{t.coursework.mergedIntro}</p>
+          <a class="button button-secondary" href={getPath(lang, 'projects')}>{t.coursework.viewProjects}</a>
+        </div>
       </Section>
     </div>
   )}

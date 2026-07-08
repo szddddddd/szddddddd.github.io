@@ -721,6 +721,133 @@ main {
   gap: 1rem;
 }
 
+.project-index {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.project-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 12% 15%, rgba(125, 211, 252, 0.09), transparent 16rem),
+    rgba(255, 255, 255, 0.045);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.project-row:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.22);
+  background:
+    radial-gradient(circle at 12% 15%, rgba(125, 211, 252, 0.12), transparent 16rem),
+    rgba(255, 255, 255, 0.065);
+}
+
+.project-row-media {
+  position: relative;
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.1);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(125, 211, 252, 0.14), transparent 42%),
+    rgba(7, 10, 18, 0.7);
+}
+
+.project-row-media img {
+  width: 100%;
+  height: auto;
+  max-height: 15rem;
+  object-fit: contain;
+  border-radius: 18px;
+}
+
+.project-row-main {
+  display: grid;
+  align-content: start;
+}
+
+.project-row-main h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2.5vw, 2.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.project-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.project-row-context {
+  margin-top: 0.7rem;
+  color: var(--dim);
+  font-size: 0.9rem;
+  font-weight: 760;
+}
+
+.project-row-description {
+  max-width: 58rem;
+  margin-top: 0.65rem;
+  color: var(--muted);
+}
+
+.project-row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.project-row-tags span {
+  border: 1px solid rgba(226, 232, 240, 0.13);
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.055);
+  padding: 0.32rem 0.62rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.project-row-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.1rem;
+}
+
+.project-row-links a,
+.project-row-links span {
+  border-bottom: 1px solid rgba(125, 211, 252, 0.35);
+  color: var(--cyan);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.project-row-links span {
+  border-bottom-color: rgba(226, 232, 240, 0.14);
+  color: var(--dim);
+}
+
+.coursework-merged-notice span {
+  font-size: clamp(1.9rem, 4vw, 3.5rem);
+}
+
 .project-card {
   display: grid;
   min-height: 28rem;
@@ -1514,6 +1641,12 @@ main {
 
 @media (max-width: 920px) {
   .detail-two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .project-row {
     grid-template-columns: 1fr;
   }
 }

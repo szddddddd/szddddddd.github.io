@@ -62,11 +62,11 @@ export const zh = {
   },
   projects: {
     eyebrow: '研究 / 项目',
-    pageTitle: '研究 / 项目',
+    pageTitle: '项目',
     title: '作为视觉研究载体的项目展示',
     intro: '这里整理研究原型、课程项目、代码、演示与论文链接等项目内容。',
     fullTitle: '项目索引',
-    fullIntro: 'BME1312 MRI 重建项目与 CS182 MOF3R 三维重建项目已作为课程项目加入，其他未来研究项目保留结构化占位。',
+    fullIntro: '研究原型、课程项目与技术作品的统一索引。',
     viewAll: '打开项目索引',
     labels: {
       details: '详情',
@@ -94,8 +94,11 @@ export const zh = {
     eyebrow: '课程 / 课程项目',
     pageTitle: '课程项目',
     title: '课程项目',
-    intro: '这里展示课程中的技术项目与学术实践成果。',
+    intro: '课程项目已合并到项目页面。',
     empty: '课程项目将后续补充。',
+    mergedTitle: '已合并到项目页面',
+    mergedIntro: '课程项目已合并到项目页面。',
+    viewProjects: '查看项目',
   },
   notes: {
     eyebrow: '笔记 / 博客',

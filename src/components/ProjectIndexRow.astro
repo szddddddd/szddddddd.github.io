@@ -1,0 +1,72 @@
+---
+import type { Lang, LinkValue, Project } from '../data/profile';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  labels: {
+    details: string;
+    report: string;
+    paper: string;
+    code: string;
+    demo: string;
+  };
+  comingSoon: string;
+  placeholder: string;
+}
+
+const { project, lang, labels, comingSoon, placeholder } = Astro.props as Props;
+const title = project.title[lang];
+const description = project.description[lang];
+const year = project.year === 'Coming soon' ? comingSoon : project.year;
+const typeLabel = project.type?.[lang] ?? placeholder;
+const links: { label: string; value: LinkValue | undefined }[] = [
+  { label: labels.details, value: project.links.details },
+  ...(project.links.report !== undefined ? [{ label: labels.report, value: project.links.report }] : []),
+  ...(project.links.code !== undefined ? [{ label: labels.code, value: project.links.code }] : []),
+  ...(project.links.paper !== undefined ? [{ label: labels.paper, value: project.links.paper }] : []),
+  ...(project.links.demo !== undefined ? [{ label: labels.demo, value: project.links.demo }] : []),
+];
+const resolveLink = (value: LinkValue | undefined) => {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value[lang];
+};
+const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
+---
+
+<article class="project-row reveal-card">
+  <div class="project-row-media" aria-hidden="true">
+    {project.image ? <img src={project.image} alt="" loading="lazy" /> : <div class="project-field"><span></span><span></span><span></span></div>}
+  </div>
+
+  <div class="project-row-main">
+    <div class="project-row-meta">
+      <span>{year}</span>
+      <span>{typeLabel}</span>
+    </div>
+
+    <h2>{title}</h2>
+
+    {project.course && <p class="project-row-context">{project.course}</p>}
+    <p class="project-row-description">{description}</p>
+
+    <div class="project-row-tags" aria-label={`${title} tags`}>
+      {project.tags.map((tag) => <span>{tag}</span>)}
+    </div>
+
+    <div class="project-row-links" aria-label={`${title} links`}>
+      {
+        links.map(({ label, value }) => {
+          const href = resolveLink(value);
+          return href && isUrl(href) ? (
+            <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined}>
+              {label}
+            </a>
+          ) : (
+            <span>{label}: {comingSoon}</span>
+          );
+        })
+      }
+    </div>
+  </div>
+</article>

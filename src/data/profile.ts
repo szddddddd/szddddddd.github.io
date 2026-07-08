@@ -166,46 +166,10 @@ export const profile = {
     url: '',
   },
   projects: [
-    bme1312CourseProject,
     cs182CourseProject,
+    bme1312CourseProject,
     si100bCourseProject,
-    {
-      title: {
-        en: 'Gaussian Splatting Project',
-        zh: 'Gaussian Splatting 项目',
-      },
-      year: 'Coming soon',
-      description: {
-        en: 'Coming soon. Project details will be added later.',
-        zh: '即将更新。项目细节将后续补充。',
-      },
-      tags: ['Gaussian Splatting', 'Rendering'],
-      image: '',
-      links: {
-        paper: '',
-        code: '',
-        demo: '',
-      },
-    },
-    {
-      title: {
-        en: 'World Models Project',
-        zh: 'World Models 项目',
-      },
-      year: 'Coming soon',
-      description: {
-        en: 'Coming soon. Project details will be added later.',
-        zh: '即将更新。项目细节将后续补充。',
-      },
-      tags: ['World Models', 'Generative Models'],
-      image: '',
-      links: {
-        paper: '',
-        code: '',
-        demo: '',
-      },
-    },
   ] satisfies Project[],
   publications: [] satisfies Publication[],
-  courseProjects: [bme1312CourseProject, cs182CourseProject, si100bCourseProject] satisfies CourseProject[],
+  courseProjects: [cs182CourseProject, bme1312CourseProject, si100bCourseProject] satisfies CourseProject[],
 };

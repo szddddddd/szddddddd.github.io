@@ -59,26 +59,6 @@ const quickLinks = [
     <div class="page-stack">
       <Hero lang={lang} />
 
-      <Section id="about" eyebrow={t.about.eyebrow} title={t.about.title} intro={t.about.intro}>
-        <div class="about-grid home-about-grid">
-          <article class="panel panel-large">
-            <p class="panel-label">{t.common.bio}</p>
-            <p class="large-copy">{t.about.bio}</p>
-          </article>
-          <article class="panel">
-            <p class="panel-label">{t.about.identityTitle}</p>
-            <dl class="fact-list">
-              {identityRows.map((item) => (
-                <div>
-                  <dt>{item.label}</dt>
-                  <dd>{item.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </article>
-        </div>
-      </Section>
-
       <Section id="research" eyebrow={t.projects.eyebrow} title={t.projects.title} intro={t.projects.intro}>
         <div class="project-grid">
           {profile.projects.map((project) => <ProjectCard project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />)}

@@ -136,6 +136,12 @@ BME1312 project assets:
 public/projects/bme1312/
 ```
 
+The public report PDF is a web-safe version with student IDs and emails removed:
+
+```text
+public/projects/bme1312/bme1312-mri-reconstruction-report.pdf
+```
+
 ## Routes
 
 English:

@@ -66,7 +66,7 @@ export const bme1312CourseProject: CourseProject = {
       en: '/projects/bme1312',
       zh: '/zh/projects/bme1312',
     },
-    report: '',
+    report: '/projects/bme1312/bme1312-mri-reconstruction-report.pdf',
     code: '',
   },
 };

@@ -20,9 +20,13 @@ const details = [
   { label: copy.labels.year, value: project.year },
   { label: copy.labels.context, value: copy.hero.affiliation },
 ];
+const resolveLink = (value: string | { en: string; zh: string } | undefined) => {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value[lang];
+};
 const links = [
-  { label: t.projects.labels.report, value: '' },
-  { label: t.projects.labels.code, value: '' },
+  { label: t.projects.labels.report, value: resolveLink(project.links.report) },
+  { label: t.projects.labels.code, value: resolveLink(project.links.code) },
 ];
 ---
 
@@ -38,7 +42,15 @@ const links = [
         </ul>
         <div class="hero-actions detail-actions">
           <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
-          {links.map((link) => <span class="button button-disabled" aria-disabled="true">{link.label}: {t.common.comingSoon}</span>)}
+          {
+            links.map((link) =>
+              link.value ? (
+                <a class="button button-secondary" href={link.value}>{link.label}</a>
+              ) : (
+                <span class="button button-disabled" aria-disabled="true">{link.label}: {t.common.comingSoon}</span>
+              )
+            )
+          }
         </div>
       </div>
       <figure class="detail-hero-figure reveal-block">

@@ -93,13 +93,14 @@ export const en = {
       'Academic, technical, and course-based projects spanning visual computing, medical imaging, and creative coding.',
     viewAll: 'View all projects',
     labels: {
-      details: 'Details',
+      details: 'Project Page',
       shadertoy: 'Shadertoy',
-      report: 'Report',
+      report: 'Report PDF',
       paper: 'Paper',
       code: 'Code',
       demo: 'Demo',
       readme: 'README',
+      role: 'Role',
     },
   },
   publications: {
@@ -132,6 +133,162 @@ export const en = {
     title: 'Notes',
     intro: 'A minimal writing space for future research notes, technical reflections, and reading summaries.',
     empty: 'Notes coming soon.',
+  },
+  si140a: {
+    metaTitle: 'SI140A WeChat Red Envelope Probability Project — Song Zidong',
+    metaDescription:
+      'SI140A Probability Theory course project reverse engineering WeChat Red Envelope allocation mechanisms with controlled data collection, empirical visualization, Monte Carlo simulation, KS test, and Chi-square test.',
+    hero: {
+      eyebrow: 'Course Project / Probability Theory',
+      title: 'Reverse Engineering the Mechanism of WeChat Red Envelope',
+      subtitle:
+        'A probability modeling and statistical testing project that infers candidate allocation mechanisms from controlled WeChat Red Envelope data.',
+      affiliation: 'SI140A Probability Theory · Course Project · ShanghaiTech University · January 2026',
+    },
+    metadata: [
+      'SI140A Probability Theory',
+      'Course Project',
+      'Probability Modeling',
+      'Monte Carlo Simulation',
+      'KS Test',
+      'Chi-square Test',
+      'January 2026',
+    ],
+    labels: {
+      course: 'Course',
+      type: 'Type',
+      date: 'Date',
+      topic: 'Topic',
+      summary: 'Summary',
+      setting: 'Setting',
+      method: 'Method',
+      model: 'Model',
+      test: 'Statistical test',
+      conclusion: 'Conclusion',
+      contribution: 'Contribution',
+      links: 'Links',
+    },
+    sections: {
+      overview: 'Overview',
+      setting: 'Experimental Setting',
+      methodology: 'Methodology',
+      models: 'Candidate Models',
+      findings: 'Key Findings',
+      contribution: 'My Contribution',
+      visuals: 'Visuals',
+      links: 'Links',
+    },
+    overview:
+      'This project studies whether the probabilistic allocation behavior of WeChat Red Envelope can be inferred from real experimental observations. Under a controlled data-collection protocol, we collected allocation records, visualized the empirical distribution, designed candidate probabilistic mechanisms, and compared the simulated mechanisms with observed data using formal goodness-of-fit tests.',
+    overviewBullets: [
+      'The project is framed as a probability modeling and statistical inference study rather than a routine programming assignment.',
+      'Empirical plots are used to identify distributional patterns across recipient ranks and total allocation samples.',
+      'Candidate mechanisms are evaluated by Monte Carlo simulation and statistical tests against the observed allocation frequency.',
+      'The analysis suggests that the Twice-as-the-Mean mechanism better matches the observed WeChat Red Envelope behavior.',
+    ],
+    settingCards: [
+      { label: 'Amount per envelope', value: '60 RMB', note: 'fixed total allocation' },
+      { label: 'Recipients', value: '15', note: 'people per red envelope' },
+      { label: 'Red envelopes', value: '150', note: 'controlled experiment rounds' },
+      { label: 'Samples', value: '2,250', note: 'allocation observations' },
+    ],
+    methodIntro:
+      'The methodology combines empirical visualization, analytic mechanism design, simulation-based approximation, and hypothesis testing. The goal is not to exactly reproduce the implementation inside WeChat, but to determine which transparent probabilistic model is most consistent with the collected evidence.',
+    methodCards: [
+      {
+        title: 'Data processing and visualization',
+        items: [
+          'Cleaned the allocation records into rank-wise and global samples.',
+          'Examined histograms, boxplots, and scatter plots to summarize distributional behavior.',
+        ],
+      },
+      {
+        title: 'Candidate mechanism design',
+        items: [
+          'Formulated allocation rules with equal expected value across ranks.',
+          'Derived expectation and variance properties for candidate mechanisms.',
+        ],
+      },
+      {
+        title: 'Monte Carlo simulation',
+        items: [
+          'Generated synthetic allocation samples under each candidate mechanism.',
+          'Estimated theoretical frequency distributions for comparison with real data.',
+        ],
+      },
+      {
+        title: 'KS and Chi-square tests',
+        items: [
+          'Applied the Kolmogorov-Smirnov test to compare sample distributions.',
+          'Applied a Chi-square test after frequency bin merging for expected-count validity.',
+        ],
+      },
+      {
+        title: 'Model comparison',
+        items: [
+          'Compared test statistics, p-values, and visual distributional patterns.',
+          'Selected the mechanism with stronger empirical alignment and smaller deviations.',
+        ],
+      },
+    ],
+    modelsIntro:
+      'Two primary candidate mechanisms were tested. The page summarizes their modeling ideas without reproducing the full derivations from the report.',
+    modelCards: [
+      {
+        title: 'Gamma-Dirichlet Split',
+        items: [
+          'Samples allocation proportions through a Gamma / Dirichlet construction.',
+          'Uses a concentration parameter to control variance while preserving target expectations.',
+          'Provides analytic convenience, but its fitted distribution deviated significantly from the observed data.',
+        ],
+      },
+      {
+        title: 'Twice-as-the-Mean Mechanism',
+        items: [
+          'Sequentially allocates a random amount bounded by twice the current remaining mean.',
+          'Keeps the expected value approximately balanced across recipient ranks.',
+          'Naturally produces larger variance for later recipients, matching a key empirical pattern.',
+        ],
+      },
+    ],
+    findingsIntro:
+      'The empirical and simulation results point to a clear qualitative conclusion: the Twice-as-the-Mean mechanism is closer to the observed WeChat Red Envelope distribution, while Gamma-Dirichlet Split produces a visibly and statistically different allocation pattern.',
+    resultColumns: ['Model', 'KS p-value', 'Chi-square p-value', 'Interpretation'],
+    resultRows: [
+      ['Gamma-Dirichlet Split', '5.23e-6', '2.75e-69', 'Significant deviation'],
+      ['Twice-as-the-Mean', '0.0869', '8.75e-11', 'Better empirical alignment'],
+    ],
+    findingBullets: [
+      'All recipient ranks have roughly similar expected values, with an overall empirical mean of 4.00 RMB.',
+      'Later recipient ranks exhibit larger variance and more extreme high-value observations.',
+      'Gamma-Dirichlet Split differs significantly from the observed allocation frequency under both tests.',
+      'Twice-as-the-Mean passes the KS test at the 5% level and has a much smaller Chi-square deviation than Gamma-Dirichlet Split.',
+      'Further explorations considered user-specific allocation mechanisms and fairness-aware red envelope designs.',
+    ],
+    contributionBullets: [
+      'Derived and verified the expectation and variance of candidate mechanisms.',
+      'Organized and coordinated the experiment.',
+      'Contributed to part of the implementation.',
+      'Verified simulation results and statistical conclusions.',
+    ],
+    galleryIntro:
+      'The figures below are web-optimized visuals extracted and redesigned from the project report, preserving the empirical histogram and rank-wise boxplot analysis without showing full PDF pages.',
+    gallery: [
+      {
+        src: '/projects/si140a/total-histogram.png',
+        alt: 'Total histogram of WeChat Red Envelope allocation samples with mean 4.00 RMB.',
+        caption: 'Empirical total histogram over 2,250 allocation samples.',
+      },
+      {
+        src: '/projects/si140a/rank-boxplots.png',
+        alt: 'Boxplots of WeChat Red Envelope allocation amounts by recipient rank.',
+        caption: 'Rank-wise boxplots showing comparable expected values and increasing tail behavior.',
+      },
+    ],
+    linksIntro:
+      'The full report contains the complete derivations, simulation code excerpts, statistical tests, and appendix materials. No code repository is linked because no public repository was provided for this project.',
+    reportNote:
+      'The PDF is provided as the original course report; the portfolio page intentionally omits raw teammate student IDs and other unnecessary personal identifiers.',
   },
   bme1312: {
     metaTitle: 'BME1312 MRI Reconstruction Project — Song Zidong',

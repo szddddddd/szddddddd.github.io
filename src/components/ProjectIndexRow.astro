@@ -12,6 +12,7 @@ interface Props {
     code: string;
     demo: string;
     readme: string;
+    role: string;
   };
   comingSoon: string;
   placeholder: string;
@@ -20,6 +21,7 @@ interface Props {
 const { project, lang, labels, comingSoon, placeholder } = Astro.props as Props;
 const title = project.title[lang];
 const description = project.description[lang];
+const role = project.role?.[lang];
 const year = project.year === 'Coming soon' ? comingSoon : project.year;
 const typeLabel = project.type?.[lang] ?? placeholder;
 const courseLabel = typeof project.course === 'string' ? project.course : project.course?.[lang];
@@ -58,6 +60,7 @@ const hasDetailLink = Boolean(detailHref && isUrl(detailHref));
 
     {courseLabel && <p class="project-row-context">{courseLabel}</p>}
     <p class="project-row-description">{description}</p>
+    {role && <p class="project-row-role"><strong>{labels.role}:</strong> {role}</p>}
 
     <div class="project-row-tags" aria-label={`${title} tags`}>
       {project.tags.map((tag) => <span>{tag}</span>)}

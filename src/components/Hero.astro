@@ -1,4 +1,5 @@
 ---
+import NeuralIonHero from './NeuralIonHero.astro';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang } from '../i18n';
 
@@ -16,11 +17,6 @@ const identity = [
   { label: t.hero.identityLabels.university, value: display.university },
   { label: t.hero.identityLabels.lab, value: profile.lab },
   { label: t.hero.identityLabels.major, value: display.major },
-];
-const points = [
-  [14, 20, 1.2], [23, 36, 0.9], [34, 22, 1.5], [48, 18, 0.8], [62, 29, 1.1], [74, 18, 0.9],
-  [18, 56, 0.7], [30, 68, 1.0], [43, 51, 1.3], [54, 64, 0.9], [69, 52, 1.6], [83, 66, 0.8],
-  [21, 82, 1.1], [39, 86, 0.7], [58, 80, 1.0], [76, 84, 1.2], [88, 42, 0.9], [10, 44, 0.8],
 ];
 ---
 
@@ -62,15 +58,6 @@ const points = [
       </dl>
     </aside>
 
-    <div class="hero-visual reveal-block" aria-hidden="true">
-      <div class="visual-plane visual-plane-a"></div>
-      <div class="visual-plane visual-plane-b"></div>
-      <div class="point-cloud">
-        {points.map(([x, y, s]) => <span class="cloud-point" style={`--x:${x}%;--y:${y}%;--s:${s};`} />)}
-      </div>
-      <div class="visual-rings"></div>
-      <div class="visual-core"></div>
-      <span class="visual-index">{t.hero.visualIndex}</span>
-    </div>
+    <NeuralIonHero label={t.hero.visualIndex} />
   </div>
 </section>

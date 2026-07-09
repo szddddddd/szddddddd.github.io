@@ -4,7 +4,6 @@ import ProjectCard from './ProjectCard.astro';
 import ProjectIndexRow from './ProjectIndexRow.astro';
 import PublicationItem from './PublicationItem.astro';
 import Section from './Section.astro';
-import WorldShaderGate from './WorldShaderGate.astro';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang, type PageKey } from '../i18n';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -60,18 +59,7 @@ const identityRows = [
 <BaseLayout lang={lang} page={page} title={titles[page]} description={descriptions[page]}>
   {page === 'home' && (
     <div class="page-stack">
-      <WorldShaderGate lang={lang} />
       <Hero lang={lang} />
-
-      <section class="research-strip" aria-label={t.projects.eyebrow}>
-        {t.hero.researchStrip.map((item, index) => (
-          <article class="research-strip-card">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{item.label}</strong>
-            <p>{item.text}</p>
-          </article>
-        ))}
-      </section>
 
       <Section id="research" eyebrow={t.projects.eyebrow} title={t.projects.title} intro={t.projects.intro}>
         <div class="project-grid">

@@ -64,13 +64,13 @@ export const en = {
   projects: {
     eyebrow: 'Research / Projects',
     pageTitle: 'Projects',
-    title: 'Selected Research and Technical Projects',
+    title: 'Research and Project Highlights',
     intro:
-      'A curated project index for research prototypes, course projects, code, demos, and paper links.',
-    fullTitle: 'Project index',
+      'Selected academic, technical, and course-based projects in computer vision, 3D reconstruction, neural rendering, medical imaging, and creative coding.',
+    fullTitle: 'Projects',
     fullIntro:
-      'A curated index of research prototypes, course projects, and visual technical artifacts.',
-    viewAll: 'Open project index',
+      'Academic, technical, and course-based projects spanning visual computing, medical imaging, and creative coding.',
+    viewAll: 'View all projects',
     labels: {
       details: 'Details',
       shadertoy: 'Shadertoy',

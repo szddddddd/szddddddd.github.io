@@ -63,11 +63,11 @@ export const zh = {
   projects: {
     eyebrow: '研究 / 项目',
     pageTitle: '项目',
-    title: '代表性研究与技术项目',
-    intro: '这里整理研究原型、课程项目、代码、演示与论文链接等项目内容。',
-    fullTitle: '项目索引',
-    fullIntro: '研究原型、课程项目与技术作品的统一索引。',
-    viewAll: '打开项目索引',
+    title: '研究与项目亮点',
+    intro: '代表性学术、技术与课程项目，涵盖计算机视觉、三维重建、神经渲染、医学影像与创意编程。',
+    fullTitle: '项目',
+    fullIntro: '学术、技术与课程项目，涵盖视觉计算、医学影像与创意编程等方向。',
+    viewAll: '查看全部项目',
     labels: {
       details: '详情',
       shadertoy: 'Shadertoy',

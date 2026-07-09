@@ -309,10 +309,10 @@ main {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(18rem, 0.98fr);
+  grid-template-columns: minmax(0, 1.38fr) minmax(18rem, 0.72fr);
   align-items: center;
   min-height: calc(100vh - 5.5rem);
-  gap: clamp(2rem, 5vw, 5rem);
+  gap: clamp(2.25rem, 5vw, 5.25rem);
   padding: clamp(4rem, 8vw, 7rem) 0 clamp(2.4rem, 5vw, 4.5rem);
 }
 
@@ -334,20 +334,24 @@ main {
 
 .hero-copy {
   display: grid;
-  gap: 1.15rem;
+  max-width: 58rem;
+  gap: 1.2rem;
 }
 
 .hero-title-stack {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.65rem;
+  width: 100%;
 }
 
 .hero-title {
-  max-width: 12ch;
-  font-size: clamp(3rem, 8vw, 6.2rem);
-  font-weight: 780;
-  letter-spacing: -0.055em;
-  line-height: 0.95;
+  width: max-content;
+  max-width: 100%;
+  font-size: clamp(3.35rem, 8.2vw, 6.8rem);
+  font-weight: 740;
+  letter-spacing: 0.035em;
+  line-height: 0.92;
+  white-space: nowrap;
 }
 
 .hero-name-secondary {
@@ -355,21 +359,14 @@ main {
   max-width: 100%;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 2.4vw, 2rem);
-  font-style: italic;
-  letter-spacing: 0.08em;
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-style: normal;
+  letter-spacing: 0.22em;
   opacity: 0.72;
 }
 
-.hero-role {
-  color: var(--cyan);
-  font-size: clamp(0.94rem, 1.4vw, 1.05rem);
-  font-weight: 760;
-  letter-spacing: 0.01em;
-}
-
 .hero-lede {
-  max-width: 45rem;
+  max-width: 50rem;
   color: var(--muted);
   font-family: var(--font-serif);
   font-size: clamp(1.22rem, 2.25vw, 2rem);
@@ -446,25 +443,85 @@ main {
   transform: none;
 }
 
+.hero-side {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 26rem);
+  justify-self: end;
+}
+
+.identity-card {
+  border: 1px solid var(--line);
+  border-radius: 1.45rem;
+  background:
+    linear-gradient(145deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.52)),
+    rgba(226, 232, 240, 0.035);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.24);
+  padding: clamp(1.2rem, 2.4vw, 1.65rem);
+}
+
+.identity-card-eyebrow {
+  color: var(--cyan);
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.identity-card-list {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1.05rem 0 0;
+}
+
+.identity-card-list div {
+  display: grid;
+  grid-template-columns: minmax(5.6rem, 0.6fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: baseline;
+  border-top: 1px solid rgba(226, 232, 240, 0.1);
+  padding-top: 0.85rem;
+}
+
+.identity-card-list div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.identity-card-list dt {
+  color: var(--dim);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.identity-card-list dd {
+  color: var(--text);
+  font-size: clamp(0.98rem, 1.25vw, 1.08rem);
+  font-weight: 740;
+  letter-spacing: -0.01em;
+}
+
 .hero-visual {
   position: relative;
-  min-height: clamp(25rem, 44vw, 39rem);
+  min-height: clamp(11rem, 18vw, 15rem);
   border: 1px solid var(--line);
-  border-radius: 2.3rem;
+  border-radius: 1.45rem;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.014)),
-    radial-gradient(circle at 38% 28%, rgba(125, 211, 252, 0.18), transparent 22rem),
-    radial-gradient(circle at 73% 68%, rgba(192, 132, 252, 0.18), transparent 24rem);
-  box-shadow: var(--shadow);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
+    radial-gradient(circle at 38% 28%, rgba(125, 211, 252, 0.13), transparent 14rem),
+    radial-gradient(circle at 73% 68%, rgba(192, 132, 252, 0.12), transparent 16rem);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
   overflow: hidden;
 }
 
 .hero-visual::before {
   position: absolute;
-  inset: 1.1rem;
+  inset: 0.75rem;
   content: "";
-  border: 1px solid rgba(226, 232, 240, 0.15);
-  border-radius: 1.55rem;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  border-radius: 1rem;
 }
 
 .visual-plane,
@@ -544,10 +601,10 @@ main {
 }
 
 .visual-core {
-  width: 13rem;
-  height: 13rem;
-  left: 35%;
-  top: 34%;
+  width: 8rem;
+  height: 8rem;
+  left: 34%;
+  top: 26%;
   border-radius: 999px;
   background:
     radial-gradient(circle at 35% 35%, rgba(248, 250, 252, 0.9), transparent 0.55rem),
@@ -557,30 +614,14 @@ main {
 }
 
 .visual-index {
-  right: 1.5rem;
-  bottom: 1.35rem;
+  right: 1rem;
+  bottom: 0.85rem;
   color: var(--muted);
   font-family: var(--font-serif);
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   font-style: italic;
 }
 
-.identity-strip {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.8rem;
-  margin-top: clamp(0.5rem, 2vw, 1.3rem);
-}
-
-.identity-strip article {
-  border: 1px solid var(--line);
-  border-radius: 1.1rem;
-  background: rgba(11, 18, 32, 0.58);
-  padding: 1rem;
-}
-
-.identity-strip span,
 .panel-label,
 .card-topline,
 .publication-year,
@@ -590,14 +631,6 @@ main {
   font-weight: 850;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-}
-
-.identity-strip strong {
-  display: block;
-  margin-top: 0.35rem;
-  color: var(--text);
-  font-size: 1rem;
-  letter-spacing: -0.02em;
 }
 
 .section,
@@ -1165,11 +1198,15 @@ main {
     min-height: auto;
   }
 
-  .hero-visual {
-    min-height: 25rem;
+  .hero-side {
+    width: min(100%, 34rem);
+    justify-self: start;
   }
 
-  .identity-strip,
+  .hero-visual {
+    min-height: 12rem;
+  }
+
   .about-grid,
   .contact-grid,
   .portal-grid {
@@ -1203,7 +1240,9 @@ main {
 
   .hero-title {
     font-size: clamp(2.6rem, 15vw, 4.2rem);
+    letter-spacing: 0.02em;
     line-height: 1;
+    white-space: normal;
   }
 
   .hero-name-secondary {
@@ -1211,13 +1250,13 @@ main {
   }
 
   .hero-visual {
-    min-height: 20rem;
+    min-height: 11rem;
     border-radius: 1.45rem;
   }
 
   .visual-core {
-    left: 28%;
-    top: 31%;
+    left: 30%;
+    top: 27%;
   }
 
   .page-hero h1,

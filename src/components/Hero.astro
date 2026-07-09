@@ -31,7 +31,6 @@ const points = [
       <h1 id="hero-title" class="hero-title">{displayName}</h1>
       <p class="hero-name-secondary">{alternateName}</p>
     </div>
-    <p class="hero-role">{display.role} · {display.university} · {profile.lab}</p>
     <p class="hero-lede">{t.hero.statement}</p>
     <ul class="tag-list hero-tags" aria-label={t.about.interestsTitle}>
       {profile.researchInterests.map((interest) => <li>{interest}</li>)}
@@ -50,23 +49,28 @@ const points = [
     </div>
   </div>
 
-  <div class="hero-visual reveal-block" aria-hidden="true">
-    <div class="visual-plane visual-plane-a"></div>
-    <div class="visual-plane visual-plane-b"></div>
-    <div class="point-cloud">
-      {points.map(([x, y, s]) => <span class="cloud-point" style={`--x:${x}%;--y:${y}%;--s:${s};`} />)}
-    </div>
-    <div class="visual-rings"></div>
-    <div class="visual-core"></div>
-    <span class="visual-index">{t.hero.visualIndex}</span>
-  </div>
+  <div class="hero-side">
+    <aside class="identity-card reveal-block" aria-label={t.about.identityTitle}>
+      <p class="identity-card-eyebrow">{t.about.identityTitle}</p>
+      <dl class="identity-card-list">
+        {identity.map((item) => (
+          <div>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
 
-  <div class="identity-strip" aria-label="Academic identity">
-    {identity.map((item) => (
-      <article>
-        <span>{item.label}</span>
-        <strong>{item.value}</strong>
-      </article>
-    ))}
+    <div class="hero-visual reveal-block" aria-hidden="true">
+      <div class="visual-plane visual-plane-a"></div>
+      <div class="visual-plane visual-plane-b"></div>
+      <div class="point-cloud">
+        {points.map(([x, y, s]) => <span class="cloud-point" style={`--x:${x}%;--y:${y}%;--s:${s};`} />)}
+      </div>
+      <div class="visual-rings"></div>
+      <div class="visual-core"></div>
+      <span class="visual-index">{t.hero.visualIndex}</span>
+    </div>
   </div>
 </section>

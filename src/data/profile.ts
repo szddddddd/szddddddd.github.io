@@ -7,6 +7,7 @@ export type ProjectLinkSet = {
   details?: LinkValue;
   shadertoy?: LinkValue;
   report?: LinkValue;
+  slides?: LinkValue;
   paper?: LinkValue;
   code?: LinkValue;
   demo?: LinkValue;
@@ -101,6 +102,41 @@ export const bme1312CourseProject: CourseProject = {
     },
     report: '/projects/bme1312/bme1312-mri-reconstruction-report.pdf',
     code: '',
+  },
+};
+
+export const bme1312Proj2CourseProject: CourseProject = {
+  title: {
+    en: 'HBA-VAN for Glioma MRI Segmentation',
+    zh: 'HBA-VAN 多模态脑胶质瘤 MRI 分割',
+  },
+  type: {
+    en: 'Course Project / Medical Image Segmentation / Deep Learning',
+    zh: '课程项目 / 医学影像分割 / 深度学习',
+  },
+  course: 'BME1312 Artificial Intelligence in Medical Imaging',
+  year: '2026',
+  description: {
+    en:
+      'Boundary-aware 3D attention network for multi-modal BraTS glioma subregion segmentation.',
+    zh:
+      '面向 BraTS 风格多模态脑胶质瘤子区域分割的边界感知 3D attention network。',
+  },
+  role: {
+    en:
+      'Report writing, result analysis, project presentation integration',
+    zh:
+      '报告撰写、结果分析、项目展示材料整合',
+  },
+  tags: ['Medical Imaging', 'Brain Tumor Segmentation', '3D U-Net', 'Attention', 'BraTS'],
+  image: '/projects/bme1312-proj2/hba-van-architecture.png',
+  links: {
+    details: {
+      en: '/projects/bme1312-proj2',
+      zh: '/zh/projects/bme1312-proj2',
+    },
+    report: '/projects/bme1312-proj2/hba-van-report.pdf',
+    slides: '/projects/bme1312-proj2/hba-van-slides.pptx',
   },
 };
 
@@ -246,6 +282,7 @@ export const profile = {
   projects: [
     cs182CourseProject,
     bme1312CourseProject,
+    bme1312Proj2CourseProject,
     si140aCourseProject,
     si100bCourseProject,
     arts1308CourseProject,
@@ -254,6 +291,7 @@ export const profile = {
   courseProjects: [
     cs182CourseProject,
     bme1312CourseProject,
+    bme1312Proj2CourseProject,
     si140aCourseProject,
     si100bCourseProject,
     arts1308CourseProject,

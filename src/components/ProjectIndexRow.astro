@@ -12,6 +12,7 @@ interface Props {
     code: string;
     demo: string;
     readme: string;
+    slides: string;
     role: string;
   };
   comingSoon: string;
@@ -30,6 +31,7 @@ const links: { label: string; value: LinkValue | undefined }[] = [
   { label: labels.details, value: project.links.details },
   ...(project.links.shadertoy !== undefined ? [{ label: labels.shadertoy, value: project.links.shadertoy }] : []),
   ...(project.links.report !== undefined ? [{ label: labels.report, value: project.links.report }] : []),
+  ...(project.links.slides !== undefined ? [{ label: labels.slides, value: project.links.slides }] : []),
   ...(project.links.code !== undefined ? [{ label: labels.code, value: project.links.code }] : []),
   ...(project.links.readme !== undefined ? [{ label: labels.readme, value: project.links.readme }] : []),
   ...(project.links.paper !== undefined ? [{ label: labels.paper, value: project.links.paper }] : []),

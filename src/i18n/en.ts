@@ -100,6 +100,7 @@ export const en = {
       code: 'Code',
       demo: 'Demo',
       readme: 'README',
+      slides: 'Slides',
       role: 'Role',
     },
   },
@@ -410,6 +411,163 @@ export const en = {
       'Stronger frequency-domain modeling.',
       'Validation on broader clinical datasets.',
     ],
+  },
+  bme1312Proj2: {
+    metaTitle: 'HBA-VAN Glioma MRI Segmentation Project — Song Zidong',
+    metaDescription:
+      'BME1312 Artificial Intelligence in Medical Imaging course project on HBA-VAN, a hierarchical boundary-aware volumetric attention network for multi-modal BraTS-style glioma subregion segmentation.',
+    hero: {
+      eyebrow: 'Course Project / Medical Image Segmentation',
+      title:
+        'HBA-VAN: Hierarchical Boundary-Aware Volumetric Attention Network for Multi-Modal Glioma Subregion Segmentation',
+      subtitle:
+        'Boundary-aware 3D attention network for multi-modal BraTS glioma subregion segmentation.',
+      affiliation: 'BME1312 Artificial Intelligence in Medical Imaging · Course Project · ShanghaiTech University · 2026',
+    },
+    metadata: [
+      'BME1312',
+      'Medical Imaging',
+      'Brain Tumor Segmentation',
+      '3D U-Net',
+      'Attention',
+      'BraTS',
+      'WT / TC / ET',
+    ],
+    labels: {
+      course: 'Course',
+      type: 'Type',
+      task: 'Task',
+      modalities: 'Modalities',
+      targetRegions: 'Target regions',
+      summary: 'Summary',
+      pipeline: 'Pipeline',
+      result: 'Result',
+      links: 'Links',
+      context: 'Context',
+    },
+    sections: {
+      overview: 'Overview',
+      method: 'Method',
+      results: 'Key Results',
+      visuals: 'Visuals',
+      contribution: 'My Contribution',
+      links: 'Links and Assets',
+      courseContext: 'Course Context',
+    },
+    overview:
+      'This project addresses automatic glioma subregion segmentation from co-registered multi-modal brain MRI. The goal is to predict three clinically meaningful and anatomically nested target regions: whole tumor (WT), tumor core (TC), and enhancing tumor (ET). The portfolio page presents the work as a staged modeling study from 2D slice-wise segmentation to full 3D volumetric reasoning.',
+    overviewBullets: [
+      'T1, T1ce, T2, and FLAIR provide complementary signals for tumor extent, core structure, and enhancement.',
+      'WT, TC, and ET form a nested multi-label hierarchy rather than mutually exclusive semantic classes.',
+      'ET is usually small and sparse, producing severe class imbalance and unstable case-level Dice.',
+      'Tumor boundaries are ambiguous, so HD95 and error maps are important alongside overlap metrics.',
+    ],
+    regionCards: [
+      { label: 'WT', value: 'Whole Tumor', note: 'broad abnormal tumor extent' },
+      { label: 'TC', value: 'Tumor Core', note: 'compact core and boundary-sensitive region' },
+      { label: 'ET', value: 'Enhancing Tumor', note: 'small contrast-dependent enhancing component' },
+    ],
+    methodIntro:
+      'The method is organized as a progressive pipeline. Each stage keeps the same WT / TC / ET multi-label task while increasing the amount of through-plane spatial evidence available to the model.',
+    methodCards: [
+      {
+        title: 'Data preprocessing',
+        items: [
+          'Load co-registered NIfTI volumes for each patient.',
+          'Stack T1, T1ce, T2, and FLAIR as four MRI input channels.',
+          'Crop nonzero brain foreground to reduce redundant background.',
+          'Apply per-modality z-score normalization within brain voxels.',
+          'Construct WT / TC / ET multi-label masks from BraTS-style labels.',
+          'Use patient-level train / validation / test splits to avoid slice leakage.',
+        ],
+      },
+      {
+        title: 'Task2 baseline',
+        items: [
+          'Train a 2D U-Net for slice-wise segmentation.',
+          'Use one axial slice with four MRI modalities as input.',
+          'Predict independent sigmoid masks for WT, TC, and ET.',
+          'Use the 2D model as a strong reference rather than a weak baseline.',
+        ],
+      },
+      {
+        title: 'Task3 progression',
+        items: [
+          'Introduce 2.5D U-Net variants that use adjacent axial slices as local context.',
+          'Evaluate whether neighboring slices help disambiguate TC and ET boundaries.',
+          'Move from shallow depth context to full 3D volumetric feature learning.',
+        ],
+      },
+      {
+        title: 'Final model: HBA-VAN',
+        items: [
+          'Use a 3D residual encoder-decoder for volumetric reasoning.',
+          'Apply attention-gated skip fusion, deep supervision, and boundary-aware auxiliary learning.',
+          'Add an ET-specific refinement branch for the smallest subregion.',
+          'Regularize predictions with the hierarchy ET ⊂ TC ⊂ WT.',
+          'Reconstruct full-volume predictions with sliding-window inference.',
+        ],
+      },
+    ],
+    resultsIntro:
+      'The final 3D HBA-VAN model improves both region overlap and boundary-sensitive evaluation. Compared with the 2D U-Net baseline, mean Dice increases from 0.8962 to 0.9167, while mean HD95 decreases from 6.6879 to 2.8165.',
+    resultColumns: ['Method', 'Spatial Modeling', 'WT', 'TC', 'ET', 'Mean Dice', 'HD95'],
+    resultRows: [
+      ['Task2 U-Net', '2D', '0.9253', '0.9090', '0.8544', '0.8962', '6.6879'],
+      ['Best 2.5D', '2.5D', '0.9381', '0.9224', '0.8667', '0.9091', '4.0447'],
+      ['HBA-VAN', '3D', '0.9403', '0.9144', '0.8954', '0.9167', '2.8165'],
+    ],
+    resultHighlights: [
+      'Mean Dice improves from 0.8962 for the 2D U-Net baseline to 0.9167 for HBA-VAN.',
+      'Mean HD95 decreases from 6.6879 to 2.8165, indicating substantially better boundary localization.',
+      'ET Dice improves from 0.8544 in Task2 U-Net to 0.8954 in HBA-VAN.',
+      'The 2.5D model confirms the value of local inter-slice context, while full 3D modeling provides the best overall result.',
+    ],
+    metricCards: [
+      { label: 'Mean Dice', value: '0.8962 → 0.9167', note: '2D U-Net to HBA-VAN' },
+      { label: 'HD95', value: '6.6879 → 2.8165', note: 'lower boundary error' },
+      { label: 'ET Dice', value: '0.8544 → 0.8954', note: 'small enhancing tumor gain' },
+      { label: 'Spatial model', value: '2D → 2.5D → 3D', note: 'progressive context' },
+    ],
+    galleryIntro:
+      'The figures below are cropped and web-optimized from the report and presentation materials, focusing on the actual diagrams and qualitative results rather than full-page screenshots.',
+    gallery: [
+      {
+        src: '/projects/bme1312-proj2/multimodal-mri-segmentation.png',
+        alt: 'Multi-modal MRI visualization with T1, T1ce, T2, FLAIR, and WT, TC, ET tumor masks.',
+        caption: 'Multi-modal MRI visualization and nested WT / TC / ET target masks.',
+      },
+      {
+        src: '/projects/bme1312-proj2/task2-unet-baseline.png',
+        alt: 'Task2 2D U-Net slice-wise segmentation pipeline with sigmoid WT, TC, and ET outputs.',
+        caption: 'Task2 baseline: 2D U-Net for four-channel axial slice segmentation.',
+      },
+      {
+        src: '/projects/bme1312-proj2/hba-van-architecture.png',
+        alt: 'HBA-VAN architecture with 3D residual encoder-decoder, attention gates, boundary head, ET refinement, hierarchy regularization, and sliding-window reconstruction.',
+        caption: 'HBA-VAN architecture: volumetric attention, boundary learning, ET refinement, and hierarchy regularization.',
+      },
+      {
+        src: '/projects/bme1312-proj2/cross-method-comparison.png',
+        alt: 'Cross-method qualitative comparison among Task2 2D U-Net, 2.5D U-Net, and HBA-VAN with prediction and error maps.',
+        caption: 'Cross-method qualitative comparison showing the progression from 2D to 2.5D to 3D segmentation.',
+      },
+      {
+        src: '/projects/bme1312-proj2/ablation-error-map.png',
+        alt: 'Ablation comparison showing 3D attention boundary model, HBA-VAN, and corresponding spatial error maps.',
+        caption: 'Ablation and error-map visualization for ET refinement and boundary-aware prediction.',
+      },
+    ],
+    contributionBullets: [
+      'Contributed to the final project report and presentation material organization.',
+      'Participated in result interpretation and qualitative analysis.',
+      'Helped summarize the model design, experimental findings, and medical-imaging motivation.',
+      'Integrated the project into a reproducible academic portfolio format.',
+    ],
+    linksIntro:
+      'The original report and presentation slides are provided as static portfolio assets. No code link is shown because no public repository was provided for this project.',
+    courseContext:
+      'This was a team course project for BME1312 Artificial Intelligence in Medical Imaging. The webpage summarizes the technical work without displaying teammate student IDs, email addresses, or other unnecessary personal identifiers.',
   },
   si100b: {
     metaTitle: 'SI100B SAVE MY LINEAR ALGEBRA Pygame Project — Song Zidong',

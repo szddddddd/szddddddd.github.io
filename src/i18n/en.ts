@@ -135,29 +135,6 @@ export const en = {
     intro: 'A minimal writing space for future research notes, technical reflections, and reading summaries.',
     empty: 'Notes coming soon.',
   },
-  explore: {
-    metaTitle: 'Spatial Worlds — Song Zidong',
-    metaDescription:
-      'A compact interactive visual portal connecting shader art, neural rendering, and generative spatial intelligence.',
-    eyebrow: 'Spatial vision / Shader portal',
-    cardTitle: 'Explore Spatial Worlds',
-    cardSubtitle:
-      'A compact shader-driven portal for spatial vision, neural rendering, and generative worlds.',
-    cardAction: 'Click here to explore',
-    pageTitle: 'Spatial Worlds',
-    pageIntro:
-      'A small interactive visual study connecting shader art, neural rendering, and world models.',
-    body:
-      'This page is a compact visual portal rather than a full-screen landing page. It collects the visual identity of my work: geometry, reconstruction, rendering, and generative spatial intelligence.',
-    backHome: 'Back to home',
-    linksTitle: 'Entry links',
-    links: {
-      projects: 'Projects',
-      shaderArt: 'Shader Art',
-      github: 'GitHub',
-      contact: 'Contact',
-    },
-  },
   si140a: {
     metaTitle: 'SI140A WeChat Red Envelope Probability Project — Song Zidong',
     metaDescription:

@@ -114,7 +114,6 @@ src/pages/projects/bme1312.astro
 src/pages/publications.astro
 src/pages/coursework.astro
 src/pages/notes.astro
-src/pages/contact.astro
 src/pages/zh/*.astro
 ```
 
@@ -153,7 +152,6 @@ English:
 - `/publications`
 - `/coursework`
 - `/notes`
-- `/contact`
 
 Chinese:
 
@@ -164,4 +162,3 @@ Chinese:
 - `/zh/publications`
 - `/zh/coursework`
 - `/zh/notes`
-- `/zh/contact`

@@ -682,6 +682,21 @@ main {
   gap: 1rem;
 }
 
+.about-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.about-card-copy {
+  color: var(--muted);
+}
+
+.about-profile-panel {
+  min-height: 18rem;
+  align-content: start;
+}
+
 .home-about-grid .panel-large {
   grid-row: auto;
 }
@@ -1208,6 +1223,7 @@ main {
   }
 
   .about-grid,
+  .about-card-grid,
   .contact-grid,
   .portal-grid {
     grid-template-columns: 1fr;

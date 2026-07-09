@@ -27,7 +27,6 @@ export const en = {
     publications: 'Publications',
     coursework: 'Coursework',
     notes: 'Notes',
-    contact: 'Contact',
   },
   hero: {
     eyebrow: 'Academic portfolio / Visual research identity',
@@ -50,16 +49,38 @@ export const en = {
   about: {
     eyebrow: 'About',
     pageTitle: 'About',
-    title: 'A research-oriented academic profile',
+    title: 'Academic Identity',
     intro:
-      'This page keeps the content precise and editable, with space for future education, coursework, awards, and research updates.',
+      'I am an undergraduate Computer Science student at ShanghaiTech University, affiliated with VRVC Lab, building a research profile around visual computing, 3D reconstruction, and neural rendering.',
     bio:
       'I am an undergraduate student majoring in Computer Science at ShanghaiTech University and affiliated with VRVC Lab. My projects and coursework explore visual computing problems that connect geometry-aware reconstruction with learned representations.',
     profileTitle: 'Profile',
-    identityTitle: 'Academic details',
-    interestsTitle: 'Research interests',
-    futureTitle: 'Future updates',
-    futureItems: ['Education details', 'Coursework', 'Awards', 'Research updates'],
+    identityTitle: 'Academic Identity',
+    detailsTitle: 'Academic Details',
+    interestsTitle: 'Research Interests',
+    focusTitle: 'Current Focus / Research Direction',
+    focusIntro:
+      'My current direction centers on visual systems that recover, represent, and reason about 3D structure from images and learned scene representations.',
+    focusItems: [
+      'Geometry-aware 3D reconstruction pipelines for object-centric and scene-level understanding.',
+      'Neural rendering and Gaussian Splatting methods that balance visual fidelity with structured geometry.',
+      'World-model-style visual representations for connecting perception, generation, and spatial reasoning.',
+    ],
+    creativeTitle: 'Visual Computing / Creative Work',
+    creativeIntro:
+      'I also use creative coding and shader experiments to explore procedural image synthesis, motion, color, and pixel-level visual expression.',
+    creativeItems: [
+      'GLSL fragment shader artworks and procedural visual studies on Shadertoy.',
+      'Course projects that connect visual computing ideas with practical systems and clean technical presentation.',
+      'A visual portfolio style that keeps research content concise, reproducible, and easy to extend.',
+    ],
+    contactTitle: 'Contact',
+    contactIntro: 'For research discussions, collaboration, or application materials, feel free to get in touch.',
+    contactLabels: {
+      email: 'Email',
+      github: 'GitHub',
+      cv: 'CV',
+    },
   },
   projects: {
     eyebrow: 'Research / Projects',
@@ -111,15 +132,6 @@ export const en = {
     title: 'Notes',
     intro: 'A minimal writing space for future research notes, technical reflections, and reading summaries.',
     empty: 'Notes coming soon.',
-  },
-  contact: {
-    eyebrow: 'Contact',
-    pageTitle: 'Contact',
-    title: 'Contact',
-    intro: 'The current contact section includes only the provided email, GitHub profile, and CV placeholder.',
-    email: 'Email',
-    github: 'GitHub',
-    cv: 'CV',
   },
   bme1312: {
     metaTitle: 'BME1312 MRI Reconstruction Project — Song Zidong',

@@ -12,8 +12,7 @@ export type PageKey =
   | 'projectArts1308'
   | 'publications'
   | 'coursework'
-  | 'notes'
-  | 'contact';
+  | 'notes';
 
 export const i18n = { en, zh } as const;
 
@@ -28,7 +27,6 @@ export const pages: Record<PageKey, { en: string; zh: string }> = {
   publications: { en: '/publications', zh: '/zh/publications' },
   coursework: { en: '/coursework', zh: '/zh/coursework' },
   notes: { en: '/notes', zh: '/zh/notes' },
-  contact: { en: '/contact', zh: '/zh/contact' },
 };
 
 export function getCopy(lang: Lang) {

@@ -57,7 +57,7 @@ export const en = {
     pageTitle: 'About',
     title: 'Academic Identity',
     intro:
-      'I am an undergraduate Computer Science student at ShanghaiTech University, affiliated with VRVC Lab, building a research profile around visual computing, 3D reconstruction, and neural rendering.',
+      'I am an undergraduate student majoring in Computer Science at ShanghaiTech University, affiliated with VRVC Lab. My academic interests focus on visual computing, especially 3D vision, geometry-aware reconstruction, neural rendering, Gaussian Splatting, and generative world models. This website collects my research prototypes, course projects, technical experiments, and visual computing explorations.',
     bio:
       'I am an undergraduate student majoring in Computer Science at ShanghaiTech University and affiliated with VRVC Lab. My projects and coursework explore visual computing problems that connect geometry-aware reconstruction with learned representations.',
     profileTitle: 'Profile',

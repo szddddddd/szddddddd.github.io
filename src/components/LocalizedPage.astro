@@ -80,21 +80,15 @@ const identityRows = [
 
   {page === 'about' && (
     <div class="page-stack">
-      <section class="page-hero page-hero-compact">
-        <p class="eyebrow">{t.about.eyebrow}</p>
+      <section class="page-hero page-hero-compact about-page-hero">
         <h1>{t.about.pageTitle}</h1>
         <p>{t.about.intro}</p>
       </section>
 
-      <Section title={t.about.identityTitle}>
-        <div class="about-grid">
-          <article class="panel about-profile-panel">
-            <p class="panel-label">{t.about.profileTitle}</p>
-            <p class="large-copy">{t.about.bio}</p>
-          </article>
-          <article class="panel">
-            <p class="panel-label">{t.about.detailsTitle}</p>
-            <dl class="fact-list">
+      <section class="section about-compact-section">
+        <div class="section-body about-compact-layout">
+          <article class="panel about-info-card" aria-label={t.about.identityTitle}>
+            <dl class="fact-list about-fact-grid">
               {identityRows.map((item) => (
                 <div>
                   <dt>{item.label}</dt>
@@ -103,57 +97,14 @@ const identityRows = [
               ))}
             </dl>
           </article>
-        </div>
-      </Section>
 
-      <Section title={t.about.interestsTitle}>
-        <ul class="tag-list expanded-tags">
-          {profile.researchInterests.map((interest) => <li>{interest}</li>)}
-        </ul>
-      </Section>
-
-      <Section title={t.about.focusTitle} intro={t.about.focusIntro}>
-        <div class="about-card-grid">
-          {t.about.focusItems.map((item) => (
-            <article class="panel">
-              <p class="about-card-copy">{item}</p>
-            </article>
-          ))}
+          <div class="about-interest-block" aria-label={t.about.interestsTitle}>
+            <ul class="tag-list about-interest-tags">
+              {profile.researchInterests.map((interest) => <li>{interest}</li>)}
+            </ul>
+          </div>
         </div>
-      </Section>
-
-      <Section title={t.about.creativeTitle} intro={t.about.creativeIntro}>
-        <div class="about-card-grid">
-          {t.about.creativeItems.map((item) => (
-            <article class="panel">
-              <p class="about-card-copy">{item}</p>
-            </article>
-          ))}
-        </div>
-      </Section>
-
-      <Section id="contact" title={t.about.contactTitle} intro={t.about.contactIntro}>
-        <div class="contact-grid">
-          <article class="panel">
-            <p class="panel-label">{t.about.contactLabels.email}</p>
-            <a class="contact-link" href={`mailto:${profile.email}`}>{profile.email}</a>
-          </article>
-          <article class="panel">
-            <p class="panel-label">{t.about.contactLabels.github}</p>
-            <a class="contact-link" href={profile.githubUrl} target="_blank" rel="noreferrer">{profile.githubUrl}</a>
-          </article>
-          <article class="panel">
-            <p class="panel-label">{t.about.contactLabels.cv}</p>
-            {
-              profile.cv.url ? (
-                <a class="contact-link" href={profile.cv.url}>{profile.cv.label}</a>
-              ) : (
-                <p class="contact-link muted">{t.common.comingSoon}</p>
-              )
-            }
-          </article>
-        </div>
-      </Section>
+      </section>
     </div>
   )}
 

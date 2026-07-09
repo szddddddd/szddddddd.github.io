@@ -22,12 +22,33 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
 ---
 
 <!doctype html>
-<html lang={t.htmlLang}>
+<html lang={t.htmlLang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
+    <meta name="theme-color" content="#070a12" id="theme-color-meta" />
+    <script is:inline>
+      (() => {
+        const darkThemeColor = '#070a12';
+        const lightThemeColor = '#f8f5ee';
+
+        try {
+          const storedTheme = localStorage.getItem('theme');
+          const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+
+          const themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) {
+            themeColor.setAttribute('content', theme === 'light' ? lightThemeColor : darkThemeColor);
+          }
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.style.colorScheme = 'dark';
+        }
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={pageDescription} />
-    <meta name="theme-color" content="#070a12" />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="en" href={alternateEn} />
     <link rel="alternate" hreflang="zh-CN" href={alternateZh} />

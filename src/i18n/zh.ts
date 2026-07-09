@@ -19,6 +19,12 @@ export const zh = {
     placeholder: '占位内容',
     bio: '简介',
     noItems: '暂未添加内容。',
+    themeToggle: {
+      dark: '夜间',
+      light: '日间',
+      switchToDark: '切换到夜间主题',
+      switchToLight: '切换到日间主题',
+    },
   },
   nav: {
     home: '首页',

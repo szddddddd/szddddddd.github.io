@@ -19,6 +19,12 @@ export const en = {
     placeholder: 'Placeholder',
     bio: 'Bio',
     noItems: 'No items have been added yet.',
+    themeToggle: {
+      dark: 'Dark',
+      light: 'Light',
+      switchToDark: 'Switch to dark theme',
+      switchToLight: 'Switch to light theme',
+    },
   },
   nav: {
     home: 'Home',

@@ -78,7 +78,7 @@ export const zh = {
       '保持简洁、可复现、易扩展的研究型视觉作品集表达方式。',
     ],
     contactTitle: '联系',
-    contactIntro: '如需交流研究、合作或申请材料，可以通过以下方式联系我。',
+    contactIntro: '如需学术交流、项目合作或申请材料，请通过以下方式联系我。',
     contactLabels: {
       email: '邮箱',
       github: 'GitHub',

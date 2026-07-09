@@ -964,6 +964,39 @@ main {
   font-size: 0.82rem;
 }
 
+.about-contact-panel {
+  max-width: 64rem;
+  gap: 1rem;
+}
+
+.about-contact-copy {
+  display: grid;
+  gap: 0.42rem;
+  max-width: 42rem;
+}
+
+.about-contact-copy p:not(.panel-label) {
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.about-contact-grid {
+  gap: 0.85rem;
+}
+
+.about-contact-item {
+  display: grid;
+  gap: 0.28rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--muted-background);
+  padding: 0.95rem 1rem;
+}
+
+.about-contact-grid .contact-link {
+  font-size: 0.98rem;
+}
+
 .about-card-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

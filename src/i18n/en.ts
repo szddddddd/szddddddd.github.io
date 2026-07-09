@@ -80,7 +80,7 @@ export const en = {
       'Course projects that connect visual computing ideas with practical systems and clean technical presentation.',
       'A visual portfolio style that keeps research content concise, reproducible, and easy to extend.',
     ],
-    contactTitle: 'Contact',
+    contactTitle: 'Get in touch',
     contactIntro: 'For research discussions, collaboration, or application materials, feel free to get in touch.',
     contactLabels: {
       email: 'Email',

@@ -27,16 +27,18 @@ export const en = {
     publications: 'Publications',
     coursework: 'Coursework',
     notes: 'Notes',
+    contact: 'Contact',
   },
   hero: {
     eyebrow: 'Academic portfolio / Visual research identity',
     statement:
-      'I explore visual systems that connect 3D geometry, neural representation, and generative scene understanding.',
+      'Spatial Vision, Neural Rendering, and Generative Worlds.',
     primaryAction: 'View projects',
     secondaryAction: 'Contact',
     cvAction: 'CV',
     githubAction: 'GitHub',
     emailAction: 'Email',
+    replayIntro: 'Replay intro',
     visualIndex: '3D / vision field',
     identityLabels: {
       role: 'Role',
@@ -45,6 +47,20 @@ export const en = {
       major: 'Major',
     },
     majorPrefix: 'Major in',
+    researchStrip: [
+      {
+        label: 'Spatial Vision',
+        text: 'Geometry-aware perception for object-centric and scene-level understanding.',
+      },
+      {
+        label: 'Neural Worlds',
+        text: 'Representations that connect reconstruction, rendering, and generative scene priors.',
+      },
+      {
+        label: 'Academic Systems',
+        text: 'Course and research projects organized as reproducible visual computing studies.',
+      },
+    ],
   },
   about: {
     eyebrow: 'About',

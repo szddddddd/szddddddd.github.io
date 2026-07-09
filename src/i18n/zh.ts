@@ -27,16 +27,18 @@ export const zh = {
     publications: '论文',
     coursework: '课程',
     notes: '笔记',
+    contact: '联系',
   },
   hero: {
     eyebrow: '学术主页 / 视觉研究身份',
     statement:
-      '我关注连接三维几何、神经表示与生成式场景理解的视觉系统。',
+      '空间视觉、神经渲染与生成式世界。',
     primaryAction: '查看项目',
     secondaryAction: '联系我',
     cvAction: 'CV',
     githubAction: 'GitHub',
     emailAction: 'Email',
+    replayIntro: '重播入口',
     visualIndex: '3D / 视觉场',
     identityLabels: {
       role: '身份',
@@ -45,6 +47,20 @@ export const zh = {
       major: '专业',
     },
     majorPrefix: '专业',
+    researchStrip: [
+      {
+        label: '空间视觉',
+        text: '面向物体与场景理解的几何感知视觉系统。',
+      },
+      {
+        label: '神经世界',
+        text: '连接三维重建、神经渲染与生成式场景先验的表示方法。',
+      },
+      {
+        label: '学术系统',
+        text: '以可复现的视觉计算研究页面组织课程项目与研究实践。',
+      },
+    ],
   },
   about: {
     eyebrow: '关于',

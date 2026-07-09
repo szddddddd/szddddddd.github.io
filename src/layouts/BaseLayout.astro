@@ -22,12 +22,43 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
 ---
 
 <!doctype html>
-<html lang={t.htmlLang}>
+<html lang={t.htmlLang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={pageDescription} />
-    <meta name="theme-color" content="#070a12" />
+    <meta name="theme-color" content="#050505" />
+    <script is:inline>
+      (() => {
+        try {
+          const storedTheme = localStorage.getItem('szdTheme');
+          const theme = storedTheme === 'light' ? 'light' : 'dark';
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.style.colorScheme = 'dark';
+        }
+
+        const isHomePath = ['/', '/index.html', '/zh/', '/zh', '/zh/index.html'].includes(location.pathname);
+        try {
+          if (isHomePath) {
+            const entered = sessionStorage.getItem('szdShaderEntered') === 'true';
+            document.documentElement.classList.toggle('world-gate-session-entered', entered);
+            document.documentElement.classList.toggle('world-gate-pending', !entered);
+          }
+        } catch {
+          if (isHomePath) document.documentElement.classList.add('world-gate-pending');
+        }
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <noscript><style>.world-shader-gate{display:none!important}</style></noscript>
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="en" href={alternateEn} />
     <link rel="alternate" hreflang="zh-CN" href={alternateZh} />

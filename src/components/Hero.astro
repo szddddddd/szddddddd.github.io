@@ -1,5 +1,5 @@
 ---
-import NeuralIonHero from './NeuralIonHero.astro';
+import ShaderPortal from './ShaderPortal.astro';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang } from '../i18n';
 
@@ -58,6 +58,11 @@ const identity = [
       </dl>
     </aside>
 
-    <NeuralIonHero label={t.hero.visualIndex} />
+    <ShaderPortal
+      title={t.explore.cardTitle}
+      subtitle={t.explore.cardSubtitle}
+      actionLabel={t.explore.cardAction}
+      actionHref={getPath(lang, 'explore')}
+    />
   </div>
 </section>

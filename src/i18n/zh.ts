@@ -130,6 +130,29 @@ export const zh = {
     intro: '这里将作为后续研究笔记、技术反思与阅读总结的轻量写作空间。',
     empty: '笔记将后续补充。',
   },
+  explore: {
+    metaTitle: 'Spatial Worlds — 宋梓冬',
+    metaDescription:
+      '一个连接 shader art、神经渲染与生成式空间智能的紧凑交互视觉入口。',
+    eyebrow: '空间视觉 / Shader 入口',
+    cardTitle: 'Explore Spatial Worlds',
+    cardSubtitle:
+      'A compact shader-driven portal for spatial vision, neural rendering, and generative worlds.',
+    cardAction: 'Click here to explore',
+    pageTitle: 'Spatial Worlds',
+    pageIntro:
+      '一个连接 shader art、神经渲染与 world models 的小型交互视觉研究。',
+    body:
+      '这个页面是一个紧凑的视觉入口，而不是强制全屏的沉浸式 landing page。它收集并表达我当前工作的视觉身份：geometry、reconstruction、rendering 与 generative spatial intelligence。',
+    backHome: '返回首页',
+    linksTitle: '入口链接',
+    links: {
+      projects: '项目',
+      shaderArt: 'Shader Art',
+      github: 'GitHub',
+      contact: '联系',
+    },
+  },
   si140a: {
     metaTitle: 'SI140A 微信红包概率机制逆向工程课程项目 — 宋梓冬',
     metaDescription:

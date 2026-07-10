@@ -1,6 +1,5 @@
 ---
-import Hero from './Hero.astro';
-import ProjectCard from './ProjectCard.astro';
+import SpatialHero from './SpatialHero.astro';
 import ProjectIndexRow from './ProjectIndexRow.astro';
 import PublicationItem from './PublicationItem.astro';
 import Section from './Section.astro';
@@ -57,26 +56,7 @@ const identityRows = [
 ---
 
 <BaseLayout lang={lang} page={page} title={titles[page]} description={descriptions[page]}>
-  {page === 'home' && (
-    <div class="page-stack">
-      <Hero lang={lang} />
-
-      <Section id="research" eyebrow={t.projects.eyebrow} title={t.projects.title} intro={t.projects.intro}>
-        <div class="project-grid">
-          {profile.projects.map((project) => <ProjectCard project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />)}
-        </div>
-        <a class="text-link" href={getPath(lang, 'projects')}>{t.projects.viewAll} →</a>
-      </Section>
-
-      <Section id="publications" eyebrow={t.publications.eyebrow} title={t.publications.title} intro={t.publications.intro}>
-        <div class="empty-state compact-empty">
-          <span>{t.common.comingSoon}</span>
-          <p>{t.publications.empty}</p>
-        </div>
-      </Section>
-
-    </div>
-  )}
+  {page === 'home' && <SpatialHero lang={lang} />}
 
   {page === 'about' && (
     <div class="page-stack">

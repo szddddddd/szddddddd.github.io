@@ -1,0 +1,86 @@
+---
+import { getPath, type Lang, type PageKey } from '../i18n';
+import '../styles/spatial-field.css';
+
+interface Props {
+  lang: Lang;
+}
+
+type PortalKey = 'about' | 'projects' | 'publications' | 'notes';
+
+type PortalCopy = {
+  key: PortalKey;
+  page: PageKey;
+  label: string;
+  description: string;
+};
+
+const { lang } = Astro.props as Props;
+
+const copy = lang === 'zh'
+  ? {
+      eyebrow: '空间研究入口',
+      title: '宋梓冬',
+      statement: '面向三维几何、神经表示与世界模型的视觉系统探索。',
+      keywords: ['计算机视觉', '三维重建', 'Gaussian Splatting', '神经渲染', '世界模型'],
+      status: '移动光标探索空间场。',
+      portalLabel: '主要探索入口',
+      portals: [
+        { key: 'about', page: 'about', label: '关于我', description: '学术身份、研究兴趣与联系方式。' },
+        { key: 'projects', page: 'projects', label: '项目', description: '研究原型、课程项目与视觉计算系统。' },
+        { key: 'publications', page: 'publications', label: '论文', description: '论文、手稿、报告与技术写作。' },
+        { key: 'notes', page: 'notes', label: '笔记', description: '阅读记录、实验总结与技术反思。' },
+      ] satisfies PortalCopy[],
+    }
+  : {
+      eyebrow: 'Spatial Research Portal',
+      title: 'Song Zidong',
+      statement: 'Visual systems for 3D geometry, neural representation, and world models.',
+      keywords: ['Computer Vision', '3D Reconstruction', 'Gaussian Splatting', 'Neural Rendering', 'World Models'],
+      status: 'Move cursor to explore the field.',
+      portalLabel: 'Primary exploration portals',
+      portals: [
+        { key: 'about', page: 'about', label: 'About', description: 'Academic identity, research interests, and contact.' },
+        { key: 'projects', page: 'projects', label: 'Projects', description: 'Research prototypes, course projects, and visual computing systems.' },
+        { key: 'publications', page: 'publications', label: 'Publications', description: 'Papers, manuscripts, reports, and technical writing.' },
+        { key: 'notes', page: 'notes', label: 'Notes', description: 'Reading notes, experiments, and technical reflections.' },
+      ] satisfies PortalCopy[],
+    };
+---
+
+<section class="spatial-home reveal-block" data-spatial-home data-spatial-state="idle" data-spatial-hover="none" aria-labelledby="spatial-home-title">
+  <div class="spatial-canvas-layer" aria-hidden="true">
+    <div class="spatial-fallback" aria-hidden="true"></div>
+    <canvas class="spatial-canvas" data-spatial-canvas aria-hidden="true" role="presentation"></canvas>
+    <div class="spatial-vignette" aria-hidden="true"></div>
+  </div>
+
+  <div class="spatial-hero__content">
+    <div class="spatial-hero__copy">
+      <p class="spatial-hero__eyebrow">{copy.eyebrow}</p>
+      <h1 id="spatial-home-title" class="spatial-hero__title">{copy.title}</h1>
+      <p class="spatial-hero__statement">{copy.statement}</p>
+      <ul class="spatial-hero__keywords" aria-label={lang === 'zh' ? '研究关键词' : 'Research keywords'}>
+        {copy.keywords.map((keyword) => <li>{keyword}</li>)}
+      </ul>
+      <p class="spatial-hero__status">{copy.status}</p>
+    </div>
+
+    <nav class="spatial-portal-grid" aria-label={copy.portalLabel}>
+      {copy.portals.map((portal, index) => (
+        <a class="spatial-portal" href={getPath(lang, portal.page)} data-spatial-portal data-portal={portal.key}>
+          <span class="spatial-portal__index">{String(index + 1).padStart(2, '0')}</span>
+          <span class="spatial-portal__body">
+            <span class="spatial-portal__title">{portal.label}</span>
+            <span class="spatial-portal__desc">{portal.description}</span>
+          </span>
+          <span class="spatial-portal__arrow" aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </nav>
+  </div>
+</section>
+
+<script>
+  import '../scripts/spatial-field';
+</script>

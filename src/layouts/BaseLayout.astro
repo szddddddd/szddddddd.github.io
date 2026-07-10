@@ -67,7 +67,7 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
     <a class="skip-link" href="#main-content">{t.common.skipToContent}</a>
     <VisualBackground />
     <Navbar lang={lang} page={page} />
-    <main id="main-content">
+    <main id="main-content" class:list={[page === 'home' && 'home-main']}>
       <slot />
     </main>
     <footer class="site-footer">

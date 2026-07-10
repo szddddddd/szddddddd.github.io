@@ -2492,3 +2492,8 @@ main {
     min-width: 58rem;
   }
 }
+
+main.home-main {
+  width: 100%;
+  margin: 0;
+}

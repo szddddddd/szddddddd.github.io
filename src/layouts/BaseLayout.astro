@@ -34,7 +34,10 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
         try {
           const storedTheme = localStorage.getItem('theme');
           const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
+          const storedMotion = localStorage.getItem('motion');
+          const motionEnabled = storedMotion !== 'off' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           document.documentElement.dataset.theme = theme;
+          document.documentElement.dataset.motion = motionEnabled ? 'enabled' : 'reduced';
           document.documentElement.style.colorScheme = theme;
 
           const themeColor = document.querySelector('meta[name="theme-color"]');
@@ -43,6 +46,7 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
           }
         } catch {
           document.documentElement.dataset.theme = 'dark';
+          document.documentElement.dataset.motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'enabled';
           document.documentElement.style.colorScheme = 'dark';
         }
       })();
@@ -66,7 +70,7 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
   <body>
     <a class="skip-link" href="#main-content">{t.common.skipToContent}</a>
     <VisualBackground />
-    <Navbar lang={lang} page={page} />
+    <Navbar lang={lang} page={page} variant={page === 'home' ? 'home' : 'default'} />
     <main id="main-content" class:list={[page === 'home' && 'home-main']}>
       <slot />
     </main>

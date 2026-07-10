@@ -25,6 +25,16 @@ export const en = {
       switchToDark: 'Switch to dark theme',
       switchToLight: 'Switch to light theme',
     },
+    motionToggle: {
+      on: 'Motion on',
+      off: 'Motion off',
+      switchOn: 'Turn on motion',
+      switchOff: 'Turn off motion',
+    },
+    homeIndex: {
+      trigger: 'Index',
+      navigation: 'Research index navigation',
+    },
   },
   nav: {
     home: 'Home',

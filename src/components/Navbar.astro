@@ -1,15 +1,19 @@
 ---
 import LanguageToggle from './LanguageToggle.astro';
+import MotionToggle from './MotionToggle.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang, type PageKey } from '../i18n';
 
+type NavbarVariant = 'default' | 'home';
+
 interface Props {
   lang: Lang;
   page: PageKey;
+  variant?: NavbarVariant;
 }
 
-const { lang, page } = Astro.props as Props;
+const { lang, page, variant = 'default' } = Astro.props as Props;
 const t = getCopy(lang);
 const display = profile.display[lang];
 const displayName = display.name;
@@ -20,23 +24,124 @@ const navItems: { href: string; label: string }[] = [
   { href: getPath(lang, 'publications'), label: t.nav.publications },
   { href: getPath(lang, 'notes'), label: t.nav.notes },
 ];
+const indexItems = navItems.slice(1);
+const indexPanelId = `home-index-panel-${lang}`;
 ---
 
-<header class="navbar">
-  <a class="brand" href={getPath(lang, 'home')} aria-label={`${displayName} home`}>
-    <span class="brand-mark">SZD</span>
-    <span class="brand-copy">
-      <strong>{displayName}</strong>
-      <small>{display.role} · {profile.lab}</small>
-    </span>
-  </a>
-  <div class="nav-cluster">
-    <nav class="nav-links" aria-label="Primary navigation">
-      {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
-    </nav>
-    <div class="nav-actions">
+{variant === 'home' ? (
+  <header class="navbar navbar-home" data-home-navbar>
+    <a class="brand home-brand" href={getPath(lang, 'home')} aria-label={`${displayName} home`}>
+      <span class="brand-mark">SZD</span>
+      <span class="home-brand-name">Song Zidong</span>
+    </a>
+
+    <div class="home-nav-actions">
+      <div class="home-index-wrap">
+        <button
+          class="home-index-toggle"
+          type="button"
+          data-index-toggle
+          aria-expanded="false"
+          aria-controls={indexPanelId}
+        >
+          <span>{t.common.homeIndex.trigger}</span>
+          <span class="home-index-toggle-icon" aria-hidden="true"></span>
+        </button>
+        <nav id={indexPanelId} class="home-index-panel" data-index-panel aria-label={t.common.homeIndex.navigation} hidden>
+          {indexItems.map((item, index) => (
+            <a href={item.href}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{item.label}</strong>
+              <i aria-hidden="true">↗</i>
+            </a>
+          ))}
+        </nav>
+      </div>
       <LanguageToggle lang={lang} page={page} />
       <ThemeToggle lang={lang} />
+      <MotionToggle lang={lang} />
     </div>
-  </div>
-</header>
+  </header>
+) : (
+  <header class="navbar">
+    <a class="brand" href={getPath(lang, 'home')} aria-label={`${displayName} home`}>
+      <span class="brand-mark">SZD</span>
+      <span class="brand-copy">
+        <strong>{displayName}</strong>
+        <small>{display.role} · {profile.lab}</small>
+      </span>
+    </a>
+    <div class="nav-cluster">
+      <nav class="nav-links" aria-label="Primary navigation">
+        {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+      <div class="nav-actions">
+        <LanguageToggle lang={lang} page={page} />
+        <ThemeToggle lang={lang} />
+      </div>
+    </div>
+  </header>
+)}
+
+{variant === 'home' && (
+  <script is:inline>
+    (() => {
+      const closePanel = (toggle, panel, restoreFocus = false) => {
+        if (!toggle || !panel || panel.hidden) return;
+        panel.hidden = true;
+        toggle.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) toggle.focus();
+      };
+
+      const openPanel = (toggle, panel) => {
+        if (!toggle || !panel) return;
+        panel.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+      };
+
+      const getPanel = (toggle) => {
+        const panelId = toggle?.getAttribute('aria-controls');
+        return panelId ? document.getElementById(panelId) : null;
+      };
+
+      const bindHomeIndex = () => {
+        if (window.__homeIndexBound) return;
+        window.__homeIndexBound = true;
+
+        document.addEventListener('click', (event) => {
+          const target = event.target instanceof Element ? event.target : null;
+          const toggle = target?.closest('[data-index-toggle]');
+
+          if (toggle) {
+            const panel = getPanel(toggle);
+            if (toggle.getAttribute('aria-expanded') === 'true') {
+              closePanel(toggle, panel);
+            } else {
+              openPanel(toggle, panel);
+            }
+            return;
+          }
+
+          document.querySelectorAll('[data-index-toggle][aria-expanded="true"]').forEach((openToggle) => {
+            const panel = getPanel(openToggle);
+            if (!panel?.contains(target)) closePanel(openToggle, panel);
+          });
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key !== 'Escape') return;
+          const toggle = document.querySelector('[data-index-toggle][aria-expanded="true"]');
+          if (!toggle) return;
+          event.preventDefault();
+          closePanel(toggle, getPanel(toggle), true);
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindHomeIndex, { once: true });
+      } else {
+        bindHomeIndex();
+      }
+    })();
+  </script>
+)}

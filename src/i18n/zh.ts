@@ -25,6 +25,16 @@ export const zh = {
       switchToDark: '切换到夜间主题',
       switchToLight: '切换到日间主题',
     },
+    motionToggle: {
+      on: '动态开启',
+      off: '动态关闭',
+      switchOn: '开启动态效果',
+      switchOff: '关闭动态效果',
+    },
+    homeIndex: {
+      trigger: '索引',
+      navigation: '研究索引导航',
+    },
   },
   nav: {
     home: '首页',

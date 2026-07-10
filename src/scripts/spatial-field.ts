@@ -5,9 +5,8 @@ const CANVAS_SELECTOR = '[data-spatial-canvas]';
 const PORTAL_SELECTOR = '[data-spatial-portal]';
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
-type SpatialRoot = HTMLElement & { dataset: DOMStringMap };
-type SpatialPortal = HTMLAnchorElement & { dataset: DOMStringMap };
-
+type SpatialRoot = HTMLElement;
+type SpatialPortal = HTMLAnchorElement;
 type PortalName = 'none' | 'about' | 'projects' | 'publications' | 'notes';
 
 const portalTargets: Record<PortalName, number> = {
@@ -32,14 +31,15 @@ const fragmentShader = /* glsl */ `
 
   uniform float uTime;
   uniform vec2 uResolution;
-  uniform vec2 uMouse;
-  uniform float uHoverTarget;
+  uniform vec2 uPointer;
+  uniform vec2 uFocus;
+  uniform float uHoveredPortal;
   uniform float uTheme;
-  uniform float uIntensity;
+  uniform float uMotionEnabled;
 
   varying vec2 vUv;
 
-  float hash(vec2 p) {
+  float hash21(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
     return fract(p.x * p.y);
@@ -49,132 +49,134 @@ const fragmentShader = /* glsl */ `
     vec2 i = floor(p);
     vec2 f = fract(p);
     vec2 u = f * f * (3.0 - 2.0 * f);
-
-    float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-
-    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+    return mix(
+      mix(hash21(i), hash21(i + vec2(1.0, 0.0)), u.x),
+      mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), u.x),
+      u.y
+    );
   }
 
   float fbm(vec2 p) {
     float value = 0.0;
     float amplitude = 0.5;
-    mat2 rot = mat2(0.82, -0.58, 0.58, 0.82);
+    mat2 rot = mat2(0.8, -0.6, 0.6, 0.8);
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
       value += amplitude * noise(p);
-      p = rot * p * 2.02 + 17.3;
+      p = rot * p * 2.03 + 13.7;
       amplitude *= 0.52;
     }
 
     return value;
   }
 
-  float targetMask(float target) {
-    return 1.0 - smoothstep(0.18, 0.55, abs(uHoverTarget - target));
+  float portalMask(float target) {
+    return 1.0 - smoothstep(0.18, 0.54, abs(uHoveredPortal - target));
   }
 
-  float starLayer(vec2 p, float scale, float speed, float threshold) {
-    vec2 grid = p * scale + vec2(0.0, uTime * speed);
-    vec2 cell = floor(grid);
-    vec2 local = fract(grid) - 0.5;
-    float rnd = hash(cell);
-    vec2 offset = vec2(hash(cell + 5.7), hash(cell + 19.2)) - 0.5;
-    float dist = length(local - offset * 0.54);
-    float star = smoothstep(0.035, 0.0, dist) * smoothstep(threshold, 1.0, rnd);
-    return star * (0.35 + rnd * 0.95);
+  float segment(vec2 p, vec2 a, vec2 b, float width) {
+    vec2 pa = p - a;
+    vec2 ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return 1.0 - smoothstep(width, width * 2.2, length(pa - ba * h));
   }
 
-  vec3 palette(float t, float lightMode) {
-    vec3 cyan = mix(vec3(0.18, 0.72, 1.0), vec3(0.24, 0.48, 0.86), lightMode);
-    vec3 violet = mix(vec3(0.72, 0.42, 1.0), vec3(0.56, 0.42, 0.86), lightMode);
-    vec3 white = mix(vec3(0.92, 0.98, 1.0), vec3(0.44, 0.52, 0.66), lightMode);
-    return mix(mix(cyan, violet, smoothstep(0.18, 0.92, t)), white, smoothstep(0.84, 1.0, t) * 0.22);
+  float pointField(vec2 p, float scale, float threshold) {
+    vec2 cell = floor(p * scale);
+    vec2 local = fract(p * scale) - 0.5;
+    float seed = hash21(cell);
+    vec2 offset = vec2(hash21(cell + 3.1), hash21(cell + 9.7)) - 0.5;
+    float dotMask = 1.0 - smoothstep(0.018, 0.05, length(local - offset * 0.54));
+    return dotMask * smoothstep(threshold, 1.0, seed);
   }
 
   void main() {
     vec2 uv = gl_FragCoord.xy / max(uResolution, vec2(1.0));
     vec2 p = uv * 2.0 - 1.0;
-    float aspect = uResolution.x / max(1.0, uResolution.y);
+    float aspect = uResolution.x / max(uResolution.y, 1.0);
     p.x *= aspect;
 
-    vec2 mouse = uMouse * 2.0 - 1.0;
-    mouse.x *= aspect;
-    vec2 delta = p - mouse;
-    float mouseDist = length(delta);
-    float mouseField = exp(-mouseDist * mouseDist * 2.35);
+    float time = uTime * uMotionEnabled;
+    float about = portalMask(1.0);
+    float projects = portalMask(2.0);
+    float publications = portalMask(3.0);
+    float notes = portalMask(4.0);
+    float hover = clamp(about + projects + publications + notes, 0.0, 1.0);
 
-    float hAbout = targetMask(1.0);
-    float hProjects = targetMask(2.0);
-    float hPublications = targetMask(3.0);
-    float hNotes = targetMask(4.0);
-    float hover = clamp(hAbout + hProjects + hPublications + hNotes, 0.0, 1.0);
+    vec2 pointer = uPointer * 2.0 - 1.0;
+    vec2 focus = uFocus * 2.0 - 1.0;
+    pointer.x *= aspect;
+    focus.x *= aspect;
+    vec2 focal = mix(pointer, focus, hover * 0.84);
+    vec2 delta = p - focal;
+    float focalDistance = length(delta);
+    float focalLight = exp(-focalDistance * focalDistance * 3.2);
 
     vec2 warped = p;
-    warped += normalize(delta + 0.0001) * mouseField * (0.028 + hover * 0.035);
-    warped.x += sin(warped.y * 2.4 + uTime * 0.22) * 0.025;
-    warped.y += cos(warped.x * 1.9 - uTime * 0.18) * 0.018;
+    warped += normalize(delta + 0.0001) * focalLight * 0.026;
+    warped.x += sin(warped.y * 2.6 + time * 0.2) * 0.014;
+    warped.y += cos(warped.x * 2.1 - time * 0.16) * 0.011;
 
     float radial = length(warped);
-    float depth = 1.0 / (0.52 + radial * 1.2);
-    float fieldNoise = fbm(warped * 1.45 + vec2(uTime * 0.035, -uTime * 0.026));
-    float highNoise = fbm(warped * 4.2 - vec2(uTime * 0.055, uTime * 0.03));
+    float field = fbm(warped * 1.7 + vec2(time * 0.025, -time * 0.018));
+    float fineField = fbm(warped * 4.8 - vec2(time * 0.03, time * 0.02));
 
-    float contourSource = fieldNoise * 2.2 + warped.x * 0.42 - warped.y * 0.28 + sin(uTime * 0.16) * 0.12;
-    float fieldLines = 1.0 - smoothstep(0.015, 0.085, abs(fract(contourSource * 8.0) - 0.5));
-    fieldLines *= smoothstep(1.42, 0.12, radial) * (0.34 + 0.46 * highNoise);
+    vec2 perspective = vec2(warped.x / max(0.35, 1.1 - warped.y * 0.42), warped.y);
+    float verticals = 1.0 - smoothstep(0.006, 0.018, abs(fract(perspective.x * 8.5) - 0.5));
+    float horizontals = 1.0 - smoothstep(0.006, 0.018, abs(fract((perspective.y + 0.18) * 11.0) - 0.5));
+    float spatialGrid = (verticals + horizontals) * smoothstep(1.55, 0.14, radial) * 0.11;
 
-    float gridX = 1.0 - smoothstep(0.0, 0.018, abs(fract((warped.x + uTime * 0.018) * 10.0) - 0.5));
-    float gridY = 1.0 - smoothstep(0.0, 0.018, abs(fract((warped.y - uTime * 0.012) * 10.0) - 0.5));
-    float archiveGrid = (gridX + gridY) * smoothstep(1.25, 0.05, radial) * (0.16 + hPublications * 0.38);
+    float contourSource = field * 2.1 + warped.x * 0.52 - warped.y * 0.34;
+    float contours = 1.0 - smoothstep(0.018, 0.07, abs(fract(contourSource * 8.5) - 0.5));
+    contours *= smoothstep(1.42, 0.08, radial) * (0.28 + fineField * 0.26) * (0.22 + about * 0.9);
 
-    float wave = sin((warped.x * 2.0 + fieldNoise * 1.7 + uTime * 0.45) * 6.0);
-    float noteWave = (1.0 - smoothstep(0.02, 0.16, abs(wave))) * smoothstep(1.45, 0.18, radial) * hNotes;
+    float particles = 0.0;
+    particles += pointField(warped + vec2(time * 0.005, -time * 0.004), 25.0, 0.978);
+    particles += pointField(warped * 1.28 - vec2(time * 0.003, time * 0.006), 45.0, 0.988) * 0.78;
+    particles *= 0.35 + projects * 0.92;
 
-    float stars = 0.0;
-    stars += starLayer(warped + mouse * 0.05, 28.0, 0.018, 0.975);
-    stars += starLayer(warped * 1.2 - mouse * 0.025, 48.0, -0.012, 0.985);
-    stars += starLayer(warped * 1.7, 78.0, 0.008, 0.992) * (0.8 + hProjects * 1.2);
+    vec2 cameraOrigin = focus + vec2(-0.24, -0.12);
+    vec2 cameraTop = focus + vec2(0.25, 0.22);
+    vec2 cameraBottom = focus + vec2(0.32, -0.2);
+    float frustum = segment(p, cameraOrigin, cameraTop, 0.006);
+    frustum += segment(p, cameraOrigin, cameraBottom, 0.006);
+    frustum += segment(p, cameraTop, cameraBottom, 0.006);
+    frustum += segment(p, cameraOrigin, focus + vec2(0.03, 0.01), 0.005);
+    frustum *= projects * smoothstep(1.4, 0.05, focalDistance);
 
-    float constellation = 0.0;
-    vec2 lattice = warped * 6.0 + vec2(sin(uTime * 0.11), cos(uTime * 0.13));
-    vec2 latticeCell = fract(lattice) - 0.5;
-    float latticeRnd = hash(floor(lattice));
-    constellation = smoothstep(0.92, 1.0, latticeRnd) * smoothstep(0.18, 0.0, length(latticeCell));
-    constellation *= hProjects * (0.9 + mouseField * 1.2);
+    float paperWindow = smoothstep(0.46, 0.08, abs(warped.x - focus.x * 0.36));
+    float scanLine = 1.0 - smoothstep(0.007, 0.025, abs(fract((warped.y + time * 0.022) * 21.0) - 0.5));
+    float scan = scanLine * paperWindow * publications * 0.42;
+    float typeBaselines = (1.0 - smoothstep(0.005, 0.019, abs(fract((warped.y + 0.12) * 9.0) - 0.5))) * paperWindow * publications * 0.36;
 
-    float core = exp(-radial * radial * 1.72);
-    float hoverCore = exp(-mouseDist * mouseDist * (4.2 - hover * 1.3)) * hover;
-    float scan = (0.5 + 0.5 * sin((uv.y + uTime * 0.055) * 780.0)) * hPublications * 0.045;
+    vec2 dotGrid = warped * 13.0;
+    vec2 dotCell = fract(dotGrid) - 0.5;
+    float noteDots = (1.0 - smoothstep(0.04, 0.1, length(dotCell))) * notes;
+    float noteRipple = 1.0 - smoothstep(0.012, 0.064, abs(fract((focalDistance * 4.3 - time * 0.13) * 4.0) - 0.5));
+    noteRipple *= notes * smoothstep(1.2, 0.1, focalDistance) * 0.28;
 
-    vec3 darkBg = mix(vec3(0.008, 0.012, 0.026), vec3(0.035, 0.025, 0.07), uv.y + fieldNoise * 0.18);
-    vec3 lightBg = mix(vec3(0.955, 0.94, 0.9), vec3(0.9, 0.93, 0.97), uv.y + fieldNoise * 0.08);
-    vec3 color = mix(darkBg, lightBg, uTheme);
+    vec3 darkBackground = mix(vec3(0.018, 0.027, 0.052), vec3(0.045, 0.025, 0.075), uv.y + field * 0.16);
+    vec3 lightBackground = mix(vec3(0.94, 0.93, 0.89), vec3(0.89, 0.92, 0.94), uv.y + field * 0.08);
+    vec3 color = mix(darkBackground, lightBackground, uTheme);
 
-    vec3 fieldColor = palette(fieldNoise + radial * 0.18, uTheme);
-    vec3 warm = mix(vec3(1.0, 0.72, 0.33), vec3(0.78, 0.48, 0.22), uTheme);
-    vec3 projectColor = mix(vec3(0.36, 0.9, 1.0), vec3(0.1, 0.45, 0.72), uTheme);
-    vec3 publicationColor = mix(vec3(0.68, 0.82, 1.0), vec3(0.23, 0.34, 0.56), uTheme);
-    vec3 noteColor = mix(vec3(0.78, 0.48, 1.0), vec3(0.5, 0.34, 0.74), uTheme);
-    vec3 hoverColor = normalize(fieldColor + warm * hAbout + projectColor * hProjects + publicationColor * hPublications + noteColor * hNotes + 0.001);
+    vec3 cyan = mix(vec3(0.41, 0.85, 0.96), vec3(0.09, 0.42, 0.5), uTheme);
+    vec3 violet = mix(vec3(0.59, 0.47, 1.0), vec3(0.38, 0.25, 0.67), uTheme);
+    vec3 warm = mix(vec3(0.95, 0.75, 0.42), vec3(0.62, 0.43, 0.18), uTheme);
+    vec3 paper = mix(vec3(0.72, 0.82, 1.0), vec3(0.32, 0.39, 0.58), uTheme);
+    float contrast = mix(1.0, 0.64, uTheme);
 
-    float lightDampen = mix(1.0, 0.58, uTheme);
-    color += fieldColor * fieldLines * 0.24 * lightDampen * uIntensity;
-    color += fieldColor * stars * (0.54 + hProjects * 0.28) * lightDampen;
-    color += projectColor * constellation * 0.72 * lightDampen;
-    color += publicationColor * archiveGrid * 0.52 * lightDampen;
-    color += noteColor * noteWave * 0.28 * lightDampen;
-    color += hoverColor * hoverCore * (0.32 + hAbout * 0.16) * lightDampen;
-    color += palette(0.7, uTheme) * core * 0.11 * lightDampen;
-    color += scan;
+    color += cyan * spatialGrid * contrast;
+    color += mix(cyan, warm, about) * contours * 0.68 * contrast;
+    color += cyan * particles * 0.7 * contrast;
+    color += cyan * frustum * 0.86 * contrast;
+    color += paper * (scan + typeBaselines) * contrast;
+    color += violet * (noteDots * 0.32 + noteRipple) * contrast;
+    color += mix(cyan, violet, notes) * focalLight * (0.1 + hover * 0.16) * contrast;
 
-    float vignette = smoothstep(1.62, 0.18, radial);
-    color = mix(color * mix(0.45, 0.88, uTheme), color, vignette);
-
-    float grain = hash(gl_FragCoord.xy + floor(uTime * 24.0)) - 0.5;
-    color += grain * mix(0.018, 0.008, uTheme);
+    float vignette = smoothstep(1.68, 0.2, radial);
+    color = mix(color * mix(0.56, 0.9, uTheme), color, vignette);
+    float grain = hash21(gl_FragCoord.xy + floor(time * 12.0)) - 0.5;
+    color += grain * mix(0.012, 0.005, uTheme);
 
     gl_FragColor = vec4(color, 1.0);
   }
@@ -186,22 +188,26 @@ class SpatialField {
   private readonly root: SpatialRoot;
   private readonly canvas: HTMLCanvasElement;
   private readonly portals: SpatialPortal[];
-  private readonly reducedMotion: MediaQueryList;
+  private readonly reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
   private renderer?: THREE.WebGLRenderer;
   private scene?: THREE.Scene;
   private camera?: THREE.Camera;
   private material?: THREE.ShaderMaterial;
+  private mesh?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   private resizeObserver?: ResizeObserver;
   private intersectionObserver?: IntersectionObserver;
   private mutationObserver?: MutationObserver;
   private eventController?: AbortController;
   private rafId = 0;
+  private lastFrame = 0;
   private disposed = false;
   private inViewport = false;
   private documentVisible = document.visibilityState === 'visible';
   private readonly clock = new THREE.Clock(false);
-  private readonly mouse = new THREE.Vector2(0.5, 0.5);
-  private readonly mouseTarget = new THREE.Vector2(0.5, 0.5);
+  private readonly pointer = new THREE.Vector2(0.5, 0.48);
+  private readonly pointerTarget = new THREE.Vector2(0.5, 0.48);
+  private readonly focus = new THREE.Vector2(0.5, 0.48);
+  private readonly focusTarget = new THREE.Vector2(0.5, 0.48);
   private hoverTarget = 0;
   private hoverCurrent = 0;
 
@@ -209,9 +215,8 @@ class SpatialField {
     this.root = root;
     this.canvas = canvas;
     this.portals = Array.from(root.querySelectorAll<SpatialPortal>(PORTAL_SELECTOR));
-    this.reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
 
-    if (this.reducedMotion.matches) {
+    if (!isMotionEnabled() || this.reducedMotion.matches) {
       this.root.dataset.spatialState = 'reduced';
       return;
     }
@@ -225,12 +230,9 @@ class SpatialField {
       this.setupScene();
       this.bindEvents();
       this.resize();
-      this.drawFrame();
       this.syncRenderLoop();
-    } catch (error) {
-      console.warn('[SpatialField] Falling back to static spatial background.', error);
-      this.dispose();
-      this.root.dataset.spatialState = 'fallback';
+    } catch {
+      this.failToFallback();
     }
   }
 
@@ -247,31 +249,23 @@ class SpatialField {
     this.resizeObserver?.disconnect();
     this.intersectionObserver?.disconnect();
     this.mutationObserver?.disconnect();
-
-    this.scene?.traverse((object) => {
-      const renderable = object as THREE.Object3D & {
-        geometry?: THREE.BufferGeometry;
-        material?: THREE.Material | THREE.Material[];
-      };
-      renderable.geometry?.dispose();
-      if (Array.isArray(renderable.material)) {
-        renderable.material.forEach((material) => material.dispose());
-      } else {
-        renderable.material?.dispose();
-      }
-    });
-
+    this.mesh?.geometry.dispose();
+    this.material?.dispose();
     this.renderer?.dispose();
-    this.renderer = undefined;
-    this.scene = undefined;
-    this.camera = undefined;
-    this.material = undefined;
     this.clock.stop();
+    this.root.style.setProperty('--spatial-pointer-x', '50%');
+    this.root.style.setProperty('--spatial-pointer-y', '48%');
+    this.root.style.setProperty('--spatial-focus-x', '50%');
+    this.root.style.setProperty('--spatial-focus-y', '48%');
+  }
+
+  private failToFallback() {
+    this.dispose();
+    this.root.dataset.spatialState = 'fallback';
   }
 
   private setupScene() {
     this.root.dataset.spatialState = 'booting';
-
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: false,
@@ -279,28 +273,26 @@ class SpatialField {
       depth: false,
       powerPreference: 'high-performance',
     });
-    this.renderer.setClearColor(0x000000, 1);
-
+    this.renderer.setClearColor(0x05070c, 1);
     this.scene = new THREE.Scene();
     this.camera = new THREE.Camera();
-
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uResolution: { value: new THREE.Vector2(1, 1) },
-        uMouse: { value: this.mouse },
-        uHoverTarget: { value: 0 },
+        uPointer: { value: this.pointer },
+        uFocus: { value: this.focus },
+        uHoveredPortal: { value: 0 },
         uTheme: { value: getThemeAmount() },
-        uIntensity: { value: 1 },
+        uMotionEnabled: { value: 1 },
       },
       vertexShader,
       fragmentShader,
       depthTest: false,
       depthWrite: false,
     });
-
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material);
-    this.scene.add(mesh);
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material);
+    this.scene.add(this.mesh);
     this.clock.start();
   }
 
@@ -309,15 +301,15 @@ class SpatialField {
     const { signal } = this.eventController;
 
     window.addEventListener('pointermove', this.handlePointerMove, { passive: true, signal });
-    window.addEventListener('pointerleave', this.handlePointerLeave, { passive: true, signal });
+    this.root.addEventListener('pointerleave', this.handlePointerLeave, { passive: true, signal });
     document.addEventListener('visibilitychange', this.handleVisibilityChange, { signal });
+    this.canvas.addEventListener('webglcontextlost', this.handleContextLost, { signal });
 
     this.portals.forEach((portal) => {
       portal.addEventListener('pointerenter', this.handlePortalEnter, { passive: true, signal });
       portal.addEventListener('pointerleave', this.handlePortalLeave, { passive: true, signal });
       portal.addEventListener('focus', this.handlePortalEnter, { passive: true, signal });
       portal.addEventListener('blur', this.handlePortalLeave, { passive: true, signal });
-      portal.addEventListener('click', this.handlePortalClick, { signal });
     });
 
     if ('ResizeObserver' in window) {
@@ -356,8 +348,6 @@ class SpatialField {
     this.renderer.setPixelRatio(pixelRatio);
     this.renderer.setSize(width, height, false);
     this.material.uniforms.uResolution.value.set(width * pixelRatio, height * pixelRatio);
-    this.material.uniforms.uIntensity.value = isMobile ? 0.78 : 1;
-
     this.drawFrame();
   };
 
@@ -367,36 +357,29 @@ class SpatialField {
 
     const x = THREE.MathUtils.clamp((event.clientX - rect.left) / rect.width, 0, 1);
     const y = THREE.MathUtils.clamp(1 - (event.clientY - rect.top) / rect.height, 0, 1);
-
-    this.mouseTarget.set(x, y);
+    this.pointerTarget.set(x, y);
     this.root.style.setProperty('--spatial-pointer-x', `${Math.round(x * 100)}%`);
     this.root.style.setProperty('--spatial-pointer-y', `${Math.round((1 - y) * 100)}%`);
   };
 
   private readonly handlePointerLeave = () => {
-    this.mouseTarget.set(0.5, 0.5);
+    this.pointerTarget.set(0.5, 0.48);
     this.root.style.setProperty('--spatial-pointer-x', '50%');
     this.root.style.setProperty('--spatial-pointer-y', '48%');
   };
 
   private readonly handlePortalEnter = (event: Event) => {
-    const portal = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
-    const name = normalizePortalName(portal?.dataset.portal);
-    this.setHover(name);
+    const portal = event.currentTarget instanceof HTMLAnchorElement ? event.currentTarget : null;
+    if (!portal) return;
+    this.setHover(normalizePortalName(portal.dataset.portal));
+    this.setFocusFromPortal(portal);
   };
 
   private readonly handlePortalLeave = () => {
     this.setHover('none');
-  };
-
-  private readonly handlePortalClick = (event: Event) => {
-    const portal = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
-    if (!portal) return;
-
-    portal.dataset.active = 'true';
-    window.setTimeout(() => {
-      if (portal.isConnected) delete portal.dataset.active;
-    }, 420);
+    this.focusTarget.set(0.5, 0.48);
+    this.root.style.setProperty('--spatial-focus-x', '50%');
+    this.root.style.setProperty('--spatial-focus-y', '48%');
   };
 
   private readonly handleVisibilityChange = () => {
@@ -404,11 +387,15 @@ class SpatialField {
     this.syncRenderLoop();
   };
 
+  private readonly handleContextLost = (event: Event) => {
+    event.preventDefault();
+    this.failToFallback();
+  };
+
   private readonly handleThemeMutation = () => {
-    if (this.material) {
-      this.material.uniforms.uTheme.value = getThemeAmount();
-      this.drawFrame();
-    }
+    if (!this.material) return;
+    this.material.uniforms.uTheme.value = getThemeAmount();
+    this.drawFrame();
   };
 
   private setHover(name: PortalName) {
@@ -416,11 +403,24 @@ class SpatialField {
     this.root.dataset.spatialHover = name;
   }
 
+  private setFocusFromPortal(portal: SpatialPortal) {
+    const rootRect = this.root.getBoundingClientRect();
+    const portalRect = portal.getBoundingClientRect();
+    if (!rootRect.width || !rootRect.height) return;
+
+    const x = THREE.MathUtils.clamp((portalRect.left + portalRect.width / 2 - rootRect.left) / rootRect.width, 0, 1);
+    const y = THREE.MathUtils.clamp(1 - (portalRect.top + portalRect.height / 2 - rootRect.top) / rootRect.height, 0, 1);
+    this.focusTarget.set(x, y);
+    this.root.style.setProperty('--spatial-focus-x', `${Math.round(x * 100)}%`);
+    this.root.style.setProperty('--spatial-focus-y', `${Math.round((1 - y) * 100)}%`);
+  }
+
   private syncRenderLoop() {
     if (!this.renderer || this.disposed) return;
 
-    const shouldRun = this.inViewport && this.documentVisible;
+    const shouldRun = this.inViewport && this.documentVisible && isMotionEnabled() && !this.reducedMotion.matches;
     if (shouldRun) {
+      if (!this.clock.running) this.clock.start();
       this.root.dataset.spatialState = 'running';
       if (!this.rafId) this.rafId = requestAnimationFrame(this.render);
       return;
@@ -430,32 +430,37 @@ class SpatialField {
       cancelAnimationFrame(this.rafId);
       this.rafId = 0;
     }
-    this.root.dataset.spatialState = 'paused';
+    this.clock.stop();
+    this.root.dataset.spatialState = isMotionEnabled() ? 'paused' : 'reduced';
   }
 
-  private readonly render = () => {
+  private readonly render = (timestamp: number) => {
     this.rafId = 0;
     if (!this.renderer || this.disposed) return;
 
-    if (!this.inViewport || !this.documentVisible) {
+    if (!this.inViewport || !this.documentVisible || !isMotionEnabled() || this.reducedMotion.matches) {
       this.syncRenderLoop();
       return;
     }
 
-    this.drawFrame();
+    const frameInterval = window.innerWidth < 768 ? 1000 / 30 : 0;
+    if (!frameInterval || timestamp - this.lastFrame >= frameInterval) {
+      this.lastFrame = timestamp;
+      this.drawFrame();
+    }
     this.rafId = requestAnimationFrame(this.render);
   };
 
   private drawFrame() {
     if (!this.renderer || !this.scene || !this.camera || !this.material || this.disposed) return;
 
-    this.mouse.lerp(this.mouseTarget, 0.055);
-    this.hoverCurrent = THREE.MathUtils.lerp(this.hoverCurrent, this.hoverTarget, 0.075);
-
+    this.pointer.lerp(this.pointerTarget, 0.06);
+    this.focus.lerp(this.focusTarget, 0.08);
+    this.hoverCurrent = THREE.MathUtils.lerp(this.hoverCurrent, this.hoverTarget, 0.085);
     this.material.uniforms.uTime.value = this.clock.getElapsedTime();
-    this.material.uniforms.uHoverTarget.value = this.hoverCurrent;
+    this.material.uniforms.uHoveredPortal.value = this.hoverCurrent;
     this.material.uniforms.uTheme.value = getThemeAmount();
-
+    this.material.uniforms.uMotionEnabled.value = isMotionEnabled() ? 1 : 0;
     this.renderer.render(this.scene, this.camera);
   }
 }
@@ -469,6 +474,10 @@ function normalizePortalName(value: string | undefined): PortalName {
 
 function getThemeAmount() {
   return document.documentElement.dataset.theme === 'light' ? 1 : 0;
+}
+
+function isMotionEnabled() {
+  return document.documentElement.dataset.motion !== 'reduced';
 }
 
 function supportsWebGL() {
@@ -508,6 +517,11 @@ function disposeAll() {
   instances.clear();
 }
 
+function refreshSpatialFields() {
+  disposeAll();
+  initSpatialFields();
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initSpatialFields, { once: true });
 } else {
@@ -516,16 +530,12 @@ if (document.readyState === 'loading') {
 
 document.addEventListener('astro:page-load', initSpatialFields);
 document.addEventListener('astro:before-swap', disposeAll);
+document.addEventListener('site:motionchange', refreshSpatialFields);
 window.addEventListener('pagehide', disposeAll);
 
 const reducedMotionWatcher = window.matchMedia(REDUCED_MOTION_QUERY);
-const handleMotionPreferenceChange = () => {
-  disposeAll();
-  initSpatialFields();
-};
-
 if ('addEventListener' in reducedMotionWatcher) {
-  reducedMotionWatcher.addEventListener('change', handleMotionPreferenceChange);
+  reducedMotionWatcher.addEventListener('change', refreshSpatialFields);
 } else {
-  reducedMotionWatcher.addListener(handleMotionPreferenceChange);
+  reducedMotionWatcher.addListener(refreshSpatialFields);
 }

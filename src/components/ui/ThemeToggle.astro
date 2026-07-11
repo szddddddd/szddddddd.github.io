@@ -41,7 +41,9 @@ const labels = getCopy(lang).common.themeToggle;
       }
     };
 
-    const getCurrentTheme = () => normalizeTheme(document.documentElement.dataset.theme) ?? getStoredTheme() ?? 'dark';
+    // The document shell can be recreated during an Astro navigation. Persisted
+    // user preference must win over the shell's default data-theme attribute.
+    const getCurrentTheme = () => getStoredTheme() ?? normalizeTheme(document.documentElement.dataset.theme) ?? 'dark';
 
     const syncThemeMeta = (theme) => {
       const themeColor = document.querySelector('meta[name="theme-color"]');

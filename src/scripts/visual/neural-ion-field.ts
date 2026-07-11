@@ -333,8 +333,9 @@ class NeuralIonField {
     this.root.addEventListener('pointerleave', this.handlePointerLeave, { passive: true });
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
 
-    if ('ResizeObserver' in window) {
-      this.resizeObserver = new ResizeObserver(this.resize);
+    const ResizeObserverConstructor = (window as unknown as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver;
+    if (ResizeObserverConstructor) {
+      this.resizeObserver = new ResizeObserverConstructor(this.resize);
       this.resizeObserver.observe(this.root);
     } else {
       window.addEventListener('resize', this.resize, { passive: true });
@@ -730,13 +731,17 @@ document.addEventListener('astro:before-swap', disposeAll);
 window.addEventListener('pagehide', disposeAll);
 
 const reducedMotionWatcher = window.matchMedia(REDUCED_MOTION_QUERY);
+const mediaQueryChangeApi = reducedMotionWatcher as unknown as {
+  addEventListener?: (type: string, listener: (event: MediaQueryListEvent) => void) => void;
+  addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+};
 const handleMotionPreferenceChange = () => {
   disposeAll();
   initNeuralIonFields();
 };
 
-if ('addEventListener' in reducedMotionWatcher) {
-  reducedMotionWatcher.addEventListener('change', handleMotionPreferenceChange);
-} else {
-  reducedMotionWatcher.addListener(handleMotionPreferenceChange);
+if (mediaQueryChangeApi.addEventListener) {
+  mediaQueryChangeApi.addEventListener('change', handleMotionPreferenceChange);
+} else if (mediaQueryChangeApi.addListener) {
+  mediaQueryChangeApi.addListener(handleMotionPreferenceChange);
 }

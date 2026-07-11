@@ -9,17 +9,17 @@ interface Props {
 type PortalKey = 'about' | 'projects' | 'publications' | 'notes';
 
 type PortalCopy = {
-  key: PortalKey;
-  page: PageKey;
-  label: string;
-  description: string;
+  readonly key: PortalKey;
+  readonly page: PageKey;
+  readonly label: string;
+  readonly description: string;
 };
 
 const { lang } = Astro.props as Props;
 const homeCopy = getCopy(lang).spatialHome;
 const copy = {
   ...homeCopy,
-  portals: homeCopy.portals as PortalCopy[],
+  portals: homeCopy.portals as readonly PortalCopy[],
 };
 ---
 

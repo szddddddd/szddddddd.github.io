@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check": "astro check",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"
@@ -12,5 +13,10 @@
     "astro": "^6.4.8",
     "katex": "^0.17.0",
     "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@types/three": "^0.185.1",
+    "typescript": "^6.0.3"
   }
 }

@@ -312,8 +312,9 @@ class SpatialField {
       portal.addEventListener('blur', this.handlePortalLeave, { passive: true, signal });
     });
 
-    if ('ResizeObserver' in window) {
-      this.resizeObserver = new ResizeObserver(this.resize);
+    const ResizeObserverConstructor = (window as unknown as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver;
+    if (ResizeObserverConstructor) {
+      this.resizeObserver = new ResizeObserverConstructor(this.resize);
       this.resizeObserver.observe(this.root);
     } else {
       window.addEventListener('resize', this.resize, { passive: true, signal });
@@ -534,8 +535,12 @@ document.addEventListener('site:motionchange', refreshSpatialFields);
 window.addEventListener('pagehide', disposeAll);
 
 const reducedMotionWatcher = window.matchMedia(REDUCED_MOTION_QUERY);
-if ('addEventListener' in reducedMotionWatcher) {
-  reducedMotionWatcher.addEventListener('change', refreshSpatialFields);
-} else {
-  reducedMotionWatcher.addListener(refreshSpatialFields);
+const mediaQueryChangeApi = reducedMotionWatcher as unknown as {
+  addEventListener?: (type: string, listener: (event: MediaQueryListEvent) => void) => void;
+  addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+};
+if (mediaQueryChangeApi.addEventListener) {
+  mediaQueryChangeApi.addEventListener('change', refreshSpatialFields);
+} else if (mediaQueryChangeApi.addListener) {
+  mediaQueryChangeApi.addListener(refreshSpatialFields);
 }

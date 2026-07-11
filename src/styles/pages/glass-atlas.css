@@ -168,6 +168,15 @@ body[data-rsui-engine='ready'] .visual-background {
   display: none;
 }
 
+.about-focus-map__lists {
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.about-focus-map__lists > .interest-list:first-child li {
+  white-space: nowrap;
+}
+
 .projects-research-index {
   gap: 1.25rem;
   border: 0;
@@ -432,6 +441,14 @@ body[data-rsui-engine='ready'] .visual-background {
   .project-row--reverse {
     grid-template-columns: 1fr;
     grid-template-areas: 'media' 'copy';
+  }
+
+  .about-focus-map__lists {
+    grid-template-columns: 1fr;
+  }
+
+  .about-focus-map__lists > .interest-list:first-child li {
+    white-space: normal;
   }
 }
 

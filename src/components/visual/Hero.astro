@@ -1,0 +1,63 @@
+---
+import NeuralIonHero from './NeuralIonHero.astro';
+import { profile } from '../../data/profile';
+import { getCopy, getPath, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const display = profile.display[lang];
+const displayName = profile.nameEn;
+const alternateName = profile.nameZh;
+const identity = [
+  { label: t.hero.identityLabels.role, value: display.role },
+  { label: t.hero.identityLabels.university, value: display.university },
+  { label: t.hero.identityLabels.lab, value: profile.lab },
+  { label: t.hero.identityLabels.major, value: display.major },
+];
+---
+
+<section class="hero" id="home" aria-labelledby="hero-title">
+  <div class="hero-copy reveal-block">
+    <p class="eyebrow">{t.hero.eyebrow}</p>
+    <div class="hero-title-stack">
+      <h1 id="hero-title" class="hero-title">{displayName}</h1>
+      <p class="hero-name-secondary">{alternateName}</p>
+    </div>
+    <p class="hero-lede">{t.hero.statement}</p>
+    <ul class="tag-list hero-tags" aria-label={t.about.interestsTitle}>
+      {profile.researchInterests.map((interest) => <li>{interest}</li>)}
+    </ul>
+    <div class="hero-actions" aria-label="Primary actions">
+      <a class="button button-primary" href={getPath(lang, 'projects')}>{t.hero.primaryAction}</a>
+      <a class="button button-secondary" href={profile.githubUrl} target="_blank" rel="noreferrer">{t.hero.githubAction}</a>
+      <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
+      {
+        profile.cv.url ? (
+          <a class="button button-secondary" href={profile.cv.url}>{t.hero.cvAction}</a>
+        ) : (
+          <span class="button button-disabled" aria-disabled="true">{t.hero.cvAction}: {t.common.comingSoon}</span>
+        )
+      }
+    </div>
+  </div>
+
+  <div class="hero-side">
+    <aside class="identity-card reveal-block" aria-label={t.about.identityTitle}>
+      <p class="identity-card-eyebrow">{t.about.identityTitle}</p>
+      <dl class="identity-card-list">
+        {identity.map((item) => (
+          <div>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
+
+    <NeuralIonHero label={t.hero.visualIndex} />
+  </div>
+</section>

@@ -1,0 +1,85 @@
+---
+import type { Project } from '../../data/projects';
+import type { Lang } from '../../i18n';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  labels: {
+    details: string;
+    report: string;
+    shadertoy: string;
+    paper: string;
+    code: string;
+    demo: string;
+    readme: string;
+    slides: string;
+    role: string;
+  };
+  comingSoon: string;
+  placeholder: string;
+}
+
+const { project, lang, labels, comingSoon, placeholder } = Astro.props as Props;
+const title = project.title[lang];
+const description = project.description[lang];
+const role = project.role?.[lang];
+const year = project.year === 'Coming soon' ? comingSoon : project.year;
+const typeLabel = project.type?.[lang] ?? placeholder;
+const courseLabel = typeof project.course === 'string' ? project.course : project.course?.[lang];
+const isSi100bProject = project.image.startsWith('/projects/si100b/');
+const hasDetailLinks = Boolean(project.links.details || project.links.report);
+const links = hasDetailLinks
+  ? [
+      { key: 'details', label: labels.details, value: project.links.details },
+      ...(project.links.shadertoy !== undefined ? [{ key: 'shadertoy', label: labels.shadertoy, value: project.links.shadertoy }] : []),
+      ...(project.links.report !== undefined ? [{ key: 'report', label: labels.report, value: project.links.report }] : []),
+      ...(project.links.slides !== undefined ? [{ key: 'slides', label: labels.slides, value: project.links.slides }] : []),
+      ...(project.links.code !== undefined ? [{ key: 'code', label: labels.code, value: project.links.code }] : []),
+      ...(project.links.readme !== undefined ? [{ key: 'readme', label: labels.readme, value: project.links.readme }] : []),
+    ]
+  : [
+      { key: 'paper', label: labels.paper, value: project.links.paper },
+      { key: 'code', label: labels.code, value: project.links.code },
+      { key: 'demo', label: labels.demo, value: project.links.demo },
+    ];
+const resolveLink = (value: typeof links[number]['value']) => {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value[lang];
+};
+const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
+const detailHref = resolveLink(project.links.details);
+const hasDetailLink = Boolean(detailHref && isUrl(detailHref));
+---
+
+<article class:list={['project-card', 'reveal-card', hasDetailLink && 'is-clickable', isSi100bProject && 'si100b-project-preview']}>
+  {hasDetailLink && <a class="card-cover-link" href={detailHref} aria-label={`${labels.details}: ${title}`}></a>}
+  <div class="project-media" aria-hidden="true">
+    {project.image ? <img src={project.image} alt="" loading="lazy" /> : <div class="project-field"><span></span><span></span><span></span></div>}
+  </div>
+  <div class="card-topline">
+    <span>{year}</span>
+    <span>{typeLabel}</span>
+  </div>
+  <h3>{title}</h3>
+  {courseLabel && <p class="project-course">{courseLabel}</p>}
+  <p>{description}</p>
+  {role && <p class="project-role"><span>{labels.role}:</span> {role}</p>}
+  <ul class="tag-list" aria-label={`${title} tags`}>
+    {project.tags.map((tag) => <li>{tag}</li>)}
+  </ul>
+  <div class="inline-links" aria-label={`${title} links`}>
+    {
+      links.map(({ label, value }) => {
+        const href = resolveLink(value);
+        return href && isUrl(href) ? (
+          <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined}>
+            {label}
+          </a>
+        ) : (
+          <span class="disabled-link">{label}: {comingSoon}</span>
+        );
+      })
+    }
+  </div>
+</article>

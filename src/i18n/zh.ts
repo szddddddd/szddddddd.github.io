@@ -62,6 +62,22 @@ export const zh = {
     },
     majorPrefix: '专业',
   },
+  spatialHome: {
+    eyebrow: '空间计算 / 研究索引',
+    title: '宋梓冬',
+    statement: '聚焦三维视觉、神经表示与生成式世界模型的本科研究者。',
+    metadata: '上海科技大学 · VRVC Lab · 计算机科学',
+    fields: '三维视觉 · 神经渲染 · 高斯泼溅 · 世界模型',
+    metadataLabel: '学术身份',
+    fieldsLabel: '研究方向',
+    portalLabel: '研究索引',
+    portals: [
+      { key: 'about', page: 'about', label: '关于', description: '个人简介、研究兴趣与联系方式。' },
+      { key: 'projects', page: 'projects', label: '项目', description: '研究系统、课程项目与视觉实验。' },
+      { key: 'publications', page: 'publications', label: '论文', description: '论文、报告与技术文稿。' },
+      { key: 'notes', page: 'notes', label: '笔记', description: '阅读笔记、方法记录与研究观察。' },
+    ],
+  },
   about: {
     eyebrow: '关于',
     pageTitle: '关于我',

@@ -1,28 +1,6 @@
-# szddddddd.github.io
+# Song Zidong Academic Portfolio
 
-Modern academic portfolio website for GitHub user `szddddddd`.
-
-Live site:
-
-```text
-https://szddddddd.github.io
-```
-
-The site is built with Astro and TypeScript, uses a custom dark visual system, and deploys to GitHub Pages through GitHub Actions. It is static-only: no backend, no database, no CMS, and no client-side SPA framework.
-
-## Content policy
-
-Only the provided personal information is included:
-
-- 宋梓冬 / Song Zidong
-- Undergraduate Student
-- ShanghaiTech University
-- VRVC Lab
-- Major in Computer Science
-- Email: `songzd2024@shanghaitech.edu.cn`
-- GitHub: `https://github.com/szddddddd`
-
-The BME1312 MRI reconstruction course project is included as a real academic course project. Publications, CV, notes, and other future projects remain placeholders until real content is provided.
+Static bilingual academic portfolio for Song Zidong. The site is built with Astro and published to GitHub Pages at <https://szddddddd.github.io>.
 
 ## Local development
 
@@ -31,134 +9,54 @@ npm install
 npm run dev
 ```
 
-Open the local URL shown by Astro, usually:
-
-```text
-http://localhost:4321
-```
+Astro prints the local development URL, usually `http://localhost:4321`.
 
 ## Build
 
 ```bash
 npm run build
+npm run preview
 ```
 
-The static site is generated in:
+`npm run build` writes the static site to `dist/`. The GitHub Pages workflow runs `npm ci` followed by `npm run build` on Node 22. This is a user-site repository, so Astro intentionally has no `base` configuration.
+
+## Repository layout
 
 ```text
-dist/
+src/
+  components/
+    layout/        Shared page composition
+    navigation/    Header and language navigation
+    projects/      Project index, project cards, and project detail views
+    publications/  Publication presentation
+    ui/            Reusable controls and content primitives
+    visual/        Home and background visual components
+  data/            Profile, project registry, and Shadertoy data
+  i18n/            English and Chinese copy plus route mapping
+  pages/           Thin English and /zh/ route entry points
+  scripts/visual/  WebGL visual field scripts
+  styles/          Global styles, tokens, and visual-specific styles
+public/projects/   Files available at stable public website URLs
+source-materials/  Original course materials, excluded from site builds
+docs/              Architecture and maintenance guides
 ```
+
+Generated directories such as `node_modules/`, `.astro/`, and `dist/` are ignored. Original course reports, TeX sources, slides, and documents are intentionally retained under `source-materials/`; they are not web build inputs. Publicly downloadable reports and images must remain in `public/projects/` so their existing URLs stay valid.
+
+## Localization and routes
+
+English routes live at `/`; Chinese routes live under `/zh/`. Route entry files only select a locale and render shared components. `src/i18n/index.ts` is the authoritative mapping for localized paths, canonical links, alternates, and language switching.
+
+## Content ownership
+
+- Personal profile and contact information: `src/data/profile.ts`
+- Project metadata, stable slugs, ordering, and public links: `src/data/projects.ts`
+- English and Chinese UI text and long project copy: `src/i18n/en.ts` and `src/i18n/zh.ts`
+- Public images, PDFs, and slides: `public/projects/<slug>/`
+- Original project materials: `source-materials/projects/<slug>/`
+
+See [docs/adding-a-project.md](docs/adding-a-project.md) for the complete new-project workflow and [docs/architecture.md](docs/architecture.md) for dependency boundaries.
 
 ## Deployment
 
-This repository is configured for GitHub Pages using GitHub Actions.
-
-Repository settings:
-
-1. Open `Settings` → `Pages`.
-2. Under `Build and deployment`, set `Source` to `GitHub Actions`.
-3. Push to the `main` branch.
-4. The workflow in `.github/workflows/deploy.yml` runs `npm ci`, builds the Astro site, and deploys `dist/`.
-
-Important configuration:
-
-```js
-site: 'https://szddddddd.github.io'
-```
-
-Because this is a GitHub user homepage repository named `szddddddd.github.io`, no Astro `base` path is configured.
-
-## Edit content
-
-Primary personal/profile data:
-
-```text
-src/data/profile.ts
-```
-
-This contains:
-
-- names
-- role
-- university
-- lab
-- major
-- email
-- GitHub URL
-- research interests
-- CV placeholder
-- BME1312 course project card
-- future project placeholders
-- publication data structure
-- course project data structure
-
-English UI and page text:
-
-```text
-src/i18n/en.ts
-```
-
-Chinese UI and page text:
-
-```text
-src/i18n/zh.ts
-```
-
-Main pages:
-
-```text
-src/pages/index.astro
-src/pages/about.astro
-src/pages/projects.astro
-src/pages/projects/bme1312.astro
-src/pages/publications.astro
-src/pages/coursework.astro
-src/pages/notes.astro
-src/pages/zh/*.astro
-```
-
-Most page layout is shared through:
-
-```text
-src/components/LocalizedPage.astro
-```
-
-Visual system:
-
-```text
-src/styles/global.css
-```
-
-BME1312 project assets:
-
-```text
-public/projects/bme1312/
-```
-
-The public report PDF is a web-safe version with student IDs and emails removed:
-
-```text
-public/projects/bme1312/bme1312-mri-reconstruction-report.pdf
-```
-
-## Routes
-
-English:
-
-- `/`
-- `/about`
-- `/projects`
-- `/projects/bme1312`
-- `/publications`
-- `/coursework`
-- `/notes`
-
-Chinese:
-
-- `/zh/`
-- `/zh/about`
-- `/zh/projects`
-- `/zh/projects/bme1312`
-- `/zh/publications`
-- `/zh/coursework`
-- `/zh/notes`
+Pushes to `main` trigger `.github/workflows/deploy.yml`. Configure GitHub Pages to use GitHub Actions as its deployment source.

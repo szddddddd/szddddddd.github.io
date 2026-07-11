@@ -1,0 +1,158 @@
+---
+import Section from '../ui/Section.astro';
+import { profile } from '../../data/profile';
+import { bme1312CourseProject } from '../../data/projects';
+import { getCopy, type Lang } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const copy = t.bme1312;
+const project = bme1312CourseProject;
+const title = project.title[lang];
+const titleLines = title.includes(' from ') ? title.replace(' from ', '\nfrom ').split('\n') : [title];
+const typeLabel = project.type?.[lang] ?? t.common.courseProject;
+const details = [
+  { label: copy.labels.course, value: project.course ?? 'BME1312' },
+  { label: copy.labels.type, value: typeLabel },
+  { label: copy.labels.year, value: project.year },
+  { label: copy.labels.context, value: copy.hero.affiliation },
+];
+const resolveLink = (value: string | { en: string; zh: string } | undefined) => {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value[lang];
+};
+const links = [
+  { label: t.projects.labels.report, value: resolveLink(project.links.report) },
+  { label: t.projects.labels.code, value: resolveLink(project.links.code) },
+];
+---
+
+<BaseLayout lang={lang} page="projectBme1312" title={copy.metaTitle} description={copy.metaDescription}>
+  <article class="project-detail">
+    <header class="project-detail-hero">
+      <div class="detail-hero-copy reveal-block">
+        <p class="eyebrow">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title">
+          {titleLines.map((line) => <span>{line}</span>)}
+        </h1>
+        <p class="detail-subtitle">{copy.hero.subtitle}</p>
+        <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
+          {copy.metadata.map((item) => <li>{item}</li>)}
+        </ul>
+        <div class="hero-actions detail-actions">
+          <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
+          {
+            links.map((link) =>
+              link.value ? (
+                <a class="button button-secondary" href={link.value}>{link.label}</a>
+              ) : (
+                <span class="button button-disabled" aria-disabled="true">{link.label}: {t.common.comingSoon}</span>
+              )
+            )
+          }
+        </div>
+      </div>
+      <figure class="detail-hero-figure reveal-block">
+        <img src={project.image} alt={copy.gallery[3].alt} loading="eager" />
+        <figcaption>{copy.gallery[3].caption}</figcaption>
+      </figure>
+    </header>
+
+    <section class="metadata-grid" aria-label="Project metadata">
+      {details.map((item) => (
+        <article>
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+        </article>
+      ))}
+    </section>
+
+    <Section eyebrow="BME1312" title={copy.sections.overview} intro={copy.overview}>
+      <div class="detail-two-column">
+        <div class="panel project-summary-panel">
+          <p class="panel-label">{copy.labels.summary}</p>
+          <ul class="interest-list">
+            {copy.overviewBullets.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+        <figure class="detail-figure compact-figure">
+          <img src={copy.gallery[0].src} alt={copy.gallery[0].alt} loading="lazy" />
+          <figcaption>{copy.gallery[0].caption}</figcaption>
+        </figure>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.method} intro={project.description[lang]}>
+      <div class="method-grid">
+        {copy.methodCards.map((card) => (
+          <article class="method-card">
+            <p class="panel-label">{copy.labels.method}</p>
+            <h3>{card.title}</h3>
+            <ul class="interest-list">
+              {card.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <div class="panel highlight-panel">
+        <p class="panel-label">{copy.labels.highlights}</p>
+        <ul class="highlight-list">
+          {copy.highlights.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.results} intro={copy.resultsIntro}>
+      <div class="metric-table" role="table" aria-label="MRI reconstruction quantitative comparison">
+        <div class="metric-row metric-head" role="row">
+          {copy.resultColumns.map((column) => <span role="columnheader">{column}</span>)}
+        </div>
+        {copy.resultRows.map((row) => (
+          <div class="metric-row" role="row">
+            {row.map((cell, index) => <span role="cell" class:list={{ 'metric-model': index === 0 }}>{cell}</span>)}
+          </div>
+        ))}
+      </div>
+      <div class="metric-cards" aria-label={copy.labels.metricChanges}>
+        <article><span>PSNR</span><strong>37.21 → 41.11</strong></article>
+        <article><span>SSIM</span><strong>0.885 → 0.954</strong></article>
+        <article><span>LPIPS</span><strong>0.0205 → 0.0090</strong></article>
+        <article><span>DISTS</span><strong>0.1558 → 0.0936</strong></article>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.gallery} intro={copy.galleryIntro}>
+      <div class="gallery-grid">
+        {copy.gallery.map((item) => (
+          <figure class="detail-figure">
+            <img src={item.src} alt={item.alt} loading="lazy" />
+            <figcaption>{item.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </Section>
+
+    <Section title={copy.sections.contribution}>
+      <div class="panel narrative-panel">
+        <p>{copy.contribution}</p>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.courseContext}>
+      <div class="panel narrative-panel">
+        <p>{copy.courseContext}</p>
+      </div>
+    </Section>
+
+    <Section title={copy.sections.future}>
+      <div class="future-grid">
+        {copy.future.map((item) => <article class="panel future-card"><p>{item}</p></article>)}
+      </div>
+    </Section>
+  </article>
+</BaseLayout>

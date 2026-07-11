@@ -1,0 +1,109 @@
+---
+import { getCopy, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const labels = getCopy(lang).common.themeToggle;
+---
+
+<button
+  class="theme-toggle"
+  type="button"
+  data-theme-toggle
+  data-dark-label={labels.dark}
+  data-light-label={labels.light}
+  data-dark-aria={labels.switchToLight}
+  data-light-aria={labels.switchToDark}
+  aria-label={labels.switchToLight}
+  aria-pressed="false"
+>
+  <span class="theme-toggle-icon" data-theme-toggle-icon aria-hidden="true">☾</span>
+  <span class="theme-toggle-text" data-theme-toggle-text>{labels.dark}</span>
+</button>
+
+<script is:inline>
+  (() => {
+    const storageKey = 'theme';
+    const darkThemeColor = '#070a12';
+    const lightThemeColor = '#f8f5ee';
+
+    const normalizeTheme = (theme) => (theme === 'light' || theme === 'dark' ? theme : null);
+
+    const getStoredTheme = () => {
+      try {
+        return normalizeTheme(localStorage.getItem(storageKey));
+      } catch {
+        return null;
+      }
+    };
+
+    const getCurrentTheme = () => normalizeTheme(document.documentElement.dataset.theme) ?? getStoredTheme() ?? 'dark';
+
+    const syncThemeMeta = (theme) => {
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) {
+        themeColor.setAttribute('content', theme === 'light' ? lightThemeColor : darkThemeColor);
+      }
+    };
+
+    const syncButtons = (theme) => {
+      document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+        const isLight = theme === 'light';
+        const text = button.querySelector('[data-theme-toggle-text]');
+        const icon = button.querySelector('[data-theme-toggle-icon]');
+
+        if (text) text.textContent = isLight ? button.dataset.lightLabel : button.dataset.darkLabel;
+        if (icon) icon.textContent = isLight ? '☼' : '☾';
+
+        button.dataset.themeState = theme;
+        button.setAttribute('aria-label', isLight ? button.dataset.lightAria : button.dataset.darkAria);
+        button.setAttribute('aria-pressed', String(isLight));
+      });
+    };
+
+    const applyTheme = (theme, shouldPersist) => {
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+      syncThemeMeta(theme);
+      syncButtons(theme);
+
+      if (shouldPersist) {
+        try {
+          localStorage.setItem(storageKey, theme);
+        } catch {
+          // Ignore storage failures and keep the in-page theme change.
+        }
+      }
+    };
+
+    const bindThemeToggles = () => {
+      if (window.__themeToggleBound) {
+        applyTheme(getCurrentTheme(), false);
+        return;
+      }
+
+      window.__themeToggleBound = true;
+      document.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const toggle = target?.closest('[data-theme-toggle]');
+        if (!toggle) return;
+
+        const nextTheme = getCurrentTheme() === 'light' ? 'dark' : 'light';
+        applyTheme(nextTheme, true);
+      });
+
+      applyTheme(getCurrentTheme(), false);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindThemeToggles, { once: true });
+    } else {
+      bindThemeToggles();
+    }
+
+    document.addEventListener('astro:page-load', () => applyTheme(getCurrentTheme(), false));
+  })();
+</script>

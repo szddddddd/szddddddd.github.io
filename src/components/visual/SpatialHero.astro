@@ -1,0 +1,103 @@
+---
+import { getCopy, getPath, type Lang, type PageKey } from '../../i18n';
+import '../../styles/visual/spatial-field.css';
+
+interface Props {
+  lang: Lang;
+}
+
+type PortalKey = 'about' | 'projects' | 'publications' | 'notes';
+
+type PortalCopy = {
+  key: PortalKey;
+  page: PageKey;
+  label: string;
+  description: string;
+};
+
+const { lang } = Astro.props as Props;
+const homeCopy = getCopy(lang).spatialHome;
+const copy = {
+  ...homeCopy,
+  portals: homeCopy.portals as PortalCopy[],
+};
+---
+
+<section class="spatial-home" data-spatial-home data-spatial-state="idle" data-spatial-hover="none" aria-labelledby="spatial-home-title">
+  <div class="spatial-canvas-layer" aria-hidden="true">
+    <div class="spatial-fallback" aria-hidden="true"></div>
+    <canvas class="spatial-canvas" data-spatial-canvas aria-hidden="true" role="presentation"></canvas>
+    <div class="spatial-vignette" aria-hidden="true"></div>
+  </div>
+
+  <div class="spatial-research-grid">
+    <div class="spatial-hero__copy">
+      <p class="spatial-hero__eyebrow">{copy.eyebrow}</p>
+      <h1 id="spatial-home-title" class="spatial-hero__title">{copy.title}</h1>
+      <p class="spatial-hero__statement">{copy.statement}</p>
+      <p class="spatial-hero__metadata" aria-label={copy.metadataLabel}>{copy.metadata}</p>
+      <p class="spatial-hero__fields" aria-label={copy.fieldsLabel}>{copy.fields}</p>
+    </div>
+
+    <nav class="spatial-portal-grid" aria-label={copy.portalLabel}>
+      {copy.portals.map((portal, index) => (
+        <a class="spatial-portal" href={getPath(lang, portal.page)} data-spatial-portal data-portal={portal.key}>
+          <span class="spatial-portal__top">
+            <span class="spatial-portal__index">{String(index + 1).padStart(2, '0')}</span>
+            <span class="spatial-portal__arrow" aria-hidden="true">↗</span>
+          </span>
+
+          <span class:list={['spatial-portal__glyph', `spatial-portal__glyph--${portal.key}`]} aria-hidden="true">
+            {portal.key === 'about' && (
+              <svg viewBox="0 0 240 112" fill="none" focusable="false">
+                <path d="M18 74C50 37 88 27 126 47C156 63 187 50 222 20" />
+                <path d="M20 93C57 55 91 48 122 65C159 85 190 68 225 35" />
+                <ellipse cx="135" cy="57" rx="43" ry="23" />
+                <ellipse cx="135" cy="57" rx="24" ry="12" />
+                <circle cx="52" cy="31" r="3" />
+                <path d="M52 18V44M39 31H65" />
+              </svg>
+            )}
+            {portal.key === 'projects' && (
+              <svg viewBox="0 0 240 112" fill="none" focusable="false">
+                <path d="M70 81L113 30L175 76L70 81Z" />
+                <path d="M113 30L111 80M113 30L171 38M111 80L175 76" />
+                <path d="M34 83L61 64L73 92M34 83L73 92" />
+                <circle cx="33" cy="31" r="2" /><circle cx="61" cy="23" r="2.5" /><circle cx="83" cy="43" r="2" />
+                <circle cx="191" cy="27" r="2.5" /><circle cx="208" cy="54" r="2" /><circle cx="184" cy="88" r="2" />
+                <path d="M33 31L61 23L83 43M191 27L208 54L184 88" />
+              </svg>
+            )}
+            {portal.key === 'publications' && (
+              <svg viewBox="0 0 240 112" fill="none" focusable="false">
+                <rect x="76" y="12" width="88" height="88" rx="3" />
+                <path d="M91 31H148M91 41H148M91 57H148M91 67H133M91 77H142" />
+                <path d="M33 33H62M23 57H62M39 81H62M177 27H211M177 50H224M177 74H211" />
+                <path d="M18 94H221" />
+              </svg>
+            )}
+            {portal.key === 'notes' && (
+              <svg viewBox="0 0 240 112" fill="none" focusable="false">
+                <path d="M30 29H102M30 29V83M30 83H102" />
+                <path d="M58 43L96 54L123 37M96 54L121 77L167 69" />
+                <circle cx="58" cy="43" r="3" /><circle cx="96" cy="54" r="3" /><circle cx="123" cy="37" r="3" />
+                <circle cx="121" cy="77" r="3" /><circle cx="167" cy="69" r="3" />
+                <path d="M178 24H214M178 36H201M178 48H219M178 60H196M178 72H211" />
+                <path d="M41 96H69M81 96H109M121 96H149" />
+              </svg>
+            )}
+          </span>
+
+          <span class="spatial-portal__body">
+            <span class="spatial-portal__title">{portal.label}</span>
+            <span class="spatial-portal__desc">{portal.description}</span>
+          </span>
+        </a>
+      ))}
+    </nav>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/visual/spatial-field';
+</script>

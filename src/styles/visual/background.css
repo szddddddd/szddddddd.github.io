@@ -1,0 +1,73 @@
+.visual-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-grid,
+.bg-noise,
+.bg-particles,
+.bg-orb {
+  position: absolute;
+}
+
+.bg-grid {
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 86%);
+}
+
+.bg-noise {
+  inset: 0;
+  opacity: 0.075;
+  background-image:
+    radial-gradient(circle at 17% 31%, var(--noise-dot) 0 1px, transparent 1px),
+    radial-gradient(circle at 83% 73%, var(--noise-dot) 0 1px, transparent 1px);
+  background-size: 38px 38px, 61px 61px;
+  mix-blend-mode: var(--noise-blend-mode);
+}
+
+.bg-orb {
+  display: block;
+  border-radius: 999px;
+  filter: blur(34px);
+  opacity: var(--orb-opacity);
+}
+
+.bg-orb-a {
+  width: 28rem;
+  height: 28rem;
+  left: -9rem;
+  top: 15rem;
+  background: var(--cyan);
+}
+
+.bg-orb-b {
+  width: 34rem;
+  height: 34rem;
+  right: -14rem;
+  top: 3rem;
+  background: var(--violet);
+}
+
+.bg-particles {
+  inset: 0;
+}
+
+.bg-particle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: calc(2px + var(--s) * 2px);
+  height: calc(2px + var(--s) * 2px);
+  border-radius: 999px;
+  background: var(--particle-background);
+  box-shadow: var(--particle-shadow);
+  opacity: 0.45;
+}
+

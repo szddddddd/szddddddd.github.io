@@ -1,7 +1,8 @@
 import { en } from './en';
 import { zh } from './zh';
 
-export type Lang = 'en' | 'zh';
+export type Locale = 'en' | 'zh';
+export type Lang = Locale;
 export type PageKey =
   | 'home'
   | 'about'
@@ -17,6 +18,9 @@ export type PageKey =
   | 'notes';
 
 export const i18n = { en, zh } as const;
+
+export const primaryNavPageKeys = ['home', 'about', 'projects', 'publications', 'notes'] as const;
+export type PrimaryNavPageKey = (typeof primaryNavPageKeys)[number];
 
 export const pages: Record<PageKey, { en: string; zh: string }> = {
   home: { en: '/', zh: '/zh/' },
@@ -37,10 +41,19 @@ export function getCopy(lang: Lang) {
   return i18n[lang];
 }
 
-export function getPath(lang: Lang, page: PageKey) {
+export function getPath(lang: Locale, page: PageKey) {
   return pages[page][lang];
 }
 
-export function getOppositeLang(lang: Lang): Lang {
+export function localizedPath(locale: Locale, page: PageKey) {
+  return getPath(locale, page);
+}
+
+export function getLocaleFromUrl(url: URL | string): Locale {
+  const pathname = typeof url === 'string' ? new URL(url, 'https://locale.invalid').pathname : url.pathname;
+  return pathname === '/zh' || pathname.startsWith('/zh/') ? 'zh' : 'en';
+}
+
+export function getOppositeLang(lang: Locale): Locale {
   return lang === 'en' ? 'zh' : 'en';
 }

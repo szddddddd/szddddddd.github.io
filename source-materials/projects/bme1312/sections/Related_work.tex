@@ -1,0 +1,34 @@
+
+
+ 
+\section{Related Work} 
+
+
+
+\noindent{\textbf{Non-rigid Reconstruction.}} 
+In the field of Non-rigid registration and reconstruction, numerous methods~\cite{suo2021neuralhumanfvv, sun2021HOI-FVV, UnstructureLan, fridovich2023k, cao2023hexplane, wang2023videorf} have been proposed to address this challenging problem. Sumner~\etal~\cite{sumner2007embedded} introduces the classical embedded deformation graph for aligning two meshes, while SoG~\cite{StollHGST2011} utilizes a Gaussian model to represent human movement. HighQualityFVV~\cite{collet2015high} utilizes tracked mesh sequences with texture video to capture detailed human performance. Building on the pioneering work DynamicFusion~\cite{newcombe2015dynamicfusion}, a series of approaches~\cite{dou2016fusion4d, motion2fusion, KillingFusion2017cvpr, slavcheva2018sobolevfusion, robustfusion, su2022robustfusionPlus, jiang2022neuralhofusion} extend this technique to handle challenging scenarios. 
+Recent neural advances~\cite{nerf}, bypass explicit reconstruction to conduct volume rendering at photo-realism. Based on it, dynamic NeRF variants~\cite{tretschk2021nonrigid, park2021nerfies, weng_humannerf_2022_cvpr} maintain a canonical space and leverage the photometric differences to learn the deformation. With advancements such as hash tables~\cite{muller2022instant} and tensor decomposition~\cite{chen2022tensorf}, several methods~\cite{isik2023humanrf, zhao2022human, jiang2023instant, song2023nerfplayer} significantly accelerate the training and rendering speed in the dynamic setting. However, rendering quality remains limited. The emergence of 3D Gaussian Splatting~\cite{kerbl20233d} marks a significant return to explicit modeling paradigms, with dynamic variants~\cite{luiten2023dynamic, li2023spacetime, duan20244d, guo2024motion, huang2024sc, labe2024dgd, gao2024gaussianflow, lin2024gaussian} advancing the field by tackling 4D scene reconstruction under complex scenarios. HiFi4G~\cite{jiang2024hifi4g} use mesh deformation to initialize Gaussians, while DualGS~\cite{jiang2024robust} employs joint Gaussians for motion capture and skin Gaussians for appearance details. Although these playback-only techniques achieve high-fidelity rendering in complex scenarios like violin playing, they struggle to generalize to novel motions.
+
+  
+
+\noindent{\textbf{Animatable Avatar.}} 
+Over the past decade, researchers have made significant progress in developing expressive and animatable 3D human avatars.
+Early approaches focused on mesh-based methods~\cite{bagautdinov2021driving,xiang2022dressing,xiang2021modeling,halimi2022pattern,casas20144d,shysheya2019textured, deepcap, MonoPerfCap} that utilize motion-controllable template mesh with UV space features to model human geometry and appearance. 
+In recent years, research has increasingly shifted towards hybrid representations~\cite{zhu2023trihuman, habermann2023hdhumans} based on implicit models. ARAH~\cite{ARAH:ECCV:2022} utilizes the SDF to model human surfaces. TAVA~\cite{li2022tava} and X-avatar~\cite{shen2023x} learn the skinning weight via Snarf~\cite{chen2021snarf}. DDC~\cite{habermann2021real} employs differentiable rendering to learn the deformation and dynamic texture maps, while deliffas~\cite{kwon2023deliffas} enables fast light field synthesis as a follow-up work. AvatarReX~\cite{zheng2023avatarrex} defines a set of local radiance fields to represent dynamic details of human appearance. Artemis~\cite{luo2022artemis} leverage plenoctree~\cite{yu2021plenoctrees} to represent animal appearances. 
+Recent advancements in Gaussian-based representations spark a new era in animatable 3D avatars, leading to the development of innovative techniques~\cite{li2024animatablegaussians, pang2024ash, li2024gaussianbody, qian2023gaussianavatars, chen2024egoavatar, zielonka25dega, rong2024gaussian, zheng2024ohta, zheng2024headgap}.
+A bunch of studies
+~\cite{lei2024gart,qian20243dgs,hu2023gauhuman} employ linear blend skinning (LBS) to model human motions and reconstruct a 3DGS-based animatable avatar from videos. ASH~\cite{pang2024ash} and GaussianAvatar~\cite{hu2024gaussianavatar} parameterize the 3D character on a 2D UV map while animatableGaussians~\cite{li2024animatablegaussians} relies on the front and back maps to predict Gaussian attributes using 2D CNNs. However, most existing methods focus on human-only scenarios and inherently lack the ability to handle general human-object interactions. In contrast, \methodterm utilizes the Morton-based parameterization and 2D CNNs to learn the attributes of appearance Gaussians, enabling re-performance in complex human-object interactions. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -62,6 +62,22 @@ export const en = {
     },
     majorPrefix: 'Major in',
   },
+  spatialHome: {
+    eyebrow: 'SPATIAL COMPUTING / RESEARCH INDEX',
+    title: 'Song Zidong',
+    statement: 'Undergraduate researcher working on 3D vision, neural representation, and generative world models.',
+    metadata: 'ShanghaiTech University · VRVC Lab · Computer Science',
+    fields: '3D Vision · Neural Rendering · Gaussian Splatting · World Models',
+    metadataLabel: 'Academic identity',
+    fieldsLabel: 'Research fields',
+    portalLabel: 'Research index',
+    portals: [
+      { key: 'about', page: 'about', label: 'About', description: 'Profile, research interests, and contact.' },
+      { key: 'projects', page: 'projects', label: 'Projects', description: 'Research systems, coursework, and visual experiments.' },
+      { key: 'publications', page: 'publications', label: 'Publications', description: 'Papers, reports, and technical manuscripts.' },
+      { key: 'notes', page: 'notes', label: 'Notes', description: 'Reading notes, methods, and field observations.' },
+    ],
+  },
   about: {
     eyebrow: 'About',
     pageTitle: 'About',

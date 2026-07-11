@@ -5,6 +5,7 @@ import { profile } from '../../data/profile';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AboutPage from '../pages/AboutPage.astro';
 import HomePage from '../pages/HomePage.astro';
+import HumanitiesPage from '../pages/HumanitiesPage.astro';
 import NotesPage from '../pages/NotesPage.astro';
 import ProjectsPage from '../pages/ProjectsPage.astro';
 import PublicationsPage from '../pages/PublicationsPage.astro';
@@ -30,6 +31,7 @@ const titles: Record<PageKey, string> = {
   projectSi100b: t.si100b.metaTitle,
   projectArts1308: t.arts1308.metaTitle,
   publications: t.publications.pageTitle,
+  humanities: t.humanities.pageTitle,
   coursework: `${t.nav.coursework} — ${display.name}`,
   notes: t.notes.pageTitle,
 };
@@ -45,6 +47,7 @@ const descriptions: Record<PageKey, string> = {
   projectSi100b: t.si100b.metaDescription,
   projectArts1308: t.arts1308.metaDescription,
   publications: t.publications.intro,
+  humanities: t.humanities.intro,
   coursework: t.coursework.intro,
   notes: t.notes.intro,
 };
@@ -55,6 +58,7 @@ const descriptions: Record<PageKey, string> = {
   {page === 'about' && <AboutPage lang={lang} />}
   {page === 'projects' && <ProjectsPage lang={lang} />}
   {page === 'publications' && <PublicationsPage lang={lang} />}
+  {page === 'humanities' && <HumanitiesPage lang={lang} />}
   {page === 'notes' && <NotesPage lang={lang} />}
 
   {

@@ -3,7 +3,6 @@ import type { Lang } from '../../i18n';
 import { primaryRoutes } from '../../i18n';
 import type { RouteDefinition } from '../../config/routes';
 import { profile } from '../../data/profile';
-import { projects } from '../../data/projects';
 
 interface Props {
   lang: Lang;
@@ -18,7 +17,6 @@ const interests = lang === 'zh'
 const statement = lang === 'zh'
   ? '我关注机器如何感知、重建并生成三维世界。'
   : 'I explore how machines perceive, reconstruct, and imagine three-dimensional worlds.';
-const projectPreviews = projects.slice(0, 3);
 ---
 
 <section class="atlas-home" aria-labelledby="home-title">
@@ -50,9 +48,7 @@ const projectPreviews = projects.slice(0, 3);
           }
           {
             route.id === 'projects' && (
-              <span class="atlas-home__project-object">
-                {projectPreviews.map((project) => <img src={project.cover.src} alt="" loading="eager" decoding="async" />)}
-              </span>
+              <span class="atlas-home__project-object"><i></i><b></b></span>
             )
           }
           {
@@ -67,6 +63,11 @@ const projectPreviews = projects.slice(0, 3);
               <span class="atlas-home__network-object">
                 <i></i><i></i><i></i><i></i><b></b><b></b><b></b>
               </span>
+            )
+          }
+          {
+            route.id === 'humanities' && (
+              <span class="atlas-home__humanities-object"><i></i><i></i><i></i><b></b></span>
             )
           }
         </span>

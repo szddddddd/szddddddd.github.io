@@ -1,0 +1,52 @@
+---
+import type { Lang } from '../../i18n';
+import { getCopy } from '../../i18n';
+import { getHumanitiesPath, humanitiesEssays } from '../../data/humanities';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang).humanities;
+---
+
+<div class="page-stack humanities-page">
+  <section class="page-hero humanities-hero" aria-labelledby="humanities-page-title">
+    <div class="humanities-hero__copy">
+      <p class="eyebrow" transition:name="page-index">04 / {t.pageTitle}</p>
+      <h1 id="humanities-page-title" transition:name="page-main-title">{t.pageTitle}</h1>
+      <p>{t.intro}</p>
+    </div>
+    <div class="humanities-hero__index" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+  </section>
+
+  <section class="humanities-archive" aria-labelledby="humanities-archive-title">
+    <div class="humanities-archive__heading">
+      <p class="eyebrow">04 / {t.archiveTitle}</p>
+      <h2 id="humanities-archive-title">{t.archiveTitle}</h2>
+      <p>{t.archiveIntro}</p>
+    </div>
+
+    <div class="humanities-essay-list">
+      {humanitiesEssays.map((essay) => (
+        <a class="humanities-essay-card" href={getHumanitiesPath(lang, essay.slug)} style={`--essay-order:${essay.number};`}>
+          <div class="humanities-essay-card__number">{essay.number}</div>
+          <div class="humanities-essay-card__main">
+            <p class="panel-label">{essay.format[lang]} · {essay.year}</p>
+            <h3>{essay.title[lang]}</h3>
+            <p class="humanities-essay-card__subtitle">{essay.shortTitle[lang]}</p>
+            <p class="humanities-essay-card__abstract">{essay.abstract[lang]}</p>
+            <ul class="tag-list humanities-essay-card__tags" aria-label={`${essay.title[lang]} ${t.labels.keywords}`}>
+              {essay.keywords[lang].map((keyword) => <li>{keyword}</li>)}
+            </ul>
+          </div>
+          <div class="humanities-essay-card__meta">
+            <p>{essay.course[lang]}</p>
+            <span class="text-link">{t.labels.read}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</div>

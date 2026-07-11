@@ -1,0 +1,358 @@
+.humanities-hero {
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.38fr);
+  align-items: end;
+}
+
+.humanities-hero__copy {
+  display: grid;
+  gap: 1rem;
+}
+
+.humanities-hero__copy > p:not(.eyebrow) {
+  max-width: 44rem;
+}
+
+.humanities-hero__index {
+  position: relative;
+  min-height: 10rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--page-accent) 42%, var(--glass-border));
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--page-accent) 7%, var(--glass-surface-soft));
+}
+
+.humanities-hero__index::before,
+.humanities-hero__index::after,
+.humanities-hero__index i,
+.humanities-hero__index b {
+  position: absolute;
+  display: block;
+  border: 1px solid color-mix(in srgb, var(--page-accent) 62%, transparent);
+  background: color-mix(in srgb, var(--page-accent) 13%, transparent);
+  box-shadow: 0 0 1.4rem color-mix(in srgb, var(--page-accent) 18%, transparent);
+  content: '';
+}
+
+.humanities-hero__index::before { width: 7rem; height: 7rem; top: -2.8rem; left: 13%; transform: rotate(29deg); }
+.humanities-hero__index::after { width: 5rem; height: 5rem; right: 12%; bottom: -1.8rem; transform: rotate(-22deg); }
+.humanities-hero__index i:nth-child(1) { width: 2.2rem; height: 2.2rem; top: 35%; left: 46%; transform: rotate(45deg); }
+.humanities-hero__index i:nth-child(2) { width: 1.1rem; height: 1.1rem; top: 17%; right: 20%; transform: rotate(45deg); }
+.humanities-hero__index i:nth-child(3) { width: 3.3rem; height: 1.1rem; right: -0.8rem; bottom: 24%; transform: rotate(-22deg); }
+.humanities-hero__index b { width: 0.5rem; height: 0.5rem; bottom: 19%; left: 20%; transform: rotate(45deg); }
+
+.humanities-archive {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25rem;
+  padding: 1.25rem 0 3.75rem;
+}
+
+.humanities-archive__heading {
+  grid-column: 1 / span 4;
+  align-self: start;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.65rem;
+  background: var(--glass-surface);
+  box-shadow: var(--glass-shadow);
+  padding: 1.35rem;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+
+.humanities-archive__heading h2 {
+  margin-top: 0.55rem;
+  color: var(--color-text);
+  font-family: var(--font-serif);
+  font-size: 2.15rem;
+  font-weight: 400;
+  line-height: 0.98;
+}
+
+.humanities-archive__heading > p:last-child {
+  margin-top: 0.9rem;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.58;
+}
+
+.humanities-essay-list {
+  grid-column: 5 / -1;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.humanities-essay-card {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) minmax(8rem, 0.28fr);
+  gap: 1rem;
+  align-items: start;
+  border: 1px solid var(--glass-border);
+  border-radius: 0.65rem;
+  background: var(--glass-surface);
+  box-shadow: var(--glass-shadow);
+  padding: 1.2rem;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.humanities-essay-card:hover,
+.humanities-essay-card:focus-within {
+  border-color: color-mix(in srgb, var(--page-accent) 64%, var(--glass-border));
+  background: var(--glass-surface-strong);
+  transform: translateY(-2px);
+}
+
+.humanities-essay-card__number {
+  color: var(--page-accent);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.humanities-essay-card__main h3 {
+  margin-top: 0.36rem;
+  color: var(--color-text);
+  font-family: var(--font-serif);
+  font-size: clamp(1.45rem, 2.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1.03;
+}
+
+.humanities-essay-card__subtitle {
+  margin-top: 0.36rem;
+  color: color-mix(in srgb, var(--page-accent) 66%, var(--color-text));
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.humanities-essay-card__abstract {
+  max-width: 46rem;
+  margin-top: 0.7rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.58;
+}
+
+.humanities-essay-card__tags {
+  gap: 0.36rem;
+  margin-top: 0.9rem;
+}
+
+.humanities-essay-card__tags li {
+  border-color: color-mix(in srgb, var(--page-accent) 36%, var(--chip-border));
+  font-size: 0.69rem;
+}
+
+.humanities-essay-card__meta {
+  display: grid;
+  align-content: space-between;
+  gap: 1.2rem;
+  min-height: 100%;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.69rem;
+  line-height: 1.5;
+}
+
+.humanities-essay-card__meta .text-link {
+  color: var(--page-accent);
+}
+
+.essay-reader {
+  display: grid;
+  gap: 1.25rem;
+  padding-top: 3.5rem;
+}
+
+.essay-reader__masthead,
+.essay-reader__reference,
+.essay-reader__document {
+  border: 1px solid var(--glass-border);
+  border-radius: 0.65rem;
+  background: var(--glass-surface);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+
+.essay-reader__masthead {
+  display: grid;
+  gap: 0.9rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.essay-reader__masthead > .text-link {
+  width: max-content;
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.essay-reader__masthead h1 {
+  max-width: 54rem;
+  color: var(--color-text);
+  font-family: var(--font-serif);
+  font-size: clamp(2.45rem, 5.4vw, 5rem);
+  font-weight: 400;
+  line-height: 0.97;
+}
+
+.essay-reader__subtitle {
+  max-width: 48rem;
+  color: color-mix(in srgb, var(--page-accent) 66%, var(--color-text));
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.essay-reader__abstract {
+  max-width: 58rem;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.68;
+}
+
+.essay-reader__layout {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.32fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.essay-reader__reference {
+  position: sticky;
+  top: calc(var(--ribbon-height) + 1rem);
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.15rem;
+}
+
+.essay-reader__reference dl {
+  display: grid;
+  gap: 0.78rem;
+  margin: 0;
+}
+
+.essay-reader__reference dl div {
+  border-bottom: 1px solid color-mix(in srgb, var(--glass-border) 74%, transparent);
+  padding-bottom: 0.78rem;
+}
+
+.essay-reader__reference dt {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+}
+
+.essay-reader__reference dd {
+  margin: 0.24rem 0 0;
+  color: var(--color-text);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.essay-reader__contents {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.55rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.essay-reader__document {
+  overflow: hidden;
+}
+
+.essay-reader__document-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0.85rem 1rem;
+}
+
+.essay-reader__document iframe {
+  display: block;
+  width: 100%;
+  height: min(75rem, 88svh);
+  border: 0;
+  background: #f7f5ef;
+}
+
+.atlas-home__humanities-object {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--node-accent) 6%, transparent);
+}
+
+.atlas-home__humanities-object::before,
+.atlas-home__humanities-object::after,
+.atlas-home__humanities-object i,
+.atlas-home__humanities-object b {
+  position: absolute;
+  display: block;
+  border: 1px solid color-mix(in srgb, var(--node-accent) 62%, transparent);
+  background: color-mix(in srgb, var(--node-accent) 12%, transparent);
+  content: '';
+}
+
+.atlas-home__humanities-object::before { width: 5.8rem; height: 5.8rem; top: -1rem; left: 14%; transform: rotate(24deg); }
+.atlas-home__humanities-object::after { width: 3.6rem; height: 3.6rem; right: 11%; bottom: -0.65rem; transform: rotate(-19deg); }
+.atlas-home__humanities-object i:nth-child(1) { width: 2rem; height: 2rem; top: 37%; left: 48%; transform: rotate(45deg); }
+.atlas-home__humanities-object i:nth-child(2) { width: 0.75rem; height: 0.75rem; top: 18%; right: 26%; transform: rotate(45deg); }
+.atlas-home__humanities-object i:nth-child(3) { width: 2.4rem; height: 0.8rem; bottom: 22%; left: 13%; transform: rotate(-19deg); }
+.atlas-home__humanities-object b { width: 0.4rem; height: 0.4rem; right: 42%; bottom: 38%; transform: rotate(45deg); }
+
+@media (max-width: 820px) {
+  .humanities-hero,
+  .humanities-archive,
+  .essay-reader__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .humanities-archive__heading,
+  .humanities-essay-list {
+    grid-column: 1;
+  }
+
+  .humanities-hero__index {
+    min-height: 7.5rem;
+  }
+
+  .essay-reader__reference {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .humanities-essay-card {
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+  }
+
+  .humanities-essay-card__meta {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+  }
+
+  .humanities-essay-card__meta .text-link {
+    margin-top: 0.15rem;
+  }
+
+  .essay-reader {
+    padding-top: 2rem;
+  }
+
+  .essay-reader__document-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .essay-reader__document iframe {
+    height: 72svh;
+  }
+}

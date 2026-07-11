@@ -1,0 +1,61 @@
+---
+import type { HumanitiesEssay } from '../../data/humanities';
+import type { Lang } from '../../i18n';
+import { getCopy, getPath } from '../../i18n';
+
+interface Props {
+  essay: HumanitiesEssay;
+  lang: Lang;
+}
+
+const { essay, lang } = Astro.props as Props;
+const t = getCopy(lang).humanities;
+const metadata = [
+  { label: t.labels.course, value: essay.course[lang] },
+  { label: t.labels.year, value: essay.year },
+  { label: t.labels.format, value: essay.format[lang] },
+];
+---
+
+<article class="essay-reader page-stack">
+  <header class="essay-reader__masthead">
+    <a class="text-link" href={getPath(lang, 'humanities')}>{t.labels.back}</a>
+    <p class="eyebrow">04 / {t.labels.original} / {essay.number}</p>
+    <h1>{essay.title[lang]}</h1>
+    <p class="essay-reader__subtitle">{essay.shortTitle[lang]}</p>
+    <p class="essay-reader__abstract">{essay.abstract[lang]}</p>
+  </header>
+
+  <div class="essay-reader__layout">
+    <aside class="essay-reader__reference">
+      <dl>
+        {metadata.map((item) => (
+          <div>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div>
+        <p class="panel-label">{t.labels.keywords}</p>
+        <ul class="tag-list">
+          {essay.keywords[lang].map((keyword) => <li>{keyword}</li>)}
+        </ul>
+      </div>
+      <div>
+        <p class="panel-label">{t.labels.contents}</p>
+        <ol class="essay-reader__contents">
+          {essay.sections.map((section) => <li>{section}</li>)}
+        </ol>
+      </div>
+    </aside>
+
+    <section class="essay-reader__document" aria-labelledby="essay-document-title">
+      <div class="essay-reader__document-bar">
+        <p id="essay-document-title" class="panel-label">{t.labels.document}</p>
+        <a class="text-link" href={essay.pdf} target="_blank" rel="noreferrer" data-astro-reload>{t.labels.openPdf}</a>
+      </div>
+      <iframe src={essay.pdf} title={`${essay.title[lang]} PDF`} loading="eager"></iframe>
+    </section>
+  </div>
+</article>

@@ -1,0 +1,16 @@
+---
+import HumanitiesEssayPage from '../../components/pages/HumanitiesEssayPage.astro';
+import { getHumanitiesEssay, humanitiesEssays } from '../../data/humanities';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return humanitiesEssays.map((essay) => ({ params: { slug: essay.slug } }));
+}
+
+const essay = getHumanitiesEssay(Astro.params.slug);
+if (!essay) return Astro.redirect('/humanities/');
+---
+
+<BaseLayout lang="en" page="humanities" title={`${essay.title.en} — Song Zidong`} description={essay.abstract.en}>
+  <HumanitiesEssayPage essay={essay} lang="en" />
+</BaseLayout>

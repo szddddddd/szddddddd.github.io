@@ -15,11 +15,11 @@ const pageTitle = lang === 'en'
   ? `${t.projects.fullTitle.toUpperCase()} / ${workCount} ${t.projects.indexTitle.toUpperCase()}`
   : `${t.projects.fullTitle} / ${workCount} ${t.projects.indexTitle}`;
 const filterDefinitions = [
-  { id: 'all', label: t.projects.filters.all, description: t.projects.index.descriptions.all, preview: projects[0] },
-  { id: '3d-vision', label: t.projects.filters.vision, description: t.projects.index.descriptions['3d-vision'], preview: projects.find((project) => project.categories.includes('3d-vision'))! },
-  { id: 'medical-imaging', label: t.projects.filters.medical, description: t.projects.index.descriptions['medical-imaging'], preview: projects.find((project) => project.categories.includes('medical-imaging'))! },
-  { id: 'creative-coding', label: t.projects.filters.creative, description: t.projects.index.descriptions['creative-coding'], preview: projects.find((project) => project.categories.includes('creative-coding'))! },
-  { id: 'coursework', label: t.projects.filters.coursework, description: t.projects.index.descriptions.coursework, preview: projects[0] },
+  { id: 'all', label: t.projects.filters.all, description: t.projects.index.descriptions.all },
+  { id: '3d-vision', label: t.projects.filters.vision, description: t.projects.index.descriptions['3d-vision'] },
+  { id: 'medical-imaging', label: t.projects.filters.medical, description: t.projects.index.descriptions['medical-imaging'] },
+  { id: 'creative-coding', label: t.projects.filters.creative, description: t.projects.index.descriptions['creative-coding'] },
+  { id: 'coursework', label: t.projects.filters.coursework, description: t.projects.index.descriptions.coursework },
 ] as const;
 const filters = filterDefinitions.map((filter) => ({
   ...filter,
@@ -60,18 +60,9 @@ const filters = filterDefinitions.map((filter) => ({
 
       <p class="project-index-rail__description" data-project-rail-description>{filters[0].description}</p>
 
-      <figure class="project-index-rail__preview">
+      <figure class="project-index-rail__flow" data-project-rail-flow data-filter="all" aria-hidden="true">
         <figcaption class="panel-label">{t.projects.index.categoryPreview}</figcaption>
-        {filters.map((filter) => (
-          <img
-            src={filter.preview.cover.src}
-            alt={filter.preview.cover.alt[lang]}
-            data-project-rail-preview={filter.id}
-            hidden={filter.id !== 'all'}
-            loading={filter.id === 'all' ? 'eager' : 'lazy'}
-            decoding="async"
-          />
-        ))}
+        <span><i></i><i></i><i></i></span>
       </figure>
     </aside>
 
@@ -99,7 +90,7 @@ const filters = filterDefinitions.map((filter) => ({
       const resultCount = root.querySelector<HTMLElement>('[data-project-result-count]');
       const description = root.querySelector<HTMLElement>('[data-project-rail-description]');
       const status = root.querySelector<HTMLElement>('[data-project-filter-status]');
-      const previews = root.querySelectorAll<HTMLImageElement>('[data-project-rail-preview]');
+      const flow = root.querySelector<HTMLElement>('[data-project-rail-flow]');
       let filterTimer: number | undefined;
 
       const updateRows = (selected: string) => {
@@ -147,6 +138,9 @@ const filters = filterDefinitions.map((filter) => ({
       buttons.forEach((button) => {
         button.addEventListener('click', () => {
           const selected = button.dataset.projectFilter ?? 'all';
+          root.dataset.projectActiveFilter = selected;
+          root.classList.remove('is-filter-transition');
+          requestAnimationFrame(() => root.classList.add('is-filter-transition'));
 
           buttons.forEach((candidate) => {
             candidate.setAttribute('aria-pressed', String(candidate === button));
@@ -156,9 +150,7 @@ const filters = filterDefinitions.map((filter) => ({
           currentFilter && (currentFilter.textContent = button.dataset.projectLabel ?? '');
           resultCount && (resultCount.textContent = String(count).padStart(2, '0'));
           description && (description.textContent = button.dataset.projectDescription ?? '');
-          previews.forEach((preview) => {
-            preview.hidden = preview.dataset.projectRailPreview !== selected;
-          });
+          if (flow) flow.dataset.filter = selected;
           if (status) {
             const prefix = status.dataset.statusPrefix ?? '';
             const label = button.dataset.projectLabel ?? '';
@@ -167,6 +159,7 @@ const filters = filterDefinitions.map((filter) => ({
           }
 
           updateRows(selected);
+          window.setTimeout(() => root.classList.remove('is-filter-transition'), 360);
           document.dispatchEvent(new CustomEvent('spatial:project-filter', { detail: { category: selected } }));
         });
       });

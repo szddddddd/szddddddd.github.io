@@ -78,6 +78,18 @@ export const routeStates: Record<RouteId, RouteState> = {
     scenePreset: 'citation-grid',
     transition: { duration: 520 },
   },
+  humanities: {
+    camera: { position: [18.1, 1.7, 10.4], target: [14.8, 0.2, 0] },
+    particleDensity: 0.46,
+    flowStrength: 0.06,
+    noiseScale: 1.92,
+    primaryColor: '#a6c48a',
+    secondaryColor: '#77e0f5',
+    bloomIntensity: 0.16,
+    vignetteIntensity: 0.24,
+    scenePreset: 'knowledge-network',
+    transition: { duration: 540 },
+  },
   notes: {
     camera: { position: [20.4, 1.8, 10.4], target: [17.2, 0.3, 0] },
     particleDensity: 0.58,

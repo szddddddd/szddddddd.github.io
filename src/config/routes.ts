@@ -1,6 +1,6 @@
 export type Locale = 'en' | 'zh';
 
-export type SpatialPreset = 'home' | 'about' | 'projects' | 'publications' | 'notes';
+export type SpatialPreset = 'home' | 'about' | 'projects' | 'publications' | 'humanities' | 'notes';
 
 export type RouteDefinition = Readonly<{
   id: SpatialPreset;
@@ -60,8 +60,19 @@ export const routes = [
     showInPrimaryNavigation: true,
   },
   {
-    id: 'notes',
+    id: 'humanities',
     index: '04',
+    path: { en: '/humanities/', zh: '/zh/humanities/' },
+    label: { en: 'Humanities', zh: '人文' },
+    shortLabel: { en: 'HUMANITIES', zh: '人文' },
+    description: { en: 'Essays on history, film, and philosophy', zh: '科学史、电影与哲学写作' },
+    accent: '#a6c48a',
+    spatialPreset: 'humanities',
+    showInPrimaryNavigation: true,
+  },
+  {
+    id: 'notes',
+    index: '05',
     path: { en: '/notes/', zh: '/zh/notes/' },
     label: { en: 'Notes', zh: '笔记' },
     shortLabel: { en: 'NOTES', zh: '笔记' },
@@ -89,6 +100,7 @@ export const pagePaths = {
   projectSi100b: { en: '/projects/si100b/', zh: '/zh/projects/si100b/' },
   projectArts1308: { en: '/projects/arts1308/', zh: '/zh/projects/arts1308/' },
   publications: { en: '/publications/', zh: '/zh/publications/' },
+  humanities: { en: '/humanities/', zh: '/zh/humanities/' },
   coursework: { en: '/coursework/', zh: '/zh/coursework/' },
   notes: { en: '/notes/', zh: '/zh/notes/' },
 } as const satisfies Record<string, Readonly<Record<Locale, string>>>;
@@ -106,6 +118,7 @@ const routeForPage: Record<PageKey, RouteId> = {
   projectSi100b: 'projects',
   projectArts1308: 'projects',
   publications: 'publications',
+  humanities: 'humanities',
   coursework: 'projects',
   notes: 'notes',
 };
@@ -126,6 +139,8 @@ export function getRouteForPath(pathname: string): RouteDefinition {
   if (normalized === '/coursework' || normalized === '/zh/coursework' || normalized.startsWith('/projects/') || normalized.startsWith('/zh/projects/')) {
     return routesById.projects;
   }
+
+  if (normalized.startsWith('/humanities/') || normalized.startsWith('/zh/humanities/')) return routesById.humanities;
 
   return routesById.home;
 }

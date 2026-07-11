@@ -29,9 +29,9 @@ const identityRows = [
       </div>
 
       <aside class="about-identity-matrix" aria-label={t.about.profileTitle}>
-        <div class="about-coordinate-field" aria-hidden="true">
-          <i></i><i></i><i></i><b></b><b></b><b></b>
-        </div>
+        <figure class="about-portrait">
+          <img src="/profile/song-zidong.jpg" alt={lang === 'zh' ? '宋梓冬在法拉利展示空间的照片' : 'Song Zidong at a Ferrari display'} width="1080" height="1440" loading="eager" decoding="async" />
+        </figure>
         <dl class="fact-list about-fact-grid">
           {identityRows.map((item) => (
             <div>

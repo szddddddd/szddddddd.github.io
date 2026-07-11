@@ -19,10 +19,7 @@
 [data-spatial-fallback] {
   z-index: 0;
   background-color: var(--color-bg, #05070b);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 72px 72px;
+  background-image: none;
   opacity: 1;
 }
 
@@ -34,13 +31,11 @@
 }
 
 [data-spatial-fallback]::before {
-  background-image: repeating-linear-gradient(125deg, transparent 0 52px, rgba(119, 224, 245, 0.06) 53px, transparent 54px 136px);
-  opacity: 0.68;
+  display: none;
 }
 
 [data-spatial-fallback]::after {
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  margin: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  display: none;
 }
 
 [data-spatial-host] {

@@ -1,0 +1,75 @@
+---
+import type { Lang } from '../../i18n';
+import { getCopy } from '../../i18n';
+import { projects } from '../../data/projects';
+import ProjectIndexRow from '../projects/ProjectIndexRow.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const workCount = String(projects.length).padStart(2, '0');
+const pageTitle = lang === 'en'
+  ? `${t.projects.fullTitle.toUpperCase()} / ${workCount} ${t.projects.indexTitle.toUpperCase()}`
+  : `${t.projects.fullTitle} / ${workCount} ${t.projects.indexTitle}`;
+const filters = [
+  { id: 'all', label: t.projects.filters.all },
+  { id: '3d-vision', label: t.projects.filters.vision },
+  { id: 'medical-imaging', label: t.projects.filters.medical },
+  { id: 'creative-coding', label: t.projects.filters.creative },
+  { id: 'coursework', label: t.projects.filters.coursework },
+];
+---
+
+<div class="page-stack projects-page" data-project-filtering>
+  <section class="page-hero page-hero-compact" aria-labelledby="projects-page-title">
+    <p class="eyebrow" transition:name="page-index">02 / {t.nav.projects}</p>
+    <h1 id="projects-page-title" transition:name="page-main-title">{pageTitle}</h1>
+    <p>{t.projects.fullIntro}</p>
+  </section>
+
+  <Section>
+    <div class="project-filter-bar" role="toolbar" aria-label={t.projects.pageTitle}>
+      {filters.map((filter) => (
+        <button type="button" data-project-filter={filter.id} aria-pressed={filter.id === 'all' ? 'true' : 'false'}>{filter.label}</button>
+      ))}
+    </div>
+
+    <div class="project-index" data-project-index>
+      {projects.map((project) => <ProjectIndexRow project={project} lang={lang} labels={t.projects.labels} />)}
+    </div>
+  </Section>
+</div>
+
+<script>
+  const bindProjectFilters = () => {
+    document.querySelectorAll<HTMLElement>('[data-project-filtering]').forEach((root) => {
+      if (root.dataset.projectFiltersBound === 'true') return;
+      root.dataset.projectFiltersBound = 'true';
+
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-project-filter]');
+      const rows = root.querySelectorAll<HTMLElement>('[data-project-categories]');
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const selected = button.dataset.projectFilter ?? 'all';
+
+          buttons.forEach((candidate) => {
+            candidate.setAttribute('aria-pressed', String(candidate === button));
+          });
+
+          rows.forEach((row) => {
+            const categories = (row.dataset.projectCategories ?? '').split(' ').filter(Boolean);
+            row.hidden = selected !== 'all' && !categories.includes(selected);
+          });
+        });
+      });
+    });
+  };
+
+  document.addEventListener('astro:page-load', bindProjectFilters);
+  bindProjectFilters();
+</script>

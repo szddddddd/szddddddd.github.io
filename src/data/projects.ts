@@ -3,6 +3,13 @@ import type { Locale } from '../i18n';
 export type LocalizedText = Record<Locale, string>;
 export type LinkValue = string | LocalizedText;
 
+export type ProjectCategory = '3d-vision' | 'medical-imaging' | 'creative-coding' | 'coursework';
+
+export type ProjectCover = {
+  src: string;
+  alt: LocalizedText;
+};
+
 export type ProjectSlug =
   | 'arts1308'
   | 'bme1312'
@@ -23,6 +30,8 @@ export type ProjectLinkSet = {
 };
 
 export type Project = {
+  id: ProjectSlug;
+  number: string;
   slug: ProjectSlug;
   sortOrder: number;
   featured: boolean;
@@ -32,13 +41,22 @@ export type Project = {
   course?: string | LocalizedText;
   year: string;
   description: LocalizedText;
+  summary: LocalizedText;
   role?: LocalizedText;
+  categories: ProjectCategory[];
+  displayTags: LocalizedText[];
+  allTags: string[];
   tags: string[];
   image: string;
+  cover: ProjectCover;
+  previewVideo?: string;
+  spatialAccent: string;
   links: ProjectLinkSet;
 };
 
 export const si100bCourseProject: Project = {
+  id: 'si100b',
+  number: '05',
   slug: 'si100b',
   sortOrder: 50,
   featured: false,
@@ -59,12 +77,33 @@ export const si100bCourseProject: Project = {
     zh:
       '一个使用 Pygame 实现的 SI100B: Introduction to Information Science and Technology 期末项目，包含 Isaac 式房间探索、射击、炸弹、障碍物与碰撞系统、NPC 对话、资源 UI 和最终 Boss 战。',
   },
+  summary: {
+    en:
+      'A SI100B: Introduction to Information Science and Technology final project implemented with Pygame, featuring Isaac-style room exploration, shooting, bombs, obstacle and collision systems, NPC dialogue, resource UI, and a final boss encounter.',
+    zh:
+      '一个使用 Pygame 实现的 SI100B: Introduction to Information Science and Technology 期末项目，包含 Isaac 式房间探索、射击、炸弹、障碍物与碰撞系统、NPC 对话、资源 UI 和最终 Boss 战。',
+  },
+  categories: ['coursework'],
+  displayTags: [
+    { en: 'Pygame', zh: 'Pygame' },
+    { en: 'Python', zh: 'Python' },
+    { en: 'Roguelike', zh: 'Roguelike' },
+  ],
+  allTags: ['SI100B', 'Pygame', 'Python', 'Roguelike', 'Game Development', 'Course Project'],
   tags: ['SI100B', 'Pygame', 'Python', 'Roguelike', 'Game Development', 'Course Project'],
   image: '/projects/si100b/cover.png',
+  cover: {
+    src: '/projects/si100b/cover.png',
+    alt: {
+      en: 'Cropped gameplay cover showing the GURDY boss encounter.',
+      zh: '裁切后的 GURDY Boss 房游戏封面图。',
+    },
+  },
+  spatialAccent: '#d98ec8',
   links: {
     details: {
-      en: '/projects/si100b',
-      zh: '/zh/projects/si100b',
+      en: '/projects/si100b/',
+      zh: '/zh/projects/si100b/',
     },
     report: '/projects/si100b/report.pdf',
     code: 'https://github.com/TossACoinTAC/Team-SAVE-MY-LINEAR-ALGEBRA',
@@ -73,6 +112,8 @@ export const si100bCourseProject: Project = {
 };
 
 export const bme1312CourseProject: Project = {
+  id: 'bme1312',
+  number: '02',
   slug: 'bme1312',
   sortOrder: 20,
   featured: true,
@@ -93,6 +134,26 @@ export const bme1312CourseProject: Project = {
     zh:
       '基于深度学习的 MRI 加速重建课程项目，涉及 U-Net baseline、多模态融合、unrolled data consistency、wavelet loss 与 perceptual objectives。',
   },
+  summary: {
+    en:
+      'Deep learning-based accelerated MRI reconstruction using U-Net baselines, multi-modal fusion, unrolled data consistency, wavelet loss, and perceptual objectives.',
+    zh:
+      '基于深度学习的 MRI 加速重建课程项目，涉及 U-Net baseline、多模态融合、unrolled data consistency、wavelet loss 与 perceptual objectives。',
+  },
+  categories: ['medical-imaging', 'coursework'],
+  displayTags: [
+    { en: 'Medical Imaging', zh: '医学影像' },
+    { en: 'MRI Reconstruction', zh: 'MRI 重建' },
+    { en: 'Deep Learning', zh: '深度学习' },
+  ],
+  allTags: [
+    'Medical Imaging',
+    'MRI Reconstruction',
+    'Deep Learning',
+    'U-Net',
+    'Unrolled Network',
+    'Data Consistency',
+  ],
   tags: [
     'Medical Imaging',
     'MRI Reconstruction',
@@ -102,17 +163,26 @@ export const bme1312CourseProject: Project = {
     'Data Consistency',
   ],
   image: '/projects/bme1312/qualitative-comparison.png',
+  cover: {
+    src: '/projects/bme1312/qualitative-comparison.png',
+    alt: {
+      en: 'Qualitative comparison between aliased input, ground truth, baseline, and proposed MRI reconstruction.',
+      zh: '欠采样输入、真实图像、基线与改进 MRI 重建结果的定性对比。',
+    },
+  },
+  spatialAccent: '#e7c46a',
   links: {
     details: {
-      en: '/projects/bme1312',
-      zh: '/zh/projects/bme1312',
+      en: '/projects/bme1312/',
+      zh: '/zh/projects/bme1312/',
     },
     report: '/projects/bme1312/bme1312-mri-reconstruction-report.pdf',
-    code: '',
   },
 };
 
 export const bme1312Proj2CourseProject: Project = {
+  id: 'bme1312-proj2',
+  number: '03',
   slug: 'bme1312-proj2',
   sortOrder: 30,
   featured: true,
@@ -133,18 +203,39 @@ export const bme1312Proj2CourseProject: Project = {
     zh:
       '面向 BraTS 风格多模态脑胶质瘤子区域分割的边界感知 3D attention network。',
   },
+  summary: {
+    en:
+      'Boundary-aware 3D attention network for multi-modal BraTS glioma subregion segmentation.',
+    zh:
+      '面向 BraTS 风格多模态脑胶质瘤子区域分割的边界感知 3D attention network。',
+  },
   role: {
     en:
       'Report writing, result analysis, project presentation integration',
     zh:
       '报告撰写、结果分析、项目展示材料整合',
   },
+  categories: ['medical-imaging', 'coursework'],
+  displayTags: [
+    { en: 'Medical Imaging', zh: '医学影像' },
+    { en: '3D U-Net', zh: '3D U-Net' },
+    { en: 'Attention', zh: '注意力机制' },
+  ],
+  allTags: ['Medical Imaging', 'Brain Tumor Segmentation', '3D U-Net', 'Attention', 'BraTS'],
   tags: ['Medical Imaging', 'Brain Tumor Segmentation', '3D U-Net', 'Attention', 'BraTS'],
   image: '/projects/bme1312-proj2/hba-van-architecture.png',
+  cover: {
+    src: '/projects/bme1312-proj2/hba-van-architecture.png',
+    alt: {
+      en: 'HBA-VAN architecture for multi-modal glioma MRI segmentation.',
+      zh: '用于多模态脑胶质瘤 MRI 分割的 HBA-VAN 网络结构。',
+    },
+  },
+  spatialAccent: '#e7c46a',
   links: {
     details: {
-      en: '/projects/bme1312-proj2',
-      zh: '/zh/projects/bme1312-proj2',
+      en: '/projects/bme1312-proj2/',
+      zh: '/zh/projects/bme1312-proj2/',
     },
     report: '/projects/bme1312-proj2/hba-van-report.pdf',
     slides: '/projects/bme1312-proj2/hba-van-slides.pptx',
@@ -152,6 +243,8 @@ export const bme1312Proj2CourseProject: Project = {
 };
 
 export const cs182CourseProject: Project = {
+  id: 'cs182',
+  number: '01',
   slug: 'cs182',
   sortOrder: 10,
   featured: true,
@@ -172,19 +265,41 @@ export const cs182CourseProject: Project = {
     zh:
       'CS182《机器学习引论》课程项目，使用 SAM2 前景分割、3D Gaussian Splatting 与几何感知 Gaussian pruning 进行物体中心三维重建。',
   },
+  summary: {
+    en:
+      'A CS182 course project for object-centric 3D reconstruction using SAM2-guided masks, 3D Gaussian Splatting, and geometry-aware Gaussian pruning.',
+    zh:
+      'CS182《机器学习引论》课程项目，使用 SAM2 前景分割、3D Gaussian Splatting 与几何感知 Gaussian pruning 进行物体中心三维重建。',
+  },
+  categories: ['3d-vision', 'coursework'],
+  displayTags: [
+    { en: '3D Vision', zh: '三维视觉' },
+    { en: 'Gaussian Splatting', zh: '高斯泼溅' },
+    { en: 'SAM2', zh: 'SAM2' },
+  ],
+  allTags: ['CS182', '3DGS', 'SAM2', 'Object-Centric Reconstruction', 'CO3Dv2'],
   tags: ['CS182', '3DGS', 'SAM2', 'Object-Centric Reconstruction', 'CO3Dv2'],
   image: '/projects/cs182/MOF3R_overview.png',
+  cover: {
+    src: '/projects/cs182/MOF3R_overview.png',
+    alt: {
+      en: 'MOF3R pipeline showing SAM2 masks, mask-guided Gaussian Splatting, and geometry-aware pruning.',
+      zh: 'MOF3R 流程图，包含 SAM2 掩码、掩码引导的高斯泼溅训练与几何感知 pruning。',
+    },
+  },
+  spatialAccent: '#8b7cff',
   links: {
     details: {
-      en: '/projects/cs182',
-      zh: '/zh/projects/cs182',
+      en: '/projects/cs182/',
+      zh: '/zh/projects/cs182/',
     },
     report: '/projects/cs182/report.pdf',
-    code: '',
   },
 };
 
 export const arts1308CourseProject: Project = {
+  id: 'arts1308',
+  number: '06',
   slug: 'arts1308',
   sortOrder: 60,
   featured: false,
@@ -208,6 +323,27 @@ export const arts1308CourseProject: Project = {
     zh:
       '一个基于 Shadertoy 的 GLSL fragment shader 课程作品集，探索程序化图像生成、运动、色彩与像素级视觉表达。',
   },
+  summary: {
+    en:
+      'A collection of GLSL fragment shader artworks created on Shadertoy, exploring procedural image synthesis, motion, color, and pixel-level visual expression.',
+    zh:
+      '一个基于 Shadertoy 的 GLSL fragment shader 课程作品集，探索程序化图像生成、运动、色彩与像素级视觉表达。',
+  },
+  categories: ['creative-coding', 'coursework'],
+  displayTags: [
+    { en: 'Creative Coding', zh: '创意编程' },
+    { en: 'GLSL', zh: 'GLSL' },
+    { en: 'Shadertoy', zh: 'Shadertoy' },
+  ],
+  allTags: [
+    'ARTS1308',
+    'Shadertoy',
+    'GLSL',
+    'Shader Art',
+    'Creative Coding',
+    'Procedural Visuals',
+    'Pixel Shading',
+  ],
   tags: [
     'ARTS1308',
     'Shadertoy',
@@ -218,16 +354,26 @@ export const arts1308CourseProject: Project = {
     'Pixel Shading',
   ],
   image: '/projects/arts1308/shader-06.jpg',
+  cover: {
+    src: '/projects/arts1308/shader-06.jpg',
+    alt: {
+      en: 'cross-sea bridge Shadertoy thumbnail.',
+      zh: 'cross-sea bridge Shadertoy 作品缩略图。',
+    },
+  },
+  spatialAccent: '#d98ec8',
   links: {
     details: {
-      en: '/projects/arts1308',
-      zh: '/zh/projects/arts1308',
+      en: '/projects/arts1308/',
+      zh: '/zh/projects/arts1308/',
     },
     shadertoy: 'https://www.shadertoy.com/user/szd/sort=popular&from=0&num=8',
   },
 };
 
 export const si140aCourseProject: Project = {
+  id: 'si140a',
+  number: '04',
   slug: 'si140a',
   sortOrder: 40,
   featured: false,
@@ -248,18 +394,39 @@ export const si140aCourseProject: Project = {
     zh:
       '基于受控实验数据，对微信红包金额分配机制进行概率建模、蒙特卡洛仿真与统计检验。',
   },
+  summary: {
+    en:
+      'Probabilistic modeling and statistical testing of WeChat Red Envelope allocation mechanisms under controlled experimental data.',
+    zh:
+      '基于受控实验数据，对微信红包金额分配机制进行概率建模、蒙特卡洛仿真与统计检验。',
+  },
   role: {
     en:
       'Mathematical derivation, experiment organization, partial implementation, simulation verification',
     zh:
       '数学推导、实验组织、部分实现、仿真验证',
   },
+  categories: ['coursework'],
+  displayTags: [
+    { en: 'Probability Theory', zh: '概率论' },
+    { en: 'Monte Carlo', zh: '蒙特卡洛' },
+    { en: 'Statistical Testing', zh: '统计检验' },
+  ],
+  allTags: ['Probability Theory', 'Monte Carlo Simulation', 'Statistical Testing', 'Data Analysis'],
   tags: ['Probability Theory', 'Monte Carlo Simulation', 'Statistical Testing', 'Data Analysis'],
   image: '/projects/si140a/cover.png',
+  cover: {
+    src: '/projects/si140a/cover.png',
+    alt: {
+      en: 'WeChat Red Envelope allocation analysis visualization.',
+      zh: '微信红包金额分配机制分析可视化。',
+    },
+  },
+  spatialAccent: '#77e0f5',
   links: {
     details: {
-      en: '/projects/si140a',
-      zh: '/zh/projects/si140a',
+      en: '/projects/si140a/',
+      zh: '/zh/projects/si140a/',
     },
     report: '/projects/si140a/report.pdf',
   },

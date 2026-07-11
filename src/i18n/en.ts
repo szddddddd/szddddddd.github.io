@@ -82,6 +82,7 @@ export const en = {
     eyebrow: 'About',
     pageTitle: 'About',
     title: 'Academic Identity',
+    statement: 'I explore how machines perceive, reconstruct, and imagine three-dimensional worlds.',
     intro:
       'I am an undergraduate student majoring in Computer Science at ShanghaiTech University, affiliated with VRVC Lab. My academic interests focus on visual computing, especially 3D vision, geometry-aware reconstruction, neural rendering, Gaussian Splatting, and generative world models. This website collects my research prototypes, course projects, technical experiments, and visual computing explorations.',
     bio:
@@ -121,9 +122,17 @@ export const en = {
     intro:
       'Selected academic, technical, and course-based projects in computer vision, 3D reconstruction, neural rendering, medical imaging, and creative coding.',
     fullTitle: 'Projects',
+    indexTitle: 'Indexed Works',
     fullIntro:
       'Academic, technical, and course-based projects spanning visual computing, medical imaging, and creative coding.',
     viewAll: 'View all projects',
+    filters: {
+      all: 'All',
+      vision: '3D Vision',
+      medical: 'Medical Imaging',
+      creative: 'Creative Coding',
+      coursework: 'Coursework',
+    },
     labels: {
       details: 'Project Page',
       shadertoy: 'Shadertoy',
@@ -137,15 +146,19 @@ export const en = {
     },
   },
   publications: {
-    eyebrow: 'Publications',
-    pageTitle: 'Publications',
-    title: 'Publications',
-    intro: 'The publication list is intentionally empty until real papers or manuscripts are provided.',
-    empty: 'Publications coming soon.',
-    support: 'The data structure already supports title, authors, venue, year, paper URL, code URL, BibTeX, and DOI.',
+    eyebrow: 'Publications / Technical Reports',
+    pageTitle: 'Publications & Technical Reports',
+    title: 'Publications & Technical Reports',
+    intro: 'Peer-reviewed publications and course project reports.',
+    empty: 'No peer-reviewed publications yet.',
+    peerReviewedTitle: 'Peer-reviewed Publications',
+    technicalReportsTitle: 'Technical Reports',
+    support: 'Course project reports are listed separately from peer-reviewed publications.',
     labels: {
       paper: 'Paper',
+      pdf: 'PDF',
       code: 'Code',
+      project: 'Project',
       bibtex: 'BibTeX',
       doi: 'DOI',
     },
@@ -161,11 +174,14 @@ export const en = {
     viewProjects: 'View Projects',
   },
   notes: {
-    eyebrow: 'Notes / Blog',
-    pageTitle: 'Notes / Blog',
-    title: 'Notes',
-    intro: 'A minimal writing space for future research notes, technical reflections, and reading summaries.',
-    empty: 'Notes coming soon.',
+    eyebrow: 'Research Notebook',
+    pageTitle: 'Research Notebook',
+    title: 'Research Notebook',
+    intro: 'Reading notes, experiments, and technical reflections.',
+    empty: 'No public entries yet. This notebook will document reading, experiments, and technical reflections.',
+    entryCount: '0 entries',
+    backToProjects: 'Back to Projects',
+    topics: ['Reading Notes', 'Methods', 'Derivations', 'Experiments', 'Visual Computing'],
   },
   si140a: {
     metaTitle: 'SI140A WeChat Red Envelope Probability Project — Song Zidong',

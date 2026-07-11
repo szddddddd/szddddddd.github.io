@@ -1,14 +1,3 @@
-export type Publication = {
-  title: string;
-  authors: string;
-  venue: string;
-  year: string;
-  paperUrl: string;
-  codeUrl: string;
-  bibtex: string;
-  doi: string;
-};
-
 export const profile = {
   nameZh: '宋梓冬',
   nameEn: 'Song Zidong',
@@ -36,15 +25,14 @@ export const profile = {
     },
   },
   researchInterests: [
-    'Computer Vision',
+    '3D Vision',
     '3D Reconstruction',
-    'Gaussian Splatting',
     'Neural Rendering',
-    'World Models',
+    'Gaussian Splatting',
+    'Generative World Models',
   ],
   cv: {
     label: 'Coming soon',
     url: '',
   },
-  publications: [] satisfies Publication[],
 };

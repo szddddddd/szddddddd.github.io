@@ -1,0 +1,86 @@
+import type { RouteId } from '../../config/routes';
+
+export type RouteScenePreset = 'research-map' | 'identity-field' | 'media-flow' | 'citation-grid' | 'knowledge-network';
+
+export type RouteTransitionPreset = Readonly<{
+  duration: number;
+}>;
+
+export type RouteState = Readonly<{
+  camera: Readonly<{
+    position: readonly [number, number, number];
+    target: readonly [number, number, number];
+  }>;
+  particleDensity: number;
+  flowStrength: number;
+  noiseScale: number;
+  primaryColor: string;
+  secondaryColor: string;
+  bloomIntensity: number;
+  vignetteIntensity: number;
+  scenePreset: RouteScenePreset;
+  transition: RouteTransitionPreset;
+}>;
+
+export const routeStates: Record<RouteId, RouteState> = {
+  home: {
+    camera: { position: [0, 1.4, 11], target: [0, 0, 0] },
+    particleDensity: 0.86,
+    flowStrength: 0.16,
+    noiseScale: 2.55,
+    primaryColor: '#77e0f5',
+    secondaryColor: '#8b7cff',
+    bloomIntensity: 0.32,
+    vignetteIntensity: 0.28,
+    scenePreset: 'research-map',
+    transition: { duration: 560 },
+  },
+  about: {
+    camera: { position: [4.8, 1.8, 9.2], target: [1.4, 0.2, 0] },
+    particleDensity: 0.64,
+    flowStrength: 0.08,
+    noiseScale: 2.05,
+    primaryColor: '#65d8cb',
+    secondaryColor: '#77e0f5',
+    bloomIntensity: 0.22,
+    vignetteIntensity: 0.22,
+    scenePreset: 'identity-field',
+    transition: { duration: 520 },
+  },
+  projects: {
+    camera: { position: [10.4, 2.5, 10.6], target: [7, 0.25, 0] },
+    particleDensity: 0.78,
+    flowStrength: 0.28,
+    noiseScale: 3.1,
+    primaryColor: '#8b7cff',
+    secondaryColor: '#77e0f5',
+    bloomIntensity: 0.3,
+    vignetteIntensity: 0.24,
+    scenePreset: 'media-flow',
+    transition: { duration: 600 },
+  },
+  publications: {
+    camera: { position: [15.6, 1.4, 10.2], target: [12, 0, 0] },
+    particleDensity: 0.32,
+    flowStrength: 0.035,
+    noiseScale: 1.6,
+    primaryColor: '#e7c46a',
+    secondaryColor: '#f2f0e9',
+    bloomIntensity: 0.12,
+    vignetteIntensity: 0.18,
+    scenePreset: 'citation-grid',
+    transition: { duration: 480 },
+  },
+  notes: {
+    camera: { position: [20.4, 1.8, 10.4], target: [17.2, 0.3, 0] },
+    particleDensity: 0.58,
+    flowStrength: 0.11,
+    noiseScale: 2.25,
+    primaryColor: '#d98ec8',
+    secondaryColor: '#8b7cff',
+    bloomIntensity: 0.2,
+    vignetteIntensity: 0.27,
+    scenePreset: 'knowledge-network',
+    transition: { duration: 540 },
+  },
+};

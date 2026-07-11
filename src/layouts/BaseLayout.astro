@@ -1,11 +1,13 @@
 ---
-import Navbar from '../components/navigation/Navbar.astro';
-import RSUIRoot from '../components/rsui/RSUIRoot.astro';
-import VisualBackground from '../components/visual/VisualBackground.astro';
+import { ClientRouter } from 'astro:transitions';
+import AppShell from '../components/layout/AppShell.astro';
+import { getRouteForPage } from '../config/routes';
+import { site } from '../config/site';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang, type PageKey } from '../i18n';
-import { getSpatialPage } from '../navigation/PageState';
 import '../styles/global.css';
+import '../styles/navigation.css';
+import '../styles/pages/atlas.css';
 
 interface Props {
   lang: Lang;
@@ -16,44 +18,21 @@ interface Props {
 
 const { lang, page, title, description } = Astro.props as Props;
 const t = getCopy(lang);
-const pageTitle = title ?? t.meta.siteTitle;
-const pageDescription = description ?? t.meta.description;
-const canonical = Astro.site ? new URL(getPath(lang, page), Astro.site).toString() : Astro.url.href;
-const alternateEn = Astro.site ? new URL(getPath('en', page), Astro.site).toString() : getPath('en', page);
-const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toString() : getPath('zh', page);
-const spatialPage = getSpatialPage(page);
+const route = getRouteForPage(page);
+const canonicalPage = page === 'coursework' ? 'projects' : page;
+const pageTitle = title ?? `${route.label[lang]} | ${profile.display[lang].name}`;
+const pageDescription = description ?? route.description[lang];
+const siteUrl = Astro.site ?? new URL(site.url);
+const canonical = new URL(getPath(lang, canonicalPage), siteUrl).toString();
+const alternateEn = new URL(getPath('en', canonicalPage), siteUrl).toString();
+const alternateZh = new URL(getPath('zh', canonicalPage), siteUrl).toString();
 ---
 
 <!doctype html>
 <html lang={t.htmlLang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="theme-color" content="#070a12" id="theme-color-meta" />
-    <script is:inline>
-      (() => {
-        const darkThemeColor = '#070a12';
-        const lightThemeColor = '#f8f5ee';
-
-        try {
-          const storedTheme = localStorage.getItem('theme');
-          const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
-          const storedMotion = localStorage.getItem('motion');
-          const motionEnabled = storedMotion !== 'off' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          document.documentElement.dataset.theme = theme;
-          document.documentElement.dataset.motion = motionEnabled ? 'enabled' : 'reduced';
-          document.documentElement.style.colorScheme = theme;
-
-          const themeColor = document.querySelector('meta[name="theme-color"]');
-          if (themeColor) {
-            themeColor.setAttribute('content', theme === 'light' ? lightThemeColor : darkThemeColor);
-          }
-        } catch {
-          document.documentElement.dataset.theme = 'dark';
-          document.documentElement.dataset.motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'enabled';
-          document.documentElement.style.colorScheme = 'dark';
-        }
-      })();
-    </script>
+    <meta name="theme-color" content="#05070b" id="theme-color-meta" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={pageDescription} />
     <link rel="canonical" href={canonical} />
@@ -69,22 +48,37 @@ const spatialPage = getSpatialPage(page);
     <meta name="twitter:card" content="summary" />
     <meta name="author" content={profile.nameEn} />
     <title>{pageTitle}</title>
+    <ClientRouter />
+    <script is:inline>
+      (() => {
+        const darkThemeColor = '#05070b';
+        const lightThemeColor = '#f6f7f4';
+        try {
+          const storedTheme = localStorage.getItem('theme');
+          const theme = storedTheme === 'light' ? 'light' : 'dark';
+          const motion = localStorage.getItem('motion') !== 'off' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.dataset.motion = motion ? 'enabled' : 'reduced';
+          document.documentElement.style.colorScheme = theme;
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? lightThemeColor : darkThemeColor);
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.dataset.motion = 'enabled';
+        }
+      })();
+    </script>
   </head>
-  <body data-rsui-page={spatialPage} data-rsui-route-key={page}>
+  <body data-page-key={page} data-spatial-route={route.id} style={`--page-accent:${route.accent};`}>
     <a class="skip-link" href="#main-content">{t.common.skipToContent}</a>
-    <RSUIRoot />
-    <VisualBackground />
-    <Navbar lang={lang} page={page} />
-    <main id="main-content" data-rsui-main data-rsui-page={spatialPage} data-rsui-route-key={page} tabindex="-1" class:list={[page === 'home' && 'home-main']}>
+    <AppShell lang={lang} page={page}>
       <slot />
-    </main>
-    <footer class="site-footer" data-rsui-footer>
-      <p>© {new Date().getFullYear()} {lang === 'zh' ? profile.nameZh : profile.nameEn}. {t.common.builtWith}</p>
-    </footer>
+    </AppShell>
     <script>
-      import { bootRSUI } from '../core/bootstrap';
+      import { bootSpatialUI } from '../spatial/core/bootstrap';
 
-      void bootRSUI();
+      const boot = () => void bootSpatialUI();
+      document.addEventListener('astro:page-load', boot);
+      boot();
     </script>
   </body>
 </html>

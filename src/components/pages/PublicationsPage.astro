@@ -1,0 +1,42 @@
+---
+import type { Lang } from '../../i18n';
+import { getCopy } from '../../i18n';
+import { peerReviewed, technicalReports } from '../../data/publications';
+import PublicationItem from '../publications/PublicationItem.astro';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+const peerReviewedCount = String(peerReviewed.length).padStart(2, '0');
+const technicalReportCount = String(technicalReports.length).padStart(2, '0');
+---
+
+<div class="page-stack publications-page">
+  <section class="page-hero page-hero-compact" aria-labelledby="publications-page-title">
+    <p class="eyebrow" transition:name="page-index">03 / {t.nav.publications}</p>
+    <h1 id="publications-page-title" transition:name="page-main-title">{t.publications.pageTitle}</h1>
+    <p>{t.publications.intro}</p>
+  </section>
+
+  <Section id="peer-reviewed" eyebrow={`${t.publications.peerReviewedTitle} / ${peerReviewedCount}`}>
+    {
+      peerReviewed.length > 0 ? (
+        <div class="publication-list">
+          {peerReviewed.map((publication) => <PublicationItem publication={publication} lang={lang} labels={t.publications.labels} />)}
+        </div>
+      ) : (
+        <p class="publication-empty">{t.publications.empty}</p>
+      )
+    }
+  </Section>
+
+  <Section id="technical-reports" eyebrow={`${t.publications.technicalReportsTitle} / ${technicalReportCount}`}>
+    <div class="publication-list">
+      {technicalReports.map((publication) => <PublicationItem publication={publication} lang={lang} labels={t.publications.labels} />)}
+    </div>
+  </Section>
+</div>

@@ -1,0 +1,76 @@
+.spatial-ui-persistence,
+[data-spatial-ui-root] {
+  display: contents;
+}
+
+[data-spatial-ui-root] {
+  pointer-events: none;
+}
+
+[data-spatial-fallback],
+[data-spatial-host] {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+[data-spatial-fallback] {
+  z-index: 0;
+  background-color: var(--color-bg, #05070b);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 1;
+}
+
+[data-spatial-fallback]::before,
+[data-spatial-fallback]::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
+[data-spatial-fallback]::before {
+  background-image: repeating-linear-gradient(125deg, transparent 0 52px, rgba(119, 224, 245, 0.06) 53px, transparent 54px 136px);
+  opacity: 0.68;
+}
+
+[data-spatial-fallback]::after {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+[data-spatial-host] {
+  z-index: 0;
+  contain: strict;
+}
+
+[data-spatial-host] canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+html[data-spatial-webgl='ready'] [data-spatial-fallback] {
+  opacity: 0.32;
+}
+
+html[data-theme='light'] [data-spatial-fallback] {
+  background-color: #edf0ef;
+  background-image:
+    linear-gradient(rgba(16, 27, 39, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 27, 39, 0.06) 1px, transparent 1px);
+}
+
+html[data-theme='light'] [data-spatial-fallback]::before {
+  background-image: repeating-linear-gradient(125deg, transparent 0 52px, rgba(25, 119, 140, 0.09) 53px, transparent 54px 136px);
+}
+
+@media (max-width: 767px) {
+  [data-spatial-fallback] {
+    background-size: 54px 54px;
+  }
+}

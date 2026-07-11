@@ -36,8 +36,8 @@ const links = [
   <article class="project-detail">
     <header class="project-detail-hero">
       <div class="detail-hero-copy reveal-block">
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
-        <h1 class="project-detail-title">
+        <p class="eyebrow" transition:name="page-index">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name="project-title-bme1312">
           {titleLines.map((line) => <span>{line}</span>)}
         </h1>
         <p class="detail-subtitle">{copy.hero.subtitle}</p>
@@ -49,7 +49,7 @@ const links = [
           {
             links.map((link) =>
               link.value ? (
-                <a class="button button-secondary" href={link.value}>{link.label}</a>
+                <a class="button button-secondary" href={link.value} data-astro-reload>{link.label}</a>
               ) : (
                 <span class="button button-disabled" aria-disabled="true">{link.label}: {t.common.comingSoon}</span>
               )
@@ -58,7 +58,7 @@ const links = [
         </div>
       </div>
       <figure class="detail-hero-figure reveal-block">
-        <img src={project.image} alt={copy.gallery[3].alt} loading="eager" />
+        <img src={project.cover.src} alt={project.cover.alt[lang]} loading="eager" transition:name="project-cover-bme1312" />
         <figcaption>{copy.gallery[3].caption}</figcaption>
       </figure>
     </header>

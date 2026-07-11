@@ -1,13 +1,14 @@
 ---
-import SpatialHero from '../visual/SpatialHero.astro';
-import NeuralIonHero from '../visual/NeuralIonHero.astro';
-import ProjectIndexRow from '../projects/ProjectIndexRow.astro';
-import PublicationItem from '../publications/PublicationItem.astro';
-import Section from '../ui/Section.astro';
+import type { Lang, PageKey } from '../../i18n';
+import { getCopy, getPath } from '../../i18n';
 import { profile } from '../../data/profile';
-import { projects } from '../../data/projects';
-import { getCopy, getPath, type Lang, type PageKey } from '../../i18n';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import AboutPage from '../pages/AboutPage.astro';
+import HomePage from '../pages/HomePage.astro';
+import NotesPage from '../pages/NotesPage.astro';
+import ProjectsPage from '../pages/ProjectsPage.astro';
+import PublicationsPage from '../pages/PublicationsPage.astro';
+import Section from '../ui/Section.astro';
 
 interface Props {
   lang: Lang;
@@ -28,9 +29,9 @@ const titles: Record<PageKey, string> = {
   projectCs182: t.cs182.metaTitle,
   projectSi100b: t.si100b.metaTitle,
   projectArts1308: t.arts1308.metaTitle,
-  publications: `${t.nav.publications} — ${display.name}`,
+  publications: t.publications.pageTitle,
   coursework: `${t.nav.coursework} — ${display.name}`,
-  notes: `${t.nav.notes} — ${display.name}`,
+  notes: t.notes.pageTitle,
 };
 
 const descriptions: Record<PageKey, string> = {
@@ -47,144 +48,32 @@ const descriptions: Record<PageKey, string> = {
   coursework: t.coursework.intro,
   notes: t.notes.intro,
 };
-
-const identityRows = [
-  { label: t.hero.identityLabels.role, value: display.role },
-  { label: t.hero.identityLabels.university, value: display.university },
-  { label: t.hero.identityLabels.lab, value: profile.lab },
-  { label: t.hero.identityLabels.major, value: display.major },
-];
-
 ---
 
 <BaseLayout lang={lang} page={page} title={titles[page]} description={descriptions[page]}>
-  {page === 'home' && <SpatialHero lang={lang} />}
+  {page === 'home' && <HomePage lang={lang} />}
+  {page === 'about' && <AboutPage lang={lang} />}
+  {page === 'projects' && <ProjectsPage lang={lang} />}
+  {page === 'publications' && <PublicationsPage lang={lang} />}
+  {page === 'notes' && <NotesPage lang={lang} />}
 
-  {page === 'about' && (
-    <div class="page-stack">
-      <section class="page-hero page-hero-compact about-page-hero">
-        <h1>{t.about.pageTitle}</h1>
-        <p>{t.about.intro}</p>
-      </section>
-
-      <section class="section about-compact-section">
-        <div class="about-identity-space">
-          <div class="section-body about-compact-layout">
-            <article class="panel about-info-card" aria-label={t.about.identityTitle}>
-              <dl class="fact-list about-fact-grid">
-                {identityRows.map((item) => (
-                  <div>
-                    <dt>{item.label}</dt>
-                    <dd>{item.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </article>
-
-            <div class="about-interest-block" aria-label={t.about.interestsTitle}>
-              <ul class="tag-list about-interest-tags">
-                {profile.researchInterests.map((interest) => <li>{interest}</li>)}
-              </ul>
-            </div>
-
-            <article class="panel about-contact-panel" aria-label={t.about.contactTitle}>
-              <div class="about-contact-copy">
-                <p class="panel-label">{t.about.contactTitle}</p>
-                <p>{t.about.contactIntro}</p>
-              </div>
-              <div class="contact-grid about-contact-grid">
-                <article class="about-contact-item">
-                  <p class="panel-label">{t.about.contactLabels.email}</p>
-                  <a class="contact-link" href={`mailto:${profile.email}`}>{profile.email}</a>
-                </article>
-                <article class="about-contact-item">
-                  <p class="panel-label">{t.about.contactLabels.github}</p>
-                  <a class="contact-link" href={profile.githubUrl} target="_blank" rel="noreferrer">{profile.githubUrl}</a>
-                </article>
-                <article class="about-contact-item">
-                  <p class="panel-label">{t.about.contactLabels.cv}</p>
-                  <p class="contact-link muted">{t.common.comingSoon}</p>
-                </article>
-              </div>
-            </article>
-          </div>
-          <div class="about-neural-visual">
-            <NeuralIonHero label={t.hero.visualIndex} />
-          </div>
-        </div>
-      </section>
-    </div>
-  )}
-
-  {page === 'projects' && (
-    <div class="page-stack">
-      <section class="page-hero page-hero-compact">
-        <h1>{t.projects.pageTitle}</h1>
-        <p>{t.projects.fullIntro}</p>
-      </section>
-
-      <Section>
-        <div class="project-index">
-          {projects.map((project) => <ProjectIndexRow project={project} lang={lang} labels={t.projects.labels} comingSoon={t.common.comingSoon} placeholder={t.common.placeholder} />)}
-        </div>
-      </Section>
-    </div>
-  )}
-
-  {page === 'publications' && (
-    <div class="page-stack">
-      <section class="page-hero page-hero-compact">
-        <h1>{t.publications.pageTitle}</h1>
-        <p>{t.publications.intro}</p>
-      </section>
-
-      <Section>
-        {profile.publications.length > 0 ? (
-          <div class="publication-list">
-            {profile.publications.map((publication) => (
-              <PublicationItem publication={publication} labels={t.publications.labels} comingSoon={t.common.comingSoon} />
-            ))}
-          </div>
-        ) : (
-          <div class="empty-state">
-            <span>{t.common.comingSoon}</span>
-            <p>{t.publications.empty}</p>
-          </div>
-        )}
-      </Section>
-    </div>
-  )}
-
-  {page === 'coursework' && (
-    <div class="page-stack">
-      <section class="page-hero page-hero-compact">
-        <h1>{t.coursework.pageTitle}</h1>
-        <p>{t.coursework.mergedIntro}</p>
-      </section>
-
-      <Section>
-        <div class="empty-state coursework-merged-notice">
-          <span>{t.coursework.mergedTitle}</span>
+  {
+    page === 'coursework' && (
+      <div class="page-stack">
+        <section class="page-hero page-hero-compact">
+          <p class="eyebrow">02 / {t.nav.projects}</p>
+          <h1>{t.coursework.pageTitle}</h1>
           <p>{t.coursework.mergedIntro}</p>
-          <a class="button button-secondary" href={getPath(lang, 'projects')}>{t.coursework.viewProjects}</a>
-        </div>
-      </Section>
-    </div>
-  )}
+        </section>
 
-  {page === 'notes' && (
-    <div class="page-stack">
-      <section class="page-hero page-hero-compact">
-        <h1>{t.notes.pageTitle}</h1>
-        <p>{t.notes.intro}</p>
-      </section>
-
-      <Section>
-        <div class="empty-state">
-          <span>{t.common.comingSoon}</span>
-          <p>{t.notes.empty}</p>
-        </div>
-      </Section>
-    </div>
-  )}
+        <Section>
+          <div class="coursework-merged-notice">
+            <p class="panel-label">{t.coursework.mergedTitle}</p>
+            <p>{t.coursework.mergedIntro}</p>
+            <a class="text-link" href={getPath(lang, 'projects')}>{t.coursework.viewProjects}</a>
+          </div>
+        </Section>
+      </div>
+    )
+  }
 </BaseLayout>

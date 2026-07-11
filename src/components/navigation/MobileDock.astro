@@ -1,0 +1,27 @@
+---
+import { primaryRoutes, type Lang } from '../../i18n';
+import type { RouteDefinition } from '../../config/routes';
+
+interface Props {
+  lang: Lang;
+  activeId: string;
+}
+
+const { lang, activeId } = Astro.props as Props;
+const routes = primaryRoutes as readonly RouteDefinition[];
+---
+
+<nav class="mobile-dock" aria-label={lang === 'zh' ? '主导航' : 'Primary navigation'}>
+  {routes.map((route) => (
+    <a
+      href={route.path[lang]}
+      class:list={[route.id === activeId && 'is-active']}
+      aria-current={route.id === activeId ? 'page' : undefined}
+      data-spatial-preview={route.id}
+      style={`--route-accent:${route.accent};`}
+    >
+      <span>{route.index}</span>
+      <small>{route.shortLabel[lang]}</small>
+    </a>
+  ))}
+</nav>

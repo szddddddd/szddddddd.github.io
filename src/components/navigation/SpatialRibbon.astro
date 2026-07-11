@@ -1,0 +1,118 @@
+---
+import { getPath, primaryRoutes, type Lang, type PageKey } from '../../i18n';
+import { getRouteForPage, type RouteDefinition } from '../../config/routes';
+import { profile } from '../../data/profile';
+import LanguageToggle from './LanguageToggle.astro';
+import MobileDock from './MobileDock.astro';
+import SpatialIndexOverlay from './SpatialIndexOverlay.astro';
+import SpatialRouteTab from './SpatialRouteTab.astro';
+import MotionToggle from '../ui/MotionToggle.astro';
+import ThemeToggle from '../ui/ThemeToggle.astro';
+
+interface Props {
+  lang: Lang;
+  page: PageKey;
+}
+
+const { lang, page } = Astro.props as Props;
+const activeRoute = getRouteForPage(page);
+const routes = primaryRoutes as readonly RouteDefinition[];
+const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
+---
+
+<header class="spatial-ribbon" data-spatial-ribbon data-active-route={activeRoute.id} style={`--active-accent:${activeRoute.accent};`}>
+  <div class="spatial-ribbon__desktop">
+    <a class="spatial-ribbon__brand" href={getPath(lang, 'home')} aria-label={`${profile.display[lang].name} home`} transition:name="spatial-brand">
+      <strong>SZD</strong><span>/ {activeRoute.index}</span>
+    </a>
+    <nav class="spatial-ribbon__routes" aria-label={lang === 'zh' ? '主导航' : 'Primary navigation'}>
+      {routes.map((route) => <SpatialRouteTab route={route} lang={lang} active={route.id === activeRoute.id} />)}
+    </nav>
+    <div class="spatial-ribbon__tools">
+      <LanguageToggle lang={lang} page={page} />
+      <ThemeToggle lang={lang} />
+      <MotionToggle lang={lang} />
+    </div>
+  </div>
+
+  <div class="spatial-ribbon__compact">
+    <a class="spatial-ribbon__brand" href={getPath(lang, 'home')} aria-label={`${profile.display[lang].name} home`}><strong>SZD</strong><span>/ {activeRoute.index}</span></a>
+    <span class="spatial-ribbon__current">{activeRoute.shortLabel[lang]}</span>
+    <button class="index-control" type="button" data-spatial-index-trigger aria-expanded="false" aria-controls="spatial-index-dialog">{indexLabel}</button>
+    <div class="spatial-ribbon__tools">
+      <LanguageToggle lang={lang} page={page} />
+      <ThemeToggle lang={lang} />
+      <MotionToggle lang={lang} />
+    </div>
+  </div>
+
+  <SpatialIndexOverlay lang={lang} activeId={activeRoute.id} />
+</header>
+
+<MobileDock lang={lang} activeId={activeRoute.id} />
+
+<script>
+  const emitPreview = (route: string | undefined) => {
+    if (!route) return;
+    document.dispatchEvent(new CustomEvent('spatial:nav-preview', { detail: { route } }));
+  };
+
+  const clearPreview = () => document.dispatchEvent(new CustomEvent('spatial:nav-preview-end'));
+
+  const bindSpatialNavigation = () => {
+    document.querySelectorAll<HTMLElement>('[data-spatial-preview]').forEach((element) => {
+      if (element.dataset.spatialPreviewBound === 'true') return;
+      element.dataset.spatialPreviewBound = 'true';
+      element.addEventListener('pointerenter', () => emitPreview(element.dataset.spatialPreview));
+      element.addEventListener('pointerleave', clearPreview);
+      element.addEventListener('focus', () => emitPreview(element.dataset.spatialPreview));
+      element.addEventListener('blur', clearPreview);
+    });
+
+    const dialog = document.querySelector<HTMLDialogElement>('[data-spatial-index-dialog]');
+    const trigger = document.querySelector<HTMLButtonElement>('[data-spatial-index-trigger]');
+    const close = document.querySelector<HTMLButtonElement>('[data-spatial-index-close]');
+    if (!dialog || !trigger || trigger.dataset.spatialIndexBound === 'true') return;
+
+    trigger.dataset.spatialIndexBound = 'true';
+    trigger.addEventListener('click', () => {
+      trigger.setAttribute('aria-expanded', 'true');
+      dialog.showModal();
+    });
+    close?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => {
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.focus();
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  };
+
+  const syncRibbonScroll = () => {
+    const ribbon = document.querySelector<HTMLElement>('[data-spatial-ribbon]');
+    const progress = ribbon?.querySelector<HTMLElement>('.spatial-route-tab.is-active .spatial-route-tab__progress');
+    if (!ribbon || !progress) return;
+    const documentHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const percentage = Math.min(100, Math.max(0, (window.scrollY / documentHeight) * 100));
+    ribbon.dataset.scrolled = String(window.scrollY > 20);
+    progress.style.setProperty('--scroll-progress', `${percentage}%`);
+  };
+
+  const bindRibbonScroll = () => {
+    const appWindow = window as Window & { __spatialRibbonScrollBound?: boolean };
+    if (!appWindow.__spatialRibbonScrollBound) {
+      appWindow.__spatialRibbonScrollBound = true;
+      window.addEventListener('scroll', syncRibbonScroll, { passive: true });
+      window.addEventListener('resize', syncRibbonScroll, { passive: true });
+    }
+    syncRibbonScroll();
+  };
+
+  document.addEventListener('astro:page-load', () => {
+    bindSpatialNavigation();
+    bindRibbonScroll();
+  });
+  bindSpatialNavigation();
+  bindRibbonScroll();
+</script>

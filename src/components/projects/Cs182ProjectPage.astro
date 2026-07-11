@@ -39,8 +39,8 @@ const compoundLoss = copy.lossCards[2];
   <article class="project-detail cs182-detail">
     <header class="project-detail-hero">
       <div class="detail-hero-copy reveal-block">
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
-        <h1 class="project-detail-title">{copy.hero.title}</h1>
+        <p class="eyebrow" transition:name="page-index">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name="project-title-cs182">{copy.hero.title}</h1>
         <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
         <p class="detail-affiliation">{copy.hero.affiliation}</p>
         <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
@@ -50,20 +50,24 @@ const compoundLoss = copy.lossCards[2];
           <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
           {
             reportHref ? (
-              <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>
+              <a class="button button-secondary" href={reportHref} data-astro-reload>{t.projects.labels.report}</a>
             ) : (
               <span class="button button-disabled" aria-disabled="true">{t.projects.labels.report}: {t.common.comingSoon}</span>
             )
           }
           {
             codeHref ? (
-              <a class="button button-secondary" href={codeHref}>{t.projects.labels.code}</a>
+              <a class="button button-secondary" href={codeHref} data-astro-reload>{t.projects.labels.code}</a>
             ) : (
               <span class="button button-disabled" aria-disabled="true">{t.projects.labels.code}: {t.common.comingSoon}</span>
             )
           }
         </div>
       </div>
+      <figure class="detail-hero-figure reveal-block">
+        <img src={project.cover.src} alt={project.cover.alt[lang]} loading="eager" transition:name="project-cover-cs182" />
+        <figcaption>{project.title[lang]}</figcaption>
+      </figure>
     </header>
 
     <section class="metadata-grid" aria-label="Project metadata">

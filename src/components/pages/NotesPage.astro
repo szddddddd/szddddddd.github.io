@@ -1,0 +1,31 @@
+---
+import type { Lang } from '../../i18n';
+import { getCopy, getPath } from '../../i18n';
+import Section from '../ui/Section.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = getCopy(lang);
+---
+
+<div class="page-stack notes-page">
+  <section class="page-hero page-hero-compact" aria-labelledby="notes-page-title">
+    <p class="eyebrow" transition:name="page-index">04 / {t.nav.notes}</p>
+    <h1 id="notes-page-title" transition:name="page-main-title">{t.notes.pageTitle}</h1>
+    <p>{t.notes.intro}</p>
+  </section>
+
+  <Section>
+    <div class="notes-index" data-notes-index>
+      <p class="panel-label">{t.notes.entryCount}</p>
+      <ul class="tag-list" aria-label={t.notes.pageTitle}>
+        {t.notes.topics.map((topic) => <li>{topic}</li>)}
+      </ul>
+      <p class="notes-empty">{t.notes.empty}</p>
+      <a class="text-link" href={getPath(lang, 'projects')}>{t.notes.backToProjects}</a>
+    </div>
+  </Section>
+</div>

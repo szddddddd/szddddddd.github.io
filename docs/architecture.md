@@ -1,30 +1,41 @@
-# Architecture
+# Architecture Guide
 
-## Rendering layers
+## Entry Points
 
-`src/pages/` is the route entry layer. English pages keep their established paths and Chinese pages keep their `/zh/` paths. Most standard pages render `components/layout/LocalizedPage.astro`; project detail routes render their dedicated component in `components/projects/` because their research content and visual structure differ.
+`src/pages/` and `src/pages/zh/` are thin locale wrappers. Standard routes render `components/layout/LocalizedPage.astro`; project detail wrappers render their existing dedicated components with a locale prop.
 
-`layouts/BaseLayout.astro` owns document metadata, theme initialization, skip navigation, the shared header, background decoration, and the page footer. It receives locale and page keys from page-level components.
+`layouts/BaseLayout.astro` owns metadata, `ClientRouter`, theme/motion initialization, skip navigation, and `AppShell`. `AppShell` renders the shared Spatial Ribbon, persisted `SpatialUIRoot`, main landmark, and footer.
 
-## Data and localization
+## Routing and Localization
 
-`src/data/profile.ts` contains personal information and publication records. `src/data/projects.ts` is the single project registry and owns stable slugs, ordering, list metadata, covers, and public links. Long-form English and Chinese project copy remains in `src/i18n/en.ts` and `src/i18n/zh.ts`.
+Use `src/config/routes.ts` for all route questions:
 
-`src/i18n/index.ts` owns locale types, route mapping, localized path generation, and language detection. Do not duplicate public route strings in components.
+- `routes` defines the five primary sections.
+- `pagePaths` defines primary, detail, and legacy compatibility paths.
+- `getRouteForPath()` resolves active navigation and spatial preset ownership.
+- `getPath()` resolves localized links.
 
-## Components and styles
+Do not create another navigation array or duplicate path strings in a component. `/coursework/` and `/zh/coursework/` are retained compatibility pages with Projects canonical metadata; they are not navigation items.
 
-- `components/navigation/` owns navigation controls.
-- `components/ui/` contains reusable UI primitives without page-specific content.
-- `components/projects/` contains project list and detail presentation.
-- `components/visual/` owns background and homepage visual components.
-- `styles/tokens.css` defines global design tokens and theme values.
-- `styles/global.css` contains global layout and shared component styles.
-- `styles/visual/` contains visual-effect-specific CSS.
-- `scripts/visual/` contains the WebGL field implementations.
+## Spatial Lifecycle
 
-This separation is organizational only: visual rules and scripts keep their existing behavior and are imported by the same visual components.
+`SpatialUIRoot` persists through Astro transitions. `bootSpatialUI()` creates the singleton only when a spatial host exists. The engine starts once and is not recreated after route swaps.
 
-## Asset boundary
+`SpatialRouteController` observes `astro:before-preparation`, `astro:after-swap`, and `astro:page-load`, then maps the current URL to `routeStates`. Astro retains ownership of history and page DOM. `RouteTransition` owns only camera/uniform tweening.
 
-Only `public/` is copied to stable public URLs. Original course assets live under `source-materials/` and are not site build inputs. When a report should be public, place the intended public copy under `public/projects/<slug>/` and reference it with its root-relative URL.
+For a new primary route, add a route config entry and matching `routeStates` entry, then create the page wrapper/component. Do not add a second renderer, RAF loop, router, or global event bus.
+
+## Performance Rules
+
+- Keep one `WebGLRenderer`, one canvas, and one `AnimationLoop`.
+- Reuse materials through `ShaderRegistry` and release acquired resources through `ResourceManager`.
+- Do not construct vectors, colors, shader strings, textures, or materials every frame.
+- Keep mobile/reduced quality at DPR `1`; full quality is capped at `1.5`.
+- Do not add full-screen post-process stacks without profiling.
+- Canvas failure must leave the CSS fallback and semantic DOM fully usable.
+
+## Content Boundaries
+
+`public/projects/` is the only source for browser-facing images, PDFs, PPTX files, and downloadable assets. `source-materials/` preserves original reports, TeX, slides, and documents but is never a web asset source.
+
+`data/projects.ts` is the fact source for project listings and links. `data/publications.ts` uses project IDs for course technical reports. Long project prose stays in the matching locale data module.

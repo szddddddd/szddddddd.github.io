@@ -1,44 +1,56 @@
 ---
-import type { Publication } from '../../data/profile';
+import type { PublicationRecord } from '../../data/publications';
+import { getProject, type LinkValue } from '../../data/projects';
+import type { Lang } from '../../i18n';
 
 interface Props {
-  publication: Publication;
+  publication: PublicationRecord;
+  lang: Lang;
   labels: {
-    paper: string;
+    pdf: string;
     code: string;
-    bibtex: string;
-    doi: string;
+    project: string;
   };
-  comingSoon: string;
 }
 
-const { publication, labels, comingSoon } = Astro.props as Props;
+const { publication, lang, labels } = Astro.props as Props;
+const project = publication.projectId ? getProject(publication.projectId) : undefined;
+const resolveLink = (value: LinkValue | undefined) => (typeof value === 'string' ? value : value?.[lang] ?? '');
+const title = publication.title?.[lang] ?? project?.title[lang] ?? '';
+const authors = publication.authors?.[lang];
+const venue = publication.venue?.[lang] ?? (project?.course ? (typeof project.course === 'string' ? project.course : project.course[lang]) : '');
+const year = publication.year ?? project?.year ?? '';
 const links = [
-  { label: labels.paper, value: publication.paperUrl },
-  { label: labels.code, value: publication.codeUrl },
-  { label: labels.bibtex, value: publication.bibtex },
-  { label: labels.doi, value: publication.doi },
-];
-const isUrl = (value: string) => value.startsWith('http') || value.startsWith('/') || value.startsWith('mailto:');
+  { label: labels.pdf, href: resolveLink(project?.links.report) },
+  { label: labels.code, href: resolveLink(project?.links.code) },
+  { label: labels.project, href: resolveLink(project?.links.details) },
+].filter((link) => Boolean(link.href));
+const isExternal = (href: string) => href.startsWith('http');
+const requiresDocumentNavigation = (href: string) => isExternal(href) || /\.(?:pdf|pptx)(?:$|[?#])/i.test(href);
 ---
 
-<article class="publication-item">
-  <div class="publication-year">{publication.year}</div>
+<article class="publication-item" data-publication-kind={publication.kind}>
+  <div class="publication-year">{year}</div>
   <div class="publication-copy">
-    <h3>{publication.title}</h3>
-    <p class="publication-meta">{publication.authors}. <em>{publication.venue}</em>.</p>
-    <div class="inline-links" aria-label={`${publication.title} publication links`}>
-      {
-        links.map(({ label, value }) =>
-          value && isUrl(value) ? (
-            <a href={value} target={value.startsWith('http') ? '_blank' : undefined} rel={value.startsWith('http') ? 'noreferrer' : undefined}>
+    <p class="panel-label">{publication.type[lang]} · {publication.status[lang]}</p>
+    <h3>{title}</h3>
+    {authors && <p class="publication-meta">{authors}</p>}
+    {venue && <p class="publication-meta"><em>{venue}</em></p>}
+    {
+      links.length > 0 && (
+        <div class="inline-links" aria-label={`${title} publication links`}>
+          {links.map(({ label, href }) => (
+            <a
+              href={href}
+              target={isExternal(href) ? '_blank' : undefined}
+              rel={isExternal(href) ? 'noreferrer' : undefined}
+              data-astro-reload={requiresDocumentNavigation(href) ? '' : undefined}
+            >
               {label}
             </a>
-          ) : (
-            <span class="disabled-link">{label}: {comingSoon}</span>
-          )
-        )
-      }
-    </div>
+          ))}
+        </div>
+      )
+    }
   </div>
 </article>

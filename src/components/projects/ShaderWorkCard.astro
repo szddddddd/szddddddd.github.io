@@ -17,7 +17,7 @@ const stats = work.views !== null && work.likes !== null ? `${work.views} / ${wo
 ---
 
 <article class="shader-work-card reveal-card">
-  <a class="shader-work-thumb" href={work.shaderUrl} target="_blank" rel="noreferrer" aria-label={`${labels.openShader}: ${work.title}`}>
+  <a class="shader-work-thumb" href={work.shaderUrl} target="_blank" rel="noreferrer" data-astro-reload aria-label={`${labels.openShader}: ${work.title}`}>
     <img src={work.thumbnail} alt={`${work.title} Shadertoy thumbnail`} loading="lazy" decoding="async" />
   </a>
 
@@ -39,7 +39,7 @@ const stats = work.views !== null && work.likes !== null ? `${work.views} / ${wo
     </div>
 
     <div class="project-row-links shader-work-links">
-      <a href={work.shaderUrl} target="_blank" rel="noreferrer">{labels.openShader}</a>
+      <a href={work.shaderUrl} target="_blank" rel="noreferrer" data-astro-reload>{labels.openShader}</a>
     </div>
 
     <details class="shader-embed" data-shader-embed>

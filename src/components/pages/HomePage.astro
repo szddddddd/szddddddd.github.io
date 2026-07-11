@@ -1,0 +1,45 @@
+---
+import type { Lang } from '../../i18n';
+import { primaryRoutes } from '../../i18n';
+import type { RouteDefinition } from '../../config/routes';
+import { profile } from '../../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const display = profile.display[lang];
+const nodes = (primaryRoutes as readonly RouteDefinition[]).filter((route) => route.id !== 'home');
+const interests = lang === 'zh'
+  ? '三维视觉 / 三维重建 / 神经渲染 / 高斯泼溅 / 生成式世界模型'
+  : '3D Vision / 3D Reconstruction / Neural Rendering / Gaussian Splatting / Generative World Models';
+const statement = lang === 'zh'
+  ? '我关注机器如何感知、重建并生成三维世界。'
+  : 'I explore how machines perceive, reconstruct, and imagine three-dimensional worlds.';
+---
+
+<section class="atlas-home" aria-labelledby="home-title">
+  <div class="atlas-home__intro">
+    <p class="atlas-home__eyebrow" transition:name="page-index">00 / {lang === 'zh' ? '空间研究图谱' : 'SPATIAL RESEARCH ATLAS'}</p>
+    <h1 id="home-title" transition:name="page-main-title">{display.name}</h1>
+    <p class="atlas-home__statement">{statement}</p>
+    <p class="atlas-home__identity">{display.role} / {display.university} / {profile.lab} / {display.major}</p>
+    <p class="atlas-home__interests">{interests}</p>
+  </div>
+
+  <nav class="atlas-home__nodes" aria-label={lang === 'zh' ? '研究索引' : 'Research index'}>
+    {nodes.map((route) => (
+      <a
+        href={route.path[lang]}
+        data-spatial-preview={route.id}
+        style={`--node-accent:${route.accent};`}
+        transition:name={`home-node-${route.id}`}
+      >
+        <span class="atlas-home__node-index">{route.index}</span>
+        <span class="atlas-home__node-title">{route.label[lang]}</span>
+        <span class="atlas-home__node-description">{route.description[lang]}</span>
+      </a>
+    ))}
+  </nav>
+</section>

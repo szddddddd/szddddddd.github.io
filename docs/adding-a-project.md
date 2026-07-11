@@ -1,97 +1,96 @@
 # Adding a Project
 
-This site keeps project list metadata, long-form content, public assets, and
-original course materials in separate places. Follow the steps below so the
-English and Chinese pages stay aligned and existing public URLs remain stable.
+Project facts, long-form copy, public assets, and original source materials have separate owners. Follow this workflow to preserve the bilingual index, report aggregation, spatial route behavior, and existing public URLs.
 
 ## 1. Choose a stable slug
 
-Use a lowercase, URL-safe slug such as `example-project`. A published slug is
-part of the public URL, so do not rename it after release. Add the slug to the
-`ProjectSlug` union in `src/data/projects.ts`.
+Use a lowercase URL-safe slug such as `example-project`. A published slug is part of the public API. Add it to the `ProjectSlug` union in `src/data/projects.ts`; do not rename an existing slug.
 
-## 2. Register list metadata
+## 2. Register the project fact record
 
-Add one `Project` record in `src/data/projects.ts`. Include both language
-variants for `title`, `description`, and any localized `type` or `role`, along
-with its `sortOrder`, `featured`, `isPublic`, tags, cover image, and links.
-Then add the record to both `projects` and `projectsBySlug`.
-
-Use root-relative paths for public files, for example:
+Add one record to `src/data/projects.ts` and include:
 
 ```ts
-image: '/projects/example-project/cover.png',
-links: {
-  details: {
-    en: '/projects/example-project',
-    zh: '/zh/projects/example-project',
+{
+  id: 'example-project',
+  number: '07',
+  slug: 'example-project',
+  sortOrder: 70,
+  featured: false,
+  isPublic: true,
+  title: { en: 'English title', zh: '中文标题' },
+  summary: { en: 'Short summary.', zh: '简短摘要。' },
+  description: { en: 'Short summary.', zh: '简短摘要。' },
+  year: '2026',
+  categories: ['3d-vision', 'coursework'],
+  displayTags: [
+    { en: '3D Vision', zh: '三维视觉' },
+    { en: 'Method', zh: '方法' },
+    { en: 'Coursework', zh: '课程项目' },
+  ],
+  allTags: ['3D Vision', 'Method', 'Coursework'],
+  tags: ['3D Vision', 'Method', 'Coursework'],
+  image: '/projects/example-project/cover.png',
+  cover: {
+    src: '/projects/example-project/cover.png',
+    alt: { en: 'Describe the actual cover image.', zh: '描述真实封面内容。' },
   },
-  report: '/projects/example-project/report.pdf',
-  code: 'https://github.com/owner/repository',
+  spatialAccent: '#8b7cff',
+  links: {
+    details: { en: '/projects/example-project/', zh: '/zh/projects/example-project/' },
+    report: '/projects/example-project/report.pdf',
+  },
 }
 ```
 
-`report`, `slides`, `paper`, `code`, `demo`, and `readme` are optional. Omit a
-link that is not public rather than pointing it at source material.
+Use only factual categories: `3d-vision`, `medical-imaging`, `creative-coding`, and/or `coursework`. Limit `displayTags` to three. `allTags` can retain the complete factual list. Omit a link when it is not public; never use an empty string. Add `previewVideo` only when there is a real public video and poster.
 
-## 3. Add bilingual project content
+Add the record to both `projects` and `projectsBySlug`. Keep public paths root-relative and preserve trailing slash conventions for HTML routes.
 
-Add the English long-form copy in `src/i18n/en.ts` and the matching Chinese
-copy in `src/i18n/zh.ts`. Keep the same content shape in both files so the
-shared project component can render either locale. List metadata belongs in
-the registry; project-specific narrative, tables, formulae, and galleries stay
-in the locale files and project presentation component.
+## 3. Add the cover and downloads
 
-## 4. Add the project presentation and routes
+Put web-facing images, PDFs, PPTX files, and videos under:
 
-Create a project component under `src/components/projects/` when the project
-needs a dedicated detail layout. Reuse `BaseLayout`, `Section`, `MathBlock`,
-and existing project components where their structure fits; preserve any
-project-specific experimental content rather than forcing it into a generic
-template.
+```text
+public/projects/example-project/
+```
 
-Add thin route entries for both public URLs:
+Use descriptive alt text and preserve the native image ratio. Put editable reports, TeX, source code snapshots, raw data, and course handouts under:
+
+```text
+source-materials/projects/example-project/
+```
+
+Do not link the website directly to `source-materials/`.
+
+If fixing a publicly visible filename such as `comparsion.png`, retain the legacy file or URL in addition to a corrected internal name.
+
+## 4. Add bilingual detail content and wrappers
+
+Add English and Chinese project prose with the same shape in `src/i18n/en.ts` and `src/i18n/zh.ts`. Preserve real metrics, figures, contributions, and report context; do not infer authors, venues, awards, or results.
+
+Add thin public entry points:
 
 ```text
 src/pages/projects/example-project.astro
 src/pages/zh/projects/example-project.astro
 ```
 
-The English entry passes `lang="en"`; the Chinese entry passes `lang="zh"` to
-the same project component. Keep the `details` links in the registry aligned
-with those two routes. Do not remove an old public route without an explicit
-compatibility plan.
+Both wrappers render the same project component with `lang="en"` or `lang="zh"`. Detail pages automatically inherit the Projects spatial preset through `routes.ts`; do not add a new primary navigation entry or spatial engine.
 
-## 5. Place assets in the correct boundary
+Use `data-astro-reload` for PDF, PPTX, and external links so Astro client transitions are not used for downloads or off-site navigation.
 
-Put every image, PDF, slide deck, or other downloadable file intended for the
-website in `public/projects/example-project/`. Reference those files using
-`/projects/example-project/...` paths.
+## 5. Add a technical report only when real
 
-Put editable reports, source code snapshots, raw data, and course handouts in
-`source-materials/projects/example-project/`. This directory is retained in
-the repository but is not copied into the static site and must not be used as a
-website asset source.
+For a course report, add a `technicalReports` record in `src/data/publications.ts` with `projectId`. The item resolves title, course, year, PDF, code, and project URL from the project registry. Add `authors` only when they are known. Do not put coursework in `peerReviewed`.
 
-## 6. Verify both locales
-
-Run the supported build command:
+## 6. Verify
 
 ```bash
+npm run check
 npm run build
 npm run preview
+git diff --check
 ```
 
-Check the following paths in the preview server:
-
-```text
-/projects/
-/zh/projects/
-/projects/example-project/
-/zh/projects/example-project/
-```
-
-Confirm the project appears once in each index, the cover and optional public
-links load, the language switcher reaches the equivalent route, and no page
-references files outside `public/`. Finish with `git diff --check` before
-requesting review.
+Check both locale index and detail paths, the language toggle, cover alt text, filter membership, every public download, and the route's active Projects navigation state. Confirm that the project is visible with JavaScript disabled and that no asset path points outside `public/`.

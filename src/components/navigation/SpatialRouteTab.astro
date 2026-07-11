@@ -1,0 +1,33 @@
+---
+import type { Lang } from '../../i18n';
+import type { RouteDefinition } from '../../config/routes';
+
+interface Props {
+  route: RouteDefinition;
+  lang: Lang;
+  active: boolean;
+}
+
+const { route, lang, active } = Astro.props as Props;
+---
+
+<a
+  class:list={['spatial-route-tab', active && 'is-active']}
+  href={route.path[lang]}
+  aria-current={active ? 'page' : undefined}
+  data-spatial-preview={route.id}
+  data-spatial-route-id={route.id}
+  style={`--route-accent:${route.accent};`}
+  transition:name={`spatial-route-${route.id}`}
+>
+  <span class="spatial-route-tab__index">{route.index}</span>
+  <span class="spatial-route-tab__label">{route.shortLabel[lang]}</span>
+  {
+    active && (
+      <span class="spatial-route-tab__expanded">
+        <span>{route.description[lang]}</span>
+        <span class="spatial-route-tab__progress" aria-label="Page scroll progress"><i></i></span>
+      </span>
+    )
+  }
+</a>

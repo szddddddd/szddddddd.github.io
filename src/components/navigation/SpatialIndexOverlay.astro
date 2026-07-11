@@ -1,0 +1,33 @@
+---
+import { primaryRoutes, type Lang } from '../../i18n';
+import type { RouteDefinition } from '../../config/routes';
+
+interface Props {
+  lang: Lang;
+  activeId: string;
+}
+
+const { lang, activeId } = Astro.props as Props;
+const routes = primaryRoutes as readonly RouteDefinition[];
+---
+
+<dialog id="spatial-index-dialog" class="spatial-index-overlay" data-spatial-index-dialog aria-labelledby="spatial-index-title">
+  <div class="spatial-index-overlay__bar">
+    <p id="spatial-index-title">{lang === 'zh' ? '研究索引' : 'Research index'}</p>
+    <button class="icon-control" type="button" data-spatial-index-close aria-label={lang === 'zh' ? '关闭索引' : 'Close index'}>X</button>
+  </div>
+  <nav class="spatial-index-overlay__links" aria-label={lang === 'zh' ? '主导航' : 'Primary navigation'}>
+    {routes.map((route) => (
+      <a
+        href={route.path[lang]}
+        aria-current={route.id === activeId ? 'page' : undefined}
+        data-spatial-preview={route.id}
+        style={`--route-accent:${route.accent};`}
+      >
+        <span>{route.index}</span>
+        <strong>{route.label[lang]}</strong>
+        <small>{route.description[lang]}</small>
+      </a>
+    ))}
+  </nav>
+</dialog>

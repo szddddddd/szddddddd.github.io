@@ -30,15 +30,15 @@ const details = [
   <article class="project-detail arts1308-detail">
     <header class="project-detail-hero arts-hero">
       <div class="detail-hero-copy reveal-block">
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
-        <h1 class="project-detail-title">{copy.hero.title}</h1>
+        <p class="eyebrow" transition:name="page-index">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name="project-title-arts1308">{copy.hero.title}</h1>
         <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
         <p class="detail-affiliation">{copy.hero.affiliation}</p>
         <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
           {copy.metadata.map((item) => <li>{item}</li>)}
         </ul>
         <div class="hero-actions detail-actions">
-          <a class="button button-secondary" href={shadertoyProfileUrl} target="_blank" rel="noreferrer">{copy.labels.profile}</a>
+          <a class="button button-secondary" href={shadertoyProfileUrl} target="_blank" rel="noreferrer" data-astro-reload>{copy.labels.profile}</a>
           <a class="button button-secondary" href="#visual-gallery">{copy.sections.gallery}</a>
         </div>
       </div>
@@ -52,6 +52,7 @@ const details = [
           loading="eager"
           decoding="async"
           fetchpriority="high"
+          transition:name="project-cover-arts1308"
         />
         <figcaption>{coverWork.title}</figcaption>
       </figure>

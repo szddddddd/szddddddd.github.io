@@ -39,8 +39,8 @@ const details = [
   <article class="project-detail bme1312-proj2-detail">
     <header class="project-detail-hero">
       <div class="detail-hero-copy reveal-block">
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
-        <h1 class="project-detail-title">
+        <p class="eyebrow" transition:name="page-index">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name="project-title-bme1312-proj2">
           {titleLines.map((line) => <span>{line}</span>)}
         </h1>
         <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
@@ -50,13 +50,13 @@ const details = [
         </ul>
         <div class="hero-actions detail-actions">
           <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>
-          <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>
-          <a class="button button-secondary" href={slidesHref}>{t.projects.labels.slides}</a>
+          <a class="button button-secondary" href={reportHref} data-astro-reload>{t.projects.labels.report}</a>
+          <a class="button button-secondary" href={slidesHref} data-astro-reload>{t.projects.labels.slides}</a>
         </div>
       </div>
       <figure class="detail-hero-figure reveal-block">
-        <img src={copy.gallery[2].src} alt={copy.gallery[2].alt} loading="eager" />
-        <figcaption>{copy.gallery[2].caption}</figcaption>
+        <img src={project.cover.src} alt={project.cover.alt[lang]} loading="eager" transition:name="project-cover-bme1312-proj2" />
+        <figcaption>{project.title[lang]}</figcaption>
       </figure>
     </header>
 
@@ -154,8 +154,8 @@ const details = [
       <div class="panel narrative-panel asset-link-panel">
         <p>{copy.courseContext}</p>
         <div class="hero-actions detail-actions">
-          <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>
-          <a class="button button-secondary" href={slidesHref}>{t.projects.labels.slides}</a>
+          <a class="button button-secondary" href={reportHref} data-astro-reload>{t.projects.labels.report}</a>
+          <a class="button button-secondary" href={slidesHref} data-astro-reload>{t.projects.labels.slides}</a>
         </div>
       </div>
     </Section>

@@ -28,21 +28,21 @@ const details = [
   <article class="project-detail si100b-detail">
     <header class="project-detail-hero">
       <div class="detail-hero-copy reveal-block">
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
-        <h1 class="project-detail-title">{copy.hero.title}</h1>
+        <p class="eyebrow" transition:name="page-index">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name="project-title-si100b">{copy.hero.title}</h1>
         <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
         <p class="detail-affiliation">{copy.hero.affiliation}</p>
         <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
           {copy.metadata.map((item) => <li>{item}</li>)}
         </ul>
         <div class="hero-actions detail-actions">
-          {codeHref && <a class="button button-secondary" href={codeHref} target="_blank" rel="noreferrer">GitHub</a>}
-          {reportHref && <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>}
-          {readmeHref && <a class="button button-secondary" href={readmeHref} target="_blank" rel="noreferrer">README</a>}
+          {codeHref && <a class="button button-secondary" href={codeHref} target="_blank" rel="noreferrer" data-astro-reload>GitHub</a>}
+          {reportHref && <a class="button button-secondary" href={reportHref} data-astro-reload>{t.projects.labels.report}</a>}
+          {readmeHref && <a class="button button-secondary" href={readmeHref} target="_blank" rel="noreferrer" data-astro-reload>README</a>}
         </div>
       </div>
       <figure class="detail-hero-figure si100b-cover-figure reveal-block">
-        <img src={project.image} alt={copy.cover.alt} loading="eager" />
+        <img src={project.cover.src} alt={project.cover.alt[lang]} loading="eager" transition:name="project-cover-si100b" />
         <figcaption>{copy.cover.caption}</figcaption>
       </figure>
     </header>

@@ -31,19 +31,19 @@ const reportHref = typeof project.links.report === 'string' ? project.links.repo
   <article class="project-detail si140a-detail">
     <header class="project-detail-hero">
       <div class="detail-hero-copy reveal-block">
-        <p class="eyebrow">{copy.hero.eyebrow}</p>
-        <h1 class="project-detail-title">{copy.hero.title}</h1>
+        <p class="eyebrow" transition:name="page-index">{copy.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name="project-title-si140a">{copy.hero.title}</h1>
         <p class="detail-subtitle wide-subtitle">{copy.hero.subtitle}</p>
         <p class="detail-affiliation">{copy.hero.affiliation}</p>
         <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">
           {copy.metadata.map((item) => <li>{item}</li>)}
         </ul>
         <div class="hero-actions detail-actions">
-          {reportHref && <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>}
+          {reportHref && <a class="button button-secondary" href={reportHref} data-astro-reload>{t.projects.labels.report}</a>}
         </div>
       </div>
       <figure class="detail-hero-figure si140a-cover-figure reveal-block">
-        <img src={project.image} alt={copy.gallery[0].alt} loading="eager" />
+        <img src={project.cover.src} alt={project.cover.alt[lang]} loading="eager" transition:name="project-cover-si140a" />
         <figcaption>{copy.gallery[0].caption}</figcaption>
       </figure>
     </header>
@@ -154,7 +154,7 @@ const reportHref = typeof project.links.report === 'string' ? project.links.repo
     <Section id="links" title={copy.sections.links} intro={copy.linksIntro}>
       <div class="panel narrative-panel si140a-links-panel">
         <p>{copy.reportNote}</p>
-        {reportHref && <a class="button button-secondary" href={reportHref}>{t.projects.labels.report}</a>}
+        {reportHref && <a class="button button-secondary" href={reportHref} data-astro-reload>{t.projects.labels.report}</a>}
       </div>
     </Section>
   </article>

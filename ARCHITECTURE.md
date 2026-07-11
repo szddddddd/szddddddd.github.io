@@ -1,68 +1,56 @@
-# RSUI Engine Architecture
+# Spatial Research Atlas Architecture
 
-RSUI Engine is a lightweight spatial rendering runtime for this research portfolio. It treats the HTML document as the semantic information layer and a single persistent WebGL world as the interactive application layer.
+This portfolio is a static Astro site with a progressive spatial rendering layer. Research content is always semantic HTML; WebGL enriches the document but never owns navigation, content, or accessibility.
 
-## Runtime model
+## Runtime
 
-`RSUIEngine` owns one renderer, one scene graph, one perspective camera, and one animation loop for the lifetime of a browser session. Astro continues to statically generate every route, so all research content remains readable, indexable, and reachable without JavaScript.
-
-When JavaScript and WebGL are available, `SpatialRouter` intercepts only the five primary same-language research routes. It swaps the semantic contents of `main`, updates browser history, and asks the existing engine to move through the corresponding region. The canvas is never removed or recreated during those navigations. Direct visits, external links, project-detail routes, and JavaScript-disabled browsing retain normal static-page behavior.
-
+```text
+Astro route wrapper
+  -> LocalizedPage / project detail component
+  -> BaseLayout + ClientRouter
+     -> AppShell
+        -> SpatialRibbon + semantic main content
+        -> persisted SpatialUIRoot
+           -> one SpatialEngine
+              -> one WebGLRenderer and canvas
+              -> one AnimationLoop
+              -> one SpatialScene and CameraRig
+              -> ResourceManager + ShaderRegistry
 ```
-semantic DOM ───── accessibility, SEO, keyboard and fallback navigation
-       │
-       └── SpatialRouter ── RSUIEngine ── one WebGL renderer
-                                      ├── one scene graph / world regions
-                                      ├── one camera controller
-                                      ├── one animation scheduler
-                                      └── one post-processing chain
-```
 
-## Module boundaries
+`SpatialUIRoot` uses Astro `transition:persist`, so the renderer remains mounted across all Astro client-route transitions, including project detail pages. A normal multi-page navigation still works when JavaScript or View Transitions are unavailable.
 
-| Area | Responsibility |
-| --- | --- |
-| `src/core` | Engine lifecycle, finite state, time, event bus, and scheduled tasks. |
-| `src/navigation` | URL-to-page mapping, history, spatial route changes, and transition coordination. |
-| `src/three` | The only layer that talks directly to Three.js: renderer, scene graph, camera, environment, lighting, post process, and shader pipeline. |
-| `src/resources` | Lazy texture loading and cached shader/geometry ownership. |
-| `src/materials` | Reusable visual material factories. |
-| `src/shaders` | Composable GLSL modules and background, transition, and post-process programs. |
-| `src/interaction` | Pointer, cursor, hover, magnetic DOM movement, raycasting, and scroll signals. |
-| `src/pages` | Page-region lifecycles with `enter()`, `leave()`, `update()`, and `destroy()`. They configure the engine scene API rather than importing Three.js. |
+## Route Ownership
 
-## Scene graph
+`src/config/routes.ts` is the only route configuration for primary navigation, bilingual paths, indexes, labels, descriptions, accents, and active-route resolution. Project details and legacy Coursework paths resolve to the Projects spatial preset.
 
-The world has five named regions:
+Astro `ClientRouter` owns URL changes, browser history, fetches, DOM swaps, scroll behavior, and ordinary fallback navigation. `SpatialRouteController` only observes Astro lifecycle events and asks the engine to apply a route preset. It never calls `fetch`, `DOMParser`, or the History API.
 
-- `HOME` is the central research hub.
-- `ABOUT` is an identity field with a neural cluster.
-- `PROJECTS` is a research-node constellation.
-- `PUBLICATIONS` is a path-like knowledge timeline.
-- `NOTES` is a notebook field.
+## Spatial Engine
 
-Each region is a durable group inside one `SceneGraph`. Page changes change group emphasis, camera focus, shader uniforms, and interaction targets; they do not construct a new scene, camera, or renderer.
+`SpatialEngine` is the session singleton. It owns the renderer, camera, scene, resource manager, input boundary, and `AnimationLoop`.
 
-## State machine and transitions
+- `AnimationLoop` is the only RAF owner. It pauses while the document is hidden.
+- Motion Off stops continuous animation and renders only after state changes.
+- `SpatialRenderer` caps DPR at `1.5` for full quality and `1` for reduced/mobile quality.
+- `ViewportInput` owns the one resize, scroll, and pointer input boundary.
+- Context loss changes the root to the CSS spatial fallback while DOM content remains usable.
+- `ResourceManager` reference-counts geometry and material ownership. `ShaderRegistry` caches program materials by key.
 
-`EngineState` defines the finite page state: `HOME`, `ABOUT`, `PROJECTS`, `PUBLICATIONS`, and `NOTES`. `PageTransition` changes the state through a transition progress signal. The camera uses damped position and look-at targets, while the shader pipeline receives the same progress for a dissolve/depth-blur response. Reduced-motion users receive an immediate, non-animated state update.
+Typed events are `ROUTE_PREPARE`, `ROUTE_ENTER`, `ROUTE_LEAVE`, `NAV_PREVIEW`, `NAV_PREVIEW_END`, `THEME_CHANGE`, `MOTION_CHANGE`, `QUALITY_CHANGE`, `VIEWPORT_RESIZE`, and `DOCUMENT_VISIBILITY_CHANGE`.
 
-## Shader pipeline
+## Scene and Shaders
 
-All engine shaders receive shared global uniforms:
+`src/spatial/config/routeStates.ts` defines each route's camera, field density, flow, noise scale, colors, bloom/vignette response, scene preset, and tween duration. `RouteTransition` uses `@tweenjs/tween.js` to interpolate these values without recompiling shaders.
 
-`time`, `resolution`, `mouse`, `scroll`, `theme`, `page`, `velocity`, and `transitionProgress`.
+The active neural-field program is organized under `src/spatial/shaders/programs/neural-field/` with separate vertex, fragment, uniforms, material factory, shared chunks, and `ShaderRegistry`. The field consolidates low-cost particle and flow behavior into one cached program. It uses shader-level glow/grain rather than a stack of expensive full-screen post-process passes.
 
-GLSL helpers for noise, FBM, curl, SDF, gradient, easing, and lighting are defined once in `src/shaders/common`. The neural-field background and subtle post-process passes compose those helpers rather than duplicating noise code.
+## Content and UI
 
-## Animation and performance
+- `components/pages/` contains shared English/Chinese page structures.
+- `components/navigation/` owns DOM navigation: the Spatial Ribbon, responsive dock, and accessible index dialog.
+- `components/projects/` owns detail presentations and the project index row.
+- `data/projects.ts` is the project fact source; `data/publications.ts` references projects for reports instead of duplicating URLs.
+- `i18n/en.ts` and `i18n/zh.ts` own localized UI and project-detail prose.
 
-`AnimationLoop` is the only `requestAnimationFrame` owner. It uses a bounded delta time, pauses when the document is hidden, caps pixel density, and reduces particle density on smaller screens. `ResourceManager` owns cache disposal so future modules can unload textures, geometries, and materials without changing engine core behavior.
-
-## Interaction and accessibility
-
-Canvas content is decorative to assistive technology. The DOM retains headings, links, labels, descriptions, keyboard focus, and a live route announcement. Hover and raycast events enrich matching DOM controls, while keyboard activation always uses the original links. The motion toggle and `prefers-reduced-motion` control both DOM and rendering motion.
-
-## Future extensions
-
-Future features should be implemented as an engine page region, renderer plugin, or resource-backed scene module. 3D Gaussian Splatting viewers, WebGPU experiments, interactive papers, embodied-AI simulations, and custom post-process passes can plug into the scene graph and event bus without replacing the engine lifecycle.
+Canvas is decorative and `aria-hidden`; headings, descriptions, links, filters, toggles, and dialog controls stay in the DOM.

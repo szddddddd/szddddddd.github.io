@@ -1,62 +1,63 @@
-# Song Zidong Academic Portfolio
+# Song Zidong Spatial Research Atlas
 
-Static bilingual academic portfolio for Song Zidong. The site is built with Astro and published to GitHub Pages at <https://szddddddd.github.io>.
+Static bilingual academic portfolio for Song Zidong, built with Astro, Three.js, and a progressive spatial UI engine. It is published at <https://szddddddd.github.io>.
 
-## Local development
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Astro prints the local development URL, usually `http://localhost:4321`.
+Astro prints the local URL, normally `http://localhost:4321`.
 
-## Build
+## Verification and Build
 
 ```bash
+npm run check
 npm run build
 npm run preview
 ```
 
-`npm run build` writes the static site to `dist/`. The GitHub Pages workflow runs `npm ci` followed by `npm run build` on Node 22. This is a user-site repository, so Astro intentionally has no `base` configuration.
+`npm run build` writes static output to `dist/`. The GitHub Pages workflow runs `npm ci` and `npm run build` on Node 22. `dist/`, `node_modules/`, and `.astro/` are generated and ignored.
 
-## Repository layout
+## Structure
 
 ```text
 src/
   components/
-    layout/        Shared page composition
-    navigation/    Header and language navigation
-    projects/      Project index, project cards, and project detail views
-    publications/  Publication presentation
-    ui/            Reusable controls and content primitives
-    visual/        Home and background visual components
-  data/            Profile, project registry, and Shadertoy data
-  i18n/            English and Chinese copy plus route mapping
-  pages/           Thin English and /zh/ route entry points
-  scripts/visual/  WebGL visual field scripts
-  styles/          Global styles, tokens, and visual-specific styles
-public/projects/   Files available at stable public website URLs
-source-materials/  Original course materials, excluded from site builds
-docs/              Architecture and maintenance guides
+    layout/        App shell and locale dispatcher
+    navigation/    Spatial Ribbon, index dialog, mobile dock, language control
+    pages/         Shared bilingual Home/About/Projects/Publications/Notes structures
+    projects/      Project index and dedicated detail views
+    publications/  Technical report presentation
+    spatial/       Persisted canvas root
+    ui/            Reusable semantic primitives and controls
+  config/          Site and authoritative route configuration
+  data/            Profile, project, publication, and Shadertoy facts
+  i18n/            English/Chinese UI and project-detail prose
+  layouts/         Metadata, ClientRouter, and page shell
+  pages/           Thin English and Chinese public entry points
+  spatial/         Engine, routing, scene, shader, resource, and rendering code
+  styles/          Tokens, navigation, page, and spatial fallback styles
+public/projects/   Stable public assets and reports
+source-materials/  Preserved originals, excluded from the website build
+docs/              Architecture, refactor audit, and maintenance guides
 ```
 
-Generated directories such as `node_modules/`, `.astro/`, and `dist/` are ignored. Original course reports, TeX sources, slides, and documents are intentionally retained under `source-materials/`; they are not web build inputs. Publicly downloadable reports and images must remain in `public/projects/` so their existing URLs stay valid.
+## Content Ownership
 
-## Localization and routes
+- Profile and contact facts: `src/data/profile.ts`
+- Project registry, public links, covers, filters, and display tags: `src/data/projects.ts`
+- Peer-reviewed and technical-report grouping: `src/data/publications.ts`
+- Localized interface and long project copy: `src/i18n/en.ts`, `src/i18n/zh.ts`
+- Public downloads: `public/projects/<slug>/`
+- Source archive: `source-materials/projects/<slug>/`
 
-English routes live at `/`; Chinese routes live under `/zh/`. Route entry files only select a locale and render shared components. `src/i18n/index.ts` is the authoritative mapping for localized paths, canonical links, alternates, and language switching.
+`src/config/routes.ts` is the sole source for primary navigation and bilingual route mapping. Project details map to the Projects spatial preset. Legacy `/coursework/` routes remain compatible but do not duplicate the project index.
 
-## Content ownership
-
-- Personal profile and contact information: `src/data/profile.ts`
-- Project metadata, stable slugs, ordering, and public links: `src/data/projects.ts`
-- English and Chinese UI text and long project copy: `src/i18n/en.ts` and `src/i18n/zh.ts`
-- Public images, PDFs, and slides: `public/projects/<slug>/`
-- Original project materials: `source-materials/projects/<slug>/`
-
-See [docs/adding-a-project.md](docs/adding-a-project.md) for the complete new-project workflow and [docs/architecture.md](docs/architecture.md) for dependency boundaries.
+See [docs/architecture.md](docs/architecture.md), [docs/refactor-audit.md](docs/refactor-audit.md), and [docs/adding-a-project.md](docs/adding-a-project.md).
 
 ## Deployment
 
-Pushes to `main` trigger `.github/workflows/deploy.yml`. Configure GitHub Pages to use GitHub Actions as its deployment source.
+Pushes to `main` trigger `.github/workflows/deploy.yml`. Configure GitHub Pages to use GitHub Actions as the deployment source.

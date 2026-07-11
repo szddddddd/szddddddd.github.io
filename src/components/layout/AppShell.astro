@@ -22,9 +22,9 @@ const route = getRouteForPage(page);
   id="main-content"
   class:list={['site-main', page === 'home' && 'site-main--home']}
   tabindex="-1"
+  style={`--page-accent:${route.accent};`}
   data-page-key={page}
   data-spatial-route={route.id}
-  style={`--page-accent:${route.accent};`}
 >
   <slot />
 </main>

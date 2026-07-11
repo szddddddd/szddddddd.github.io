@@ -1,5 +1,5 @@
 :root {
-  --ribbon-height: 72px;
+  --ribbon-height: calc(64px + env(safe-area-inset-top));
   --ribbon-line: rgba(255, 255, 255, 0.12);
 }
 
@@ -10,12 +10,13 @@
   border-bottom: 1px solid var(--ribbon-line);
   background: color-mix(in srgb, var(--color-bg) 94%, transparent);
   color: var(--color-text);
+  isolation: isolate;
   transition: min-height 180ms ease, background-color 180ms ease;
 }
 
 .spatial-ribbon__desktop,
 .spatial-ribbon__compact {
-  min-height: var(--ribbon-height);
+  min-height: var(--ribbon-visual-height, var(--ribbon-height));
 }
 
 .spatial-ribbon__desktop {
@@ -31,8 +32,39 @@
 }
 
 .spatial-ribbon[data-scrolled='true'] {
-  --ribbon-height: 52px;
+  --ribbon-visual-height: calc(52px + env(safe-area-inset-top));
   background: color-mix(in srgb, var(--color-bg) 98%, transparent);
+}
+
+.spatial-ribbon__global-progress,
+.spatial-ribbon__compact-progress {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.spatial-ribbon__global-progress {
+  inset: 0 0 auto;
+  z-index: 2;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-line) 72%, transparent);
+}
+
+.spatial-ribbon__compact-progress {
+  inset: auto 0 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-line) 72%, transparent);
+}
+
+.spatial-ribbon__global-progress i,
+.spatial-ribbon__compact-progress i {
+  display: block;
+  width: var(--scroll-progress, 0%);
+  height: 100%;
+  background: var(--active-accent);
+  box-shadow: 0 0 0.7rem var(--active-accent);
+  transition: width 120ms linear;
 }
 
 .spatial-ribbon__brand,
@@ -319,11 +351,16 @@
 
 @media (max-width: 700px) {
   :root {
-    --ribbon-height: 50px;
+    --ribbon-height: calc(50px + env(safe-area-inset-top));
   }
 
   .spatial-ribbon__compact {
     grid-template-columns: auto minmax(0, 1fr) auto auto;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .spatial-ribbon[data-scrolled='true'] {
+    --ribbon-visual-height: var(--ribbon-height);
   }
 
   .spatial-ribbon__brand {
@@ -401,9 +438,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .spatial-ribbon,
+  .spatial-ribbon__global-progress i,
+  .spatial-ribbon__compact-progress i,
   .spatial-route-tab,
   .spatial-route-tab::before,
   .spatial-route-tab__progress i {
     transition: none;
   }
+}
+
+html[data-motion='reduced'] .spatial-ribbon,
+html[data-motion='reduced'] .spatial-ribbon__global-progress i,
+html[data-motion='reduced'] .spatial-ribbon__compact-progress i,
+html[data-motion='reduced'] .spatial-route-tab,
+html[data-motion='reduced'] .spatial-route-tab::before,
+html[data-motion='reduced'] .spatial-route-tab__progress i {
+  transition: none;
 }

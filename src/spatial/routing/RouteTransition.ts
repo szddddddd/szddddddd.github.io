@@ -1,6 +1,6 @@
 import { Easing, Group, Tween } from '@tweenjs/tween.js';
 import type { RouteId } from '../../config/routes';
-import { routeStates } from '../config/routeStates';
+import { routeStates, type ProjectCategorySceneId } from '../config/routeStates';
 import type { SpatialScene, SceneTransitionValues } from '../scenes/SpatialScene';
 
 /** Coordinates only WebGL state. Astro remains responsible for document navigation. */
@@ -66,6 +66,25 @@ export class RouteTransition {
     const values = scene.getTransitionValues();
     this.preview = new Tween(values, this.tweens)
       .to(target, 160)
+      .easing(Easing.Cubic.Out)
+      .onUpdate(() => scene.applyTransitionValues(values))
+      .onComplete(() => {
+        this.preview = undefined;
+      })
+      .start();
+  }
+
+  previewProjectCategory(scene: SpatialScene, category: ProjectCategorySceneId, animate: boolean): void {
+    this.preview?.stop();
+    const target = scene.getProjectCategoryTransitionValues(category);
+    if (!animate) {
+      scene.applyTransitionValues(target);
+      return;
+    }
+
+    const values = scene.getTransitionValues();
+    this.preview = new Tween(values, this.tweens)
+      .to(target, 180)
       .easing(Easing.Cubic.Out)
       .onUpdate(() => scene.applyTransitionValues(values))
       .onComplete(() => {

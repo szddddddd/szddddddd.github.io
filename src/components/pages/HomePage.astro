@@ -3,6 +3,7 @@ import type { Lang } from '../../i18n';
 import { primaryRoutes } from '../../i18n';
 import type { RouteDefinition } from '../../config/routes';
 import { profile } from '../../data/profile';
+import { projects } from '../../data/projects';
 
 interface Props {
   lang: Lang;
@@ -17,6 +18,7 @@ const interests = lang === 'zh'
 const statement = lang === 'zh'
   ? '我关注机器如何感知、重建并生成三维世界。'
   : 'I explore how machines perceive, reconstruct, and imagine three-dimensional worlds.';
+const projectPreviews = projects.slice(0, 3);
 ---
 
 <section class="atlas-home" aria-labelledby="home-title">
@@ -28,18 +30,84 @@ const statement = lang === 'zh'
     <p class="atlas-home__interests">{interests}</p>
   </div>
 
-  <nav class="atlas-home__nodes" aria-label={lang === 'zh' ? '研究索引' : 'Research index'}>
+  <nav class="atlas-home__entries" aria-label={lang === 'zh' ? '研究索引' : 'Research index'}>
     {nodes.map((route) => (
       <a
+        class:list={['atlas-home__entry', `atlas-home__entry--${route.id}`]}
         href={route.path[lang]}
         data-spatial-preview={route.id}
+        data-home-route={route.id}
         style={`--node-accent:${route.accent};`}
         transition:name={`home-node-${route.id}`}
       >
-        <span class="atlas-home__node-index">{route.index}</span>
-        <span class="atlas-home__node-title">{route.label[lang]}</span>
-        <span class="atlas-home__node-description">{route.description[lang]}</span>
+        <span class="atlas-home__entry-visual" aria-hidden="true">
+          {
+            route.id === 'about' && (
+              <span class="atlas-home__identity-object">
+                <i></i><i></i><i></i><b></b><b></b><b></b>
+              </span>
+            )
+          }
+          {
+            route.id === 'projects' && (
+              <span class="atlas-home__project-object">
+                {projectPreviews.map((project) => <img src={project.cover.src} alt="" loading="eager" decoding="async" />)}
+              </span>
+            )
+          }
+          {
+            route.id === 'publications' && (
+              <span class="atlas-home__archive-object">
+                <i></i><i></i><i></i><b></b><b></b><b></b>
+              </span>
+            )
+          }
+          {
+            route.id === 'notes' && (
+              <span class="atlas-home__network-object">
+                <i></i><i></i><i></i><i></i><b></b><b></b><b></b>
+              </span>
+            )
+          }
+        </span>
+        <span class="atlas-home__entry-copy">
+          <span class="atlas-home__node-index">{route.index}</span>
+          <span class="atlas-home__node-title">{route.label[lang]}</span>
+          <span class="atlas-home__node-description">{route.description[lang]}</span>
+        </span>
       </a>
     ))}
   </nav>
 </section>
+
+<script>
+  const bindHomeRouteLocks = () => {
+    document.querySelectorAll<HTMLElement>('[data-home-route]').forEach((entry) => {
+      if (entry.dataset.homeRouteBound === 'true') return;
+      entry.dataset.homeRouteBound = 'true';
+
+      const lockRoute = () => {
+        const route = entry.dataset.homeRoute;
+        if (!route) return;
+        entry.dataset.routeLocked = 'true';
+        document.documentElement.dataset.spatialNavLock = route;
+        document.dispatchEvent(new CustomEvent('spatial:nav-preview', { detail: { route } }));
+      };
+
+      entry.addEventListener('pointerdown', lockRoute);
+      entry.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') lockRoute();
+      });
+    });
+  };
+
+  const clearHomeRouteLock = () => {
+    delete document.documentElement.dataset.spatialNavLock;
+  };
+
+  document.addEventListener('astro:page-load', () => {
+    bindHomeRouteLocks();
+    clearHomeRouteLock();
+  });
+  bindHomeRouteLocks();
+</script>

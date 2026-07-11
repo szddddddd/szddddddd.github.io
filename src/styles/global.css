@@ -7,6 +7,7 @@
 html {
   background: var(--bg);
   color: var(--text);
+  scroll-padding-top: calc(var(--ribbon-height) + 1rem);
   scroll-behavior: smooth;
   text-rendering: optimizeLegibility;
 }
@@ -27,7 +28,7 @@ body {
   isolation: isolate;
 }
 
-body > :not(.visual-background):not([data-rsui-root]) {
+body > :is(.site-main, .site-footer) {
   position: relative;
   z-index: 1;
 }
@@ -139,6 +140,50 @@ ul {
 :focus-visible {
   outline: 2px solid var(--cyan);
   outline-offset: 4px;
+}
+
+html[data-motion='reduced'] :is(.reveal-block, .reveal-card, .section, .page-hero, .portal-card) {
+  animation: none;
+}
+
+@supports (view-transition-name: none) {
+  ::view-transition-group(root) {
+    animation-duration: 560ms;
+    animation-timing-function: cubic-bezier(0.22, 0.8, 0.24, 1);
+  }
+
+  ::view-transition-old(root) {
+    animation: atlas-root-out 560ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+  }
+
+  ::view-transition-new(root) {
+    animation: atlas-root-in 560ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+  }
+}
+
+@keyframes atlas-root-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.45rem);
+  }
+}
+
+@keyframes atlas-root-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html[data-motion='reduced']::view-transition-group(root),
+html[data-motion='reduced']::view-transition-old(root),
+html[data-motion='reduced']::view-transition-new(root) {
+  animation-duration: 1ms;
 }
 
 .navbar {

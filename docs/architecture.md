@@ -21,7 +21,7 @@ Do not create another navigation array or duplicate path strings in a component.
 
 `SpatialUIRoot` persists through Astro transitions. `bootSpatialUI()` creates the singleton only when a spatial host exists. The engine starts once and is not recreated after route swaps.
 
-`SpatialRouteController` observes `astro:before-preparation`, `astro:after-swap`, and `astro:page-load`, then maps the current URL to `routeStates`. Astro retains ownership of history and page DOM. `RouteTransition` owns only camera/uniform tweening.
+`SpatialRouteController` observes `astro:before-preparation`, `astro:after-swap`, and `astro:page-load`, then maps the current URL to `routeStates`. It also receives navigation previews and Projects category-preview events. Astro retains ownership of history and page DOM. `RouteTransition` owns only camera/uniform tweening.
 
 For a new primary route, add a route config entry and matching `routeStates` entry, then create the page wrapper/component. Do not add a second renderer, RAF loop, router, or global event bus.
 
@@ -31,6 +31,7 @@ For a new primary route, add a route config entry and matching `routeStates` ent
 - Reuse materials through `ShaderRegistry` and release acquired resources through `ResourceManager`.
 - Do not construct vectors, colors, shader strings, textures, or materials every frame.
 - Keep mobile/reduced quality at DPR `1`; full quality is capped at `1.5`.
+- Reduced quality also scales the existing field density and glow uniforms down; it does not create a second material or renderer.
 - Do not add full-screen post-process stacks without profiling.
 - Canvas failure must leave the CSS fallback and semantic DOM fully usable.
 
@@ -39,3 +40,11 @@ For a new primary route, add a route config entry and matching `routeStates` ent
 `public/projects/` is the only source for browser-facing images, PDFs, PPTX files, and downloadable assets. `source-materials/` preserves original reports, TeX, slides, and documents but is never a web asset source.
 
 `data/projects.ts` is the fact source for project listings and links. `data/publications.ts` uses project IDs for course technical reports. Long project prose stays in the matching locale data module.
+
+## Interaction Boundaries
+
+The Spatial Ribbon is a fixed direct body child. It owns the shared global reading-progress line, while the active desktop route tab provides an additional local progress bar. Compact navigation uses the same progress source, and mobile navigation reserves top/bottom safe areas.
+
+Home research entries remain actual anchors with `data-spatial-preview`, so hover, focus, touch, and no-JavaScript navigation preserve normal link semantics. Projects filtering is progressive enhancement: the static document contains all projects, and the client layer updates `aria-pressed`, an `aria-live` result message, rail description/preview, short FLIP-style row motion, and the already-running spatial scene category palette.
+
+For visual page work, keep content on local low-opacity reading plates rather than placing an opaque background on `.site-main`. The background canvas and its CSS fallback remain decorative only.

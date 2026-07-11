@@ -55,7 +55,38 @@
 }
 
 html[data-spatial-webgl='ready'] [data-spatial-fallback] {
-  opacity: 0.32;
+  opacity: 0.22;
+}
+
+body[data-spatial-route='about'] [data-spatial-fallback]::before {
+  background-image:
+    linear-gradient(90deg, transparent 49.8%, color-mix(in srgb, var(--accent-about) 38%, transparent) 50%, transparent 50.2%),
+    linear-gradient(transparent 49.8%, color-mix(in srgb, var(--accent-about) 38%, transparent) 50%, transparent 50.2%),
+    repeating-radial-gradient(ellipse at 42% 51%, transparent 0 5rem, color-mix(in srgb, var(--accent-about) 44%, transparent) 5.08rem 5.18rem, transparent 5.26rem 8rem);
+  opacity: 0.72;
+}
+
+body[data-spatial-route='projects'] [data-spatial-fallback]::before {
+  background-image: repeating-linear-gradient(0deg, transparent 0 4.5rem, color-mix(in srgb, var(--accent-projects) 44%, transparent) 4.56rem 4.66rem, transparent 4.72rem 8rem);
+  opacity: 0.72;
+}
+
+body[data-spatial-route='publications'] [data-spatial-fallback]::before {
+  background-image:
+    linear-gradient(90deg, transparent 0 44%, color-mix(in srgb, var(--accent-publications) 34%, transparent) 44.1% 44.2%, transparent 44.3% 100%),
+    repeating-linear-gradient(90deg, transparent 0 8rem, color-mix(in srgb, var(--accent-publications) 35%, transparent) 8.08rem 8.16rem, transparent 8.24rem 11rem),
+    repeating-linear-gradient(0deg, transparent 0 6rem, color-mix(in srgb, var(--accent-publications) 35%, transparent) 6.08rem 6.16rem, transparent 6.24rem 9rem);
+  opacity: 0.68;
+}
+
+body[data-spatial-route='notes'] [data-spatial-fallback]::before {
+  background-image:
+    linear-gradient(28deg, transparent 49.8%, color-mix(in srgb, var(--accent-notes) 40%, transparent) 50%, transparent 50.2%),
+    linear-gradient(-19deg, transparent 49.8%, color-mix(in srgb, var(--accent-projects) 34%, transparent) 50%, transparent 50.2%),
+    radial-gradient(circle at 28% 36%, color-mix(in srgb, var(--accent-notes) 68%, transparent) 0 0.16rem, transparent 0.18rem),
+    radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--accent-projects) 62%, transparent) 0 0.17rem, transparent 0.19rem),
+    radial-gradient(circle at 76% 38%, color-mix(in srgb, var(--accent-notes) 68%, transparent) 0 0.15rem, transparent 0.18rem);
+  opacity: 0.72;
 }
 
 html[data-theme='light'] [data-spatial-fallback] {

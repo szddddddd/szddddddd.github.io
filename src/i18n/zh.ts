@@ -128,6 +128,19 @@ export const zh = {
       creative: '创意编程',
       coursework: '课程项目',
     },
+    index: {
+      railLabel: '研究检索器',
+      resultLabel: '已索引项目',
+      statusPrefix: '当前显示',
+      categoryPreview: '当前分类预览',
+      descriptions: {
+        all: '六个真实课程与研究记录，覆盖三维视觉、医学影像、创意编程与概率建模。',
+        '3d-vision': '使用 SAM2 引导掩码与 Gaussian Splatting 的物体中心三维重建。',
+        'medical-imaging': '来自医学影像课程的 MRI 重建与脑胶质瘤分割研究。',
+        'creative-coding': '来自像素着色课程的程序化 GLSL 与 Shadertoy 视觉实验。',
+        coursework: '六个记录均基于上海科技大学的真实课程项目。',
+      },
+    },
     labels: {
       details: '项目页面',
       shadertoy: 'Shadertoy',
@@ -175,6 +188,7 @@ export const zh = {
     intro: '论文阅读、实验过程与技术思考。',
     empty: '目前暂无公开笔记。这里将用于记录论文阅读、实验过程与技术思考。',
     entryCount: '0 篇',
+    topicsTitle: '主题',
     backToProjects: '返回项目',
     topics: ['论文阅读', '方法', '推导', '实验', '视觉计算'],
   },

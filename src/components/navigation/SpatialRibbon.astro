@@ -21,6 +21,7 @@ const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
 ---
 
 <header class="spatial-ribbon" data-spatial-ribbon data-active-route={activeRoute.id} style={`--active-accent:${activeRoute.accent};`}>
+  <span class="spatial-ribbon__global-progress" aria-hidden="true"><i></i></span>
   <div class="spatial-ribbon__desktop">
     <a class="spatial-ribbon__brand" href={getPath(lang, 'home')} aria-label={`${profile.display[lang].name} home`} transition:name="spatial-brand">
       <strong>SZD</strong><span>/ {activeRoute.index}</span>
@@ -44,6 +45,7 @@ const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
       <ThemeToggle lang={lang} />
       <MotionToggle lang={lang} />
     </div>
+    <span class="spatial-ribbon__compact-progress" aria-hidden="true"><i></i></span>
   </div>
 
   <SpatialIndexOverlay lang={lang} activeId={activeRoute.id} />
@@ -91,12 +93,16 @@ const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
 
   const syncRibbonScroll = () => {
     const ribbon = document.querySelector<HTMLElement>('[data-spatial-ribbon]');
-    const progress = ribbon?.querySelector<HTMLElement>('.spatial-route-tab.is-active .spatial-route-tab__progress');
-    if (!ribbon || !progress) return;
+    if (!ribbon) return;
+    const progress = ribbon.querySelector<HTMLElement>('.spatial-route-tab.is-active .spatial-route-tab__progress');
+    const globalProgress = ribbon.querySelector<HTMLElement>('.spatial-ribbon__global-progress');
+    const compactProgress = ribbon.querySelector<HTMLElement>('.spatial-ribbon__compact-progress');
     const documentHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const percentage = Math.min(100, Math.max(0, (window.scrollY / documentHeight) * 100));
     ribbon.dataset.scrolled = String(window.scrollY > 20);
-    progress.style.setProperty('--scroll-progress', `${percentage}%`);
+    [progress, globalProgress, compactProgress].forEach((element) => {
+      element?.style.setProperty('--scroll-progress', `${percentage}%`);
+    });
   };
 
   const bindRibbonScroll = () => {

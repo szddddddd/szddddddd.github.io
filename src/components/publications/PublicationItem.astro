@@ -30,6 +30,7 @@ const requiresDocumentNavigation = (href: string) => isExternal(href) || /\.(?:p
 ---
 
 <article class="publication-item" data-publication-kind={publication.kind}>
+  <span class="publication-item__archive-mark" aria-hidden="true"><i></i><i></i><i></i></span>
   <div class="publication-year">{year}</div>
   <div class="publication-copy">
     <p class="panel-label">{publication.type[lang]} · {publication.status[lang]}</p>

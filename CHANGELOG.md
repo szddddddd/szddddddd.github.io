@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Spatial Research Atlas visual upgrade
+
+- Fixed the Spatial Ribbon's fixed positioning, added a global reading-progress line, compact progress, desktop 64px-to-52px compression, anchor clearance, and mobile safe-area handling.
+- Exposed the existing single spatial field behind subpages and added route-specific identity, scan/media, archive, and knowledge-network motifs without runtime shader recompilation.
+- Rebuilt Home as four distinct semantic research-entry links with shared-transition names and spatial hover/focus/click previews.
+- Reworked Projects into a 4/12 sticky Research Index Rail plus 8/12 alternating media index; factual category counts, live status, category descriptions, cover previews, short filter motion, and spatial category previews now update together.
+- Reframed About as a coordinate/relationship atlas, Publications as a gold archive that preserves the real peer-reviewed `00` state, and Notes as a rose knowledge network that preserves its real `0 entries` state.
+- Added mobile field-density/glow scaling, manual Motion Off transition reduction, light-theme accent contrast, and mobile horizontal-overflow protection.
+
 ### Spatial Research Atlas refactor
 
 - Replaced the old pill navigation and custom router with the responsive Spatial Ribbon, native index dialog, Mobile Dock, and Astro `ClientRouter`.

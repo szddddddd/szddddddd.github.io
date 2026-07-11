@@ -1,5 +1,5 @@
 import type { RouteId } from '../../config/routes';
-import { routeStates } from '../config/routeStates';
+import { routeStates, type ProjectCategorySceneId } from '../config/routeStates';
 import { SpatialRenderer } from '../rendering/SpatialRenderer';
 import { ViewportInput } from '../interaction/ViewportInput';
 import { ResourceManager } from '../resources/ResourceManager';
@@ -24,6 +24,7 @@ export class SpatialEngine implements SpatialRouteTarget {
   private readonly input: ViewportInput;
   private readonly themeObserver: MutationObserver;
   private contextLost = false;
+  private projectCategory: ProjectCategorySceneId = 'all';
   private started = false;
   private destroyed = false;
 
@@ -46,6 +47,7 @@ export class SpatialEngine implements SpatialRouteTarget {
       onContextRestored: this.handleContextRestored,
     });
     this.scene = new SpatialScene(this.resources);
+    this.scene.setQuality(quality);
     this.scene.applyRoute(routeStates[initialRoute]);
     this.scene.setTheme(theme);
     this.input = new ViewportInput({
@@ -77,6 +79,7 @@ export class SpatialEngine implements SpatialRouteTarget {
     if (route === target) return;
 
     this.transition.stop();
+    if (route !== 'projects') this.clearProjectCategory();
     if (current !== route) this.events.emit('ROUTE_LEAVE', { route: current });
     this.events.emit('ROUTE_PREPARE', { from: current, to: route });
     this.state.setTargetRoute(route);
@@ -101,8 +104,34 @@ export class SpatialEngine implements SpatialRouteTarget {
     this.state.setPreviewRoute(undefined);
     delete document.documentElement.dataset.spatialPreview;
     this.events.emit('NAV_PREVIEW_END', { route });
-    this.transition.clearPreview(this.scene, this.state.snapshot.currentRoute, this.state.snapshot.motionEnabled);
+    if (this.state.snapshot.currentRoute === 'projects') {
+      this.transition.previewProjectCategory(this.scene, this.projectCategory, this.state.snapshot.motionEnabled);
+    } else {
+      this.transition.clearPreview(this.scene, this.state.snapshot.currentRoute, this.state.snapshot.motionEnabled);
+    }
     this.loop.invalidate();
+  }
+
+  previewProjectCategory(category: ProjectCategorySceneId): void {
+    if (this.destroyed || this.state.snapshot.currentRoute !== 'projects' || this.state.snapshot.targetRoute !== 'projects') return;
+    this.projectCategory = category;
+    if (category === 'all') {
+      delete document.documentElement.dataset.spatialProjectFilter;
+    } else {
+      document.documentElement.dataset.spatialProjectFilter = category;
+    }
+    this.transition.previewProjectCategory(this.scene, category, this.state.snapshot.motionEnabled);
+    this.loop.invalidate();
+  }
+
+  clearProjectCategory(): void {
+    if (this.projectCategory === 'all') return;
+    this.projectCategory = 'all';
+    delete document.documentElement.dataset.spatialProjectFilter;
+    if (this.state.snapshot.currentRoute === 'projects' && this.state.snapshot.targetRoute === 'projects') {
+      this.transition.previewProjectCategory(this.scene, 'all', this.state.snapshot.motionEnabled);
+      this.loop.invalidate();
+    }
   }
 
   destroy(): void {
@@ -140,6 +169,7 @@ export class SpatialEngine implements SpatialRouteTarget {
     if (quality !== this.state.snapshot.quality) {
       this.state.setQuality(quality);
       this.renderer.setQuality(quality);
+      this.scene.setQuality(quality);
       this.events.emit('QUALITY_CHANGE', { quality });
     }
 

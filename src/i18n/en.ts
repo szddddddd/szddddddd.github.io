@@ -133,6 +133,19 @@ export const en = {
       creative: 'Creative Coding',
       coursework: 'Coursework',
     },
+    index: {
+      railLabel: 'Research Index',
+      resultLabel: 'indexed works',
+      statusPrefix: 'Showing',
+      categoryPreview: 'Category preview',
+      descriptions: {
+        all: 'Six course and research records spanning 3D vision, medical imaging, creative coding, and probability modelling.',
+        '3d-vision': 'Object-centric reconstruction using SAM2-guided masks and Gaussian Splatting.',
+        'medical-imaging': 'MRI reconstruction and glioma segmentation studies from medical imaging coursework.',
+        'creative-coding': 'Procedural GLSL artworks and Shadertoy studies from pixel shading coursework.',
+        coursework: 'All six records are grounded in actual ShanghaiTech coursework.',
+      },
+    },
     labels: {
       details: 'Project Page',
       shadertoy: 'Shadertoy',
@@ -180,6 +193,7 @@ export const en = {
     intro: 'Reading notes, experiments, and technical reflections.',
     empty: 'No public entries yet. This notebook will document reading, experiments, and technical reflections.',
     entryCount: '0 entries',
+    topicsTitle: 'Topics',
     backToProjects: 'Back to Projects',
     topics: ['Reading Notes', 'Methods', 'Derivations', 'Experiments', 'Visual Computing'],
   },

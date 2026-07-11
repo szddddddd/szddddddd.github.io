@@ -20,9 +20,13 @@ const technicalReportCount = String(technicalReports.length).padStart(2, '0');
     <p class="eyebrow" transition:name="page-index">03 / {t.nav.publications}</p>
     <h1 id="publications-page-title" transition:name="page-main-title">{t.publications.pageTitle}</h1>
     <p>{t.publications.intro}</p>
+    <div class="publication-archive-legend" aria-label={t.publications.pageTitle}>
+      <span>{t.publications.peerReviewedTitle} / {peerReviewedCount}</span>
+      <span>{t.publications.technicalReportsTitle} / {technicalReportCount}</span>
+    </div>
   </section>
 
-  <Section id="peer-reviewed" eyebrow={`${t.publications.peerReviewedTitle} / ${peerReviewedCount}`}>
+  <Section id="peer-reviewed" className="publication-archive-section" eyebrow={`${t.publications.peerReviewedTitle} / ${peerReviewedCount}`} title={t.publications.peerReviewedTitle} intro={t.publications.empty}>
     {
       peerReviewed.length > 0 ? (
         <div class="publication-list">
@@ -34,7 +38,7 @@ const technicalReportCount = String(technicalReports.length).padStart(2, '0');
     }
   </Section>
 
-  <Section id="technical-reports" eyebrow={`${t.publications.technicalReportsTitle} / ${technicalReportCount}`}>
+  <Section id="technical-reports" className="publication-archive-section" eyebrow={`${t.publications.technicalReportsTitle} / ${technicalReportCount}`} title={t.publications.technicalReportsTitle} intro={t.publications.support}>
     <div class="publication-list">
       {technicalReports.map((publication) => <PublicationItem publication={publication} lang={lang} labels={t.publications.labels} />)}
     </div>

@@ -29,6 +29,9 @@ const identityRows = [
       </div>
 
       <aside class="about-identity-matrix" aria-label={t.about.profileTitle}>
+        <div class="about-coordinate-field" aria-hidden="true">
+          <i></i><i></i><i></i><b></b><b></b><b></b>
+        </div>
         <dl class="fact-list about-fact-grid">
           {identityRows.map((item) => (
             <div>
@@ -42,13 +45,16 @@ const identityRows = [
   </section>
 
   <Section id="research-focus" eyebrow={t.about.interestsTitle} title={t.about.focusTitle} intro={t.about.focusIntro}>
-    <div class="detail-two-column">
-      <ul class="interest-list" aria-label={t.about.interestsTitle}>
-        {profile.researchInterests.map((interest) => <li>{interest}</li>)}
-      </ul>
-      <ul class="interest-list">
-        {t.about.focusItems.map((item) => <li>{item}</li>)}
-      </ul>
+    <div class="about-focus-map">
+      <div class="about-focus-map__signal" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b></div>
+      <div class="detail-two-column about-focus-map__lists">
+        <ul class="interest-list" aria-label={t.about.interestsTitle}>
+          {profile.researchInterests.map((interest) => <li>{interest}</li>)}
+        </ul>
+        <ul class="interest-list">
+          {t.about.focusItems.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
     </div>
   </Section>
 

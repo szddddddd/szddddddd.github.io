@@ -22,6 +22,13 @@ export type RouteState = Readonly<{
   transition: RouteTransitionPreset;
 }>;
 
+export type ProjectCategorySceneId = 'all' | '3d-vision' | 'medical-imaging' | 'creative-coding' | 'coursework';
+
+export type ProjectCategorySceneState = Readonly<Pick<
+  RouteState,
+  'particleDensity' | 'flowStrength' | 'noiseScale' | 'primaryColor' | 'secondaryColor' | 'bloomIntensity' | 'vignetteIntensity'
+>>;
+
 export const routeStates: Record<RouteId, RouteState> = {
   home: {
     camera: { position: [0, 1.4, 11], target: [0, 0, 0] },
@@ -69,7 +76,7 @@ export const routeStates: Record<RouteId, RouteState> = {
     bloomIntensity: 0.12,
     vignetteIntensity: 0.18,
     scenePreset: 'citation-grid',
-    transition: { duration: 480 },
+    transition: { duration: 520 },
   },
   notes: {
     camera: { position: [20.4, 1.8, 10.4], target: [17.2, 0.3, 0] },
@@ -84,3 +91,46 @@ export const routeStates: Record<RouteId, RouteState> = {
     transition: { duration: 540 },
   },
 };
+
+export const projectCategoryStates: Record<Exclude<ProjectCategorySceneId, 'all'>, ProjectCategorySceneState> = {
+  '3d-vision': {
+    particleDensity: 0.86,
+    flowStrength: 0.31,
+    noiseScale: 3.22,
+    primaryColor: '#8b7cff',
+    secondaryColor: '#77e0f5',
+    bloomIntensity: 0.34,
+    vignetteIntensity: 0.22,
+  },
+  'medical-imaging': {
+    particleDensity: 0.56,
+    flowStrength: 0.12,
+    noiseScale: 2.18,
+    primaryColor: '#e7c46a',
+    secondaryColor: '#65d8cb',
+    bloomIntensity: 0.2,
+    vignetteIntensity: 0.2,
+  },
+  'creative-coding': {
+    particleDensity: 0.8,
+    flowStrength: 0.33,
+    noiseScale: 3.38,
+    primaryColor: '#d98ec8',
+    secondaryColor: '#8b7cff',
+    bloomIntensity: 0.3,
+    vignetteIntensity: 0.27,
+  },
+  coursework: {
+    particleDensity: 0.7,
+    flowStrength: 0.18,
+    noiseScale: 2.72,
+    primaryColor: '#77e0f5',
+    secondaryColor: '#8b7cff',
+    bloomIntensity: 0.24,
+    vignetteIntensity: 0.24,
+  },
+};
+
+export function isProjectCategorySceneId(value: string): value is ProjectCategorySceneId {
+  return value === 'all' || value in projectCategoryStates;
+}

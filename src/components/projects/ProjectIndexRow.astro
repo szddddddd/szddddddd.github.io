@@ -47,7 +47,10 @@ const detailHref = resolveLink(project.links.details);
 const hasDetailLink = Boolean(detailHref && isUrl(detailHref));
 ---
 
-<article class:list={['project-row', 'reveal-card', hasDetailLink && 'is-clickable', isSi100bProject && 'si100b-project-preview']}>
+<article
+  class:list={['project-row', 'reveal-card', hasDetailLink && 'is-clickable', isSi100bProject && 'si100b-project-preview']}
+  data-rsui-project={project.slug}
+>
   {hasDetailLink && <a class="card-cover-link" href={detailHref} aria-label={`${labels.details}: ${title}`}></a>}
   <div class="project-row-media" aria-hidden="true">
     {project.image ? <img src={project.image} alt="" loading="lazy" /> : <div class="project-field"><span></span><span></span><span></span></div>}

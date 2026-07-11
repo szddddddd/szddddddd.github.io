@@ -42,26 +42,10 @@
   pointer-events: none;
 }
 
-.neural-ion-canvas,
 .neural-ion-fallback,
 .neural-ion-vignette {
   position: absolute;
   inset: 0;
-}
-
-.neural-ion-canvas {
-  z-index: 2;
-  display: block;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 680ms ease;
-}
-
-.neural-ion-hero[data-neural-ion-state="running"] .neural-ion-canvas,
-.neural-ion-hero[data-neural-ion-state="paused"] .neural-ion-canvas {
-  opacity: 1;
 }
 
 .neural-ion-fallback {
@@ -129,11 +113,6 @@
   pointer-events: none;
 }
 
-.neural-ion-hero[data-neural-ion-state="fallback"] .neural-ion-canvas,
-.neural-ion-hero[data-neural-ion-state="reduced"] .neural-ion-canvas {
-  display: none;
-}
-
 @media (max-width: 920px) {
   .neural-ion-hero {
     width: min(100%, 34rem);
@@ -150,11 +129,5 @@
   .neural-ion-hero::before {
     inset: 0.58rem;
     border-radius: 0.92rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .neural-ion-hero .neural-ion-canvas {
-    display: none;
   }
 }

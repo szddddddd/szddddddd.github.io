@@ -27,9 +27,13 @@ body {
   isolation: isolate;
 }
 
-body > :not(.visual-background) {
+body > :not(.visual-background):not([data-rsui-root]) {
   position: relative;
   z-index: 1;
+}
+
+body[data-rsui-engine="ready"] .visual-background {
+  opacity: 0.3;
 }
 
 img,
@@ -50,6 +54,7 @@ a {
   .nav-actions,
   .language-toggle,
   .theme-toggle,
+  .motion-toggle,
   .brand-mark,
   .tag-list li,
   .button,
@@ -150,6 +155,44 @@ ul {
   backdrop-filter: blur(18px);
 }
 
+.rsui-command-center {
+  width: min(1320px, calc(100% - 1.5rem));
+  margin-top: 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 76%, transparent);
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--nav-background) 88%, transparent);
+  box-shadow: 0 1rem 3.8rem rgba(0, 0, 0, 0.14), inset 0 1px rgba(255, 255, 255, 0.04);
+  padding: 0.52rem 0.62rem;
+  backdrop-filter: blur(22px) saturate(130%);
+}
+
+.rsui-command-center__routes {
+  background: color-mix(in srgb, var(--nav-background) 56%, transparent);
+}
+
+.rsui-command-center__routes a {
+  position: relative;
+  isolation: isolate;
+}
+
+.rsui-command-center__routes a[aria-current="page"] {
+  background: color-mix(in srgb, var(--cyan) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cyan) 38%, transparent), 0 0 1.1rem color-mix(in srgb, var(--cyan) 18%, transparent);
+  color: var(--text);
+}
+
+.rsui-command-center__routes a[aria-current="page"]::after {
+  position: absolute;
+  right: 0.44rem;
+  top: 0.42rem;
+  width: 0.24rem;
+  height: 0.24rem;
+  border-radius: 999px;
+  background: var(--cyan);
+  box-shadow: 0 0 0.65rem var(--cyan);
+  content: "";
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -219,7 +262,8 @@ ul {
 
 .nav-links a,
 .language-toggle,
-.theme-toggle {
+.theme-toggle,
+.motion-toggle {
   border-radius: 999px;
   padding: 0.55rem 0.78rem;
   color: var(--muted);
@@ -231,13 +275,15 @@ ul {
 
 .nav-links a:hover,
 .language-toggle:hover,
-.theme-toggle:hover {
+.theme-toggle:hover,
+.motion-toggle:hover {
   background: var(--nav-hover-background);
   color: var(--text);
 }
 
 .language-toggle,
-.theme-toggle {
+.theme-toggle,
+.motion-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -252,6 +298,25 @@ ul {
   gap: 0.38rem;
   cursor: pointer;
   font: inherit;
+}
+
+.motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.motion-toggle-icon {
+  color: var(--violet);
+  font-size: 0.78rem;
+}
+
+.motion-toggle[data-motion-state="off"] .motion-toggle-icon {
+  color: var(--muted);
 }
 
 .theme-toggle-icon {
@@ -661,6 +726,21 @@ main {
 .about-compact-layout {
   max-width: 64rem;
   gap: 1rem;
+}
+
+.about-identity-space {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(17rem, 0.62fr);
+  align-items: stretch;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.about-neural-visual {
+  min-width: 0;
+}
+
+.about-neural-visual .neural-ion-hero {
+  min-height: 100%;
 }
 
 .about-info-card {
@@ -1311,6 +1391,7 @@ main {
   }
 
   .about-grid,
+  .about-identity-space,
   .about-card-grid,
   .contact-grid,
   .portal-grid {
@@ -1347,7 +1428,8 @@ main {
   }
 
   .language-toggle,
-  .theme-toggle {
+  .theme-toggle,
+  .motion-toggle {
     flex: 1;
     justify-content: center;
   }

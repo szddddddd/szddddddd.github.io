@@ -1,8 +1,10 @@
 ---
 import Navbar from '../components/navigation/Navbar.astro';
+import RSUIRoot from '../components/rsui/RSUIRoot.astro';
 import VisualBackground from '../components/visual/VisualBackground.astro';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang, type PageKey } from '../i18n';
+import { getSpatialPage } from '../navigation/PageState';
 import '../styles/global.css';
 
 interface Props {
@@ -19,6 +21,7 @@ const pageDescription = description ?? t.meta.description;
 const canonical = Astro.site ? new URL(getPath(lang, page), Astro.site).toString() : Astro.url.href;
 const alternateEn = Astro.site ? new URL(getPath('en', page), Astro.site).toString() : getPath('en', page);
 const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toString() : getPath('zh', page);
+const spatialPage = getSpatialPage(page);
 ---
 
 <!doctype html>
@@ -67,15 +70,21 @@ const alternateZh = Astro.site ? new URL(getPath('zh', page), Astro.site).toStri
     <meta name="author" content={profile.nameEn} />
     <title>{pageTitle}</title>
   </head>
-  <body>
+  <body data-rsui-page={spatialPage} data-rsui-route-key={page}>
     <a class="skip-link" href="#main-content">{t.common.skipToContent}</a>
+    <RSUIRoot />
     <VisualBackground />
-    <Navbar lang={lang} page={page} variant={page === 'home' ? 'home' : 'default'} />
-    <main id="main-content" class:list={[page === 'home' && 'home-main']}>
+    <Navbar lang={lang} page={page} />
+    <main id="main-content" data-rsui-main data-rsui-page={spatialPage} data-rsui-route-key={page} tabindex="-1" class:list={[page === 'home' && 'home-main']}>
       <slot />
     </main>
-    <footer class="site-footer">
+    <footer class="site-footer" data-rsui-footer>
       <p>© {new Date().getFullYear()} {lang === 'zh' ? profile.nameZh : profile.nameEn}. {t.common.builtWith}</p>
     </footer>
+    <script>
+      import { bootRSUI } from '../core/bootstrap';
+
+      void bootRSUI();
+    </script>
   </body>
 </html>

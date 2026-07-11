@@ -1,5 +1,6 @@
 ---
 import SpatialHero from '../visual/SpatialHero.astro';
+import NeuralIonHero from '../visual/NeuralIonHero.astro';
 import ProjectIndexRow from '../projects/ProjectIndexRow.astro';
 import PublicationItem from '../publications/PublicationItem.astro';
 import Section from '../ui/Section.astro';
@@ -67,44 +68,49 @@ const identityRows = [
       </section>
 
       <section class="section about-compact-section">
-        <div class="section-body about-compact-layout">
-          <article class="panel about-info-card" aria-label={t.about.identityTitle}>
-            <dl class="fact-list about-fact-grid">
-              {identityRows.map((item) => (
-                <div>
-                  <dt>{item.label}</dt>
-                  <dd>{item.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </article>
+        <div class="about-identity-space">
+          <div class="section-body about-compact-layout">
+            <article class="panel about-info-card" aria-label={t.about.identityTitle}>
+              <dl class="fact-list about-fact-grid">
+                {identityRows.map((item) => (
+                  <div>
+                    <dt>{item.label}</dt>
+                    <dd>{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </article>
 
-          <div class="about-interest-block" aria-label={t.about.interestsTitle}>
-            <ul class="tag-list about-interest-tags">
-              {profile.researchInterests.map((interest) => <li>{interest}</li>)}
-            </ul>
+            <div class="about-interest-block" aria-label={t.about.interestsTitle}>
+              <ul class="tag-list about-interest-tags">
+                {profile.researchInterests.map((interest) => <li>{interest}</li>)}
+              </ul>
+            </div>
+
+            <article class="panel about-contact-panel" aria-label={t.about.contactTitle}>
+              <div class="about-contact-copy">
+                <p class="panel-label">{t.about.contactTitle}</p>
+                <p>{t.about.contactIntro}</p>
+              </div>
+              <div class="contact-grid about-contact-grid">
+                <article class="about-contact-item">
+                  <p class="panel-label">{t.about.contactLabels.email}</p>
+                  <a class="contact-link" href={`mailto:${profile.email}`}>{profile.email}</a>
+                </article>
+                <article class="about-contact-item">
+                  <p class="panel-label">{t.about.contactLabels.github}</p>
+                  <a class="contact-link" href={profile.githubUrl} target="_blank" rel="noreferrer">{profile.githubUrl}</a>
+                </article>
+                <article class="about-contact-item">
+                  <p class="panel-label">{t.about.contactLabels.cv}</p>
+                  <p class="contact-link muted">{t.common.comingSoon}</p>
+                </article>
+              </div>
+            </article>
           </div>
-
-          <article class="panel about-contact-panel" aria-label={t.about.contactTitle}>
-            <div class="about-contact-copy">
-              <p class="panel-label">{t.about.contactTitle}</p>
-              <p>{t.about.contactIntro}</p>
-            </div>
-            <div class="contact-grid about-contact-grid">
-              <article class="about-contact-item">
-                <p class="panel-label">{t.about.contactLabels.email}</p>
-                <a class="contact-link" href={`mailto:${profile.email}`}>{profile.email}</a>
-              </article>
-              <article class="about-contact-item">
-                <p class="panel-label">{t.about.contactLabels.github}</p>
-                <a class="contact-link" href={profile.githubUrl} target="_blank" rel="noreferrer">{profile.githubUrl}</a>
-              </article>
-              <article class="about-contact-item">
-                <p class="panel-label">{t.about.contactLabels.cv}</p>
-                <p class="contact-link muted">{t.common.comingSoon}</p>
-              </article>
-            </div>
-          </article>
+          <div class="about-neural-visual">
+            <NeuralIonHero label={t.hero.visualIndex} />
+          </div>
         </div>
       </section>
     </div>

@@ -23,10 +23,9 @@ const copy = {
 };
 ---
 
-<section class="spatial-home" data-spatial-home data-spatial-state="idle" data-spatial-hover="none" aria-labelledby="spatial-home-title">
-  <div class="spatial-canvas-layer" aria-hidden="true">
+<section class="spatial-home" data-spatial-home data-spatial-state="engine" data-spatial-hover="none" aria-labelledby="spatial-home-title">
+  <div class="spatial-field-layer" aria-hidden="true">
     <div class="spatial-fallback" aria-hidden="true"></div>
-    <canvas class="spatial-canvas" data-spatial-canvas aria-hidden="true" role="presentation"></canvas>
     <div class="spatial-vignette" aria-hidden="true"></div>
   </div>
 
@@ -41,7 +40,7 @@ const copy = {
 
     <nav class="spatial-portal-grid" aria-label={copy.portalLabel}>
       {copy.portals.map((portal, index) => (
-        <a class="spatial-portal" href={getPath(lang, portal.page)} data-spatial-portal data-portal={portal.key}>
+        <a class="spatial-portal" href={getPath(lang, portal.page)} data-spatial-portal data-rsui-portal data-rsui-magnetic data-portal={portal.key}>
           <span class="spatial-portal__top">
             <span class="spatial-portal__index">{String(index + 1).padStart(2, '0')}</span>
             <span class="spatial-portal__arrow" aria-hidden="true">↗</span>
@@ -97,7 +96,3 @@ const copy = {
     </nav>
   </div>
 </section>
-
-<script>
-  import '../../scripts/visual/spatial-field';
-</script>

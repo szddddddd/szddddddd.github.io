@@ -30,6 +30,11 @@ body[data-rsui-engine='ready'] .visual-background {
   padding-top: 3.5rem;
 }
 
+.about-page-hero {
+  width: 100%;
+  max-width: none;
+}
+
 .page-hero {
   display: grid;
   gap: 1rem;

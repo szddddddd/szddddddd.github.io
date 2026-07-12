@@ -10,7 +10,6 @@ uniform float uBloom;
 uniform float uVignette;
 uniform float uTheme;
 uniform float uRouteMix;
-uniform float uStructure;
 uniform vec3 uPrimary;
 uniform vec3 uSecondary;
 uniform vec3 uCameraPosition;

@@ -17,8 +17,7 @@ export class SpatialRenderer {
     this.quality = quality;
     this.instance = new WebGLRenderer({
       alpha: true,
-      // The renderer draws a fullscreen quad; MSAA cannot improve its edges.
-      antialias: false,
+      antialias: quality === 'full',
       powerPreference: 'high-performance',
       preserveDrawingBuffer: false,
     });
@@ -39,7 +38,7 @@ export class SpatialRenderer {
   }
 
   resize(width: number, height: number): void {
-    this.instance.setPixelRatio(this.getPixelRatio(width, height));
+    this.instance.setPixelRatio(this.getPixelRatio());
     this.instance.setSize(Math.max(1, width), Math.max(1, height), false);
   }
 
@@ -57,11 +56,8 @@ export class SpatialRenderer {
     this.canvas.remove();
   }
 
-  private getPixelRatio(width: number, height: number): number {
+  private getPixelRatio(): number {
     const devicePixelRatio = window.devicePixelRatio || 1;
-    const pixelBudget = this.quality === 'reduced' ? 1_200_000 : 3_000_000;
-    const viewportPixels = Math.max(1, width * height);
-    const budgetRatio = Math.sqrt(pixelBudget / viewportPixels);
-    return Math.min(devicePixelRatio, budgetRatio);
+    return this.quality === 'reduced' ? 1 : Math.min(devicePixelRatio, 1.5);
   }
 }

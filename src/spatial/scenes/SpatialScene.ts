@@ -26,7 +26,6 @@ export type SceneTransitionValues = {
   noiseScale: number;
   bloom: number;
   vignette: number;
-  structure: number;
   routeMix: number;
 };
 
@@ -106,7 +105,6 @@ export class SpatialScene {
       noiseScale: uniforms.uNoiseScale.value,
       bloom: uniforms.uBloom.value / this.bloomScale,
       vignette: uniforms.uVignette.value,
-      structure: uniforms.uStructure.value,
       routeMix: uniforms.uRouteMix.value,
     };
   }
@@ -132,7 +130,6 @@ export class SpatialScene {
       noiseScale: palette.noiseScale,
       bloom: palette.bloom,
       vignette: palette.vignette,
-      structure: palette.structure,
       routeMix: 1,
     };
   }
@@ -156,7 +153,6 @@ export class SpatialScene {
       noiseScale: palette.noiseScale,
       bloom: palette.bloom,
       vignette: palette.vignette,
-      structure: palette.structure,
     };
   }
 
@@ -171,7 +167,6 @@ export class SpatialScene {
     uniforms.uNoiseScale.value = values.noiseScale;
     uniforms.uBloom.value = values.bloom * this.bloomScale;
     uniforms.uVignette.value = values.vignette;
-    uniforms.uStructure.value = values.structure;
     uniforms.uRouteMix.value = values.routeMix;
   }
 

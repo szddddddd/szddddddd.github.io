@@ -122,6 +122,7 @@ function blendValues(from: SceneTransitionValues, to: SceneTransitionValues, amo
     noiseScale: blend(from.noiseScale, to.noiseScale),
     bloom: blend(from.bloom, to.bloom),
     vignette: blend(from.vignette, to.vignette),
+    structure: blend(from.structure, to.structure),
     routeMix: 1,
   };
 }

@@ -1,5 +1,5 @@
 import { Color } from 'three';
-import type { RouteState } from '../config/routeStates';
+import { getSceneStructure, type RouteState, type RouteStructure } from '../config/routeStates';
 import type { NeuralFieldUniforms } from '../shaders/programs/neural-field/uniforms';
 
 /** Applies route visual values to one persistent shader material. */
@@ -11,6 +11,7 @@ export function applyRoutePalette(uniforms: NeuralFieldUniforms, state: RouteSta
   uniforms.uNoiseScale.value = state.noiseScale;
   uniforms.uBloom.value = state.bloomIntensity;
   uniforms.uVignette.value = state.vignetteIntensity;
+  uniforms.uStructure.value = getSceneStructure(state.scenePreset);
 }
 
 export type RoutePaletteValues = {
@@ -21,6 +22,7 @@ export type RoutePaletteValues = {
   noiseScale: number;
   bloom: number;
   vignette: number;
+  structure: RouteStructure;
 };
 
 export function createRoutePaletteValues(state: RouteState): RoutePaletteValues {
@@ -32,5 +34,6 @@ export function createRoutePaletteValues(state: RouteState): RoutePaletteValues 
     noiseScale: state.noiseScale,
     bloom: state.bloomIntensity,
     vignette: state.vignetteIntensity,
+    structure: getSceneStructure(state.scenePreset),
   };
 }

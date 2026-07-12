@@ -31,7 +31,12 @@
 }
 
 [data-spatial-fallback]::before {
-  display: none;
+  display: block;
+  background-image:
+    linear-gradient(90deg, transparent 49.92%, color-mix(in srgb, var(--accent-home) 24%, transparent) 50%, transparent 50.08%),
+    linear-gradient(transparent 49.92%, color-mix(in srgb, var(--accent-home) 24%, transparent) 50%, transparent 50.08%),
+    repeating-linear-gradient(125deg, transparent 0 7rem, color-mix(in srgb, var(--accent-home) 18%, transparent) 7.06rem 7.1rem, transparent 7.16rem 15rem);
+  opacity: 0.44;
 }
 
 [data-spatial-fallback]::after {

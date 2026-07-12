@@ -6,6 +6,14 @@ export type RouteTransitionPreset = Readonly<{
   duration: number;
 }>;
 
+/**
+ * A structural preset index consumed by the neural-field shader.
+ *
+ * Values are intentionally kept on the existing scene-preset scale (0..4)
+ * so the shader can smoothly interpolate between adjacent vocabularies.
+ */
+export type RouteStructure = number;
+
 export type RouteState = Readonly<{
   camera: Readonly<{
     position: readonly [number, number, number];
@@ -28,6 +36,19 @@ export type ProjectCategorySceneState = Readonly<Pick<
   RouteState,
   'particleDensity' | 'flowStrength' | 'noiseScale' | 'primaryColor' | 'secondaryColor' | 'bloomIntensity' | 'vignetteIntensity'
 >>;
+
+/** Maps the existing semantic scene presets to a stable shader structure bias. */
+export const scenePresetStructures: Record<RouteScenePreset, RouteStructure> = {
+  'research-map': 0,
+  'identity-field': 1,
+  'media-flow': 2,
+  'citation-grid': 3,
+  'knowledge-network': 4,
+};
+
+export function getSceneStructure(preset: RouteScenePreset): RouteStructure {
+  return scenePresetStructures[preset];
+}
 
 export const routeStates: Record<RouteId, RouteState> = {
   home: {

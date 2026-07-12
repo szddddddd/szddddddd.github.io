@@ -12,6 +12,7 @@ export type NeuralFieldUniforms = {
   uVignette: { value: number };
   uTheme: { value: number };
   uRouteMix: { value: number };
+  uStructure: { value: number };
   uPrimary: { value: Color };
   uSecondary: { value: Color };
   uCameraPosition: { value: Vector3 };
@@ -30,6 +31,7 @@ export function createNeuralFieldUniforms(): NeuralFieldUniforms {
     uVignette: { value: 0.3 },
     uTheme: { value: 0 },
     uRouteMix: { value: 1 },
+    uStructure: { value: 0 },
     uPrimary: { value: new Color('#77e0f5') },
     uSecondary: { value: new Color('#8b7cff') },
     uCameraPosition: { value: new Vector3() },

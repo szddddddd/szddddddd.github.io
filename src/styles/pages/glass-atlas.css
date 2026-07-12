@@ -311,6 +311,10 @@ body[data-rsui-engine='ready'] .visual-background {
   padding: 1rem;
 }
 
+.project-row[hidden] {
+  display: none !important;
+}
+
 .project-row--reverse {
   grid-template-columns: minmax(0, 1.22fr) minmax(13rem, 0.78fr);
   grid-template-areas: 'copy media';

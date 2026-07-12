@@ -31,12 +31,7 @@
 }
 
 [data-spatial-fallback]::before {
-  display: block;
-  background-image:
-    linear-gradient(90deg, transparent 49.92%, color-mix(in srgb, var(--accent-home) 24%, transparent) 50%, transparent 50.08%),
-    linear-gradient(transparent 49.92%, color-mix(in srgb, var(--accent-home) 24%, transparent) 50%, transparent 50.08%),
-    repeating-linear-gradient(125deg, transparent 0 7rem, color-mix(in srgb, var(--accent-home) 18%, transparent) 7.06rem 7.1rem, transparent 7.16rem 15rem);
-  opacity: 0.44;
+  display: none;
 }
 
 [data-spatial-fallback]::after {
@@ -83,8 +78,9 @@ body[data-spatial-route='notes'] [data-spatial-fallback]::before {
   background-image:
     linear-gradient(28deg, transparent 49.8%, color-mix(in srgb, var(--accent-notes) 40%, transparent) 50%, transparent 50.2%),
     linear-gradient(-19deg, transparent 49.8%, color-mix(in srgb, var(--accent-projects) 34%, transparent) 50%, transparent 50.2%),
-    repeating-linear-gradient(90deg, transparent 0 7rem, color-mix(in srgb, var(--accent-notes) 32%, transparent) 7.06rem 7.14rem, transparent 7.2rem 11rem),
-    repeating-linear-gradient(0deg, transparent 0 6rem, color-mix(in srgb, var(--accent-projects) 28%, transparent) 6.06rem 6.14rem, transparent 6.2rem 10rem);
+    radial-gradient(circle at 28% 36%, color-mix(in srgb, var(--accent-notes) 68%, transparent) 0 0.16rem, transparent 0.18rem),
+    radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--accent-projects) 62%, transparent) 0 0.17rem, transparent 0.19rem),
+    radial-gradient(circle at 76% 38%, color-mix(in srgb, var(--accent-notes) 68%, transparent) 0 0.15rem, transparent 0.18rem);
   opacity: 0.72;
 }
 

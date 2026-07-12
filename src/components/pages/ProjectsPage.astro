@@ -83,8 +83,6 @@ const filters = filterDefinitions.map((filter) => ({
       if (root.dataset.projectFiltersBound === 'true') return;
       root.dataset.projectFiltersBound = 'true';
 
-      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-project-filter]');
-      const rows = root.querySelectorAll<HTMLElement>('[data-project-categories]');
       const index = root.querySelector<HTMLElement>('[data-project-index]');
       const currentFilter = root.querySelector<HTMLElement>('[data-project-current-filter]');
       const resultCount = root.querySelector<HTMLElement>('[data-project-result-count]');
@@ -94,6 +92,7 @@ const filters = filterDefinitions.map((filter) => ({
       let filterTimer: number | undefined;
 
       const updateRows = (selected: string) => {
+        const rows = root.querySelectorAll<HTMLElement>('[data-project-categories]');
         if (filterTimer !== undefined) window.clearTimeout(filterTimer);
         const reduceMotion = document.documentElement.dataset.motion === 'reduced';
         const visibleBefore = new Map<HTMLElement, DOMRect>();
@@ -135,33 +134,36 @@ const filters = filterDefinitions.map((filter) => ({
         }, reduceMotion ? 0 : 110);
       };
 
-      buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-          const selected = button.dataset.projectFilter ?? 'all';
-          root.dataset.projectActiveFilter = selected;
-          root.classList.remove('is-filter-transition');
-          requestAnimationFrame(() => root.classList.add('is-filter-transition'));
+      root.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const button = target?.closest<HTMLButtonElement>('[data-project-filter]');
+        if (!button || !root.contains(button)) return;
 
-          buttons.forEach((candidate) => {
-            candidate.setAttribute('aria-pressed', String(candidate === button));
-          });
+        const selected = button.dataset.projectFilter ?? 'all';
+        const rows = root.querySelectorAll<HTMLElement>('[data-project-categories]');
+        root.dataset.projectActiveFilter = selected;
+        root.classList.remove('is-filter-transition');
+        requestAnimationFrame(() => root.classList.add('is-filter-transition'));
 
-          const count = Number(button.dataset.projectCount ?? rows.length);
-          currentFilter && (currentFilter.textContent = button.dataset.projectLabel ?? '');
-          resultCount && (resultCount.textContent = String(count).padStart(2, '0'));
-          description && (description.textContent = button.dataset.projectDescription ?? '');
-          if (flow) flow.dataset.filter = selected;
-          if (status) {
-            const prefix = status.dataset.statusPrefix ?? '';
-            const label = button.dataset.projectLabel ?? '';
-            const resultLabel = status.dataset.resultLabel ?? '';
-            status.textContent = `${prefix} ${label}: ${String(count).padStart(2, '0')} ${resultLabel}.`;
-          }
-
-          updateRows(selected);
-          window.setTimeout(() => root.classList.remove('is-filter-transition'), 360);
-          document.dispatchEvent(new CustomEvent('spatial:project-filter', { detail: { category: selected } }));
+        root.querySelectorAll<HTMLButtonElement>('[data-project-filter]').forEach((candidate) => {
+          candidate.setAttribute('aria-pressed', String(candidate === button));
         });
+
+        const count = Number(button.dataset.projectCount ?? rows.length);
+        currentFilter && (currentFilter.textContent = button.dataset.projectLabel ?? '');
+        resultCount && (resultCount.textContent = String(count).padStart(2, '0'));
+        description && (description.textContent = button.dataset.projectDescription ?? '');
+        if (flow) flow.dataset.filter = selected;
+        if (status) {
+          const prefix = status.dataset.statusPrefix ?? '';
+          const label = button.dataset.projectLabel ?? '';
+          const resultLabel = status.dataset.resultLabel ?? '';
+          status.textContent = `${prefix} ${label}: ${String(count).padStart(2, '0')} ${resultLabel}.`;
+        }
+
+        updateRows(selected);
+        window.setTimeout(() => root.classList.remove('is-filter-transition'), 360);
+        document.dispatchEvent(new CustomEvent('spatial:project-filter', { detail: { category: selected } }));
       });
     });
   };

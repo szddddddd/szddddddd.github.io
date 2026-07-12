@@ -163,7 +163,6 @@ const filters = filterDefinitions.map((filter) => ({
 
         updateRows(selected);
         window.setTimeout(() => root.classList.remove('is-filter-transition'), 360);
-        document.dispatchEvent(new CustomEvent('spatial:project-filter', { detail: { category: selected } }));
       });
     });
   };

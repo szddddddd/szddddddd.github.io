@@ -28,6 +28,7 @@ const titles: Record<PageKey, string> = {
   projectBme1312: t.bme1312.metaTitle,
   projectBme1312Proj2: t.bme1312Proj2.metaTitle,
   projectCs182: t.cs182.metaTitle,
+  projectSi190c: lang === 'zh' ? 'SI190C 六自由度机械臂综合实践 — 宋梓冬' : 'SI190C 6-DOF Robot Arm Integration — Song Zidong',
   projectSi100b: t.si100b.metaTitle,
   projectArts1308: t.arts1308.metaTitle,
   publications: t.publications.pageTitle,
@@ -44,6 +45,10 @@ const descriptions: Record<PageKey, string> = {
   projectBme1312: t.bme1312.metaDescription,
   projectBme1312Proj2: t.bme1312Proj2.metaDescription,
   projectCs182: t.cs182.metaDescription,
+  projectSi190c:
+    lang === 'zh'
+      ? 'SI190C 机器人综合实践课程汇报，涵盖六自由度机械臂装配、夹爪设计、DH 运动学、标定、仿真与 A* 运动规划。'
+      : 'SI190C Robotics Integrated Practice final project covering 6-DOF arm assembly, end-effector design, DH kinematics, calibration, simulation, and A* motion planning.',
   projectSi100b: t.si100b.metaDescription,
   projectArts1308: t.arts1308.metaDescription,
   publications: t.publications.intro,

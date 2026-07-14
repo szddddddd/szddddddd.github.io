@@ -1,6 +1,7 @@
 ---
 import type { Lang } from '../../i18n';
 import { getCopy, getPath } from '../../i18n';
+import { noteEntries } from '../../data/notes';
 import Section from '../ui/Section.astro';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 
 const { lang } = Astro.props as Props;
 const t = getCopy(lang);
+const entryCount = String(noteEntries.length).padStart(2, '0');
 ---
 
 <div class="page-stack notes-page">
@@ -22,8 +24,20 @@ const t = getCopy(lang);
   <Section>
     <div class="notes-network-index" data-notes-index>
       <div class="notes-network-index__meta">
-        <p class="panel-label">{t.notes.entryCount}</p>
-        <p class="notes-empty">{t.notes.empty}</p>
+        <p class="panel-label">{entryCount} / {t.notes.entryCount}</p>
+        {
+          noteEntries.map((entry) => (
+            <article id={`note-${entry.id}`} class="notes-entry">
+              <p class="panel-label">{entry.format[lang]} · {entry.date}</p>
+              <h2>{entry.title[lang]}</h2>
+              <p>{entry.summary[lang]}</p>
+              <ul class="tag-list" aria-label={`${entry.title[lang]} ${t.notes.topicsTitle}`}>
+                {entry.topics[lang].map((topic) => <li>{topic}</li>)}
+              </ul>
+              <a class="text-link" href={entry.href} data-astro-reload>{t.notes.readEntry}</a>
+            </article>
+          ))
+        }
       </div>
       <div class="notes-network-index__topics">
         <p class="panel-label">{t.notes.topicsTitle}</p>

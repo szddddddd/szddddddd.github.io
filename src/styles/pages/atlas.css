@@ -1068,6 +1068,27 @@ html[data-theme='light'] .publication-archive-legend {
   gap: 0.78rem;
 }
 
+.notes-entry {
+  display: grid;
+  gap: 0.55rem;
+  border-top: 1px solid var(--color-line);
+  padding-top: 1rem;
+}
+
+.notes-entry:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.notes-entry h2,
+.notes-entry p {
+  margin: 0;
+}
+
+.notes-entry .tag-list {
+  margin-top: 0.1rem;
+}
+
 .notes-network-index .text-link {
   grid-column: 1 / -1;
   width: max-content;

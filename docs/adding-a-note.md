@@ -4,7 +4,13 @@ Notes are discovered automatically from `src/data/notes/*.ts`. Each file is one 
 
 ## Workflow
 
-1. Put the standalone article at `public/paper-analysis/<slug>/index.html` and keep its local assets under the same directory.
+1. Put the standalone article at `public/paper-analysis/<slug>/index.html` and keep its local assets under the same directory. Before `</head>`, include the shared theme resources so the article follows the site's saved day/night preference:
+
+   ```html
+   <link rel="stylesheet" href="/paper-analysis/theme.css">
+   <script src="/paper-analysis/theme.js"></script>
+   ```
+
 2. Add `src/data/notes/<slug>.ts` with `defineNote()`.
 3. Set `publishedAt` to the paper's first public publication date (`YYYY-MM-DD`), normally the arXiv v1 submission date. Do not use the date you wrote or revised the note. Newer publication dates appear first. Use `order` only to control the order of notes with the same date.
 4. Run `npm run check` and `npm run build`.

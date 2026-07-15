@@ -1122,19 +1122,23 @@ html[data-theme='light'] .publication-archive-legend {
 
 .notes-entry-list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
+  gap: 1rem;
 }
 
 .notes-entry {
   display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
   gap: 0.7rem;
+  min-width: 0;
   scroll-margin-top: calc(var(--ribbon-height) + 1rem);
 }
 
 .notes-entry + .notes-entry {
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--color-line);
-  padding-top: 1.5rem;
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
 }
 
 .notes-entry h2,
@@ -1145,14 +1149,16 @@ html[data-theme='light'] .publication-archive-legend {
 .notes-entry h2 {
   color: var(--color-text);
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: 1.28rem;
   font-weight: 500;
-  line-height: 1.18;
+  line-height: 1.24;
   overflow-wrap: anywhere;
 }
 
 .notes-entry > p:not(.panel-label) {
   color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
 }
 
 .notes-entry .tag-list {
@@ -1170,6 +1176,12 @@ html[data-theme='light'] .publication-archive-legend {
   max-width: 100%;
   border-bottom: 1px solid currentColor;
   padding-bottom: 0.18rem;
+}
+
+@media (max-width: 1100px) {
+  .notes-entry-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .notes-index {

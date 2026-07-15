@@ -59,6 +59,7 @@ docs/              Architecture, refactor audit, and maintenance guides
 - Profile and contact facts: `src/data/profile.ts`
 - Project registry, public links, covers, filters, and display tags: `src/data/projects.ts`
 - Peer-reviewed and technical-report grouping: `src/data/publications.ts`
+- Notes index manifests and version links: `src/data/notes/*.ts` (see [docs/adding-a-note.md](docs/adding-a-note.md))
 - Localized interface and long project copy: `src/i18n/en.ts`, `src/i18n/zh.ts`
 - Public downloads: `public/projects/<slug>/`
 - Source archive: `source-materials/projects/<slug>/`
@@ -67,7 +68,7 @@ docs/              Architecture, refactor audit, and maintenance guides
 
 The four route visuals are configuration-driven: About uses a teal identity field, Projects a violet scan/media flow, Publications a low-density gold archive grid, and Notes a rose-violet network. They share one precompiled material and one engine session.
 
-See [docs/architecture.md](docs/architecture.md), [docs/refactor-audit.md](docs/refactor-audit.md), and [docs/adding-a-project.md](docs/adding-a-project.md).
+See [docs/architecture.md](docs/architecture.md), [docs/refactor-audit.md](docs/refactor-audit.md), [docs/adding-a-project.md](docs/adding-a-project.md), and [docs/adding-a-note.md](docs/adding-a-note.md).
 
 ## Deployment
 

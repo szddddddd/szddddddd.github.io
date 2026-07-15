@@ -17,4 +17,14 @@ export default defineNote({
     zh: ['3D Gaussian Splatting', '自回归生成', '场景合成', 'Transformer'],
   },
   href: '/paper-analysis/gaussiangpt/index.html',
+  versions: [
+    {
+      label: { en: 'Academic analysis', zh: '学术解析版' },
+      href: '/paper-analysis/gaussiangpt/index.html',
+    },
+    {
+      label: { en: 'Complete easy-reading guide', zh: '完整易读版' },
+      href: '/paper-analysis/gaussiangpt/easyreading/',
+    },
+  ],
 });

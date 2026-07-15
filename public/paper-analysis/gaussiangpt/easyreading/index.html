@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GaussianGPT：自回归三维高斯场景生成——完整易读学术解析</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false})"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#f5f7fa;--paper:#fff;--text:#172033;--muted:#5c6879;--line:#dbe1e8;--accent:#2457a6;--soft:#eef4ff;--strict:#eef7f2;--bridge:#fff8e8;--code:#f3f5f8;--danger:#a43b31;--max:1280px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;font-size:16px;line-height:1.82}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.page{width:min(var(--max),calc(100% - 30px));margin:26px auto 70px;display:grid;grid-template-columns:270px minmax(0,1fr);gap:26px;align-items:start}
+.toc{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:17px;font-size:13px}
+.toc strong{display:block;margin-bottom:9px}.toc ol{margin:0;padding-left:19px}.toc li{margin:4px 0}.toc .level-3{margin-left:11px}
+main{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:clamp(23px,5vw,62px);box-shadow:0 8px 30px rgba(25,36,56,.05)}
+h1,h2,h3,h4{line-height:1.35;scroll-margin-top:22px}h1{font-size:clamp(30px,5vw,45px);margin:0 0 12px}h2{font-size:27px;margin:58px 0 18px;padding-bottom:9px;border-bottom:2px solid var(--line)}h3{font-size:21px;margin:35px 0 12px}h4{font-size:17px;margin:26px 0 8px}
+p{margin:13px 0}.meta{color:var(--muted);margin-bottom:24px}.meta span{display:inline-block;margin:0 18px 5px 0}
+.reading-guide{background:linear-gradient(135deg,#eef4ff,#f9fbff);border:1px solid #cadbf4;border-radius:12px;padding:20px 22px;margin:26px 0}
+.paper-unit{border-left:3px solid transparent;padding-left:15px;margin-left:-18px}.paper-unit:hover{border-left-color:#b7c9e8}.source-ref{color:var(--muted);font-size:13px}
+.evidence{display:inline-block;font-size:12px;line-height:1.5;padding:2px 7px;margin-right:6px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#fff}
+.evidence.paper{color:#174a83;background:#eef5ff;border-color:#c9daf0}.evidence.code{color:#5a3e8a;background:#f5f0ff;border-color:#ddd0f1}.evidence.background{color:#22633a;background:#eef8f1;border-color:#cce5d3}.evidence.analysis{color:#775714;background:#fff8e6;border-color:#ead9ad}.evidence.inferred{color:var(--danger);background:#fff1ef;border-color:#efc5bf}
+.strict,.bridge,.formula-card,.experiment-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:16px 0}.strict{background:var(--strict)}.bridge{background:var(--bridge)}.formula-card{background:#fbfbfd}.experiment-card{background:#f8faff}
+.formula-card .katex-display{overflow-x:auto;overflow-y:hidden;padding:8px 0}.symbol-table{font-size:14px}
+figure{margin:25px 0}figure img{display:block;max-width:100%;height:auto;margin:auto;border:1px solid var(--line);border-radius:8px;background:#fff}figcaption{color:var(--muted);font-size:14px;margin-top:9px}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:#f4f6f9;font-weight:650}.best{font-weight:750;color:#174a83}.worse{color:#87352c}
+pre{background:var(--code);border:1px solid var(--line);border-radius:9px;padding:15px;overflow:auto;line-height:1.55}code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.89em}
+details{border:1px solid var(--line);border-radius:9px;margin:16px 0;background:#fcfcfd}summary{cursor:pointer;font-weight:650;padding:12px 15px}details>div{padding:0 15px 15px}
+.checkpoint{border-left:4px solid var(--accent);background:var(--soft);padding:13px 17px;margin:20px 0}.warning{border-left:4px solid var(--danger);background:#fff2f0;padding:13px 17px;margin:20px 0}
+.flow-table td:first-child,.flow-table th:first-child{white-space:nowrap}.coverage-ok{color:#1e6b39;font-weight:650}.coverage-gap{color:var(--danger);font-weight:650}
+blockquote{margin:18px 0;padding:8px 18px;border-left:4px solid #b9c6d8;color:#485468;background:#f8fafc}.footer{margin-top:58px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media(max-width:920px){.page{display:block;width:min(100% - 16px,920px);margin-top:8px}.toc{position:relative;top:auto;max-height:none;margin-bottom:10px}main{padding:24px 17px}.paper-unit{margin-left:0;padding-left:11px}}
+@media print{body{background:#fff}.page{display:block;width:100%;margin:0}.toc{display:none}main{border:0;box-shadow:none;padding:0}details>div{display:block}}
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="toc" aria-label="文章目录"><strong>目录</strong><ol id="toc-list"></ol></nav>
+<main>
+<header>
+  <h1>GaussianGPT：自回归三维高斯场景生成</h1>
+  <p style="font-size:20px;color:#445168;margin-top:0">《GaussianGPT: Towards Autoregressive 3D Gaussian Scene Generation》完整易读学术解析</p>
+  <div class="meta">
+    <span>作者：Nicolas von Lützow、Barbara Rössle、Katharina Schmid、Matthias Nießner</span>
+    <span>机构：Technical University of Munich</span>
+    <span>版本：arXiv v2，2026-07-01；ECCV 2026</span>
+    <span>页数：35</span>
+  </div>
+  <p>
+    <a href="https://arxiv.org/abs/2603.26661">arXiv</a> ·
+    <a href="https://arxiv.org/pdf/2603.26661">PDF</a> ·
+    <a href="https://nicolasvonluetzow.github.io/GaussianGPT/">项目页</a> ·
+    <a href="https://github.com/nicolasvonluetzow/gaussiangpt">官方代码</a>
+  </p>
+</header>
+
+<section class="reading-guide" id="reading-guide">
+  <h2>读前导航</h2>
+  <div class="strict">
+    <span class="evidence paper">论文内容</span>
+    <strong>一句严格概括：</strong>GaussianGPT 先用稀疏三维卷积自编码器把连续的 3D Gaussian 场景压缩为稀疏离散 latent grid，再把每个占用 latent voxel 写成“位置 token—特征 token”对，最后用带三维坐标 RoPE 的 causal Transformer 按空间顺序逐 token 生成场景。
+  </div>
+
+  <h3>这篇论文解决什么问题</h3>
+  <p>研究对象不是“从若干输入图像重建一个给定场景”，而是从训练分布中<strong>生成新的三维高斯对象或室内场景</strong>，并让同一模型支持无条件生成、给定局部场景后的 completion，以及超出训练空间范围的 outpainting。作者要验证的核心命题是：三维场景虽然没有天然的一维顺序，但仍可通过结构化 tokenization 交给 GPT 式 next-token prediction。</p>
+
+  <div class="warning">
+    <strong>与两个相邻方向的边界：</strong>
+    <ul>
+      <li>它不是 feed-forward 3D reconstruction。训练数据中的 3D-FRONT Gaussian 先由深度和 Scaffold-GS 优化得到；GaussianGPT 的主任务是学习场景分布并生成新场景。</li>
+      <li>它也不是严格意义的 world model。模型没有 observation–action–transition、奖励或时间 rollout；这里的“自回归”沿空间 token 顺序展开，而不是沿智能体交互时间展开。它可以作为未来三维世界模型的静态场景先验，但论文没有验证控制或决策能力。</li>
+    </ul>
+  </div>
+
+  <h3>完整信息流</h3>
+  <pre class="mermaid">
+flowchart LR
+  A["3D Gaussian scene<br/>position opacity scale rotation color"] --> B["2.5 cm sparse voxel grid<br/>one Gaussian per occupied voxel"]
+  B --> C["Sparse 3D CNN encoder"]
+  C --> D["LFQ discrete latent grid<br/>20 cm latent voxels"]
+  D --> E["xyz serialization"]
+  E --> F["interleaved sequence<br/>p0 f0 p1 f1 ..."]
+  F --> G["Causal GPT<br/>4D RoPE: x y z token-slot"]
+  G --> H["sampled position and feature tokens"]
+  H --> I["LFQ lookup and sparse decoder"]
+  I --> J["generated 3D Gaussian scene"]
+  H --> K["prefix continuation<br/>completion"]
+  H --> L["sliding local windows<br/>large-scene outpainting"]
+  </pre>
+
+  <table class="flow-table">
+    <thead><tr><th>阶段</th><th>输入</th><th>输出</th><th>它解决的瓶颈</th></tr></thead>
+    <tbody>
+      <tr><td>Gaussian 结构化</td><td>无序连续 Gaussian 集合</td><td>世界坐标中的稀疏 voxel feature grid</td><td>给无序 primitive 引入空间规则性</td></tr>
+      <tr><td>稀疏压缩</td><td>2.5 cm 基础网格</td><td>20 cm 离散 latent grid</td><td>把场景缩到 Transformer 上下文可承受的长度</td></tr>
+      <tr><td>序列化</td><td>占用 latent voxels</td><td>位置/特征交错 token</td><td>把稀疏三维结构写成一维因果序列</td></tr>
+      <tr><td>自回归建模</td><td>已有 token 前缀</td><td>下一位置或下一特征 token</td><td>统一生成、completion 与 outpainting</td></tr>
+      <tr><td>解码渲染</td><td>生成的离散 latent</td><td>可实时渲染的 3D Gaussians</td><td>回到显式神经渲染表示</td></tr>
+    </tbody>
+  </table>
+
+  <h3>读本文前需要掌握的五个概念</h3>
+  <ol>
+    <li><strong>3D Gaussian primitive：</strong>本文把一个 Gaussian 写成中心位置、尺度、旋转、opacity 与颜色；对象实验还使用一阶 spherical harmonics 表达视角相关颜色。</li>
+    <li><strong>稀疏三维卷积：</strong>只对占用 voxel 计算特征，不为整个三维包围盒分配密集张量。</li>
+    <li><strong>LFQ：</strong>Lookup-Free Quantization 用若干二值符号组合成离散 code，不需要传统 VQ 对全部 codebook 向量做最近邻搜索。</li>
+    <li><strong>causal Transformer：</strong>第 (i) 个 token 只能读取 (t_{&lt;i})，训练用 teacher forcing，推理逐步采样。</li>
+    <li><strong>RoPE：</strong>通过旋转 query/key 的子空间，让注意力分数编码相对位置。本文把一维序列位置替换为三维 voxel 坐标，并加入 token 类型维。</li>
+  </ol>
+</section>
+
+<figure class="paper-unit" id="fig-1" data-source-id="fig-1">
+  <img src="figures/teaser.png" alt="GaussianGPT teaser: generation, completion, and large scene generation">
+  <figcaption><strong>Figure 1。</strong>左侧展示从空前缀开始的自回归场景生成，中间展示给定局部场景后的多样 completion，右侧展示跨多个训练 chunk 的大场景扩展。该图支持“同一序列模型覆盖三种推理模式”的功能性主张；它本身不提供定量质量或效率证据。</figcaption>
+</figure>
+
+<section class="paper-unit" id="abs" data-source-id="abs">
+  <div class="source-ref">对应原文：Abstract</div>
+  <h2>摘要逐项解析</h2>
+  <p><span class="evidence paper">论文内容</span>摘要首先定位现状：近期三维生成主要采用 diffusion 或 flow matching；本文选择一个完全自回归的替代方案。这里的“替代”不是声称扩散失效，而是研究另一种联合分布分解方式。</p>
+  <p>第二步给出表示问题：GPT 需要离散 token，但 3D Gaussian 是连续、稀疏且无序的 primitive 集合。因此作者先用带 vector quantization 的 sparse 3D convolutional autoencoder，将 geometry 与 appearance 压进离散 latent grid。</p>
+  <p>第三步给出序列模型：将稀疏 latent voxel 按固定顺序串行化，再用 causal Transformer 和 3D rotary positional embedding 进行 next-token prediction。空间结构不是由序列邻近性单独承担，而是显式进入 attention。</p>
+  <p>第四步说明推理能力：扩散模型通常对一个完整表示反复整体更新；GaussianGPT 则从前到后构造空间 token。因此任意合法前缀都可以成为条件，completion 与 outpainting 不需要新增 conditioning 网络。</p>
+  <p>摘要最后把结论限定为“complementary paradigm”：自回归模型提供可控采样、可变生成长度和组合式构造，但论文后续也显示其顺序解码更慢、长时扩展会积累误差。</p>
+</section>
+
+<section class="paper-unit" id="sec-1" data-source-id="sec-1">
+  <div class="source-ref">对应原文：Section 1 Introduction</div>
+  <h2>1. Introduction</h2>
+
+  <h3>本节任务</h3>
+  <p>Introduction 建立一条完整论证链：三维环境需要增量构造 → 现有整体去噪不天然对应这种操作 → 三维数据又缺乏天然序列 → 因而需要同时设计结构化 tokenizer 与空间感知的 autoregressive model。</p>
+
+  <div class="strict">
+    <h3>研究动机与难点</h3>
+    <p>作者将三维生成的应用背景放在沉浸式环境、embodied AI、模拟和内容创作上。与静态对象不同，场景在实际使用中常被扩展、补全和编辑，因此“逐步构造”不是附加功能，而是论文选择自回归分解的直接动机。</p>
+    <p>困难来自三方面。第一，三维环境同时含几何、外观和语义，且必须保持多视角一致。第二，室内场景既有墙、地板和房间布局等全局规则，又有对象摆放、形状和材质等局部多样性。第三，无序 Gaussian 集合没有类似文本阅读方向的 canonical ordering；若序列化破坏空间关系，普通 GPT 只看到错误的一维邻近性。</p>
+  </div>
+
+  <h3>作者对现有方法的判断</h3>
+  <p>论文把 L3DG、GaussianAnything、Structured/Native 3D Latents 等近期方法概括为 diffusion 或 flow-based generation：它们可以获得较高视觉质量，但通常把完整表示作为一个整体反复去噪或变换。作者并未证明整体更新不能做 completion，而是指出 prefix continuation 对 autoregressive factorization 更自然。</p>
+
+  <div id="claim-1" data-source-id="claim-1" class="experiment-card">
+    <strong>贡献 (i)：结构化 Gaussian tokenization。</strong>
+    将连续 Gaussian scene 投影到稀疏 voxel grid，经 sparse 3D CNN 和 LFQ 得到离散 latent code，使复杂室内场景可由有限 token 表示。
+  </div>
+  <div id="claim-2" data-source-id="claim-2" class="experiment-card">
+    <strong>贡献 (ii)：统一的自回归三维生成框架。</strong>
+    用位置 token 与特征 token 的交错序列生成 Gaussian latent，使同一 Transformer 支持无条件生成、completion 和 outpainting。
+  </div>
+
+  <div class="bridge">
+    <span class="evidence analysis">分析者解释</span>
+    这两个贡献必须联合成立。只有 GPT 而没有强压缩，三维 token 序列会超过上下文；只有离散自编码器而没有位置/特征分离和三维坐标编码，Transformer 又难以区分“哪里有东西”与“那里是什么”。后续消融正是分别验证这两个层面。
+  </div>
+
+  <div class="checkpoint">
+    <strong>学习检查点：</strong>
+    <ol>
+      <li>为什么三维场景生成不能直接照搬文本 tokenization？</li>
+      <li>作者选择 autoregressive factorization 的功能性动机是什么？</li>
+      <li>论文的两个贡献分别解决表示问题还是分布建模问题？</li>
+    </ol>
+  </div>
+</section>
+
+<section class="paper-unit" id="sec-2" data-source-id="sec-2">
+  <div class="source-ref">对应原文：Section 2 Related Works</div>
+  <h2>2. Related Works</h2>
+  <p>作者没有按年份罗列文献，而是使用三个分类轴：生成表示、生成分解方式、对象到场景的尺度扩展。理解这三条轴，才能准确判断 GaussianGPT 的创新位置。</p>
+
+  <section class="paper-unit" id="sec-2-repr" data-source-id="sec-2-repr">
+    <h3>2.1 3D Representations for Generation</h3>
+    <p><span class="evidence paper">论文内容</span>早期方法使用 voxel occupancy、signed distance field 和 point cloud；mesh 是另一类显式表面表示。NeRF 以连续体渲染获得高保真，但密集沿射线采样带来训练与推理成本。3D Gaussian Splatting 则提供显式 primitive 与快速 rasterization，不过完全无约束的 Gaussian 集合缺乏规则结构，不利于生成建模。</p>
+    <p>L3DG 的关键前置思想是把 Gaussian 与空间 grid 对齐，引入可卷积的结构。GaussianGPT 继承这类 structured Gaussian parameterization，但不直接在连续 Gaussian 上建生成模型，而是进一步采用 latent-space generation：先压缩、离散化，再学习 latent distribution。</p>
+    <div class="bridge"><strong>关键差异：</strong>表示选择并非只影响渲染速度，也决定生成器的 token 数、局部性和可排序性。本文需要的是“显式可渲染 + 稀疏规则网格 + 可离散压缩”三项同时满足。</div>
+  </section>
+
+  <section class="paper-unit" id="sec-2-ar" data-source-id="sec-2-ar">
+    <h3>2.2 Autoregressive 3D Generation</h3>
+    <p>作者将生成模型脉络概括为：早期 VAE/GAN → 近期 diffusion/flow matching → 在文本、图像和多模态中成熟的 autoregressive Transformer。自回归分解具有显式 likelihood 训练、渐进生成和灵活条件化的优点，但在三维中仍受 tokenization 与长序列限制。</p>
+    <p>已有三维自回归工作主要覆盖 MeshGPT、MeshAnything、Meshtron 等 mesh 序列，Octree Transformer 等层次 voxel 序列，以及 MAR-3D、VAR-3D、G3PT 等结构化 token。GaussianGPT 的差异是对<strong>同时携带几何和外观、可直接神经渲染的 structured Gaussian latent</strong>进行自回归生成，并扩展到完整室内场景。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-2-scenes" data-source-id="sec-2-scenes">
+    <h3>2.3 From Objects to Scenes</h3>
+    <p>对象生成只需处理有限尺度与单体结构，完整场景还包含长距离依赖、多对象组合、房间布局和物理合理性。相关方法大致分为三类：</p>
+    <ol>
+      <li><strong>布局后对象：</strong>DiffuScene、ATISS、SceneFormer 先预测结构化 layout，再检索或生成对象。</li>
+      <li><strong>借助二维/视频或基础模型先验：</strong>WorldExplorer、Text2Room、WorldGrow、DreamScene、DreamScene360、LayoutGPT 等将强大的外部生成先验用于三维优化或结构监督。</li>
+      <li><strong>feed-forward reconstruction：</strong>Depth Anything 3、GS-LRM、AnySplat、pixelSplat、MVSplat、Flash3D 从一张或多张观测图像预测场景表示，重点是重建输入所描述的场景，而非学习无条件场景分布。</li>
+    </ol>
+    <p>GaussianGPT 的定位是单一概率模型直接生成三维场景，不依赖预训练二维 diffusion/video prior，也不把任务定义为图像到三维的 reconstruction。代价是训练前必须准备大量已优化 Gaussian 场景，且生成速度受长序列制约。</p>
+  </section>
+
+  <div class="checkpoint">
+    <strong>学习检查点：</strong>
+    <ol>
+      <li>为什么 structured Gaussian 比完全无序 Gaussian 更适合生成建模？</li>
+      <li>GaussianGPT 与 MeshGPT 类方法的共同点和表示差异是什么？</li>
+      <li>为什么论文把 feed-forward reconstruction 明确放在相邻但不同的任务类别？</li>
+    </ol>
+  </div>
+</section>
+
+<section class="paper-unit" id="sec-3" data-source-id="sec-3">
+  <div class="source-ref">对应原文：Section 3 Methodology</div>
+  <h2>3. Methodology</h2>
+  <p>方法由两个顺序训练的模型组成。第一阶段学习 Gaussian scene 的离散压缩器；第二阶段冻结压缩器，在离散 token 上训练 GPT prior。论文没有端到端联合训练 GPT 与渲染器，因此生成质量的上限首先受 autoencoder reconstruction fidelity 约束。</p>
+
+  <figure class="paper-unit" id="fig-2" data-source-id="fig-2">
+    <img src="figures/method.png" alt="GaussianGPT full method pipeline">
+    <figcaption><strong>Figure 2。</strong>上半部分是 3D Gaussian compression：每个占用 voxel 的 Gaussian 属性先编码成 feature，经稀疏 encoder、LFQ 和稀疏 decoder 重建。下半部分是 autoregressive generation：latent voxel 依 xyz 顺序变成 \(p_i,f_i\) 交错序列，GPT 分别通过 position head 与 feature head 预测，最后将 code index 放回三维 grid 并解码。图中的上下两条路径分别对应“学习 tokenizer”和“学习 token distribution”。</figcaption>
+  </figure>
+
+  <pre class="mermaid">
+flowchart TB
+  subgraph Stage1["Stage 1: train scene tokenizer"]
+    G["Gaussian attributes"] --> V["sparse 3D feature grid"]
+    V --> E["encoder E"]
+    E --> Q["LFQ code index"]
+    Q --> D["decoder D"]
+    D --> R["rendered reconstruction"]
+    R --> LAE["RGB + perceptual + occupancy + LFQ losses"]
+  end
+  subgraph Stage2["Stage 2: train autoregressive prior"]
+    Q2["frozen tokenized grids"] --> S["xyz serialization"]
+    S --> T["p0 f0 p1 f1 ..."]
+    T --> GPT["causal GPT + 3D RoPE"]
+    GPT --> CE["next-token cross entropy"]
+  end
+  Q --> Q2
+  </pre>
+
+  <section class="paper-unit" id="sec-3-1" data-source-id="sec-3-1">
+    <h3>3.1 Scene Compression via Sparse 3D Latent Encoding</h3>
+    <p><strong>本节任务：</strong>把连续、无序、数量可变的 Gaussian primitives 转为紧凑、离散、仍保留三维坐标的 latent voxels。只有完成这一步，场景才能成为 GPT 的有限词表序列。</p>
+
+    <section class="paper-unit" id="sec-3-1-grid" data-source-id="sec-3-1-grid">
+      <h4>Sparse 3D Feature Grid</h4>
+      <p>输入场景包含一组 Gaussian。按论文和配置，它们至少具有以下属性：</p>
+      <table>
+        <thead><tr><th>属性</th><th>语义与形状</th><th>内部表示</th></tr></thead>
+        <tbody>
+          <tr><td>position \(\boldsymbol\mu\)</td><td>世界坐标中的三维中心，形状 \(3\)</td><td>拆成 voxel center 与连续 offset</td></tr>
+          <tr><td>scale \(\mathbf{s}\)</td><td>三个主轴的尺度，形状 \(3\)</td><td>世界空间尺度经 softplus 保持为正</td></tr>
+          <tr><td>rotation \(\mathbf{q}\)</td><td>四元数，形状 \(4\)</td><td>归一化并统一符号</td></tr>
+          <tr><td>opacity \(\alpha\)</td><td>一个透明度 logit</td><td>截断到 \([-10,10]\) 后缩放</td></tr>
+          <tr><td>color / SH</td><td>场景用 RGB/DC；对象另含一阶 SH</td><td>RGB 截断到 \([0,1]\)</td></tr>
+        </tbody>
+      </table>
+      <p>作者在世界坐标中建立规则网格，根据 Gaussian 中心把 primitive 分配到 voxel。绝对中心位置不作为 feature 输入，而是用 voxel index 表达粗位置、用相对 voxel center 的 offset 表达亚 voxel 位置。若一个 voxel 内有多个 Gaussian，论文采用随机 subsampling，得到每个占用 voxel 一个 Gaussian 的输入。</p>
+      <div class="bridge">
+        <span class="evidence analysis">精确直觉</span>
+        这种分解把位置拆成“离散地址 + 连续残差”。离散地址后来成为 position token；连续 offset 则与颜色、尺度等一起压进 feature token。于是 GPT 不必从 feature code 中同时猜测整个世界坐标。
+      </div>
+
+      <details id="code-vqvae-config" data-source-id="code-vqvae-config">
+        <summary>官方代码对应：voxelization 与属性 embedding</summary>
+        <div>
+          <p><span class="evidence code">官方代码</span><code>model/vqvae/cnn/configurable_vqvae.py:248</code> 先将世界坐标除以基础 grid size 并取整，随后计算连续 offset；每项属性通过独立 linear + residual block，再拼接成稀疏 feature。</p>
+<pre><code># configurable_vqvae.py:248-280
+xyz_voxel = (points[PCKeys.COORDS] / self.default_grid_size).round().int()
+voxel_coords = torch.cat(
+    [points[PCKeys.BATCH].unsqueeze(-1), xyz_voxel], dim=-1
+).to(torch.int32)
+
+points[PCKeys.COORD_OFFSET] = (
+    points[PCKeys.COORDS] / self.default_grid_size
+    - xyz_voxel.to(points[PCKeys.COORDS].dtype)
+)</code></pre>
+          <p>默认配置的 <code>grid_size=0.025</code> m、<code>gaussians_per_voxel=1</code>、<code>make_unique=false</code>。MinkowskiEngine 的 <code>RANDOM_SUBSAMPLE</code> 与论文“同 voxel 随机选一个 Gaussian”一致。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="paper-unit" id="sec-3-1-cnn" data-source-id="sec-3-1-cnn">
+      <h4>Sparse 3D CNN Encoder–Decoder</h4>
+      <p>拼接后的 sparse feature grid 输入 encoder \(\mathcal E\)。场景模型有三次各轴下采样，每次尺度因子为 2，因此总 stride 为 \(2^3=8\)。基础 voxel 为 \(2.5\,\mathrm{cm}\)，latent voxel 对应 \(2.5\times8=20\,\mathrm{cm}\)。decoder \(\mathcal D\) 逐级上采样，并在中间层预测 occupancy 以裁剪不应存在的 voxel。</p>
+      <p>配置中的 embedding dimension 与 decoder outer dimension 均为 64，最大通道数 512。Gaussian 各属性先分别扩展为“属性维数 × 16”的 embedding，再拼接进入 sparse CNN；解码后，每项属性使用两个 64-channel residual MLP block 和最终线性层恢复。</p>
+      <p><span class="evidence analysis">分析者解释</span>稀疏卷积保留 translation equivariance：相同局部结构平移到另一 voxel 区域，卷积处理方式相同。这对后续使用相对 chunk 坐标的生成器很重要，因为模型希望在不同房间位置复用局部结构规律。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-3-1-vq" data-source-id="sec-3-1-vq">
+      <h4>Vector Quantization：为何使用 LFQ</h4>
+      <p>encoder 输出连续 latent \(\mathbf z\)，随后通过 Lookup-Free Quantization 离散化。论文描述为按符号把编码分量二值化为 0/1，并由二值组合得到 code index。默认 codebook size 为 4096，即 \(4096=2^{12}\)，因此每个 latent voxel 最终对应一个 12-bit 组合所索引的离散 feature token；官方库负责从 64 维 encoder feature 投影到所需的 LFQ code space。</p>
+      <p>传统 VQ 必须寻找最近的 codebook vector；LFQ 用符号组合隐式定义 code，避免大 codebook nearest-neighbor search，并通过 entropy objective 鼓励不同 code 被充分使用。Appendix F 会显示：传统 VQ 在短训练下略好，但训练约慢三分之一，长训练后差距缩小。</p>
+
+      <details id="code-lfq" data-source-id="code-lfq">
+        <summary>官方代码对应：LFQ 与传统 VQ 分支</summary>
+        <div>
+<pre><code># model/vqvae/cnn/minkowski_vq.py:40-54
+if self.kind == "lfq":
+    self.vq = LFQ(
+        dim=self.dim,
+        codebook_size=self.codebook_size,
+        frac_per_sample_entropy=1.0,
+        soft_clamp_input_value=10.0,
+        experimental_softplus_entropy_loss=True,
+        projection_has_bias=False,
+    )
+elif self.kind == "vq":
+    self.vq = VectorQuantize(
+        dim=self.dim, codebook_size=self.codebook_size, decay=0.99
+    )</code></pre>
+          <p>当前公开配置使用 <code>dim=64</code>、<code>codebook_size=4096</code>、单个 feature token。量化器返回离散 index、量化 feature 与 auxiliary loss；decoder 可用 index 直接恢复 latent embedding。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="paper-unit" id="sec-3-1-training" data-source-id="sec-3-1-training">
+      <h4>Autoencoder Training</h4>
+      <p>训练监督来自三部分。第一，decoder 输出 Gaussian 后从随机相机重渲染，与目标图像计算 \(L_1\) RGB loss 和 VGG19 perceptual loss。第二，各 decoder upsampling 层预测 occupancy，以 binary cross-entropy 约束稀疏结构。第三，LFQ entropy loss 鼓励 codebook 使用分布，防止大量 code 永远闲置。</p>
+
+      <div class="formula-card paper-unit" id="eq-1" data-source-id="eq-1">
+        <div class="source-ref">Equation (1)</div>
+        $$\mathcal{L}=
+        \underbrace{\lambda_{RGB}\mathcal{L}_{RGB}+\lambda_{perc}\mathcal{L}_{perc}}_{\text{re-rendering}}
+        +\underbrace{\lambda_{occ}\mathcal{L}_{occ}}_{\text{occupancy}}
+        +\underbrace{\lambda_{LFQ}\operatorname{softplus}\!\left(\mathcal{L}_{LFQ}+5\right)}_{\text{codebook entropy}}.$$
+        <table class="symbol-table">
+          <thead><tr><th>符号</th><th>含义</th><th>作用路径</th></tr></thead>
+          <tbody>
+            <tr><td>\(\mathcal L_{RGB}\)</td><td>采样视图上的逐像素 \(L_1\) 颜色误差，最终为标量</td><td>renderer → Gaussian 颜色、opacity、几何 → decoder/encoder</td></tr>
+            <tr><td>\(\mathcal L_{perc}\)</td><td>VGG19 feature-space perceptual error</td><td>补充像素损失对结构与纹理的感知约束</td></tr>
+            <tr><td>\(\mathcal L_{occ}\)</td><td>各上采样层 occupancy logit 的 BCE</td><td>决定哪些 sparse voxel 被保留或裁剪</td></tr>
+            <tr><td>\(\mathcal L_{LFQ}\)</td><td>LFQ 的 code usage / entropy 辅助项</td><td>避免 tokenizer 只使用少量离散 code</td></tr>
+          </tbody>
+        </table>
+        <p>计算顺序是：Gaussian 属性 → sparse encoder → LFQ → sparse decoder → occupancy 与 Gaussian 属性 → differentiable rendering。所有项加权后形成一个标量反向传播。渲染项约束最终可见结果，occupancy 项约束稀疏拓扑，LFQ 项约束离散瓶颈；缺少任一项都可能出现“图像可看但结构膨胀”或“重建尚可但 token 极度塌缩”。</p>
+        <p><span class="evidence paper">论文内容</span>场景训练使用 \(\lambda_{RGB}=7.5,\lambda_{perc}=0.3,\lambda_{occ}=1.0,\lambda_{LFQ}=0.1\)，每次采样 12 张图；对象训练使用 \(12.5,0.1,1.0,0.1\)，采样 4 张图。softplus 与 \(+5\) 偏移确保 entropy 分支以正值稳定加入总损失。论文没有展开 LFQ 的梯度估计细节；官方 <code>vector-quantize-pytorch</code> 实现负责量化的可微 surrogate。</p>
+      </div>
+    </section>
+
+    <div class="checkpoint">
+      <strong>3.1 学习检查点：</strong>
+      <ol>
+        <li>世界坐标位置为什么拆成 voxel index 与 offset？</li>
+        <li>三次下采样如何把 2.5 cm voxel 变为 20 cm latent voxel？</li>
+        <li>重渲染、occupancy 和 LFQ 三类 loss 分别约束什么失败模式？</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-3-2" data-source-id="sec-3-2">
+    <h3>3.2 Autoregressive Modeling of Latent 3D Grids</h3>
+    <p><strong>本节任务：</strong>将量化后的稀疏三维 latent grid 转为满足 causal ordering 的 token sequence，并让 Transformer 既能预测下一个占用位置，也能预测该位置的离散 Gaussian feature。</p>
+
+    <section class="paper-unit" id="sec-3-2-serialization" data-source-id="sec-3-2-serialization">
+      <h4>3D Grid Serialization</h4>
+      <p>作者使用固定 \(xyz\) traversal，其中 \(z\) 是最低有效维：先遍历同一 \((x,y)\) 下的整个竖直高度列，再移动到下一个 \(y\)，最后移动 \(x\)。它不保证一维序列邻近性等于三维邻近性，但规则简单、可解释，而且与按列 outpainting 兼容。</p>
+
+      <div class="formula-card paper-unit" id="def-xyz" data-source-id="def-xyz">
+        <span class="evidence code">论文 + 官方代码</span>
+        <p>对于边长 \(S\) 的立方 chunk，三维位置 \((x,y,z)\) 被压成：</p>
+        $$p=xS^2+yS+z,\qquad 0\le p&lt;S^3.$$
+        <p>\(x,y,z\) 是整数 latent voxel 坐标。场景配置 \(S=20\)，因此 position vocabulary 有 \(20^3=8000\) 个位置；对象配置 \(S=32\)，position vocabulary 为 \(32768\)。逆映射依次使用模与整除恢复 \(z,y,x\)。</p>
+        <p>由于 \(z\) 最低有效，连续 position id 优先沿竖直方向增长。这个选择后来解释了 Appendix C 中沿 \(y\) 扩展比沿 \(x\) 扩展更稳定的方向性差异。</p>
+      </div>
+
+      <p>每个占用 latent voxel 形成一个二元组 \((p_i,f_i)\)：\(p_i\) 表示 chunk 内位置，\(f_i\) 是 LFQ code。序列写为</p>
+      $$[\mathrm{BOS},p_0,f_0,p_1,f_1,\ldots,p_n,f_n,\mathrm{EOS}].$$
+      <p><span class="evidence analysis">分析者推导</span>一个 \(20^3\) chunk 最多有 8000 个占用 latent voxel，因此完全占满时需要 16000 个位置/特征 token，再加边界 token，仍低于 16384 context。平均 chunk 约 3.2k latents，即约 6.4k token。这个数值关系直接决定三次下采样是可行配置。</p>
+
+      <details id="code-tokenization" data-source-id="code-tokenization">
+        <summary>官方代码对应：坐标与 position token 双向映射</summary>
+        <div>
+<pre><code># utils/pos_tokens.py:6-20
+def threed_to_oned_indices(indices_3d, side_length):
+    return (
+        indices_3d[..., 0] * (side_length**2)
+        + indices_3d[..., 1] * side_length
+        + indices_3d[..., 2]
+    )
+
+def oned_to_threed_indices(indices_1d, side_length):
+    z = indices_1d % side_length
+    y = (indices_1d // side_length) % side_length
+    x = (indices_1d // (side_length**2)) % side_length
+    return torch.stack([x, y, z], dim=-1)</code></pre>
+          <p><code>GaussianVQVAE.tokenize</code> 先返回 latent coordinates 与 LFQ feature ids，再按指定 serialization 排序。公开配置的主模型使用 <code>chunk_order: xyz</code>。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="paper-unit" id="sec-3-2-vocab" data-source-id="sec-3-2-vocab">
+      <h4>Vocabulary Design</h4>
+      <p>同一 Transformer backbone 处理全部 token，但 position 与 feature 使用不重叠的词表区间，并在交替位置使用不同有效输出集合。position head 的任务是“下一个 occupied voxel 在哪里”，feature head 的任务是“刚才这个 voxel 使用哪个 LFQ code”。</p>
+      <p>这种分离有两层意义。统计上，它避免几何地址与外观/局部结构 code 竞争同一 index。工程上，position vocabulary 由 chunk 尺寸决定，而 feature vocabulary 由 tokenizer codebook 决定，两者可独立扩展。当前 scene code 的全词表布局为 8000 个 position id、4096 个 feature id，再加 EOS 与 PAD；feature ids 在代码中整体偏移 8000。</p>
+
+      <details id="code-vocab-mask" data-source-id="code-vocab-mask">
+        <summary>官方代码对应：分槽词表屏蔽与位置单调约束</summary>
+        <div>
+<pre><code># model/gpt/nanochat_gpt.py:672-700
+slot_idx = self._prediction_slot_indices(...)
+is_position_slot = slot_idx &lt; self.sparse_num_position_tokens
+
+logits[..., pad_id] = -torch.inf
+if is_position_slot.any():
+    logits[:, is_position_slot, feature_start:feature_end] = -torch.inf
+if (~is_position_slot).any():
+    logits[:, ~is_position_slot, :position_vocab] = -torch.inf
+    logits[:, ~is_position_slot, eos_id] = -torch.inf</code></pre>
+          <p>因此“position head / feature head”在公开实现中不是两套完整 Transformer，而是共享 hidden state 后，对 logits 做严格 slot mask。推理时还会屏蔽排序上不大于前一个 position 的 id，保证生成位置保持单调、不会重复已生成 voxel。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="paper-unit" id="sec-3-2-rope" data-source-id="sec-3-2-rope">
+      <h4>3D Rotary Positional Encoding</h4>
+      <p>若直接对一维 token index 使用普通 positional encoding，空间上相邻的 voxel 可能因序列化而相隔很远，序列上相邻的 token 也不一定空间接近。作者因此把真实 voxel coordinate 注入 attention，使 query–key 相似度随三维相对位移变化。</p>
+
+      <div class="formula-card paper-unit" id="def-3d-rope" data-source-id="def-3d-rope">
+        <span class="evidence analysis">结构化等价说明，不是论文编号公式</span>
+        $$\mathbf q_i'=R(\mathbf r_i)\mathbf q_i,\qquad
+        \mathbf k_j'=R(\mathbf r_j)\mathbf k_j,\qquad
+        {\mathbf q_i'}^\top\mathbf k_j'
+        =\mathbf q_i^\top R(\mathbf r_j-\mathbf r_i)\mathbf k_j.$$
+        <p>\(\mathbf r_i\) 不是序列序号，而是 \((x_i,y_i,z_i,s_i)\)。前三维是 latent voxel 坐标，第四维 \(s_i\) 表示该 token 是 position slot 还是 feature slot。position 与 feature token 虽对应同一 voxel，但第四维不同，因此 attention 可区分“空间位置陈述”和“该位置的内容”。</p>
+        <p>公开 scene 模型的 embedding dimension 为 1024、16 个 attention heads，因此每个 head dimension 为 64。四维 RoPE 将旋转频率分配给 \(x,y,z,\text{slot}\) 四个轴；代码中每轴获得 8 个 complex frequency pairs。RoPE 只作用于 query/key，value 不旋转，随后执行 QK normalization。</p>
+      </div>
+
+      <details id="code-rope" data-source-id="code-rope">
+        <summary>官方代码对应：从位置 token 构造四维 RoPE index</summary>
+        <div>
+<pre><code># model/gpt/nanochat_gpt.py:560-585
+position_token_ids = full_tokens.gather(1, slot0_positions)
+coords = oned_to_threed_indices(
+    safe_position_token_ids, self.sparse_rope_side_length
+)
+slot_idx = slot_idx.unsqueeze(0).expand(batch_size, -1)
+return torch.cat([coords, slot_idx.unsqueeze(-1)], dim=-1)</code></pre>
+          <p><code>rope_config.py</code> 明确规定 sparse + position basis 时维数为 4；BOS 使用 \((-1,-1,-1)\) 坐标。Figure 2 中标为 “3D RoPE”，但代码揭示 token-type 是附加的第四坐标维。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="paper-unit" id="sec-3-2-transformer" data-source-id="sec-3-2-transformer">
+      <h4>Transformer Architecture</h4>
+      <p>主干是 decoder-only GPT-2 风格模型。scene 模型对应 GPT-2 medium：24 层、1024 hidden dimension、16 个 query heads、16 个 KV heads；object 模型对应 GPT-2 small：12 层、768 hidden、12 heads。scene context 为 16384 token，object context 为 8192。</p>
+      <p>相对 vanilla GPT-2，论文列出 3D RoPE、query–key normalization、per-layer residual scaling 与 Muon optimizer。公开配置关闭 value embeddings 与 sliding-window attention，所有层使用完整 causal context。MLP 使用 squared ReLU；logits 在 cross-entropy 前用 smooth soft-cap 限制到约 \([-15,15]\)。这些属于官方实现细节，不是论文的主要算法贡献。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-3-2-training" data-source-id="sec-3-2-training">
+      <h4>Autoregressive Training</h4>
+      <div class="formula-card paper-unit" id="eq-2" data-source-id="eq-2">
+        <div class="source-ref">Equation (2)</div>
+        $$\mathcal L_{CE}=-\sum_{i=1}^{T}\log p_\theta(t_i\mid t_{&lt;i}).$$
+        <p>\(\mathbf t=(t_1,\ldots,t_T)\) 是一个场景 chunk 的整数 token 序列，\(T\) 随 occupancy 改变；\(\theta\) 是 Transformer 参数。等价地，模型把联合分布分解为 \(p_\theta(\mathbf t)=\prod_i p_\theta(t_i\mid t_{&lt;i})\)。训练输入是真实前缀，target 是右移一位后的真实 token，即 teacher forcing。</p>
+        <p>每一步只在对应词表上计算概率：position slot 屏蔽 feature ids，feature slot 屏蔽 position ids 和 EOS。EOS 只允许出现在 position slot，避免一个 position token 后突然结束而留下没有 feature 的孤立项。padding target 使用 ignore mask，不进入 loss。</p>
+        <p>该目标直接优化 token likelihood，不直接看到渲染图像；视觉与几何信息已经由冻结 tokenizer 编码。因此 tokenizer 的不可逆误差不会被 GPT 阶段修复。</p>
+      </div>
+    </section>
+
+    <section class="paper-unit" id="sec-3-2-inference" data-source-id="sec-3-2-inference">
+      <h4>Scene Generation and Completion</h4>
+      <p>无条件生成从 BOS 开始，在 position 与 feature slot 间交替采样，直到 EOS 或 context 上限。默认实验使用 temperature \(0.9\) 与 nucleus sampling \(p=0.9\)。temperature 调整 logits 的平坦程度；top-\(p\) 只保留累计概率达到阈值的最小候选集合。</p>
+
+      <div class="strict paper-unit" id="def-prefix-completion" data-source-id="def-prefix-completion">
+        <strong>Completion 的定义：</strong>先把已观察的局部场景编码并序列化为 prefix \(\mathbf t_{1:k}\)，再采样
+        $$t_{k+1:T}\sim p_\theta(t_{k+1:T}\mid \mathbf t_{1:k}).$$
+        <p>模型结构、权重和 loss 均不改变。由于 \(xyz\) 序列是单调的，论文实验选择沿 \(x\) 方向连续的前 25% 或 50% 场景作为 prefix，保证条件是合法前缀，而不是任意空间 mask。</p>
+      </div>
+
+      <details id="code-completion" data-source-id="code-completion">
+        <summary>官方代码对应：按空间范围切 prefix 并继续采样</summary>
+        <div>
+<pre><code># complete_chunks.py:400-435
+token_rows = full_tokens.view(-1, tokens_per_latent)
+pos_tokens = token_rows[:, :num_pos_tokens]
+coords = pos_tokens_to_centered_coords(
+    pos_tokens[rows_for_split], num_pos_tokens, base_side_length
+)
+split_x = x_vals.min() + fraction * (x_vals.max() - x_vals.min())
+keep_rows[rows_for_split] = x_vals &lt;= split_x
+prefix_tokens = full_tokens[:prefix_rows * tokens_per_latent]</code></pre>
+          <p>随后 <code>sample_sequence_with_prompt</code> 对 prefix 做一次 prefill，将 KV cache 复制给多个 completion sample，再逐 token 解码。对稀疏场景，生成可在 EOS 处提前停止。</p>
+        </div>
+      </details>
+
+      <p>大场景生成则反复移动局部 \(4\,\mathrm m\times4\,\mathrm m\) context window，用已生成列作为新 prefix，继续生成相邻 latent-grid columns。若一列完全为空，作者最多回退重采样 5 次；Appendix C 进一步比较 0、5、15 次 retry。该过程允许生成空间范围超过训练 chunk，但每轮只保持局部上下文，因此远离起点后会积累误差。</p>
+      <p>作者还利用 position token 的显式几何语义施加约束：屏蔽已经生成或违反顺序的位置；大场景时对空列做有限 tree-search/resampling。这是显式空间 token 相比不可解释 latent sequence 的直接优势。</p>
+    </section>
+
+    <div class="checkpoint">
+      <strong>3.2 学习检查点：</strong>
+      <ol>
+        <li>为什么一个 occupied latent voxel 恰好对应两个主 token？</li>
+        <li>3D RoPE 如何修正 xyz 序列不保持空间局部性的问题？</li>
+        <li>为什么 completion 可以不训练单独的条件网络？</li>
+        <li>三次下采样、20³ chunk 与 16384 context 之间有什么数值关系？</li>
+      </ol>
+    </div>
+  </section>
+</section>
+
+<section class="paper-unit" id="sec-4" data-source-id="sec-4">
+  <div class="source-ref">对应原文：Section 4 Experiments</div>
+  <h2>4. Experiments</h2>
+  <p>实验按“对象生成 → 场景生成/补全 → 大场景扩展 → 模型消融”展开。主比较对象 L3DG 是 latent 3D Gaussian diffusion。需要注意，作者对 qualitative full-room L3DG 与 quantitative chunked L3DG 采用不同设置；论文明确说明定量比较是在匹配的 3D-FRONT chunk 条件下重新训练两种模型。</p>
+
+  <section class="paper-unit" id="sec-4-1" data-source-id="sec-4-1">
+    <h3>4.1 Datasets</h3>
+
+    <section class="paper-unit" id="sec-4-1-photoshape" data-source-id="sec-4-1-photoshape">
+      <h4>PhotoShape</h4>
+      <p>对象级实验沿用 DiffRF/L3DG protocol。PhotoShape 包含 15,576 把 chair，每个对象有 200 个 rendered views，并被规范化到 canonical grid。对象 autoencoder 使用 \(128^3\) 输入离散化、两次下采样，得到 \(32^3\) latent grid；对象保留一阶 spherical harmonics，因此颜色可以随观察方向变化。</p>
+      <p>canonical normalization 降低了姿态、尺度和场景布局变化，所以 PhotoShape 主要检验“表示 + 自回归 prior 是否能生成高质量单体”，并不能单独证明完整场景建模能力。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-4-1-vfront" data-source-id="sec-4-1-vfront">
+      <h4>3D-FRONT</h4>
+      <p>作者自行构建高质量 Gaussian scene dataset：对每个 3D-FRONT 场景渲染多视图图像与深度，从 depth map 回投影初始化 Gaussian，再用 Scaffold-GS 优化 60k iterations。为了符合 autoencoder 的规则输入域，anchor 与 voxel center 对齐，并限制每个 anchor 只有一个 Gaussian。</p>
+      <p>按空间范围过滤后剩 4,472 个场景。围绕竖直轴旋转和镜像形成 \(8\times\) augmentation。这个数据集并非原始 3D-FRONT mesh 的直接 tokenization；它已经包含一个昂贵的 Gaussian optimization preprocessing。因此 GaussianGPT 推理虽然直接生成 Gaussian，但训练数据准备并不是 feed-forward。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-4-1-ase" data-source-id="sec-4-1-ase">
+      <h4>Aria Synthetic Environments (ASE)</h4>
+      <p>ASE Gaussian 来自 SceneSplat++，共 25,000 个室内场景，覆盖更丰富的 layout、对象组合和外观。作者用 ASE 与 3D-FRONT 共同预训练，再对 3D-FRONT fine-tune；附录的额外结果显示 ASE pretraining 增加生成多样性。</p>
+    </section>
+
+    <table>
+      <thead><tr><th>数据</th><th>规模</th><th>主要用途</th><th>关键偏置</th></tr></thead>
+      <tbody>
+        <tr><td>PhotoShape</td><td>15,576 chairs；200 views/object</td><td>对象无条件生成</td><td>canonical pose/scale，任务较受控</td></tr>
+        <tr><td>3D-FRONT</td><td>4,472 scenes；8× augmentation</td><td>主场景生成、completion 与定量比较</td><td>合成、轴对齐，Gaussian 经 60k 优化</td></tr>
+        <tr><td>ASE</td><td>25,000 scenes</td><td>扩大场景预训练分布</td><td>仍是合成环境</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="paper-unit" id="sec-4-2" data-source-id="sec-4-2">
+    <h3>4.2 Experimental Setup</h3>
+
+    <section class="paper-unit" id="sec-4-2-ae" data-source-id="sec-4-2-ae">
+      <h4>Autoencoder Configuration</h4>
+      <p>scene autoencoder 的 base voxel size 为 \(0.025\,\mathrm m\)，三次下采样后 latent voxel size 为 \(0.20\,\mathrm m\)。scene 不建模 view-dependent appearance；object 使用一阶 SH。全部实验 codebook size 为 4096。</p>
+      <p>scene re-rendering loss 使用 12 个 view，\(\lambda_{RGB}=7.5,\lambda_{perc}=0.3\)；object 使用 4 个 view，权重为 12.5 与 0.1。两类训练均用 \(\lambda_{occ}=1.0,\lambda_{LFQ}=0.1\)。更完整的压缩选择见 Appendix F。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-4-2-gpt" data-source-id="sec-4-2-gpt">
+      <h4>Transformer Configuration</h4>
+      <p>scene 模型为 GPT-2 medium-sized，context 16,384；object 模型为 GPT-2 small-sized，context 8,192。全部主结果使用 temperature \(0.9\) 与 nucleus sampling \(p=0.9\)。论文没有报告对不同 temperature/top-\(p\) 的系统敏感性曲线，因此“可控采样”主要是结构能力陈述，而非完整消融结论。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-4-2-training" data-source-id="sec-4-2-training">
+      <h4>Training Strategy</h4>
+      <p>scene 训练从固定竖直范围的空间 chunks 中采样，使不同场景的 floor height 对齐。chunk 必须达到最小 occupancy：附录给出的阈值是 autoencoder 0.2、GPT 0.3；最多尝试 10 个候选，否则选 occupancy 最高者。</p>
+      <p>ASE 的 autoencoder supervision 直接与 ground-truth Gaussians 的 render 比较；3D-FRONT 使用前述预渲染图像。监督像素只保留 GT geometry 判定属于当前 chunk 的区域。对象训练使用完整 shape，不做 chunking。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-4-2-compute" data-source-id="sec-4-2-compute">
+      <h4>Optimization and Compute</h4>
+      <table>
+        <thead><tr><th>模型</th><th>优化器</th><th>硬件/有效 batch</th><th>训练时间</th></tr></thead>
+        <tbody>
+          <tr><td>Scene autoencoder</td><td>Adam，LR \(10^{-4}\)</td><td>4× RTX A6000；batch 8</td><td>约 4 天</td></tr>
+          <tr><td>PhotoShape autoencoder</td><td>Adam，LR \(10^{-4}\)</td><td>4× RTX A6000；batch 24</td><td>约 2 天</td></tr>
+          <tr><td>Scene GPT</td><td>AdamW + Muon</td><td>4× GH200；batch 64</td><td>约 1 天</td></tr>
+          <tr><td>PhotoShape GPT</td><td>AdamW + Muon</td><td>4× GH200；batch 64</td><td>约 4.5 小时</td></tr>
+          <tr><td>3D-FRONT fine-tune</td><td>同上</td><td>同上</td><td>AE 约 1 天；GPT 约 10 小时</td></tr>
+        </tbody>
+      </table>
+      <p>两种模型都使用 cosine decay 到初始学习率的 10%。这些成本不包括把 3D-FRONT 转为优化 Gaussian 的 60k-iteration preprocessing。</p>
+    </section>
+  </section>
+
+  <section class="paper-unit" id="sec-4-3" data-source-id="sec-4-3">
+    <h3>4.3 Shape Synthesis</h3>
+    <div class="experiment-card" id="exp-shape" data-source-id="exp-shape">
+      <strong>实验问题：</strong>在 canonical chair distribution 上，自回归 Gaussian latent prior 是否能同时匹配二维渲染分布、三维几何分布与样本多样性？
+    </div>
+    <p>作者生成 1000 个 chair。FID/KID 在 \(128\times128\) render 上衡量 appearance distribution；COV/MMD 在从生成 Gaussian 提取的 mesh 上采样 2k surface points，再用 Chamfer distance 计算。COV 越高表示生成集合覆盖更多真实样本邻域；MMD 越低表示每个真实样本能找到更接近的生成样本。</p>
+
+    <div class="paper-unit" id="tab-1" data-source-id="tab-1">
+      <h4>Table 1：PhotoShape 无条件生成</h4>
+      <table>
+        <thead><tr><th>Method</th><th>FID ↓</th><th>KID ×10³ ↓</th><th>COV ↑</th><th>MMD ×10³ ↓</th></tr></thead>
+        <tbody>
+          <tr><td>π-GAN</td><td>52.71</td><td>13.64</td><td>39.92</td><td>7.387</td></tr>
+          <tr><td>EG3D</td><td>16.54</td><td>8.412</td><td>47.55</td><td>5.619</td></tr>
+          <tr><td>DiffRF</td><td>15.95</td><td>7.935</td><td>58.93</td><td>4.416</td></tr>
+          <tr><td>L3DG</td><td>8.49</td><td>3.147</td><td>63.80</td><td class="best">4.241</td></tr>
+          <tr><td><strong>GaussianGPT</strong></td><td class="best">5.68</td><td class="best">1.835</td><td class="best">67.40</td><td>4.278</td></tr>
+        </tbody>
+      </table>
+      <p>相对最强的 L3DG，GaussianGPT 的 FID 降低约 33.1%，KID 降低约 41.7%，COV 增加 3.6 个百分点；MMD 从 4.241 轻微变差到 4.278，差约 0.9%。因此“state-of-the-art”主要由 appearance distribution 与 coverage 支撑，而不是每项几何指标都最优。</p>
+      <p>论文没有给出多次训练的均值/方差或显著性检验。FID/KID 改善幅度较大，但无法从单表判断训练随机性的贡献；MMD 的极小差异尤其不应被过度解读。</p>
+    </div>
+
+    <figure class="paper-unit" id="fig-3" data-source-id="fig-3">
+      <img src="figures/qual_photoshape.png" alt="Qualitative chair generation comparison">
+      <figcaption><strong>Figure 3。</strong>每组比较 DiffRF、L3DG 与 GaussianGPT 的 chair samples。作者强调本方法的 Gaussian allocation 更干净、离群 primitive 更少，轮廓更锐利，同时仍覆盖不同椅型。该图支持几何整洁度的定性判断，但无法替代 Table 1 的分布级指标。</figcaption>
+    </figure>
+  </section>
+
+  <section class="paper-unit" id="sec-4-4" data-source-id="sec-4-4">
+    <h3>4.4 Scene Synthesis</h3>
+    <p>场景实验包含三种任务：从空前缀生成一个 \(4\,\mathrm m\) chunk；从沿 \(x\) 的 25%/50% prefix 补全剩余 chunk；通过移动局部 context 生成 \(12\,\mathrm m\times12\,\mathrm m\) 场景。</p>
+
+    <figure class="paper-unit" id="fig-4" data-source-id="fig-4">
+      <img src="figures/qual_scenes.png" alt="Unconditional scene generation: L3DG and GaussianGPT">
+      <figcaption><strong>Figure 4。</strong>左侧为原始 full-room L3DG，右侧为只在 3D-FRONT 上训练的 GaussianGPT。两者均生成床、沙发、桌柜等可识别室内布局；GaussianGPT 样本外观更干净，但此处不是严格匹配设置的定量比较，因为原始 L3DG 面向完整 normalized rooms。</figcaption>
+    </figure>
+
+    <section class="paper-unit" id="sec-4-4-protocol" data-source-id="sec-4-4-protocol">
+      <h4>Evaluation Protocol</h4>
+      <p>定量比较把 GaussianGPT 与重新训练的 chunked L3DG 放在相同 3D-FRONT spatial setting。无条件 generation 使用 1000 个生成 chunk 与 1000 个 held-out GT chunk；completion 使用 200 个 GT chunk，每个条件采样 5 个 completion。</p>
+      <table>
+        <thead><tr><th>维度</th><th>指标与数据</th><th>能说明什么</th><th>不能说明什么</th></tr></thead>
+        <tbody>
+          <tr><td>Appearance</td><td>水平 orbit render，\(256^2\)，FID/KID</td><td>二维可见外观分布</td><td>不可直接证明三维几何正确</td></tr>
+          <tr><td>Geometry</td><td>Gaussian center 采样 16k points，COV/MMD</td><td>中心点分布与多样性</td><td>不是精确 surface/mesh metric</td></tr>
+          <tr><td>Layout</td><td>移除上方 40% Gaussian 后的 top-down depth，FID/KID</td><td>地面层空间布局</td><td>忽略 ceiling 与部分高度结构</td></tr>
+          <tr><td>Completion</td><td>completion 与对应 GT orbit render 的 CLIP similarity</td><td>语义与视觉一致性</td><td>不等价于逐点几何恢复</td></tr>
+        </tbody>
+      </table>
+      <p>L3DG completion 使用 RePaint。扩散 baseline 对已知区域仍执行全局去噪步骤，而 GaussianGPT 直接把已知 token 当 prefix。</p>
+    </section>
+
+    <section class="paper-unit" id="sec-4-4-qual" data-source-id="sec-4-4-qual">
+      <h4>Qualitative Results</h4>
+      <p>作者认为两种模型均能产生连贯室内结构；GaussianGPT 的 causal prefix 允许任意合法前缀直接延续。Figure 6 显示同一个局部条件可以产生不同家具、墙体延伸和外观，说明模型没有简单复制单一 GT，而是在近似条件分布中采样。</p>
+    </section>
+
+    <div class="paper-unit" id="tab-2" data-source-id="tab-2">
+      <h4>Table 2：场景生成与 completion</h4>
+      <table>
+        <thead>
+          <tr><th rowspan="2">Task / Method</th><th colspan="2">Appearance</th><th colspan="2">Geometry</th><th colspan="2">Layout</th><th>Completion</th></tr>
+          <tr><th>FID ↓</th><th>KID ↓</th><th>COV ↑</th><th>MMD ↓</th><th>FID ↓</th><th>KID ↓</th><th>CLIP ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><th colspan="8">Generation</th></tr>
+          <tr><td>L3DG</td><td>100.98</td><td>0.095</td><td class="best">0.692</td><td class="best">0.096</td><td>93.84</td><td>0.092</td><td>—</td></tr>
+          <tr><td>GaussianGPT</td><td class="best">94.85</td><td class="best">0.084</td><td class="worse">0.548</td><td class="worse">0.118</td><td class="best">84.14</td><td class="best">0.077</td><td>—</td></tr>
+          <tr><th colspan="8">Completion：25% context</th></tr>
+          <tr><td>L3DG</td><td>109.35</td><td>0.100</td><td class="best">0.925</td><td>0.106</td><td>112.57</td><td>0.093</td><td>0.834</td></tr>
+          <tr><td>GaussianGPT</td><td class="best">100.06</td><td class="best">0.084</td><td>0.879</td><td class="best">0.089</td><td class="best">95.60</td><td class="best">0.068</td><td class="best">0.841</td></tr>
+          <tr><th colspan="8">Completion：50% context</th></tr>
+          <tr><td>L3DG</td><td>106.54</td><td>0.096</td><td class="best">0.940</td><td>0.084</td><td>111.71</td><td>0.092</td><td>0.843</td></tr>
+          <tr><td>GaussianGPT</td><td class="best">98.13</td><td class="best">0.081</td><td class="best">0.940</td><td class="best">0.057</td><td class="best">90.77</td><td class="best">0.063</td><td class="best">0.851</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <section class="paper-unit" id="sec-4-4-quant" data-source-id="sec-4-4-quant">
+      <h4>Quantitative Results</h4>
+      <div class="experiment-card" id="exp-scene-generation" data-source-id="exp-scene-generation">
+        <strong>无条件 generation：</strong>GaussianGPT 的 appearance FID/KID 与 layout FID/KID 均优于 L3DG，但 geometry COV 从 0.692 降到 0.548，MMD 从 0.096 增到 0.118。即生成结果更干净、更接近常见视觉布局，却覆盖较少几何模式。作者将其明确表述为质量—多样性 trade-off。
+      </div>
+      <div class="experiment-card" id="exp-scene-completion" data-source-id="exp-scene-completion">
+        <strong>Completion：</strong>当条件从 25% 增到 50%，GaussianGPT 的优势扩大。25% 时 COV 仍低于 L3DG，但 MMD、appearance、layout、CLIP 均更好；50% 时 COV 持平为 0.940，GaussianGPT 的 MMD 为 0.057，对比 L3DG 0.084，同时其 layout FID 低约 20.94。更多已知 prefix 减少了自回归模型需要探索的几何不确定性。
+      </div>
+      <p><span class="evidence analysis">分析者解释</span>这组结果最有力地支持论文的结构性主张：prefix conditioning 与 causal factorization 匹配。它并不能证明 autoregressive model 在无条件场景分布上全面优于 diffusion，因为无条件几何覆盖仍明显较弱。</p>
+    </section>
+
+    <figure class="paper-unit" id="fig-6" data-source-id="fig-6">
+      <img src="figures/completion.png" alt="Scene chunk completion samples">
+      <figcaption><strong>Figure 6。</strong>每行左侧是输入/GT，右侧是多个 completion。样本在保持 prefix 边界的同时改变家具类别、颜色与布局延伸，说明条件生成具有多样性。部分视角中的白色开放区域也提示 scene boundary 与空空间仍可能不稳定。</figcaption>
+    </figure>
+
+    <section class="paper-unit" id="sec-4-4-large" data-source-id="sec-4-4-large">
+      <h4>Large Scene Generation</h4>
+      <p>单 chunk 的物理范围为 \(20\times0.20=4\,\mathrm m\)。作者通过滑动局部窗口反复补全 latent columns，生成 \(12\,\mathrm m\times12\,\mathrm m\) 场景。已生成区域成为下一步 context；空列最多重采样 5 次，以避免生成过程过早进入全空区域。</p>
+      <div class="experiment-card" id="exp-large-scene" data-source-id="exp-large-scene">
+        <strong>实验结论：</strong>模型确实能超过训练 horizon，维持一段距离内的风格和房间连通性；但质量随远离初始 chunk 逐渐退化。因而“flexible generation horizon”应理解为算法允许可变范围，而非质量对范围不敏感。
+      </div>
+    </section>
+
+    <figure class="paper-unit" id="fig-5" data-source-id="fig-5">
+      <img src="figures/big_scenes.png" alt="12m by 12m autoregressive outpainting">
+      <figcaption><strong>Figure 5。</strong>三个 \(12\,\mathrm m\times12\,\mathrm m\) top-down scenes。模型可以组合多个房间和走廊式区域，证明空间范围不被单个 training chunk 硬限制；该图没有显示生成时间，效率与退化在 Appendix B/C 单独分析。</figcaption>
+    </figure>
+  </section>
+
+  <section class="paper-unit" id="sec-4-5" data-source-id="sec-4-5">
+    <h3>4.5 Autoregressive Modeling Ablations</h3>
+    <p>消融在 ASE + 3D-FRONT 训练设置上进行，其他架构与训练配置固定，报告 epoch 70–74 的平均 train/validation cross-entropy。指标是 token likelihood，不是最终 render quality，因此它直接衡量建模难度，但不能完全替代下游视觉评估。</p>
+
+    <section class="paper-unit" id="sec-4-5-serialization" data-source-id="sec-4-5-serialization">
+      <h4>Serialization Strategies</h4>
+      <div class="paper-unit" id="tab-3" data-source-id="tab-3">
+        <table>
+          <thead><tr><th>Ordering</th><th>Train CE ↓</th><th>Val CE ↓</th></tr></thead>
+          <tbody>
+            <tr><td>Z-order</td><td>2.203</td><td>2.432</td></tr>
+            <tr><td>Transposed Z-order</td><td>2.204</td><td>2.423</td></tr>
+            <tr><td>Hilbert</td><td>2.347</td><td>2.439</td></tr>
+            <tr><td>Transposed Hilbert</td><td>2.334</td><td>2.434</td></tr>
+            <tr><td>\(xyz\) (ours)</td><td class="best">2.151</td><td class="best">2.421</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="experiment-card" id="exp-serialization-ablation" data-source-id="exp-serialization-ablation">
+        Z-order/Hilbert 有更强的一维 locality 保证，却没有改善 CE；transposed Z-order 的 validation 2.423 与 \(xyz\) 2.421 极接近。作者据此判断 3D RoPE 已经提供足够空间信息，使 serialization locality 不再是主导因素。选择 \(xyz\) 还带来可解释的竖直列与简单 outpainting。
+      </div>
+    </section>
+
+    <section class="paper-unit" id="sec-4-5-components" data-source-id="sec-4-5-components">
+      <h4>Core Model Components</h4>
+      <div class="paper-unit" id="tab-4" data-source-id="tab-4">
+        <table>
+          <thead><tr><th>Setup</th><th>Train CE ↓</th><th>Val CE ↓</th></tr></thead>
+          <tbody>
+            <tr><td>Ours：separate vocab + 3D RoPE</td><td class="best">2.151</td><td class="best">2.421</td></tr>
+            <tr><td>Shared vocabulary</td><td>2.157</td><td>2.449</td></tr>
+            <tr><td>Learned positional embedding</td><td>2.210</td><td>2.461</td></tr>
+            <tr><td>1D RoPE</td><td>2.227</td><td>2.446</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="experiment-card" id="exp-component-ablation" data-source-id="exp-component-ablation">
+        shared vocabulary 的 train CE 几乎不变而 val CE 明显变差，说明问题更像几何/特征语义混淆带来的 generalization penalty。将 3D coordinates 替换为 learned PE 或 1D RoPE 同时恶化 train 与 validation，直接支持空间坐标 inductive bias。1D RoPE 的 val CE 比 learned PE 稍好，但仍落后于 3D RoPE。
+      </div>
+    </section>
+
+    <div class="checkpoint">
+      <strong>实验部分学习检查点：</strong>
+      <ol>
+        <li>Table 1 中 GaussianGPT 唯一没有最优的是哪项指标？</li>
+        <li>无条件 scene generation 的视觉质量—几何多样性 trade-off 如何体现？</li>
+        <li>为什么 50% context completion 比 25% context 更有利于 autoregressive formulation？</li>
+        <li>Table 3 为什么不能简单推出 serialization 顺序不重要？它只在哪个模型配置下成立？</li>
+      </ol>
+    </div>
+  </section>
+</section>
+
+<section class="paper-unit" id="sec-5" data-source-id="sec-5">
+  <div class="source-ref">对应原文：Section 5 Conclusion</div>
+  <h2>5. Conclusion</h2>
+  <p>论文结论回到其主要研究问题：vector-quantized Gaussian representation 与三维感知的 structured tokenization，使 sequential next-token prediction 成为三维对象与场景生成的可行范式。相对于整体 diffusion denoising，模型把场景拆成一系列显式空间决策，从而自然获得 prefix completion、逐步 outpainting、temperature 控制和可变生成范围。</p>
+  <p>证据层面，对象实验在 FID、KID、COV 上取得最佳结果；场景实验显示更好的 appearance 与 layout，completion 尤其受益于已知 prefix；消融验证 separate vocabulary 与 3D RoPE；大场景实验证明生成范围可以超过单 chunk。论文没有证明 autoregressive generation 在所有质量、速度和几何分布指标上优于 diffusion。</p>
+
+  <div class="warning paper-unit" id="lim-geometry-diversity" data-source-id="lim-geometry-diversity">
+    <strong>作者结果直接暴露的限制：几何多样性。</strong>
+    无条件场景 generation 中，GaussianGPT 的 geometry COV/MMD 均落后 L3DG。较好的 render FID 与较差的 geometry coverage 可以同时发生，说明模型更集中于高概率、视觉干净的场景模式，而没有充分覆盖 GT 几何分布。
+  </div>
+  <div class="warning paper-unit" id="lim-fixed-context" data-source-id="lim-fixed-context">
+    <strong>作者结论中的未来问题：固定 chunk、固定 ordering 与长 horizon。</strong>
+    当前模型依赖 \(20^3\) local chunk、固定 xyz 序列和有限 context。大场景通过移动局部窗口绕过长度限制，但误差会随扩展距离积累。作者提出未来研究更长 context、更稳定 long-horizon generation，以及真实数据中的 uncertainty-aware modeling。
+  </div>
+
+  <div class="bridge">
+    <span class="evidence analysis">对用户研究方向的定位</span>
+    GaussianGPT 更接近“显式三维场景生成 prior”，不是带动作的世界模型。若把它接入 world model，至少还需要：由 observation 更新 persistent scene state；action-conditioned state transition；动态对象与遮挡后的状态保持；时间 rollout 与控制评估。本文只解决其中静态三维场景先验和空间延展的一部分。
+  </div>
+</section>
+
+<section class="paper-unit" id="sec-ack" data-source-id="sec-ack">
+  <h2>Acknowledgements</h2>
+  <p>作者披露的支持包括 MDSI focus topic “Understanding Existing Structures in Building Planning”、MDSI doctoral fellowship、ERC Consolidator Grant Gen3D（101171131）及 Jülich Supercomputing Centre 的 MeshFoundation 计算资源，并感谢 Angela Dai 提供视频配音。</p>
+</section>
+
+<section class="paper-unit" id="sec-references" data-source-id="sec-references">
+  <h2>References 的覆盖方式</h2>
+  <p>原论文参考文献表未在本文逐条复制；Section 2 已保留作者用于定位工作的三条分类轴和关键方法。涉及核心技术来源时，本文保留 L3DG、3DGS、LFQ、GPT/RoPE、PhotoShape、3D-FRONT、ASE、RePaint、ScanNet++ 等对应关系。完整 bibliography 请查看<a href="https://arxiv.org/pdf/2603.26661">原 PDF</a>。</p>
+</section>
+
+<section class="paper-unit" id="app-a" data-source-id="app-a">
+  <div class="source-ref">对应原文：Appendix A Real-World Results</div>
+  <h2>Appendix A. Real-World Results</h2>
+  <p>主实验使用合成、轴对齐场景。本附录将模型 fine-tune 到 ScanNet++ v2，检验真实视觉复杂度、几何噪声、场景差异和缺少全局墙地轴对齐时是否仍可工作。</p>
+
+  <section class="paper-unit" id="app-a-training" data-source-id="app-a-training">
+    <h3>Training Details</h3>
+    <p>作者使用 SceneSplat++ 优化的 ScanNet++ Gaussians，共 895 个场景，90% 用于训练，并继续采用 8× rotation/flip augmentation。即便如此，真实训练集仍远小于 ASE + 3D-FRONT。</p>
+    <p>autoencoder 使用官方 DSLR images，以 half resolution 做 chunked fine-tuning 100 epochs，约 1 天；GPT 在新 latent grids 上 fine-tune 250 epochs，约 7.5 小时。</p>
+  </section>
+
+  <section class="paper-unit" id="app-a-results" data-source-id="app-a-results">
+    <h3>Completion Results</h3>
+    <div class="experiment-card" id="exp-realworld" data-source-id="exp-realworld">
+      与主文相同的 scene-chunk completion 设置下，模型保留从合成数据学到的先验，能从真实局部观测产生多样的 geometry、texture 与 semantic layout。附录图使用较低 temperature 0.6 和 nucleus \(p=0.7\)，比主实验 0.9/0.9 更保守。
+    </div>
+  </section>
+
+  <figure class="paper-unit" id="fig-7" data-source-id="fig-7">
+    <img src="figures/spp_completions.png" alt="ScanNet++ real-world scene completion">
+    <figcaption><strong>Figure 7。</strong>每行左侧为真实 input/GT，右侧为多个 completion。模型能延续墙地材质并补出床、桌、柜等对象，但细节更模糊、边界更噪，符合作者关于 autoencoder fidelity 的说明。</figcaption>
+  </figure>
+
+  <section class="paper-unit" id="app-a-limitations" data-source-id="app-a-limitations">
+    <h3>Limitations</h3>
+    <div class="warning paper-unit" id="lim-real-ae" data-source-id="lim-real-ae">
+      <strong>Autoencoder fidelity bottleneck：</strong>真实场景中的高频纹理和细几何常不能被 20 cm latent grid 与当前 decoder 完整重建，导致更噪的 Gaussian geometry 与预测。GPT 只能学习 tokenizer 给出的离散分布，无法恢复已在压缩阶段丢失的信息。
+    </div>
+    <div class="warning paper-unit" id="lim-real-missing" data-source-id="lim-real-missing">
+      <strong>Unobserved regions：</strong>真实扫描天然包含未观察和缺失区域，而当前 pipeline 把训练 Gaussian 当作完整 target。缺失并不等于真实空空间；若不显式建模 uncertainty，模型会把传感器不可见性与场景结构混在一起。
+    </div>
+  </section>
+
+  <section class="paper-unit" id="app-a-future" data-source-id="app-a-future">
+    <h3>Future Work</h3>
+    <p>作者提出提高重建 fidelity，并在 partial real-world scans 中显式建模 uncertainty。自回归分解允许把不确定位置 mask 掉，再基于已知 prefix 对缺失区域采样；这是论文认为 AR 在真实数据上可能具有额外优势的原因，但尚未通过定量实验验证。</p>
+  </section>
+</section>
+
+<section class="paper-unit" id="app-b" data-source-id="app-b">
+  <div class="source-ref">对应原文：Appendix B Inference Efficiency Analysis</div>
+  <h2>Appendix B. Inference Efficiency Analysis</h2>
+  <p>作者在单张 A100 上对每个 chunk 测量 wall-clock 与 peak GPU memory，100 个样本报告均值和 runtime 标准差。为了比较基础 sampler，GaussianGPT 关闭 resampling，L3DG completion 关闭 backward repainting。</p>
+
+  <div class="paper-unit" id="tab-5" data-source-id="tab-5">
+    <h3>Table 5：推理效率</h3>
+    <table>
+      <thead><tr><th>Task</th><th>Approach</th><th>Wall-clock</th><th>Peak memory</th></tr></thead>
+      <tbody>
+        <tr><td>Unconditional</td><td>L3DG</td><td class="best">23.8 ± 0.07 s</td><td class="best">1.55 GB</td></tr>
+        <tr><td>Unconditional</td><td>GaussianGPT</td><td>78.1 ± 15.8 s</td><td>5.04 GB</td></tr>
+        <tr><td>25% context</td><td>L3DG</td><td class="best">24.0 ± 0.18 s</td><td class="best">1.59 GB</td></tr>
+        <tr><td>25% context</td><td>GaussianGPT</td><td>54.5 ± 13.8 s</td><td>5.24 GB</td></tr>
+        <tr><td>50% context</td><td>L3DG</td><td class="best">24.1 ± 0.14 s</td><td class="best">1.60 GB</td></tr>
+        <tr><td>50% context</td><td>GaussianGPT</td><td>38.9 ± 12.4 s</td><td>5.46 GB</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="experiment-card" id="exp-inference-efficiency" data-source-id="exp-inference-efficiency">
+    <strong>主要结论：</strong>无条件时 GaussianGPT 约为 L3DG 的 3.28 倍耗时，显存约 3.25 倍；随着 prefix 增长，它只需生成剩余 token，时间降到 54.5 s 和 38.9 s，而 L3DG 基本保持 24 s。自回归的效率优势不是绝对速度，而是计算量能随已知条件长度减少。
+  </div>
+
+  <div class="warning paper-unit" id="lim-ar-speed" data-source-id="lim-ar-speed">
+    <strong>顺序解码限制：</strong>每个下一 token 依赖前缀，不能像 diffusion 那样在一个 denoising step 内并行更新完整 latent grid。稀疏 scene 的 token 数又很长，因此 decode latency 是当前方法的主要工程瓶颈。
+  </div>
+  <div class="warning paper-unit" id="lim-kv-memory" data-source-id="lim-kv-memory">
+    <strong>KV-cache 限制：</strong>实现为完整 16,384 context 预分配 key/value cache，因为终止长度事先未知。prefix 只增加少量 prefill 峰值，实际 peak memory 几乎固定，因此表中的约 5 GB 是保守实现上界，不等于每个样本实际 token 必需的最小显存。
+  </div>
+
+  <p>作者列出的加速方向包括 Flash-Decoding、speculative decoding、MEDUSA 式多 token 辅助 heads、稀疏/局部 attention，以及更强的 hierarchical/adaptive tokenization。它们是未来方案，不是本文已验证组件。</p>
+</section>
+
+<section class="paper-unit" id="app-c" data-source-id="app-c">
+  <div class="source-ref">对应原文：Appendix C Large Scene Generation</div>
+  <h2>Appendix C. Large Scene Generation</h2>
+  <p>大场景不是把 Transformer context 简单扩大到整个 \(12\times12\) m 区域，而是保持训练时的 local coordinate frame，重复执行局部 completion。每个新 column 的 position token 都使用当前 sliding chunk 内的相对坐标。</p>
+
+  <figure class="paper-unit" id="fig-8" data-source-id="fig-8">
+    <img src="figures/largescenes_appendix.png" alt="Additional 12m by 12m generated scenes">
+    <figcaption><strong>Figure 8。</strong>更多 \(12\,\mathrm m\times12\,\mathrm m\) top-down samples。模型生成多个相连房间和不同材质风格；边缘存在局部缺口和断裂，说明扩展能力与长期一致性并不等价。</figcaption>
+  </figure>
+
+  <section class="paper-unit" id="app-c-sampling" data-source-id="app-c-sampling">
+    <h3>Sampling Efficiency</h3>
+    <p>生成分三阶段：</p>
+    <ol>
+      <li>先用单 chunk sampling 产生连续初始 context block；</li>
+      <li>沿 \(x\) 移动窗口，每次 bootstrap 生成 20 个新 columns 的 slice；</li>
+      <li>主 outpainting loop 沿 \(y\) 扩展直到目标范围。</li>
+    </ol>
+    <p>完整 \(12\times12\) m scene 在 GH200 上平均约 6000 s；单个 \(4\times4\) m chunk 约 80 s。完整 KV-cached 单 chunk 可达约 5 columns/s，而大场景因窗口移动无法持续复用 cache，仅约 0.6 columns/s。关闭 resampling 时约快一倍。</p>
+  </section>
+
+  <section class="paper-unit" id="app-c-window" data-source-id="app-c-window">
+    <h3>Chunk Window Positioning</h3>
+    <p>训练时 target column 可位于 local chunk 的不同位置，因此推理时不必总在窗口最边缘预测。作者最多一次生成 5 个 columns，沿 \(y\) 从 chunk center 附近开始，并把 \(x\) target 放在约 local \(x=5\) 的位置，使未知区域前后都保留部分局部上下文，且窗口分布更接近训练 chunks。</p>
+  </section>
+
+  <section class="paper-unit" id="app-c-degradation" data-source-id="app-c-degradation">
+    <h3>Resampling and Degradation</h3>
+    <p>稀疏训练 chunk 允许空空间，所以 outpainting 可能采样出完全空列；一旦多列连续为空，后续 prefix 会偏离训练分布。作者在空列出现时重试，比较最大 retry 为 0、5、15。5 次是默认的质量—成本折中，15 次进一步推迟退化但更慢。</p>
+
+    <div class="experiment-card" id="exp-retry-degradation" data-source-id="exp-retry-degradation">
+      Figure 9 对每个 \(4\times4\) m tile 计算 KID，并相对左上初始 tile 归一化。无 retry 时，距离增加后相对 KID 可超过 3–4；5 retries 明显压低远端退化；15 retries 大部分 tile 保持约 1.0–1.2。该实验显示 resampling 有效，但也说明模型本身的 long-horizon error 没有消失，而是通过额外采样被延缓。
+    </div>
+  </section>
+
+  <figure class="paper-unit" id="fig-9" data-source-id="fig-9">
+    <img src="figures/degradation.png" alt="Large scene degradation heatmaps for zero, five, and fifteen retries">
+    <figcaption><strong>Figure 9。</strong>三张共享色标的 heatmap 分别对应 0、5、15 retries；1.0 表示与初始 tile 无退化，暖色更差。无 retry 时沿 \(x\) 和远距离方向迅速升高，15 retries 最稳定。</figcaption>
+  </figure>
+
+  <div class="warning paper-unit" id="lim-long-horizon" data-source-id="lim-long-horizon">
+    <strong>方向性 long-horizon degradation：</strong>沿 \(x\) 扩展比沿 \(y\) 更差。作者把它归因于 xyz serialization：同一 \(x\) 内沿 \(y\) 的列在序列上较近，而改变 \(x\) 对应更大的序列跨度。强制每列都占用的 hard constraint 表现很差，因为真实数据中空列本来可能是高概率事件。
+  </div>
+
+  <details id="code-outpainting" data-source-id="code-outpainting">
+    <summary>官方代码对应：滑窗 prompt 与空列重采样</summary>
+    <div>
+      <p><span class="evidence code">官方代码</span><code>generate_scene.py</code> 把已生成 global columns 重映射到当前 local chunk 坐标，构造 prefix；当目标列为空时，以变化后的 seed/temperature 重采样，达到上限后才接受空列。</p>
+<pre><code># generate_scene.py:1462-1476, 1550-1556
+if resample_empty_columns and len(column_rows) == 0:
+    if group_retry_idx &gt; max_empty_column_retries:
+        ...  # keep current suffix
+    else:
+        retry_temperature = _temperature_for_retry(
+            outpainting_temperature, group_retry_idx
+        )
+
+while len(column_rows) == 0 and retry_idx &lt;= max_empty_column_retries:
+    retry_temperature = _temperature_for_retry(
+        outpainting_temperature, retry_idx
+    )
+    column_tokens, column_rows = _sample_sparse_column_tokenwise(...)</code></pre>
+      <p>当前公开实现还包含 initial bootstrap、shifted-x bootstrap、一次多列 sampling、position logits constraints、KV-cache 和 early occupancy stop；这些工程分支比主文的“滑窗 + 最多 5 次回退”描述更具体。</p>
+    </div>
+  </details>
+</section>
+
+<section class="paper-unit" id="app-d" data-source-id="app-d">
+  <div class="source-ref">对应原文：Appendix D Additional Training Details</div>
+  <h2>Appendix D. Additional Training Details</h2>
+
+  <section class="paper-unit" id="app-d-chunk" data-source-id="app-d-chunk">
+    <h3>Chunk Sampling</h3>
+    <p>autoencoder 与 GPT 都从完整场景随机提出空间 chunk。每一步最多尝试 10 个候选；autoencoder 要求 occupancy 至少 0.2，GPT 因 latent grid 更粗而要求至少 0.3。若全部候选不达标，则选择 occupancy 最高者。这个规则避免训练 batch 大量由纯空空间构成，同时没有完全删除稀疏场景。</p>
+  </section>
+
+  <section class="paper-unit" id="app-d-camera" data-source-id="app-d-camera">
+    <h3>Camera Sampling</h3>
+    <p>autoencoder 的 re-rendering supervision 必须让相机真正看到当前 chunk。对 3D-FRONT，作者用 depth map 与 chunk bounds 精确计算可见区域：先采样所需数量 8 倍的候选图像，按可见 chunk 面积打分，再按分数采样。这样优先选择 informative views，同时不完全排除其他视角。</p>
+    <p>ASE 没有同样的精确机制，因此使用投影 chunk bounding box 的屏幕覆盖 heuristic：优先选择至少有 40% chunk coverage 的相机；若不存在，再退回任何有 overlap 的相机。</p>
+  </section>
+
+  <section class="paper-unit" id="app-d-heads" data-source-id="app-d-heads">
+    <h3>Encoder and Decoder Heads</h3>
+    <p>每个 Gaussian 属性有独立 encoder head。线性层先把该属性维度扩大 16 倍，再经过保持维度的 residual MLP block；所有属性 embedding 拼接后输入 sparse CNN。decoder 输出 feature vector 后，每个属性由两个 64-channel residual MLP blocks 与最终线性层恢复。</p>
+    <p>scale、opacity、quaternion、color、coordinate offset，以及需要时的 spherical harmonics 都有独立 head。最终 projection 的 weight 初始化为 0，并设置常量 bias，使初始 Gaussian 具有合理可见性，避免训练一开始全部透明或尺度异常。</p>
+  </section>
+
+  <section class="paper-unit" id="app-d-features" data-source-id="app-d-features">
+    <h3>Feature Representations</h3>
+    <table>
+      <thead><tr><th>属性</th><th>训练内部空间</th><th>数值约束目的</th></tr></thead>
+      <tbody>
+        <tr><td>Scale</td><td>world-space size，经 softplus，统一乘 100</td><td>保证正尺度并与其他 feature 量级接近</td></tr>
+        <tr><td>Opacity</td><td>logit clamp 到 \([-10,10]\)，再除以 10</td><td>避免极端饱和且稳定回归</td></tr>
+        <tr><td>Color</td><td>SH DC 转 RGB，clamp 到 \([0,1]\)</td><td>让 head 在可解释颜色范围学习</td></tr>
+        <tr><td>Quaternion</td><td>归一化并标准化符号</td><td>处理 \(q\) 与 \(-q\) 表示同一旋转的二义性</td></tr>
+        <tr><td>Offset</td><td>无界 world/grid-relative value</td><td>恢复 voxel 内连续位置</td></tr>
+      </tbody>
+    </table>
+    <p>这些表示会影响 loss surface，但论文没有对每一种参数化单独做消融；它们主要来自 L3DG 与公开实现的工程经验。</p>
+  </section>
+</section>
+
+<section class="paper-unit" id="app-e" data-source-id="app-e">
+  <div class="source-ref">对应原文：Appendix E GPT Training Hyperparameters</div>
+  <h2>Appendix E. GPT Training Hyperparameters</h2>
+  <p>Transformer 代码建立在 nanochat commit <code>e527521</code> 上，采用按 parameter module 分组的 AdamW 与 Muon。Table 6 的 learning rates 对 object 模型为精确值；scene embedding dimension 从 768 增到 1024 后，标 \(\dagger\) 的 LR 需除以 \(\sqrt{1024/768}\approx1.155\)。</p>
+
+  <div class="paper-unit" id="tab-6" data-source-id="tab-6">
+    <h3>Table 6：GPT 分模块优化参数</h3>
+    <table>
+      <thead><tr><th>Module</th><th>Optimizer</th><th>Learning rate</th><th>Parameters</th></tr></thead>
+      <tbody>
+        <tr><td>Output heads</td><td>AdamW</td><td>0.004 \(\dagger\)</td><td>\(\beta_1=0.8,\beta_2=0.95\)</td></tr>
+        <tr><td>Embeddings</td><td>AdamW</td><td>0.2 \(\dagger\)</td><td>\(\beta_1=0.8,\beta_2=0.95\)</td></tr>
+        <tr><td>Residual weights</td><td>AdamW</td><td>0.005</td><td>\(\beta_1=0.8,\beta_2=0.95\)</td></tr>
+        <tr><td>Input skip weights</td><td>AdamW</td><td>0.5</td><td>\(\beta_1=0.96,\beta_2=0.95\)</td></tr>
+        <tr><td>Others</td><td>Muon</td><td>0.02</td><td>\(\beta_2=0.95,n=5\)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="paper-unit" id="app-e-optim" data-source-id="app-e-optim">
+    <h3>Optimizers</h3>
+    <p>AdamW groups 使用 \(\epsilon=10^{-10}\)，且不使用 weight decay。Muon 中 \(n=5\) 表示 5 次 Newton–Schulz iterations；Nesterov momentum 在前 300 steps 从 0.85 线性增到 0.95。Muon weight decay 对 scene 为 0.025、object 为 0.1，并在训练期间线性衰减到 0。</p>
+    <p>不同 module 的 LR 跨越 0.004 到 0.5，不能把 Table 6 理解为一个全局 learning rate。高 LR 主要用于低维 scalar/skip 类参数，矩阵主干交给 Muon。</p>
+  </section>
+
+  <section class="paper-unit" id="app-e-init" data-source-id="app-e-init">
+    <h3>Weight Initialization</h3>
+    <p>token embeddings 从 \(\mathcal N(0,1)\) 初始化，output heads 从 \(\mathcal N(0,10^{-3})\) 初始化。attention projections 与 MLP input layers 在 \(\pm\sqrt{3/d}\) 内均匀初始化；attention/MLP output projections 初始化为 0。residual scalar 初始为 1.0，input-skip scalar 初始为 0.1。</p>
+    <p>zero output projection 使每个新 block 初始接近 identity residual update，有助于深层 Transformer 的稳定启动。</p>
+  </section>
+</section>
+
+<section class="paper-unit" id="app-f" data-source-id="app-f">
+  <div class="source-ref">对应原文：Appendix F Autoencoder Ablations</div>
+  <h2>Appendix F. Autoencoder Ablations</h2>
+  <p>本附录非常关键，因为 GPT 只建模 autoencoder 输出的 token。作者在 held-out 3D-FRONT chunks 上比较重建 render 与 GT mesh render，以 PSNR、SSIM、LPIPS 衡量 fidelity，并报告 latent 数量或 code usage。</p>
+
+  <section class="paper-unit" id="app-f-downsampling" data-source-id="app-f-downsampling">
+    <h3>Downsampling</h3>
+    <p>下采样越少，重建越好，但 token 数迅速增加：1×、2×、3× 配置平均约 53k、14k、3.2k latent voxels。每个 latent 对应两个 GPT token，因此前两者约需 106k 与 28k token，远超 16,384 context；3× 平均约 6.4k token，最坏完全占用 \(20^3\) 时约 16k，才与主模型兼容。</p>
+  </section>
+
+  <section class="paper-unit" id="app-f-codebook" data-source-id="app-f-codebook">
+    <h3>Codebook Size and Type</h3>
+    <p>codebook 从 1024 增至 4096 或 16384，只带来很小 reconstruction 差异。16384 的 usage 降到 86.4%，说明更大离散容量没有被充分利用。传统 learned-codebook VQ 在 20 epochs 时稍好，但 nearest-neighbor search 使训练时间约增加三分之一；作者最终选择 LFQ 以换取速度和较均衡 usage。</p>
+  </section>
+
+  <div class="paper-unit" id="tab-7" data-source-id="tab-7">
+    <h3>Table 7：Autoencoder 压缩与 tokenizer 消融</h3>
+    <table>
+      <thead><tr><th>Configuration</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>Latents / Usage</th></tr></thead>
+      <tbody>
+        <tr><td>1× downsampling</td><td class="best">24.34</td><td class="best">0.873</td><td class="best">0.187</td><td>53k latents</td></tr>
+        <tr><td>2× downsampling</td><td>23.73</td><td>0.869</td><td>0.190</td><td>14k latents</td></tr>
+        <tr><td>3× downsampling (ours)</td><td>21.11</td><td>0.847</td><td>0.246</td><td class="best">3.2k latents</td></tr>
+        <tr><td>1024 CB</td><td>20.93</td><td>0.846</td><td>0.250</td><td class="best">100% usage</td></tr>
+        <tr><td>4096 CB (ours)</td><td>21.11</td><td>0.847</td><td>0.246</td><td>99.2% usage</td></tr>
+        <tr><td>16384 CB</td><td>21.37</td><td>0.848</td><td>0.245</td><td>86.4% usage</td></tr>
+        <tr><td>VQ with codebook</td><td class="best">21.59</td><td class="best">0.850</td><td class="best">0.226</td><td>98.4% usage</td></tr>
+        <tr><td>Full training</td><td>25.04</td><td>0.898</td><td>0.134</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="experiment-card" id="exp-ae-ablation" data-source-id="exp-ae-ablation">
+    <strong>完整解读：</strong>20-epoch ablation 中主配置的重建质量明显低于少压缩模型，但它把序列缩到可训练范围。继续完整训练后，主配置达到 25.04 PSNR、0.898 SSIM、0.134 LPIPS，甚至超过短训练的 1× 配置。该表同时说明“训练时长”和“压缩率”必须一起比较；不能只看前七行就断言 3× 压缩必然低质量。
+  </div>
+</section>
+
+<section class="paper-unit" id="app-g" data-source-id="app-g">
+  <div class="source-ref">对应原文：Appendix G Chunked L3DG Results</div>
+  <h2>Appendix G. Chunked L3DG Results</h2>
+  <div class="experiment-card" id="exp-l3dg-chunked" data-source-id="exp-l3dg-chunked">
+    为公平对应 Table 2，作者在相同 chunked 3D-FRONT data 上训练 L3DG。无条件样本仍有较强几何覆盖；completion 中，条件边界处更容易发生 style 或 geometry 突变，说明 RePaint 式全局 diffusion conditioning 对 prefix 的严格保持弱于 causal continuation。
+  </div>
+
+  <figure class="paper-unit" id="fig-10" data-source-id="fig-10">
+    <img src="figures/l3dg_chunked_generations.png" alt="Chunked L3DG unconditional generation">
+    <figcaption><strong>Figure 10。</strong>chunked L3DG 无条件生成。样本覆盖家具和房间变化，是 Table 2 中更高 geometry COV 的定性对应；部分 primitive/边界较噪。</figcaption>
+  </figure>
+  <figure class="paper-unit" id="fig-11" data-source-id="fig-11">
+    <img src="figures/l3dg_chunked_completions.png" alt="Chunked L3DG scene completion">
+    <figcaption><strong>Figure 11。</strong>给定 25% context 的 L3DG completion。作者指出条件边界可能发生材质、风格和几何改变；这与 GaussianGPT 把条件 prefix 原样保留的机制形成对照。</figcaption>
+  </figure>
+</section>
+
+<section class="paper-unit" id="app-h" data-source-id="app-h">
+  <div class="source-ref">对应原文：Appendix H Additional Results</div>
+  <h2>Appendix H. Additional Results</h2>
+  <div class="experiment-card" id="exp-additional-results" data-source-id="exp-additional-results">
+    三组补充图分别检查：只在 3D-FRONT 训练的无条件质量；ASE pretraining 对 diversity 的影响；同一 prefix 下大量 completion 的多样性与稳定性。它们是定性补充，没有新增 quantitative metric。
+  </div>
+
+  <figure class="paper-unit" id="fig-12" data-source-id="fig-12">
+    <img src="figures/add_vfront_qual.png" alt="Additional 3D-FRONT unconditional generations">
+    <figcaption><strong>Figure 12。</strong>仅 3D-FRONT 训练的额外无条件样本。常见床、沙发、桌柜布局较稳定，但整体风格偏向合成数据的浅色室内分布。</figcaption>
+  </figure>
+  <figure class="paper-unit" id="fig-13" data-source-id="fig-13">
+    <img src="figures/add_vfront_qual_asemodel.png" alt="ASE-pretrained scene generations">
+    <figcaption><strong>Figure 13。</strong>ASE + 3D-FRONT pretraining 后的样本，墙面颜色、家具组合与空间结构更丰富。该图支持“更大预训练分布提高 diversity”的定性判断。</figcaption>
+  </figure>
+  <figure class="paper-unit" id="fig-14" data-source-id="fig-14">
+    <img src="figures/add_completions.png" alt="Additional scene completion samples">
+    <figcaption><strong>Figure 14。</strong>多个 prefix 各自对应大量 completion。条件区域保持不变，生成区域呈现不同对象与布局；同时可观察到少数空白边缘和细节模糊，反映 tokenizer 与长序列生成的剩余误差。</figcaption>
+  </figure>
+</section>
+
+<section id="official-code">
+  <h2>官方代码状态与论文—实现对应</h2>
+  <div class="paper-unit" id="code-checkpoints" data-source-id="code-checkpoints">
+    <p><span class="evidence code">官方代码</span>仓库已完整公开训练、tokenization、无条件 generation、spatial completion、大场景 outpainting、Gaussian decoding 与 rendering；本文核对 commit <code>e3be826eb7e14e298a257e743a91930806c209b6</code>（2026-07-12）。MIT License。作者同时发布 3D-FRONT、3D-FRONT+ASE 和 PhotoShape 的 VQ-VAE/GPT checkpoint。</p>
+    <p>复现环境基于 CUDA 12.9、PyTorch 2.8、MinkowskiEngine、Flash-Attention、gsplat 与 vector-quantize-pytorch。3D-FRONT 原始官方数据已不可用，README 指向社区重新发布版本；因此代码和 checkpoint 可得，并不意味着所有训练数据可无障碍原样复现。</p>
+  </div>
+
+  <table>
+    <thead><tr><th>论文组件</th><th>官方实现</th><th>关键核对结果</th></tr></thead>
+    <tbody>
+      <tr><td>Gaussian sparse autoencoder</td><td><code>model/vqvae/cnn/configurable_vqvae.py</code><br><code>conf/model/vqvae_cnn.yaml</code></td><td>2.5 cm input grid、3-stage downsampling、64-d latent、独立属性 heads</td></tr>
+      <tr><td>LFQ</td><td><code>model/vqvae/cnn/minkowski_vq.py</code></td><td>4096 codes、entropy loss、可切换传统 VQ</td></tr>
+      <tr><td>xyz tokenization</td><td><code>utils/pos_tokens.py</code><br><code>model/gaussian_vqvae.py</code></td><td>\(p=xS^2+yS+z\)，position 与 feature 成对</td></tr>
+      <tr><td>3D RoPE</td><td><code>model/gpt/rope.py</code><br><code>model/gpt/nanochat_gpt.py</code></td><td>稀疏序列实际使用 \((x,y,z,\mathrm{slot})\) 四维 index</td></tr>
+      <tr><td>Separate vocabularies</td><td><code>model/gpt/nanochat_gpt.py</code></td><td>共享 backbone；logits 按 slot 强制 mask，并约束 position 单调</td></tr>
+      <tr><td>Completion</td><td><code>complete_chunks.py</code></td><td>按空间 \(x\) fraction 切合法 prefix，再复用同一 sampler</td></tr>
+      <tr><td>Large-scene outpainting</td><td><code>generate_scene.py</code></td><td>local-window remapping、bootstrap、多列采样、空列 retry、KV-cache</td></tr>
+      <tr><td>Checkpoint / inference</td><td><code>README.md</code></td><td>scene/object checkpoint 与完整 inference entry points 已发布</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="paper-unit" id="supp-status" data-source-id="supp-status">
+  <h2>Supplementary Material 状态</h2>
+  <p>项目页和 arXiv source package 未链接独立 supplementary 文件。所有可获得补充内容已经作为 Appendix A–H 并入 35 页 arXiv v2 PDF，因此本项标记为 <strong>not-applicable</strong>，不是来源缺失。</p>
+</section>
+
+<section id="coverage-audit">
+  <h2>完整覆盖审计</h2>
+  <table>
+    <thead><tr><th>类别</th><th>原文/台账数量</th><th>已覆盖</th><th>不可获得</th><th>不适用</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>Abstract + Sections/Subsections</td><td>56</td><td class="coverage-ok">56</td><td>0</td><td>0</td><td>按原顺序覆盖主文、Acknowledgements、References scope 与所有 paragraph-level units</td></tr>
+      <tr><td>Equations/Definitions</td><td>5</td><td class="coverage-ok">5</td><td>0</td><td>0</td><td>2 个编号公式；xyz index、3D RoPE、prefix completion 三个结构定义</td></tr>
+      <tr><td>Figures</td><td>14</td><td class="coverage-ok">14</td><td>0</td><td>0</td><td>全部原图已从 LaTeX source 转为本地 PNG 并逐图解释</td></tr>
+      <tr><td>Tables</td><td>7</td><td class="coverage-ok">7</td><td>0</td><td>0</td><td>全部数值重排；论文无独立 Algorithm 环境</td></tr>
+      <tr><td>Experiments</td><td>12</td><td class="coverage-ok">12</td><td>0</td><td>0</td><td>对象、场景、completion、outpainting、效率、真实数据与全部消融</td></tr>
+      <tr><td>Appendices</td><td>8</td><td class="coverage-ok">8</td><td>0</td><td>0</td><td>Appendix A–H 全部覆盖</td></tr>
+      <tr><td>Claims + Limitations</td><td>9</td><td class="coverage-ok">9</td><td>0</td><td>0</td><td>2 项显式贡献与 7 项证据支持的边界</td></tr>
+      <tr><td>Official code mappings</td><td>8</td><td class="coverage-ok">8</td><td>0</td><td>0</td><td>核对到 2026-07-12 commit</td></tr>
+      <tr><td>Separate supplement</td><td>1</td><td>0</td><td>0</td><td>1</td><td>无独立文件；内容已并入附录</td></tr>
+      <tr><th>合计</th><th>120</th><th class="coverage-ok">119</th><th>0</th><th>1</th><th>无 pending 或 unavailable 单元</th></tr>
+    </tbody>
+  </table>
+
+  <h3>来源与证据边界</h3>
+  <ul>
+    <li><strong>论文事实：</strong>arXiv v2 PDF、HTML 和 LaTeX source，提交于 2026-07-01。</li>
+    <li><strong>官方代码：</strong>GitHub commit <code>e3be826e...</code>，用于确认 tensor/token layout、四维 RoPE、词表 mask、completion 与 outpainting 工程流程。</li>
+    <li><strong>分析者解释：</strong>包括 token 上限推导、指标边界、相对差值和 world-model/feed-forward reconstruction 的任务定位；均未冒充作者实验结论。</li>
+    <li><strong>未做事项：</strong>没有实际重新训练模型或运行 GPU inference，因此不对代码可复现性、checkpoint 数值与论文表格做独立实验复核。</li>
+  </ul>
+</section>
+
+<div class="footer">
+  生成日期：2026-07-15。本文按 GaussianGPT 原论文结构组织；完整覆盖台账见同目录 <code>gaussiangpt-paper-map.json</code>。
+</div>
+</main>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true,theme:"neutral",securityLevel:"loose"});
+(function buildToc(){
+  const list=document.getElementById("toc-list");
+  document.querySelectorAll("main h2, main h3").forEach((heading,index)=>{
+    if(!heading.id){
+      const parent=heading.closest("[id]");
+      heading.id=parent&&parent.id?parent.id+"-heading":"heading-"+index;
+    }
+    const item=document.createElement("li");
+    item.className=heading.tagName==="H3"?"level-3":"level-2";
+    const link=document.createElement("a");
+    link.href="#"+heading.id;
+    link.textContent=heading.textContent;
+    item.appendChild(link);
+    list.appendChild(item);
+  });
+})();
+</script>
+</body>
+</html>

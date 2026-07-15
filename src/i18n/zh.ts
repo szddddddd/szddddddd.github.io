@@ -188,9 +188,9 @@ export const zh = {
     title: '研究笔记',
     intro: '论文阅读、实验过程与技术思考。',
     entryCount: '篇',
+    indexTitle: '笔记索引',
     topicsTitle: '主题',
     readEntry: '阅读全文',
-    backToProjects: '返回项目',
     topics: ['论文阅读', '方法', '推导', '实验', '视觉计算'],
   },
   humanities: {

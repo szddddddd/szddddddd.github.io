@@ -1,8 +1,7 @@
 ---
 import type { Lang } from '../../i18n';
-import { getCopy, getPath } from '../../i18n';
+import { getCopy } from '../../i18n';
 import { noteEntries } from '../../data/notes';
-import Section from '../ui/Section.astro';
 
 interface Props {
   lang: Lang;
@@ -21,31 +20,53 @@ const entryCount = String(noteEntries.length).padStart(2, '0');
     <div class="notes-network-plot" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b><b></b><b></b></div>
   </section>
 
-  <Section>
-    <div class="notes-network-index" data-notes-index>
-      <div class="notes-network-index__meta">
+  <section class="section notes-library" aria-labelledby="notes-index-title">
+    <aside class="section-heading notes-index-rail">
+      <div>
         <p class="panel-label">{entryCount} / {t.notes.entryCount}</p>
-        {
-          noteEntries.map((entry) => (
-            <article id={`note-${entry.id}`} class="notes-entry">
-              <p class="panel-label">{entry.format[lang]} · {entry.date}</p>
-              <h2>{entry.title[lang]}</h2>
-              <p>{entry.summary[lang]}</p>
-              <ul class="tag-list" aria-label={`${entry.title[lang]} ${t.notes.topicsTitle}`}>
-                {entry.topics[lang].map((topic) => <li>{topic}</li>)}
-              </ul>
-              <a class="text-link" href={entry.href} data-astro-reload>{t.notes.readEntry}</a>
-            </article>
-          ))
-        }
+        <h2 id="notes-index-title">{t.notes.indexTitle}</h2>
       </div>
-      <div class="notes-network-index__topics">
+
+      <nav aria-labelledby="notes-index-title">
+        <ol class="notes-index-list">
+          {
+            noteEntries.map((entry, index) => (
+              <li>
+                <a href={`#note-${entry.id}`}>
+                  <span class="notes-index-list__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <span class="notes-index-list__copy">
+                    <strong>{entry.title[lang]}</strong>
+                    <small>{entry.format[lang]} · {entry.date}</small>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <div class="notes-index-rail__topics">
         <p class="panel-label">{t.notes.topicsTitle}</p>
-        <ul class="tag-list" aria-label={t.notes.pageTitle}>
+        <ul class="tag-list" aria-label={t.notes.topicsTitle}>
           {t.notes.topics.map((topic) => <li>{topic}</li>)}
         </ul>
       </div>
-      <a class="text-link" href={getPath(lang, 'projects')}>{t.notes.backToProjects}</a>
+    </aside>
+
+    <div class="section-body notes-entry-list" data-notes-index>
+      {
+        noteEntries.map((entry) => (
+          <article id={`note-${entry.id}`} class="notes-entry">
+            <p class="panel-label">{entry.format[lang]} · {entry.date}</p>
+            <h2>{entry.title[lang]}</h2>
+            <p>{entry.summary[lang]}</p>
+            <ul class="tag-list" aria-label={`${entry.title[lang]} ${t.notes.topicsTitle}`}>
+              {entry.topics[lang].map((topic) => <li>{topic}</li>)}
+            </ul>
+            <a class="text-link" href={entry.href} data-astro-reload>{t.notes.readEntry}</a>
+          </article>
+        ))
+      }
     </div>
-  </Section>
+  </section>
 </div>

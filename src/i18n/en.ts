@@ -193,9 +193,9 @@ export const en = {
     title: 'Research Notebook',
     intro: 'Reading notes, experiments, and technical reflections.',
     entryCount: 'entries',
+    indexTitle: 'Note Index',
     topicsTitle: 'Topics',
     readEntry: 'Read analysis',
-    backToProjects: 'Back to Projects',
     topics: ['Reading Notes', 'Methods', 'Derivations', 'Experiments', 'Visual Computing'],
   },
   humanities: {

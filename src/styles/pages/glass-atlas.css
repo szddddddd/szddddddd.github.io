@@ -87,7 +87,6 @@ body[data-rsui-engine='ready'] .visual-background {
 .project-index-rail,
 .project-row,
 .publication-item,
-.notes-network-index,
 .notes-network-plot,
 .publication-archive-legend {
   border: 1px solid var(--glass-border);
@@ -140,8 +139,7 @@ body[data-rsui-engine='ready'] .visual-background {
 .contact-grid,
 .interest-list,
 .project-filter-bar,
-.publication-list,
-.notes-network-index {
+.publication-list {
   border: 0;
 }
 
@@ -360,12 +358,6 @@ body[data-rsui-engine='ready'] .visual-background {
   padding: 1.25rem;
 }
 
-.notes-network-index {
-  gap: 1rem;
-  min-height: 0;
-  padding: 1.1rem;
-}
-
 .notes-network-plot {
   min-height: 8rem;
   background: var(--glass-surface-soft);
@@ -474,7 +466,6 @@ html[data-motion='reduced'] .projects-page.is-filter-transition .project-index-p
   .project-index-rail,
   .project-row,
   .publication-item,
-  .notes-network-index,
   .about-contact-item {
     border-radius: 0.5rem;
   }

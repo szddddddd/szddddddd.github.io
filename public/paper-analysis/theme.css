@@ -4,6 +4,13 @@
 
 html[data-theme="dark"] {
   color-scheme: dark;
+  --bg: #0d1214;
+  --text: #e7eeee;
+  --accent: #86b8ee;
+  --soft: #172637;
+  --strict: #142827;
+  --bridge: #332616;
+  --danger: #eb8f9a;
   --ink: #e7eeee;
   --muted: #9ba9a7;
   --paper: #0d1214;
@@ -80,6 +87,74 @@ html[data-theme="dark"] .hero img {
   background: #11191b;
 }
 
+html[data-theme="dark"] .page > :is(.toc, main) {
+  background: var(--surface);
+}
+
+html[data-theme="dark"] .page main {
+  box-shadow: 0 8px 30px rgb(0 0 0 / 22%);
+}
+
+html[data-theme="dark"] .page .reading-guide {
+  background: linear-gradient(135deg, #121d2b, var(--surface));
+  border-color: #2b4055;
+}
+
+html[data-theme="dark"] .page :is(.formula-card, .experiment-card, details) {
+  background: #11181b;
+}
+
+html[data-theme="dark"] .page .evidence {
+  background: var(--surface);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .page .evidence.paper {
+  background: #172637;
+  border-color: #2b4055;
+  color: #86b8ee;
+}
+
+html[data-theme="dark"] .page .evidence.code {
+  background: #261d35;
+  border-color: #49385d;
+  color: #c7a6ee;
+}
+
+html[data-theme="dark"] .page .evidence.background {
+  background: #142827;
+  border-color: #284741;
+  color: #82d8d0;
+}
+
+html[data-theme="dark"] .page .evidence.analysis {
+  background: #332616;
+  border-color: #59411f;
+  color: #e5ae65;
+}
+
+html[data-theme="dark"] .page .evidence.inferred {
+  background: #341c21;
+  border-color: #64313b;
+  color: #eb8f9a;
+}
+
+html[data-theme="dark"] .page .warning {
+  background: var(--rose-soft);
+}
+
+html[data-theme="dark"] .page :is(.best, .coverage-ok) {
+  color: var(--teal-deep);
+}
+
+html[data-theme="dark"] .page :is(.worse, .coverage-gap) {
+  color: var(--rose);
+}
+
+html[data-theme="dark"] .page header > p[style*="color"] {
+  color: var(--muted) !important;
+}
+
 .paper-theme-toggle {
   position: fixed;
   top: 16px;
@@ -132,6 +207,10 @@ html[data-theme="dark"] .hero img {
   body > main:first-of-type {
     padding-top: 68px;
   }
+
+  body > .page:first-of-type {
+    padding-top: 58px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -150,6 +229,13 @@ html[data-theme="dark"] .hero img {
 
   html[data-theme="dark"] {
     color-scheme: light;
+    --bg: #f5f7fa;
+    --text: #172033;
+    --accent: #2457a6;
+    --soft: #eef4ff;
+    --strict: #eef7f2;
+    --bridge: #fff8e8;
+    --danger: #a43b31;
     --ink: #172126;
     --muted: #637178;
     --paper: #fff;

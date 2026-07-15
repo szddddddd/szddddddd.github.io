@@ -7,17 +7,29 @@ export type NoteVersion = Readonly<{
   href: string;
 }>;
 
-export type NoteEntry = Readonly<{
+export type NoteVersions = readonly [NoteVersion, NoteVersion, ...NoteVersion[]];
+
+type NoteMetadata = Readonly<{
   id: string;
   publishedAt: string;
   format: NoteText;
   title: NoteText;
   summary: NoteText;
   topics: NoteTopics;
-  href: string;
-  versions?: readonly NoteVersion[];
   order?: number;
 }>;
+
+type SingleNoteLink = Readonly<{
+  href: string;
+  versions?: never;
+}>;
+
+type VersionedNoteLinks = Readonly<{
+  href?: never;
+  versions: NoteVersions;
+}>;
+
+export type NoteEntry = NoteMetadata & (SingleNoteLink | VersionedNoteLinks);
 
 export function defineNote<const T extends NoteEntry>(entry: T): T {
   return entry;

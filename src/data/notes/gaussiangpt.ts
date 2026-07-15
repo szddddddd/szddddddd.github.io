@@ -16,7 +16,6 @@ export default defineNote({
     en: ['3D Gaussian Splatting', 'Autoregressive generation', 'Scene synthesis', 'Transformers'],
     zh: ['3D Gaussian Splatting', '自回归生成', '场景合成', 'Transformer'],
   },
-  href: '/paper-analysis/gaussiangpt/index.html',
   versions: [
     {
       label: { en: 'Academic analysis', zh: '学术解析版' },

@@ -4,7 +4,7 @@ Notes are discovered automatically from `src/data/notes/*.ts`. Each file is one 
 
 ## Workflow
 
-1. Put the standalone article at `public/paper-analysis/<slug>/index.html` and keep its local assets under the same directory. Before `</head>`, include the shared theme resources so the article follows the site's saved day/night preference:
+1. Put the standalone article at `public/paper-analysis/<slug>/index.html` and keep its local assets under the same directory. Every HTML file linked from a note manifest must include the shared theme resources before `</head>` so it follows the site's saved day/night preference and exposes the in-page theme toggle:
 
    ```html
    <link rel="stylesheet" href="/paper-analysis/theme.css">
@@ -40,7 +40,7 @@ export default defineNote({
 });
 ```
 
-For multiple editions of one article, keep one index entry and add `versions`:
+For multiple editions of one article, keep one index entry, omit `href`, and provide at least two `versions`:
 
 ```ts
 versions: [
@@ -55,4 +55,11 @@ versions: [
 ],
 ```
 
-The loader rejects missing IDs and duplicate IDs during the Astro build. `NoteEntry`, `NoteVersion`, and `defineNote` are exported from `src/data/noteSchema.ts`.
+Choose exactly one link shape per entry:
+
+- `href` for a single article page.
+- `versions` for two or more labeled versions. Version URLs must be unique.
+
+The shared theme supports the legacy paper tokens (`--ink`, `--paper`, `--surface`, `--line`) and the neutral document tokens (`--text`, `--bg`, `--paper`, `--accent`, `--soft`, `--code`). Prefer these variables over hard-coded colors for page-sized surfaces. Add a page-specific `html[data-theme="dark"]` override only for components with custom colors.
+
+During the Astro build, the loader rejects missing or duplicate IDs, invalid link shapes, duplicate version URLs, missing local article files, and linked pages that omit `theme.css` or `theme.js`. `NoteEntry`, `NoteVersion`, `NoteVersions`, and `defineNote` are exported from `src/data/noteSchema.ts`.

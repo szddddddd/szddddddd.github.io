@@ -17,7 +17,6 @@ export default defineNote({
     en: ['3D scene generation', 'Mesh conditioning', 'Image diffusion', 'Gaussian splatting'],
     zh: ['三维场景生成', '网格条件', '图像扩散', '高斯泼溅'],
   },
-  href: '/paper-analysis/worldmesh/concise/',
   versions: [
     {
       label: { en: 'Academic version', zh: '学术版' },

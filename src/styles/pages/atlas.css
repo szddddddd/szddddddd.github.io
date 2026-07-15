@@ -1122,17 +1122,24 @@ html[data-theme='light'] .publication-archive-legend {
 
 .notes-entry-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 1rem;
 }
 
 .notes-entry {
   display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto 1fr auto auto;
   gap: 0.7rem;
   min-width: 0;
   scroll-margin-top: calc(var(--ribbon-height) + 1rem);
+}
+
+.notes-entry__header {
+  display: grid;
+  grid-template-rows: 1.15rem minmax(3.18rem, auto);
+  gap: 0.55rem;
+  align-content: start;
 }
 
 .notes-entry + .notes-entry {
@@ -1153,6 +1160,10 @@ html[data-theme='light'] .publication-archive-legend {
   font-weight: 500;
   line-height: 1.24;
   overflow-wrap: anywhere;
+}
+
+.notes-entry__header .panel-label {
+  line-height: 1.15rem;
 }
 
 .notes-entry > p:not(.panel-label) {
@@ -1176,12 +1187,6 @@ html[data-theme='light'] .publication-archive-legend {
   max-width: 100%;
   border-bottom: 1px solid currentColor;
   padding-bottom: 0.18rem;
-}
-
-@media (max-width: 1100px) {
-  .notes-entry-list {
-    grid-template-columns: 1fr;
-  }
 }
 
 .notes-index {

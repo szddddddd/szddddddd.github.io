@@ -57,8 +57,10 @@ const entryCount = String(noteEntries.length).padStart(2, '0');
       {
         noteEntries.map((entry) => (
           <article id={`note-${entry.id}`} class="notes-entry">
-            <p class="panel-label">{entry.format[lang]} · {t.notes.publishedLabel} {entry.publishedAt}</p>
-            <h2>{entry.title[lang]}</h2>
+            <header class="notes-entry__header">
+              <p class="panel-label">{entry.format[lang]} · {t.notes.publishedLabel} {entry.publishedAt}</p>
+              <h2>{entry.title[lang]}</h2>
+            </header>
             <p>{entry.summary[lang]}</p>
             <ul class="tag-list" aria-label={`${entry.title[lang]} ${t.notes.topicsTitle}`}>
               {entry.topics[lang].map((topic) => <li>{topic}</li>)}

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ReSplat: Learning Recurrent Gaussian Splatting 完整中文学术解析，覆盖论文正文、公式、图表、附录与官方代码。">
+<title>ReSplat：学习循环式 Gaussian Splatting——完整易读学术解析</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false})"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#f5f7fa;--paper:#fff;--surface:#fff;--text:#172033;--muted:#5c6879;--line:#dbe1e8;--accent:#2457a6;--soft:#eef4ff;--strict:#eef7f2;--bridge:#fff8e8;--code:#f3f5f8;--danger:#a43b31;--max:1280px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;font-size:16px;line-height:1.82}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.page{width:min(var(--max),calc(100% - 30px));margin:26px auto 70px;display:grid;grid-template-columns:270px minmax(0,1fr);gap:26px;align-items:start}
+.toc{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:17px;font-size:13px}.toc strong{display:block;margin-bottom:9px}.toc ol{margin:0;padding-left:19px}.toc li{margin:4px 0}.toc .level-3{margin-left:11px}
+main{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:clamp(23px,5vw,62px);box-shadow:0 8px 30px rgba(25,36,56,.05)}h1,h2,h3,h4{line-height:1.35;scroll-margin-top:22px}h1{font-size:clamp(30px,5vw,45px);margin:0 0 12px}h2{font-size:27px;margin:58px 0 18px;padding-bottom:9px;border-bottom:2px solid var(--line)}h3{font-size:21px;margin:35px 0 12px}h4{font-size:17px;margin:26px 0 8px}p{margin:13px 0}.meta{color:var(--muted);margin-bottom:24px}.meta span{display:inline-block;margin:0 18px 5px 0}
+.reading-guide{background:linear-gradient(135deg,#eef4ff,#f9fbff);border:1px solid #cadbf4;border-radius:12px;padding:20px 22px;margin:26px 0}.paper-unit{border-left:3px solid transparent;padding-left:15px;margin-left:-18px}.paper-unit:hover{border-left-color:#b7c9e8}.source-ref{color:var(--muted);font-size:13px}.evidence{display:inline-block;font-size:12px;line-height:1.5;padding:2px 7px;margin-right:6px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#fff}.evidence.paper{color:#174a83;background:#eef5ff;border-color:#c9daf0}.evidence.code{color:#5a3e8a;background:#f5f0ff;border-color:#ddd0f1}.evidence.background{color:#22633a;background:#eef8f1;border-color:#cce5d3}.evidence.analysis{color:#775714;background:#fff8e6;border-color:#ead9ad}.evidence.inferred{color:var(--danger);background:#fff1ef;border-color:#efc5bf}
+.strict,.bridge,.formula-card,.experiment-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:16px 0}.strict{background:var(--strict)}.bridge{background:var(--bridge)}.formula-card{background:#fbfbfd}.experiment-card{background:#f8faff}.formula-card .katex-display{overflow-x:auto;overflow-y:hidden;padding:8px 0}.symbol-table{font-size:14px}.table-wrap{overflow-x:auto;margin:18px 0;border-radius:8px}figure{margin:25px 0}figure img{display:block;max-width:100%;height:auto;margin:auto;border:1px solid var(--line);border-radius:8px;background:#fff}figcaption{color:var(--muted);font-size:14px;margin-top:9px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:#f4f6f9;font-weight:650}.best{font-weight:750;color:#174a83}.worse{color:#87352c}.ours{background:#fff9ed}.nowrap{white-space:nowrap}
+pre{background:var(--code);border:1px solid var(--line);border-radius:9px;padding:15px;overflow:auto;line-height:1.55}code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.89em}details{border:1px solid var(--line);border-radius:9px;margin:16px 0;background:#fcfcfd}summary{cursor:pointer;font-weight:650;padding:12px 15px}details>div{padding:0 15px 15px}.checkpoint{border-left:4px solid var(--accent);background:var(--soft);padding:13px 17px;margin:20px 0}.warning{border-left:4px solid var(--danger);background:#fff2f0;padding:13px 17px;margin:20px 0}.coverage-ok{color:#1e6b39;font-weight:650}blockquote{margin:18px 0;padding:8px 18px;border-left:4px solid #b9c6d8;color:#485468;background:#f8fafc}.footer{margin-top:58px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.metric{font-variant-numeric:tabular-nums}
+@media(max-width:920px){.page{display:block;width:min(100% - 16px,920px);margin-top:8px}.toc{position:relative;top:auto;max-height:none;margin-bottom:10px}main{padding:24px 17px}.paper-unit{margin-left:0;padding-left:11px}.grid-2{display:block}}
+@media print{body{background:#fff}.page{display:block;width:100%;margin:0}.toc{display:none}main{border:0;box-shadow:none;padding:0}details>div{display:block}}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<div class="page">
+<nav class="toc" aria-label="文章目录"><strong>目录</strong><ol id="toc-list"></ol></nav>
+<main>
+<header>
+  <h1>ReSplat：学习循环式 Gaussian Splatting</h1>
+  <p style="font-size:20px;color:#445168;margin-top:0">《ReSplat: Learning Recurrent Gaussian Splatting》完整易读学术解析</p>
+  <div class="meta">
+    <span>作者：Haofei Xu、Daniel Barath、Andreas Geiger、Marc Pollefeys</span>
+    <span>机构：ETH Zurich、University of Tübingen / Tübingen AI Center、Microsoft</span>
+    <span>版本：arXiv v3，2026-03-12；ECCV 2026</span>
+    <span>首次发布：2025-10-09</span>
+  </div>
+  <p><a href="https://arxiv.org/abs/2510.08575">arXiv</a> · <a href="https://arxiv.org/pdf/2510.08575">PDF</a> · <a href="https://haofeixu.github.io/resplat/">项目页</a> · <a href="https://github.com/cvg/resplat">官方代码</a> · <a href="https://haofeixu.github.io/slides/20260309_resplat.pdf">作者演讲稿</a></p>
+</header>
+
+<section class="reading-guide" id="reading-guide">
+  <h2>读前导航</h2>
+  <div class="strict"><span class="evidence paper">论文内容</span><strong>一句严格概括：</strong>ReSplat 先从有相机位姿的多张输入图像一次性预测一组紧凑 3D Gaussians，再把当前 Gaussians 重渲染到输入相机，从 RGB 与冻结 ResNet 特征的残差中提取反馈，并用共享权重的 3D recurrent network 反复预测 Gaussian 参数增量；测试时每轮都是前向计算，不显式求图像损失对 Gaussian 的梯度。</div>
+  <div class="warning"><strong>“gradient-free”的准确边界：</strong>它不是说训练不需要反向传播。第二阶段仍通过目标视图 rendering loss 训练 recurrent network；“无梯度”特指测试时更新器直接从 rendering error 预测增量，不像 3DGS、G3R 或 QuickSplat 那样显式计算每个场景的参数梯度。官方实现还会对上一轮 Gaussian 参数执行 <code>detach()</code>，因此不能把它理解成对全部 recurrent 步完整展开的传统反向传播。</div>
+  <h3>输入、输出与核心假设</h3>
+  <div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody>
+    <tr><td>输入</td><td>$N$ 张 RGB 图像、每张图的内参 $K_i$ 与外参 $(R_i,t_i)$；测试时输入图像本身仍可被当作反馈目标。</td></tr>
+    <tr><td>输出</td><td>$M$ 个显式 3D Gaussian primitives：中心、opacity、协方差/尺度旋转以及 spherical harmonics，可由 gsplat 快速 rasterize。</td></tr>
+    <tr><td>压缩</td><td>多视图默认在 $1/4$ 深度网格上建点，$M=N\,HW/16$，相对逐像素 Gaussian 减少 $16\times$。</td></tr>
+    <tr><td>循环反馈</td><td>静态场景、已知相机、可渲染表示，以及“输入视图重建误差能指出当前 3D 表示的缺陷”。</td></tr>
+    <tr><td>最终能力</td><td>用同一模型在测试时选择 0–4 次更新，在速度与质量之间取舍，并借由反馈适应未见数据集、视图数与分辨率。</td></tr>
+  </tbody></table></div>
+  <h3>完整信息流</h3>
+  <pre class="mermaid">flowchart LR
+  A["N 张 posed RGB 图像"] --> B["DepthSplat 式深度与图像特征"]
+  B --> C["1/4 深度网格反投影<br/>M = N·HW/16 个 3D 点"]
+  C --> D["6 组交替 kNN / global attention"]
+  D --> E["初始 Gaussian g⁰ 与隐状态 z⁰"]
+  E --> F["渲染回输入相机"]
+  F --> G["RGB 残差 + ResNet 特征残差"]
+  G --> H["global attention 传播误差"]
+  H --> I["4 个 kNN attention 更新块"]
+  I --> J["Δgᵗ, Δzᵗ"]
+  J --> K["gᵗ⁺¹, zᵗ⁺¹"]
+  K --> F</pre>
+  <h3>推荐阅读路径</h3>
+  <ol><li>先看 Figure 2 与 Section 3，分清“初始化”和“循环更新”两套网络。</li><li>再看 Table 1 与 Figure 4，理解它与 per-scene optimization 的速度口径。</li><li>看 Figure 5、Table 2 和 Table 6(a)，判断提升究竟来自更大模型，还是来自测试时误差反馈。</li><li>最后读 Appendix 的压缩率、local kNN、profiling 与源码核对，理解可扩展性的真实边界。</li></ol>
+</section>
+
+<figure class="paper-unit" id="fig-1" data-source-id="fig-1">
+  <img src="assets/teaser.webp" alt="ReSplat teaser showing recurrent feed-forward refinement">
+  <figcaption><strong>Figure 1。</strong>图中把标准优化式 3DGS 的“损失—显式梯度—参数更新”与 ReSplat 的“渲染误差—学习到的更新器—参数增量”并置。曲线与可视化强调：初始结果已经可渲染，随后每一步共享同一更新网络并逐步降低误差。该图支持的是计算范式差异；速度与质量结论仍需 Table 1 和 Figure 4 的受控实验。</figcaption>
+</figure>
+
+<section class="paper-unit" id="abs" data-source-id="abs">
+  <div class="source-ref">对应原文：Abstract</div>
+  <h2>摘要逐项解析</h2>
+  <p>摘要从 feed-forward Gaussian splatting 的优势出发：它避免每个场景数千次优化，但主流方法通常只做一次预测，对训练分布外数据、更多视图或不同分辨率的适应能力有限。作者把 per-scene optimization 的“逐步纠错”抽出来，改造成可以离线学习、在线前向执行的 recurrent update。</p>
+  <div class="experiment-card" id="claim-1" data-source-id="claim-1"><strong>核心主张一：紧凑初始化。</strong>深度先降至 $1/4$ 高宽，因而 3D 点/Gaussian 数量变为逐像素方案的 $1/16$；局部 $k$NN 与全局 attention 用来弥补强压缩造成的上下文缺失。</div>
+  <div class="experiment-card" id="claim-2" data-source-id="claim-2"><strong>核心主张二：从渲染误差做无显式梯度更新。</strong>每轮将当前 Gaussians 渲染到输入视图，结合像素与特征残差，经全局传播和 3D 局部更新网络输出参数增量。测试时无需对场景执行 backpropagation。</div>
+  <div class="experiment-card" id="claim-3" data-source-id="claim-3"><strong>核心主张三：测试时适应。</strong>误差来自当前测试样本本身，因此循环网络不仅增加有效计算深度，也获得了针对当前数据的反馈。论文用跨数据集、跨视图数和跨分辨率实验验证这一点。</div>
+  <p>摘要覆盖的尺度很宽：2、8、16、32 个输入视图；$256\times256$ 到 $540\times960$；DL3DV、RealEstate10K 与 ACID。这里的“state of the art”应按各自表格限定：不同实验使用不同训练配置、Gaussian 压缩与比较方法，不能把一个 setting 的速度或参数量直接外推到全部 setting。</p>
+</section>
+
+<section class="paper-unit" id="sec-1" data-source-id="sec-1">
+  <div class="source-ref">对应原文：Section 1 Introduction</div>
+  <h2>1. Introduction</h2>
+  <h3>本节任务</h3>
+  <p>Introduction 建立三段论证：单步 feed-forward 模型快但容量受限；per-scene 3DGS 能迭代改进但每次都需显式梯度与数千步；因此应学习一个共享权重的更新规则，让少量 recurrent steps 在保持前向推理的同时吸收“迭代纠错”的优点。</p>
+  <p>作者特别强调 rendering error 的地位。普通 feed-forward 模型在测试时只读取输入图像一次，无法观察自己的输出哪里错了。ReSplat 把输出重新渲染到已知输入相机，于是预测结果与观测之间形成闭环。这个闭环既把大任务拆成多个小增量，也让更新器在未见分布上获得样本级反馈。</p>
+  <div class="bridge"><span class="evidence analysis">分析者解释</span>从函数形式看，单步模型学习 $G=F(I,K,R,t)$；ReSplat 学习 $G^0=F_0(I,K,R,t)$ 以及 $G^{t+1}=U(G^t,\operatorname{Render}(G^t)-I)$。第二个式子的输入随当前预测而变，因此相同权重 $U$ 可以被反复应用；“有效深度”随迭代次数增长，但参数量不随之增长。</div>
+  <p>紧凑 Gaussian 数量是另一条必要条件。若沿用每个输入像素一个或多个 Gaussian，8 张 $512\times960$ 图就会形成约 393 万个 primitives，任何 3D 邻域更新都会非常昂贵。ReSplat 用 $1/4$ 深度图把数量降至约 24.6 万，再以 3D attention 补偿信息损失。</p>
+  <p>Introduction 报告的代表结果包括：在 DL3DV 的 8-view 高分辨率设置中，相对其 compact initialization，循环模型约提升 1.49 dB（26.21→27.70）；论文叙述中的约 3.5 dB 是与相邻 feed-forward/特定基线口径比较。16-view 设置比 Long-LRM 高 0.85 dB 且 Gaussians 少约 4 倍；两视图 RE10K/ACID 也达到表中最佳或接近最佳结果。</p>
+  <div class="checkpoint"><strong>学习检查点：</strong>为什么 rendering error 同时提升模型表达能力与分布外适应？为什么循环更新必须先解决 Gaussian 数量问题？“gradient-free”是训练属性还是测试属性？</div>
+</section>
+
+<section class="paper-unit" id="sec-2" data-source-id="sec-2">
+  <div class="source-ref">对应原文：Section 2 Related Work</div>
+  <h2>2. Related Work</h2>
+  <p>本节沿三条技术谱系定位 ReSplat：feed-forward Gaussian reconstruction、learning to optimize，以及用于 view synthesis 的 learned refinement。作者的差异化不只是“也做迭代”，而是同时满足 compact feed-forward initialization、rendering-error feedback、共享权重多步更新与 scene-level evaluation。</p>
+
+  <section class="paper-unit" id="sec-2-ffgs" data-source-id="sec-2-ffgs">
+    <h3>2.1 Feed-Forward Gaussian Splatting</h3>
+    <p>pixelSplat、MVSplat、GS-LRM、DepthSplat、Long-LRM、AnySplat、WorldMirror 与 YonoSplat 等工作把 posed images 直接映射为 3D Gaussians，绕开 3DGS 的逐场景优化。作者归纳出两个仍待解决的问题：其一，多数方法按输入像素产生一个或多个 Gaussian，数量随视图数和分辨率线性膨胀；其二，多数模型只做单步回归，复杂场景的质量受固定网络容量限制。</p>
+    <p>与 SplatFormer 的区别尤其重要：SplatFormer 对已经通过 3DGS 优化得到的 Gaussians 做一次非循环 refinement，主要针对 object-centric 数据；ReSplat 从图像直接得到 feed-forward initialization，再以 weight-sharing recurrent network 做多步更新，并明确把 rendering error 作为反馈。Appendix 的 scene-level 复现实验显示 SplatFormer 比 ReSplat 低约 2.04 dB，但作者也说明其网格归一化对无界场景难以调节。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-2-learning-opt" data-source-id="sec-2-learning-opt">
+    <h3>2.2 Learning to Optimize</h3>
+    <p>learned optimizer 的共同思想，是用共享网络模拟梯度下降的迭代结构：从初值开始，反复预测修正量。RAFT optical flow、RAFT-Stereo、scene flow、DROID-SLAM、MegaSaM、IterMVS 等说明，这类模型在对应关系、几何或状态估计上往往优于一次性回归，也常有更好的分布外表现。</p>
+    <p>许多视觉 recurrent models 使用 feature correlation volume 作为反馈；ReSplat 的关键替换是用可渲染表示天然提供的 observation residual。它并不学习通用优化器，而是学习“当前 Gaussian 参数 + latent state + 聚合渲染误差 → Gaussian 增量”的任务专用更新规则。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-2-view-synthesis" data-source-id="sec-2-view-synthesis">
+    <h3>2.3 Learning to Optimize for View Synthesis</h3>
+    <p>DeepView 用 learned gradient descent 更新 multiplane images；G3R 与 QuickSplat 也依赖显式计算出的梯度，前者还要求覆盖充分的初始 3D points。ReSplat 不需要预存 3D 点：初值来自 posed images，并且测试更新只读取前向得到的误差信号。LIFe-GOM 同样迭代更新 3D 表示，但对象是 human avatar 和 Gaussian–mesh 混合表示；ReSplat 面向一般场景的新视图合成。</p>
+    <div class="warning">“不显式求梯度”不等于更新方向与优化无关。更新器是在大量训练场景上通过 rendering loss 学出来的，因此可以被理解为 amortized、task-specific optimizer；只是推理时把昂贵的逐场景自动微分替换为一次网络前向。</div>
+  </section>
+</section>
+
+<figure class="paper-unit" id="fig-2" data-source-id="fig-2">
+  <img src="assets/pipeline.webp" alt="ReSplat complete pipeline">
+  <figcaption><strong>Figure 2，完整 pipeline。</strong>左半部分：$N$ 张图经深度/特征网络，在 $1/4$ 网格上反投影为 $M=N HW/16$ 个带特征点；六组交替的局部 $k$NN 与 global attention 聚合 3D context，Gaussian head 输出 $g_j^0$，聚合特征作为 $z_j^0$。右半部分：每轮先重渲染输入视图，计算 RGB 与 feature error；global attention 使每个位置吸收全局残差信息；四个 $k$NN attention blocks 输出 $\Delta g_j^t,\Delta z_j^t$。图中循环箭头是测试时真实执行路径，loss supervision 只在训练时存在。</figcaption>
+</figure>
+
+<section class="paper-unit" id="sec-3" data-source-id="sec-3">
+  <div class="source-ref">对应原文：Section 3 Approach</div>
+  <h2>3. Approach</h2>
+  <h3>全局符号与坐标约定</h3>
+  <div class="table-wrap"><table class="symbol-table"><thead><tr><th>符号</th><th>形状/类型</th><th>含义</th><th>坐标系或状态</th></tr></thead><tbody>
+    <tr><td>$I^i$</td><td>$H\times W\times3$</td><td>第 $i$ 张输入 RGB</td><td>像素/图像坐标，观测量</td></tr>
+    <tr><td>$K^i$</td><td>$3\times3$</td><td>相机内参</td><td>像素投影</td></tr>
+    <tr><td>$(R_i,t_i)$</td><td>$SO(3),\mathbb R^3$</td><td>外参</td><td>论文记号未在此句固定 world-to-camera 或 camera-to-world；代码批次使用 4×4 extrinsics 并在进入网络前统一变到参考相机坐标</td></tr>
+    <tr><td>$p_j,\mu_j$</td><td>$\mathbb R^3$</td><td>反投影点/Gaussian 中心</td><td>以中间输入视图为参考的全局 3D 坐标</td></tr>
+    <tr><td>$g_j^t$</td><td>$\mathbb R^{59}$</td><td>第 $t$ 轮 Gaussian 参数拼接</td><td>位置、opacity、scale/rotation 与 3 阶 SH；是被增量更新的显式状态</td></tr>
+    <tr><td>$z_j^t$</td><td>$\mathbb R^{C_0}$</td><td>latent hidden state</td><td>不直接渲染，携带初始化与历史更新信息</td></tr>
+    <tr><td>$\hat e_j^t,e_j^t$</td><td>$\mathbb R^{256}$</td><td>全局传播前/后的 rendering-error feature</td><td>与 $1/4$ 多视图网格逐点对齐</td></tr>
+  </tbody></table></div>
+
+  <section class="paper-unit" id="def-problem" data-source-id="def-problem">
+    <h3>问题定义</h3>
+    <p>给定 $N$ 张 posed images，目标是预测 $\mathcal G=\{(\mu_j,\alpha_j,\Sigma_j,\mathrm{sh}_j)\}_{j=1}^{M}$。$\mu$ 是中心，$\alpha$ 是 opacity，$\Sigma$ 决定三维椭球形状，$\mathrm{sh}$ 是视角相关颜色。与隐式 radiance field 不同，这些 primitives 可以直接经 Gaussian rasterization 得到新视图。</p>
+    <p>方法把困难拆成两步：$F_0$ 负责“在一次前向中给出足够好的紧凑初值”，$U$ 负责“读取当前误差并作小步修正”。多视图默认 $M=N\,HW/16$；例如 8×512×960 得到 245,760 个 Gaussians，与 Table 1 的 246K 一致。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-3-1" data-source-id="sec-3-1">
+    <h3>3.1 Initial Gaussian Reconstruction</h3>
+    <p>本节的输入是图像和相机，输出是显式初始 Gaussian $g^0$ 及随后循环使用的隐状态 $z^0$。架构以 DepthSplat 为基础，但把逐像素生成改成强压缩点集，再引入 3D context aggregation 抵消质量下降。</p>
+
+    <section class="paper-unit" id="sec-3-1-subsampled" data-source-id="sec-3-1-subsampled">
+      <h4>Subsampled 3D Space</h4>
+      <p>深度网络先产生全分辨率估计，再 resize 到 $H/4\times W/4$。每个低分辨率像素利用深度、内参与外参反投影成一个 3D 点，并附着从输入图像提取的特征 $f_j$。Small 模型 $C_0=256$，Base 模型 $C_0=512$。</p>
+    </section>
+
+    <div class="formula-card paper-unit" id="eq-1" data-source-id="eq-1">
+      <div class="source-ref">Equation (1)</div>
+      $$\{I_i,K_i,R_i,t_i\}_{i=1}^{N}\ \longrightarrow\ \{(p_j,f_j)\}_{j=1}^{M},\qquad M=N\frac{HW}{16}.$$
+      <p><strong>执行顺序：</strong>图像编码与深度预测 → 深度降采样到 $1/4$ → 像素射线乘深度得到相机坐标点 → 用相机位姿变换到公共参考坐标 → 将同位置图像特征与点配对。高宽各降 4 倍，所以点数降 16 倍。</p>
+      <p><strong>边界：</strong>如果深度偏差使中心点落错位置，后续更新只能在固定 Gaussian 数量上改参数，不能额外 densify；这也是结论中的首项限制。</p>
+    </div>
+
+    <section class="paper-unit" id="sec-3-1-context" data-source-id="sec-3-1-context">
+      <h4>Aggregating the 3D Context</h4>
+      <p>直接从每个压缩点独立解码 Gaussian 会丢失局部表面连续性和跨视图一致性。作者交替使用六个 $k$NN attention 与 global attention blocks：前者在三维近邻间恢复局部几何，后者允许相隔较远、来自不同视图的点交换场景级信息。</p>
+    </section>
+
+    <div class="formula-card paper-unit" id="eq-2" data-source-id="eq-2">
+      <div class="source-ref">Equation (2)</div>
+      $$\{(p_j,f_j)\}_{j=1}^{M}\ \longrightarrow\ \{(p_j,f_j^*)\}_{j=1}^{M}.$$
+      <p>位置 $p_j$ 在此阶段保持不变，变化的是特征 $f_j\mapsto f_j^*$。公式省略了六个 block 的内部层级；官方实现的 point transformer 在相对 3D 坐标上构造 attention，而 global branch 对更稀的 token 执行全局交互。</p>
+    </div>
+
+    <section class="paper-unit" id="sec-3-1-decode" data-source-id="sec-3-1-decode">
+      <h4>Decoding to Gaussians</h4>
+      <p>3D 点本身被直接用作 Gaussian centers；两层 MLP Gaussian head 从 $f_j^*$ 解码其余属性。所有可渲染属性拼为 $g_j^0\in\mathbb R^{59}$，而 $f_j^*$ 原样初始化 hidden state：$z_j^0=f_j^*$。这样，显式参数承担当前可渲染场景，latent state 保留比 59 维低层参数更丰富的语义和局部结构。</p>
+    </section>
+
+    <div class="formula-card paper-unit" id="eq-3" data-source-id="eq-3">
+      <div class="source-ref">Equation (3)</div>
+      $$\mathcal G^0=\{(g_j^0,z_j^0)\}_{j=1}^{M},\qquad z_j^0=f_j^*.$$
+      <p>这里的 $\mathcal G^0$ 比标准 3DGS 集合多了 $z^0$。渲染器只消费从 $g^0$ 拆出的 means、covariances、opacities 与 SH；recurrent updater 同时读取 $g^t$ 和 $z^t$。</p>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-3-2" data-source-id="sec-3-2">
+    <h3>3.2 Recurrent Gaussian Update</h3>
+    <p>在第 $t\in\{0,\ldots,T-1\}$ 轮，模型不重新生成整套 Gaussians，而是预测参数与隐藏状态的残差。训练时 $T$ 在 1–4 之间随机采样；推理时可选不同 $T$。共享同一套更新权重，使单模型可以按预算增加 test-time compute。</p>
+
+    <div class="formula-card paper-unit" id="eq-4" data-source-id="eq-4">
+      <div class="source-ref">Equation (4)</div>
+      $$g_j^{t+1}=g_j^t+\Delta g_j^t,\qquad z_j^{t+1}=z_j^t+\Delta z_j^t.$$
+      <p><strong>直觉：</strong>更新器只需预测“还差多少”，而不必在每轮从头构造合法 Gaussian。残差形式也让零增量对应保持当前结果。</p>
+      <p><span class="evidence code">官方代码</span>实现对传入下一轮的 Gaussian 参数执行 stop-gradient，并冻结用于误差提取的 ResNet-18。训练梯度用于学习当前更新网络和 supervision 分支，但不会无界地穿过之前所有 Gaussian 状态。</p>
+    </div>
+
+    <section class="paper-unit" id="sec-3-2-error" data-source-id="sec-3-2-error">
+      <h4>Computing the Rendering Error</h4>
+      <p>当前 $g^t$ 先渲染出输入相机图像 $\hat I_i^t$。像素分支计算 $\hat I_i^t-I_i$，再用 pixel unshuffle 将空间 $4\times$ 下采样并把信息移入通道；特征分支把 rendered 与 ground truth 分别送入 ImageNet 预训练 ResNet-18 的前三个 stage，取得 $1/2$、$1/4$、$1/8$ 特征，统一双线性 resize 到 $1/4$ 后拼接为 256 通道，再相减。</p>
+    </section>
+
+    <div class="formula-card paper-unit" id="eq-5" data-source-id="eq-5">
+      <div class="source-ref">Equation (5)</div>
+      $$\hat E^t=f(\{\hat I_i^t\},\{I_i\})=\{\hat F_i^t-F_i\}_{i=1}^{N}+\operatorname{proj}(\{\hat I_i^t-I_i\}_{i=1}^{N}).$$
+      <p><code>proj</code> 是线性投影加 LayerNorm，用来把 pixel-unshuffle 后的 RGB 残差对齐到 256 维 feature error。两者做逐元素加法，而不是 concat；Table 6(a) 显示 add 比 concat 高 0.14 dB。</p>
+      <p><strong>为何需要两种误差：</strong>RGB 残差保留精确颜色与边缘错位，ResNet 特征对结构和局部语义更稳健。单独 feature error 已明显强于 RGB error，但两者相加最好。</p>
+    </div>
+
+    <section class="paper-unit" id="sec-3-2-propagation" data-source-id="sec-3-2-propagation">
+      <h4>Propagating the Rendering Error to Gaussians</h4>
+      <p>虽然误差网格与 Gaussian 数量相同，但“同索引拼接”并不等价于正确 credit assignment：一个 Gaussian 可能投影到多个视图和多个像素，也可能因遮挡只在部分视图可见。作者不显式计算 rasterizer Jacobian，而是在全部误差 token 上做 global attention，让每个位置从全局残差中学习应关注的证据。</p>
+    </section>
+
+    <div class="formula-card paper-unit" id="eq-6" data-source-id="eq-6">
+      <div class="source-ref">Equation (6)</div>
+      $$E^t=\operatorname{global\_attention}(\hat E^t)=\{e_j^t\}_{j=1}^{N HW/16}.$$
+      <p>输入与输出 token 数相同，区别在于 $e_j^t$ 已聚合所有视图/位置的信息。为控制成本，实际 global attention 还会先 pixel-unshuffle 到 $H/16\times W/16$，计算后再 pixel-shuffle 回 $1/4$。</p>
+    </div>
+
+    <section class="paper-unit" id="sec-3-2-update" data-source-id="sec-3-2-update">
+      <h4>Recurrent Gaussian Update Module</h4>
+      <p>每个点把当前显式参数 $g_j^t$、latent state $z_j^t$ 与传播后的误差 $e_j^t$ 拼接，再经过四个 $k$NN attention blocks。recurrent 模型用 $k=8$，比初始化的 $k=16$ 更强调局部细节；四层 MLP head 解码 Gaussian 增量，同时更新 hidden state。</p>
+    </section>
+
+    <div class="formula-card paper-unit" id="eq-7" data-source-id="eq-7">
+      <div class="source-ref">Equation (7)</div>
+      $$\{(g_j^t,z_j^t,e_j^t)\}_{j=1}^{M}\ \longrightarrow\ \{(\Delta g_j^t,\Delta z_j^t)\}_{j=1}^{M}.$$
+      <p>Equation (7) 与 Equation (4) 合起来定义一次状态转移。论文观察四轮后收敛/饱和；这不是数学停止条件，而是训练范围与实验证据决定的实践上限。</p>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-3-3" data-source-id="sec-3-3">
+    <h3>3.3 Training Loss</h3>
+    <p>训练严格分两阶段。第一阶段只学习 compact initialization；第二阶段冻结整个初始化模型，只训练 recurrent module。这样第二阶段面对稳定的 $g^0,z^0$ 分布，计算与显存也更可控。</p>
+
+    <div class="formula-card paper-unit" id="eq-8" data-source-id="eq-8">
+      <div class="source-ref">Equation (8)</div>
+      $$L_{\mathrm{1st}}=\sum_{v=1}^{V}\ell_{\mathrm{render}}(\hat I_v,I_v)+\alpha\sum_{i=1}^{N}\ell_{\mathrm{smooth}}(I_i,\hat D_i),\qquad \alpha=0.01.$$
+      <p>$V$ 是每步监督的 target views，$N$ 是 context/input views。第一项直接约束新视图渲染，第二项只正则化输入视图预测深度，不要求 ground-truth depth。</p>
+    </div>
+
+    <div class="formula-card paper-unit" id="eq-9" data-source-id="eq-9">
+      <div class="source-ref">Equation (9)</div>
+      $$\ell_{\mathrm{render}}(\hat I,I)=\ell_1(\hat I,I)+\lambda\,\ell_{\mathrm{perceptual}}(\hat I,I),\qquad \lambda=0.5.$$
+      <p>$L_1$ 保持像素一致性，VGG feature-space perceptual loss 约束更高层结构。训练监督施加在 target views，而循环反馈误差来自可用的 context views，两者角色不同。</p>
+    </div>
+
+    <div class="formula-card paper-unit" id="eq-10" data-source-id="eq-10">
+      <div class="source-ref">Equation (10)</div>
+      $$\ell_{\mathrm{smooth}}(I,\hat D)=|\partial_x\hat D|e^{-|\partial_x I|}+|\partial_y\hat D|e^{-|\partial_y I|}.$$
+      <p>在图像平坦区，指数权重大，抑制无依据的深度振荡；在强图像边缘，权重下降，允许深度发生不连续。它是 edge-aware regularizer，不证明所有颜色边缘都对应几何边缘。</p>
+    </div>
+
+    <div class="formula-card paper-unit" id="eq-11" data-source-id="eq-11">
+      <div class="source-ref">Equation (11)</div>
+      $$L_{\mathrm{2nd}}=\sum_{t=0}^{T-1}\gamma^{T-1-t}\sum_{v=1}^{V}\ell_{\mathrm{render}}(\hat I_v^t,I_v),\qquad \gamma=0.9.$$
+      <p>每个 recurrent prediction 都受监督，越靠后的轮次权重越高：当 $T=4$ 时四轮系数为 $0.9^3,0.9^2,0.9,1$。这防止模型只在最后一步才纠错，同时把最终质量作为主要目标。官方代码中第二阶段初始化 forward 位于 <code>torch.no_grad()</code>，并对前一步 Gaussian 状态做 detach；因此 Equation (11) 的多步监督不应被误读为完整 BPTT 穿过所有参数状态。</p>
+    </div>
+
+    <div class="checkpoint"><strong>学习检查点：</strong>像素误差为何要 pixel-unshuffle？global attention 在没有显式 rasterization gradient 时承担什么功能？$z^t$ 与 $g^t$ 为什么不能合并为同一种状态？两阶段训练的冻结边界在哪里？</div>
+  </section>
+</section>
+
+<section class="paper-unit" id="sec-4" data-source-id="sec-4">
+  <div class="source-ref">对应原文：Section 4 Experiments</div>
+  <h2>4. Experiments</h2>
+  <p>实验回答五个问题：紧凑初始化是否仍有竞争力；少量 learned recurrent steps 是否优于数千步优化；反馈能否改善分布外泛化；收益能否由更大单步模型替代；各个误差、坐标系与 attention 组件是否必要。</p>
+  <div class="strict"><strong>指标口径：</strong>PSNR 与 SSIM 越高越好，LPIPS 越低越好。PSNR 是对像素误差的对数变换，dB 差值不能直接当作线性百分比；SSIM/LPIPS 分别更偏结构与感知距离。论文各表未报告标准差、置信区间或显著性检验，因此微小差距只能视作本次评估结果，不能自动解释为统计显著。</div>
+
+  <section class="paper-unit experiment-card" id="exp-implementation" data-source-id="exp-implementation">
+    <h3>Implementation Details</h3>
+    <p>方法以 PyTorch 实现，初始化 point transformer 用 $k=16$，recurrent update 用 $k=8$。renderer 基于 gsplat 中的 Mip-Splatting 实现；优化器为 AdamW。损失权重固定为 $\alpha=0.01,\lambda=0.5,\gamma=0.9$。正文没有逐项列出 learning rate、batch size 或随机种子；公开配置与 Appendix 的训练 schedule 补足了阶段、步数和硬件，但复现仍需以指定 commit 的 YAML/脚本为准。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-global-attention" data-source-id="exp-global-attention">
+    <h3>Efficient Global Attention</h3>
+    <p>直接对 $N\times H/4\times W/4$ token 做二次复杂度 global attention 会随分辨率迅速膨胀。实现先用 pixel unshuffle 再降 $4\times$ 空间尺度，即在 $N\times H/16\times W/16$ token 上计算 attention，之后 pixel shuffle 恢复到 $1/4$。这是无参数的 reshape，不是丢弃像素；代价是细粒度空间信息被搬到通道中，由 attention 的投影层重新混合。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-knn-implementation" data-source-id="exp-knn-implementation">
+    <h3>Efficient kNN</h3>
+    <p>低于约 300K 点时默认使用 Pointcept 的定制 CUDA global kNN；其暴力候选搜索的理论复杂度为 $O(M^2)$，在更多视图/更高分辨率下成为瓶颈。作者另给 local kNN：同一视图取半径 $r_s=3$ 的 $7\times7$ 窗口，把 3D query 投影到其他相机后再取半径 $r_c=3$ 的窗口，最后只在固定大小候选集内按三维欧氏距离选 top-$k$，复杂度写为 $O(MC)$，常数候选数 $C$ 固定时即线性。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-model-sizes" data-source-id="exp-model-sizes">
+    <h3>Model Sizes</h3>
+    <div class="table-wrap"><table><thead><tr><th>模型</th><th>深度 backbone</th><th>初始化</th><th>循环模块</th><th>总参数</th><th>用途</th></tr></thead><tbody>
+      <tr><td>ReSplat-Small</td><td>ViT-S</td><td>62M</td><td>15M（profiling 表中精确为约 13.8M）</td><td>77M</td><td>主要消融</td></tr>
+      <tr><td>ReSplat-Base</td><td>ViT-B</td><td>209M</td><td>14M</td><td>223M</td><td>默认主结果</td></tr>
+      <tr><td>ReSplat-Large</td><td>ViT-L</td><td>559M</td><td>未用于循环比较</td><td>559M</td><td>测试“放大单步模型能否替代循环”</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-coordinate" data-source-id="exp-coordinate">
+    <h3>Coordinate System</h3>
+    <p>COLMAP 提供的世界坐标在不同场景中任意；而 3D update network 要直接读取 Gaussian centers，坐标分布会影响学习难度。作者把全部相机/点变换到输入序列的空间中心视图（顺序轨迹通常是 middle frame）坐标。这样最大相对位姿距离更均衡。Table 6(b) 显示 middle view 比原始 COLMAP 坐标高 0.93 dB，也优于 first/last view。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-evaluation-settings" data-source-id="exp-evaluation-settings">
+    <h3>Evaluation Settings</h3>
+    <div class="table-wrap"><table><thead><tr><th>设置</th><th>输入</th><th>数据集</th><th>比较重点</th></tr></thead><tbody>
+      <tr><td>高分辨率多视图</td><td>8 views，$512\times960$</td><td>DL3DV</td><td>重新训练 3DGS、MVSplat、DepthSplat；质量、Gaussian 数、重建/渲染时间</td></tr>
+      <tr><td>大场景覆盖</td><td>16 views，$540\times960$</td><td>DL3DV</td><td>遵循 Long-LRM protocol，比较 full-scene reconstruction</td></tr>
+      <tr><td>标准稀疏双视图</td><td>2 views，$256\times256$</td><td>RealEstate10K；零样本 ACID</td><td>与 pixelSplat、MVSplat、DepthSplat、GS-LRM、Long-LRM、LVSM 比较</td></tr>
+      <tr><td>附录规模变化</td><td>8/16/32 views，$256\times448$</td><td>DL3DV</td><td>与 4000-step 3DGS 比较 view-count scaling</td></tr>
+    </tbody></table></div>
+    <p>注意：不同表的输入图像、测试视图范围、模型 checkpoint 与 Gaussian 配置不完全相同，跨表直接相减不构成公平对比。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-4-1" data-source-id="sec-4-1">
+    <h3>4.1 Main Results</h3>
+
+    <section class="paper-unit" id="tab-1" data-source-id="tab-1">
+      <h4>Table 1：DL3DV，8 views，$512\times960$</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>类别</th><th>迭代</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>#Gaussians</th><th>重建时间(s)</th><th>渲染时间(s)</th></tr></thead><tbody>
+        <tr><td>3DGS</td><td>Optimization</td><td>1000</td><td>20.36</td><td>0.667</td><td>0.448</td><td>9K</td><td>15</td><td>0.0001</td></tr>
+        <tr><td>3DGS</td><td>Optimization</td><td>2000</td><td>23.18</td><td>0.763</td><td>0.269</td><td>137K</td><td>31</td><td>0.0005</td></tr>
+        <tr><td>3DGS</td><td>Optimization</td><td>3000</td><td>23.42</td><td>0.770</td><td>0.232</td><td>283K</td><td>50</td><td>0.0008</td></tr>
+        <tr><td>3DGS</td><td>Optimization</td><td>4000</td><td>23.46</td><td>0.770</td><td>0.224</td><td>359K</td><td>70</td><td>0.0009</td></tr>
+        <tr><td>MVSplat</td><td>Feed-Forward</td><td>0</td><td>22.49</td><td>0.764</td><td>0.261</td><td>3932K</td><td>0.129</td><td>0.0030</td></tr>
+        <tr><td>DepthSplat</td><td>Feed-Forward</td><td>0</td><td>24.17</td><td>0.815</td><td>0.208</td><td>3932K</td><td>0.190</td><td>0.0030</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>Feed-Forward</td><td>0</td><td>26.21</td><td>0.842</td><td>0.185</td><td>246K</td><td>0.311</td><td>0.0007</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>Feed-Forward</td><td>1</td><td>27.15</td><td>0.859</td><td>0.169</td><td>246K</td><td>0.437</td><td>0.0007</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>Feed-Forward</td><td>2</td><td>27.51</td><td>0.865</td><td>0.163</td><td>246K</td><td>0.563</td><td>0.0007</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>Feed-Forward</td><td>3</td><td>27.65</td><td>0.867</td><td>0.161</td><td>246K</td><td>0.689</td><td>0.0007</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>Feed-Forward</td><td>4</td><td class="best">27.70</td><td class="best">0.868</td><td class="best">0.160</td><td>246K</td><td>0.816</td><td>0.0007</td></tr>
+      </tbody></table></div>
+      <p>Table 1 同时说明初始化与 refinement。迭代 0 已比 DepthSplat 高 2.04 dB，说明 compact 3D context regressor 本身有效；四轮再增加 1.49 dB。Gaussian 数始终固定 246K，是逐像素 MVSplat/DepthSplat 的 $1/16$，渲染时间约快 4.3 倍。相对 4000-step 3DGS，重建时间 0.816s 对 70s，约 85.8 倍；论文将不同配置下的总体趋势概括为约 $100\times$。</p>
+    </section>
+
+    <figure class="paper-unit" id="fig-3" data-source-id="fig-3">
+      <img src="assets/dl3dv_compare.webp" alt="DL3DV novel view synthesis comparisons">
+      <figcaption><strong>Figure 3。</strong>逐列比较 ground truth、3DGS、MVSplat、DepthSplat 与 ReSplat。放大区域显示基线常见的几何断裂、纹理模糊与边界 ghosting；ReSplat 的结构更完整、残差图更暗。定性图支持误差类型的解释，但只展示选定场景，不能替代整个测试集统计。</figcaption>
+    </figure>
+
+    <section class="paper-unit experiment-card" id="exp-dl3dv-8" data-source-id="exp-dl3dv-8">
+      <h4>8-view 高分辨率结论</h4>
+      <p>控制输入视图与分辨率后，ReSplat 同时改善 PSNR/SSIM/LPIPS，并大幅减少 Gaussian 数。其重建时间比一次性 MVSplat/DepthSplat 更长，因为需深度、3D attention 与 recurrent steps；优势主要是仍远快于 optimization，同时显式表示的渲染更快。四轮以后边际增益从第一轮的 +0.94 dB 降到第四轮的 +0.05 dB，直接预示“迭代饱和”的限制。</p>
+    </section>
+
+    <figure class="paper-unit" id="fig-4" data-source-id="fig-4">
+      <div class="grid-2">
+        <img src="assets/psnr_vs_iter_compare_3dgs.webp" alt="PSNR versus iterations for ReSplat and 3DGS from same initialization">
+        <img src="assets/time_vs_iter_compare_3dgs.webp" alt="Time versus iterations for ReSplat and 3DGS from same initialization">
+      </div>
+      <figcaption><strong>Figure 4(a–b)。</strong>两种 refinement 从同一 ReSplat initialization 出发，横轴分别是更新次数与累计时间。ReSplat 四次前向更新达到的质量，需要标准 3DGS 约 80 次显式梯度更新；累计 reconstruction speedup 为 $53\times$。右图局部还显示单次 learned update 更快，因为不构建/反传渲染梯度。</figcaption>
+    </figure>
+
+    <section class="paper-unit experiment-card" id="exp-optimization-refinement" data-source-id="exp-optimization-refinement">
+      <h4>Optimization-based vs feed-forward refinement</h4>
+      <p>这个实验比 Table 1 更能隔离 refinement 机制：初始化完全相同，差别只在后续用 learned updater 还是 3DGS optimizer。结论是 learned prior 能把训练集上积累的更新规律迁移到新场景，用更少步数获得大部分改进。它不能证明无限步 learned update 会优于收敛后的 3DGS；论文恰恰观察到 ReSplat 四轮后趋于饱和。</p>
+    </section>
+
+    <figure class="paper-unit" id="fig-5" data-source-id="fig-5">
+      <div class="grid-2">
+        <img src="assets/psnr_vs_iter_diffdataset.webp" alt="Cross-dataset generalization curve">
+        <img src="assets/psnr_vs_number_input_views.webp" alt="Cross-view generalization curve">
+        <img src="assets/psnr_vs_iter_diffres.webp" alt="Cross-resolution generalization curve">
+      </div>
+      <figcaption><strong>Figure 5(a–c)。</strong>(a) 从只训练 DL3DV 的模型转到 RealEstate10K，循环轮次持续改善；(b) 输入视图数改变时，initial model 较早饱和，而 recurrent model 更能利用额外观测；(c) 测试分辨率偏离 $512\times960$ 时，循环更新修复单步模型的明显下降，在 $320\times640$ 上论文报告约 +5 dB。三个子图都以迭代 0 为同模型的无反馈基线。</figcaption>
+    </figure>
+
+    <section class="paper-unit experiment-card" id="exp-generalization" data-source-id="exp-generalization">
+      <h4>跨数据集、视图数与分辨率</h4>
+      <p>这些实验支持“feedback-based adaptation”而不仅是“更深网络”。输入域变化后，rendering residual 仍以相同物理含义指出当前表示与观测的不一致；更新器因而可以修正初始化的系统性偏差。局限是反馈来自已知输入视图，它不保证不可见区域一定改善，也可能在遮挡、曝光变化或错误相机位姿下产生误导。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-2" data-source-id="tab-2">
+      <h4>Table 2：单步模型 vs recurrent models</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>类别</th><th>方法</th><th>参数</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+        <tr><td>Single-step</td><td>WorldMirror</td><td>1263M</td><td>23.54</td><td>0.789</td><td>0.193</td></tr>
+        <tr><td>Single-step</td><td>ReSplat-Small init</td><td>62M</td><td>26.77</td><td>0.865</td><td>0.142</td></tr>
+        <tr><td>Single-step</td><td>ReSplat-Base init</td><td>209M</td><td>27.37</td><td>0.877</td><td>0.130</td></tr>
+        <tr><td>Single-step</td><td>ReSplat-Large init</td><td>559M</td><td>27.86</td><td>0.886</td><td>0.121</td></tr>
+        <tr class="ours"><td>Recurrent</td><td>ReSplat-Small，1轮</td><td>77M</td><td>28.17</td><td>0.890</td><td>0.118</td></tr>
+        <tr class="ours"><td>Recurrent</td><td>ReSplat-Small，2轮</td><td>77M</td><td>28.73</td><td>0.898</td><td>0.110</td></tr>
+        <tr class="ours"><td>Recurrent</td><td>ReSplat-Small，3轮</td><td>77M</td><td>28.96</td><td>0.901</td><td>0.107</td></tr>
+        <tr class="ours"><td>Recurrent</td><td>ReSplat-Small，4轮</td><td>77M</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-single-vs-recurrent" data-source-id="exp-single-vs-recurrent">
+      <h4>参数放大不能替代误差纠正</h4>
+      <p>77M 的 Small recurrent 只比其初始化多 15M 参数，一轮就以 28.17 dB 超过 559M 的 Large initialization（27.86）；四轮差距增至 1.21 dB。与 1263M WorldMirror 的差距为 5.53 dB。受控程度最好的是同一 ReSplat family 内的 Small/Base/Large 对比；跨 WorldMirror 的架构和训练差异更大，应作为补充而非单变量证据。</p>
+    </section>
+
+    <figure class="paper-unit" id="fig-6" data-source-id="fig-6">
+      <img src="assets/psnr_vs_iter_diff_inits.webp" alt="ReSplat recurrent update from different initializations">
+      <figcaption><strong>Figure 6。</strong>以 MVSplat、ReSplat-Small 和 ReSplat-Base 三种初值启动同类 recurrent refinement，曲线都随迭代上升，且更强初值保持更高最终质量。MVSplat 有 $16\times$ 更多 Gaussians，使更新约慢 $13\times$，说明初值质量与 primitive 数量都影响循环成本。</figcaption>
+    </figure>
+
+    <section class="paper-unit experiment-card" id="exp-initializations" data-source-id="exp-initializations">
+      <h4>不同初始化的迁移</h4>
+      <p>更新器并非只能修复自己的 Base initialization；它对不同初值都能提供单调改善，支持“rendering error 是通用反馈”这一判断。不过曲线也表明强初始化仍然重要：循环不会完全抹平起点差距，且过多 Gaussians 会使 3D attention 成本急升。</p>
+    </section>
+
+    <figure class="paper-unit" id="fig-7" data-source-id="fig-7">
+      <img src="assets/re10k_compare.webp" alt="RealEstate10K visual comparisons">
+      <figcaption><strong>Figure 7。</strong>RealEstate10K 两视图结果中，ReSplat 相比 MVSplat 与 DepthSplat 生成更锐利、连贯的建筑和室内结构。该设置并不使用默认 $16\times$ 总 Gaussian 压缩：作者为低冗余双视图改用 $1/2$ 深度网格并从每个点解码 4 个 Gaussians，使总量与逐像素方法接近。</figcaption>
+    </figure>
+
+    <section class="paper-unit" id="tab-3" data-source-id="tab-3">
+      <h4>Table 3：DL3DV，16 views，$540\times960$</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>迭代</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>重建时间</th><th>#Gaussians</th></tr></thead><tbody>
+        <tr><td>3DGS</td><td>30000</td><td>21.20</td><td>0.708</td><td>0.264</td><td>13 min</td><td>—</td></tr>
+        <tr><td>Mip-Splatting</td><td>30000</td><td>20.88</td><td>0.712</td><td>0.274</td><td>13 min</td><td>—</td></tr>
+        <tr><td>Scaffold-GS</td><td>30000</td><td>22.13</td><td>0.738</td><td class="best">0.250</td><td>16 min</td><td>—</td></tr>
+        <tr><td>Long-LRM</td><td>0</td><td>22.66</td><td>0.740</td><td>0.292</td><td class="best">0.4 s</td><td>2073K</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>0</td><td>22.69</td><td>0.742</td><td>0.307</td><td>0.7 s</td><td>518K</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>1</td><td>23.23</td><td>0.758</td><td>0.291</td><td>1.2 s</td><td>518K</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>2</td><td class="best">23.51</td><td class="best">0.766</td><td>0.284</td><td>1.7 s</td><td>518K</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-dl3dv-16" data-source-id="exp-dl3dv-16">
+      <h4>16-view full-scene reconstruction</h4>
+      <p>该 setting 覆盖更大场景，ReSplat 两轮达到 23.51 dB，比 Long-LRM 高 0.85 dB，Gaussian 数约为其四分之一；但 reconstruction 1.7s 慢于 Long-LRM 的 0.4s，作者将差距主要归因于 kNN。LPIPS 方面 Scaffold-GS 的 0.250 仍最好，说明 ReSplat 并非每个指标都占优。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-4" data-source-id="tab-4">
+      <h4>Table 4：RealEstate10K 两视图</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>使用 3DGS 表示</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+        <tr><td>pixelSplat</td><td>是</td><td>25.89</td><td>0.858</td><td>0.142</td></tr>
+        <tr><td>MVSplat</td><td>是</td><td>26.39</td><td>0.869</td><td>0.128</td></tr>
+        <tr><td>DepthSplat</td><td>是</td><td>27.47</td><td>0.889</td><td>0.114</td></tr>
+        <tr><td>GS-LRM</td><td>是</td><td>28.10</td><td>0.892</td><td>0.114</td></tr>
+        <tr><td>Long-LRM</td><td>是</td><td>28.54</td><td>0.895</td><td>0.109</td></tr>
+        <tr><td>LVSM enc-dec</td><td>否</td><td>28.58</td><td>0.893</td><td>0.114</td></tr>
+        <tr><td>LVSM dec-only</td><td>否</td><td>29.67</td><td>0.906</td><td class="best">0.098</td></tr>
+        <tr class="ours"><td>ReSplat</td><td>是</td><td class="best">29.75</td><td class="best">0.912</td><td>0.100</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-re10k" data-source-id="exp-re10k">
+      <h4>两视图配置与结论</h4>
+      <p>两视图的跨视图冗余较低，若仍只保留 $HW/16$ 个 primitives 会过度压缩。因此模型在 $1/2$ 深度网格上取点（空间 $4\times$ subsampling），每点解码 4 个 Gaussians，总数恢复到逐像素量级。ReSplat 在 PSNR/SSIM 最好，LPIPS 比 LVSM dec-only 高 0.002；其显式 Gaussians 支持论文所述约 $20\times$ 更快 rendering，但文章表格没有列出这项计时细节。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-5" data-source-id="tab-5">
+      <h4>Table 5：RealEstate10K → ACID 零样本泛化</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+        <tr><td>pixelSplat</td><td>27.64</td><td>0.830</td><td>0.160</td></tr>
+        <tr><td>MVSplat</td><td>28.15</td><td>0.841</td><td>0.147</td></tr>
+        <tr><td>DepthSplat</td><td>28.37</td><td>0.847</td><td>0.141</td></tr>
+        <tr><td>GS-LRM</td><td>28.84</td><td>0.849</td><td>0.146</td></tr>
+        <tr class="ours"><td>ReSplat</td><td class="best">29.87</td><td class="best">0.864</td><td class="best">0.135</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-acid" data-source-id="exp-acid">
+      <h4>ACID cross-dataset generalization</h4>
+      <p>模型只在 RE10K 训练，直接测试 ACID。ReSplat 比最强表中 baseline GS-LRM 高 1.03 dB、SSIM 高 0.015、LPIPS 低 0.011，支持误差反馈缓解 domain gap。该表没有单独列出“迭代 0 vs 迭代 4”，因此它证明的是完整 ReSplat 的跨域结果，机制归因还需结合 Figure 5 与 Table 6(a)。</p>
+    </section>
+  </section>
+
+  <section class="paper-unit" id="sec-4-2" data-source-id="sec-4-2">
+    <h3>4.2 Analysis and Ablation</h3>
+    <p>全部消融使用 ReSplat-Small、DL3DV 8 views、$256\times448$，共同 initialization 为 26.77/0.865/0.142。由于 setting 与 Table 1 不同，29.07 dB 不应与高分辨率 27.70 dB 横向比较。</p>
+
+    <section class="paper-unit" id="tab-6" data-source-id="tab-6">
+      <h4>Table 6 总览</h4>
+      <p>Table 6 分成四个受控面板，分别改变 rendering error、坐标系、initial model context aggregation 与 recurrent model state/attention。四组共同指向一个结论：紧凑表示需要局部+全局 3D context，循环纠错需要当前误差、latent state 和局部更新，而坐标归一化决定这些空间模式是否易于学习。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-6a" data-source-id="tab-6a">
+      <h4>Table 6(a)：rendering error</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+        <tr><td>Initialization</td><td>26.77</td><td>0.865</td><td>0.142</td></tr>
+        <tr><td>无 rendering error</td><td>27.19</td><td>0.873</td><td>0.137</td></tr>
+        <tr><td>仅 RGB error</td><td>27.90</td><td>0.882</td><td>0.130</td></tr>
+        <tr><td>仅 feature error</td><td>28.77</td><td>0.897</td><td>0.110</td></tr>
+        <tr><td>RGB/feature concat</td><td>28.93</td><td>0.900</td><td>0.106</td></tr>
+        <tr class="ours"><td>RGB/feature add</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-error-ablation" data-source-id="exp-error-ablation">
+      <h4>误差反馈贡献</h4>
+      <p>去掉 error 后更新网络仍能把 26.77 提到 27.19，说明共享 prior 自身可做 refinement；加入完整 error 后达到 29.07，相对无误差高 1.88 dB。feature error 比 RGB 高 0.87 dB，二者融合再增 0.30 dB；addition 比 concat 仅高 0.14 dB，属于较小但一致的三指标改善。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-6b" data-source-id="tab-6b">
+      <h4>Table 6(b)：coordinate system</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>参考坐标</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+        <tr><td>Initialization</td><td>26.77</td><td>0.865</td><td>0.142</td></tr>
+        <tr><td>COLMAP world</td><td>28.14</td><td>0.886</td><td>0.116</td></tr>
+        <tr><td>First view</td><td>28.66</td><td>0.896</td><td>0.109</td></tr>
+        <tr><td>Last view</td><td>28.59</td><td>0.895</td><td>0.110</td></tr>
+        <tr class="ours"><td>Middle view</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-coordinate-ablation" data-source-id="exp-coordinate-ablation">
+      <h4>坐标选择的作用</h4>
+      <p>相对原始 COLMAP 坐标，middle-view alignment 提升 0.93 dB。first/last 已能消除场景任意世界坐标，但中间视图进一步缩短到两端的最大变换距离，使点云中心与尺度分布更均衡。这一结论依赖顺序相机轨迹；对无序环拍，“middle”需要按空间中心重新定义。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-6c" data-source-id="tab-6c">
+      <h4>Table 6(c)：initial reconstruction model</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>#Gaussians</th></tr></thead><tbody>
+        <tr><td>DepthSplat</td><td>25.79</td><td>0.861</td><td class="best">0.134</td><td>918K</td></tr>
+        <tr class="ours"><td>Full initialization</td><td class="best">26.77</td><td class="best">0.865</td><td>0.142</td><td>57K</td></tr>
+        <tr><td>无 kNN attention</td><td>25.30</td><td>0.833</td><td>0.178</td><td>57K</td></tr>
+        <tr><td>无 global attention</td><td>26.33</td><td>0.856</td><td>0.150</td><td>57K</td></tr>
+        <tr><td>两者都无</td><td>24.50</td><td>0.814</td><td>0.200</td><td>57K</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-init-ablation" data-source-id="exp-init-ablation">
+      <h4>紧凑初始化为何可行</h4>
+      <p>去掉 kNN 下降 1.47 dB，去掉 global attention 下降 0.44 dB，两者都去掉下降 2.27 dB。局部 3D context 是压缩点集恢复表面结构的主力，全局 context 提供额外跨视图一致性。Full initialization 用 57K Gaussians 超过 918K 的 DepthSplat PSNR/SSIM，但 LPIPS 略差 0.008，不能概括为所有指标全面胜出。</p>
+    </section>
+
+    <section class="paper-unit" id="tab-6d" data-source-id="tab-6d">
+      <h4>Table 6(d)：recurrent model</h4>
+      <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+        <tr><td>Initialization</td><td>26.77</td><td>0.865</td><td>0.142</td></tr>
+        <tr class="ours"><td>Full</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+        <tr><td>无 state $z^t$</td><td>27.79</td><td>0.878</td><td>0.125</td></tr>
+        <tr><td>无 kNN attention</td><td>28.58</td><td>0.894</td><td>0.111</td></tr>
+        <tr><td>无 global attention</td><td>28.96</td><td>0.900</td><td>0.107</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="paper-unit experiment-card" id="exp-recurrent-ablation" data-source-id="exp-recurrent-ablation">
+      <h4>循环状态与 attention</h4>
+      <p>去掉 latent state 的损失最大：-1.28 dB，说明 59 维显式 Gaussian 参数不足以承载初始化网络的高层信息与迭代历史。去掉 kNN 为 -0.49 dB，去掉 error global attention 为 -0.11 dB；后者绝对差较小，但三项指标一致下降。Figure S5 提供对应的视觉证据。</p>
+    </section>
+  </section>
+</section>
+
+<section class="paper-unit" id="sec-5" data-source-id="sec-5">
+  <div class="source-ref">对应原文：Section 5 Conclusion</div>
+  <h2>5. Conclusion</h2>
+  <p>论文最终贡献可以压缩为一个闭环：compact feed-forward initialization 让 3D 更新在高分辨率、多视图下可计算；input-view rendering error 让更新器看到自己的错误；共享权重 recurrent network 把 test-time compute 转成逐步质量提升。实验表明，该组合能减少 Gaussian 数、提高 rendering speed，并增强跨数据集、视图数和分辨率的稳健性。</p>
+
+  <section class="paper-unit warning" id="lim-fixed-count" data-source-id="lim-fixed-count">
+    <strong>限制一：Gaussian 数量固定。</strong>循环阶段只更新已有 primitives 的参数，不执行 3DGS 式 pruning 或 densification。初始化遗漏的薄结构、远处区域或复杂遮挡，可能无法仅靠移动/缩放固定数量的 Gaussians 完全恢复。作者把学习式自适应增删作为未来方向。
+  </section>
+  <section class="paper-unit warning" id="lim-four-iterations" data-source-id="lim-four-iterations">
+    <strong>限制二：四轮后饱和。</strong>训练只随机采样 1–4 轮，Table 1 的边际增益也快速衰减。当前反馈表示和更新器无法继续有效利用更多 test-time compute；作者建议探索更有信息量的反馈机制。因而 ReSplat 不是可无限迭代直到场景最优的通用 optimizer。
+  </section>
+</section>
+
+<section class="paper-unit" id="sec-ack" data-source-id="sec-ack">
+  <h2>Acknowledgments</h2>
+  <p>作者感谢 Naama Pearl、Xudong Jiang、Stefano Esposito、Ata Celen 的评论，以及 Yung-Hsu Yang、Kashyap Chitta 的讨论。Andreas Geiger 获 ERC Starting Grant LEGO-3D（850533）和 DFG EXC 2064/1（390727645）支持；工作还获 Swiss AI Initiative / CSCS Alps 项目 a144 支持。</p>
+</section>
+
+<section class="paper-unit" id="sec-references" data-source-id="sec-references">
+  <h2>References 的技术范围</h2>
+  <p>原文参考文献完整收录于论文 PDF；本文不逐条重抄 bibliography，而保留其在论证中的四类功能：3DGS/Mip-Splatting/gsplat 提供显式表示与 renderer；pixelSplat、MVSplat、GS-LRM、DepthSplat、Long-LRM 等构成 feed-forward baselines；RAFT、DROID-SLAM、IterMVS 等建立 learning-to-optimize 谱系；DeepView、G3R、QuickSplat、SplatFormer、LIFe-GOM 界定 learned refinement 的相邻方法。所有定量比较仍以对应表格和论文指定实现为准。</p>
+</section>
+
+<section class="paper-unit" id="app-overview" data-source-id="app-overview">
+  <div class="source-ref">对应原文：Appendix overview</div>
+  <h2>Appendix 总览</h2>
+  <p>26 页 arXiv v3 已把补充材料并入同一 PDF。Appendix A 扩展比较与消融，Appendix B 给训练 schedule 和硬件，Appendix C 给更多定性图。附录不是可选旁证：它补充了 8/16/32 视图 scaling、weight sharing、SplatFormer、深度正则 3DGS、反馈特征、压缩率、local kNN 与逐模块 profiling，直接决定对效率和机制的完整判断。</p>
+</section>
+
+<section class="paper-unit" id="app-a" data-source-id="app-a">
+  <div class="source-ref">对应原文：Appendix A Additional Evaluations</div>
+  <h2>Appendix A. Additional Evaluations</h2>
+
+  <section class="paper-unit" id="tab-s1" data-source-id="tab-s1">
+    <h3>Table S1：8/16/32 views 下与 3DGS 比较</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>#Views</th><th>方法</th><th>类别</th><th>迭代</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>#Gaussians</th><th>重建时间(s)</th></tr></thead><tbody>
+      <tr><td>8</td><td>3DGS</td><td>Optimization</td><td>4000</td><td>26.44</td><td>0.841</td><td>0.134</td><td>250K</td><td>49</td></tr>
+      <tr class="ours"><td>8</td><td>ReSplat</td><td>Feed-Forward</td><td>4</td><td class="best">29.20</td><td class="best">0.904</td><td class="best">0.104</td><td>57K</td><td class="best">0.21</td></tr>
+      <tr><td>16</td><td>3DGS</td><td>Optimization</td><td>4000</td><td>27.38</td><td>0.864</td><td>0.119</td><td>395K</td><td>70</td></tr>
+      <tr class="ours"><td>16</td><td>ReSplat</td><td>Feed-Forward</td><td>4</td><td class="best">29.01</td><td class="best">0.900</td><td class="best">0.105</td><td>114K</td><td class="best">0.34</td></tr>
+      <tr><td>32</td><td>3DGS</td><td>Optimization</td><td>4000</td><td>27.86</td><td>0.879</td><td class="best">0.113</td><td>522K</td><td>160</td></tr>
+      <tr class="ours"><td>32</td><td>ReSplat</td><td>Feed-Forward</td><td>4</td><td class="best">28.30</td><td class="best">0.891</td><td>0.114</td><td>229K</td><td class="best">0.75</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-3dgs-views" data-source-id="exp-3dgs-views">
+    <h3>View-count scaling</h3>
+    <p>分辨率统一为 $256\times448$。8 与 16 views 时 ReSplat 分别高 2.76/1.63 dB；32 views 时差距缩到 0.44 dB，且 3DGS 的 LPIPS 反而略好 0.001。这说明密集观测能让逐场景优化逐渐追上 learned prior，但 ReSplat 仍快 200 倍以上。随着输入视图增加，作者扩大采样区域以覆盖更大场景，所以三组测试视图并不完全相同，不能把 PSNR 的非单调变化解释为“更多视图使 ReSplat 变差”。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s2" data-source-id="tab-s2">
+    <h3>Table S2：recurrent 与 non-recurrent architectures</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>结构</th><th>#Params</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+      <tr class="ours"><td>Weight-sharing recurrent，iter 1 / block 4</td><td>13.8M</td><td>28.17</td><td>0.890</td><td>0.118</td></tr>
+      <tr class="ours"><td>Weight-sharing recurrent，iter 2 / block 4</td><td>13.8M</td><td>28.73</td><td>0.898</td><td>0.110</td></tr>
+      <tr class="ours"><td>Weight-sharing recurrent，iter 3 / block 4</td><td>13.8M</td><td>28.96</td><td>0.901</td><td>0.107</td></tr>
+      <tr class="ours"><td>Weight-sharing recurrent，iter 4 / block 4</td><td>13.8M</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+      <tr><td>Non-sharing multi-step，stack 1</td><td>13.8M</td><td>28.17</td><td>0.890</td><td>0.118</td></tr>
+      <tr><td>Non-sharing multi-step，stack 2</td><td>27.6M</td><td>28.74</td><td>0.898</td><td>0.109</td></tr>
+      <tr><td>Non-sharing multi-step，stack 3</td><td>41.4M</td><td>28.72</td><td>0.898</td><td>0.110</td></tr>
+      <tr><td>Non-sharing multi-step，stack 4</td><td>55.2M</td><td>28.71</td><td>0.897</td><td>0.110</td></tr>
+      <tr><td>Non-sharing one-step，block 4</td><td>13.8M</td><td>28.17</td><td>0.890</td><td>0.118</td></tr>
+      <tr><td>Non-sharing one-step，block 8</td><td>27.6M</td><td>28.30</td><td>0.891</td><td>0.116</td></tr>
+      <tr><td>Non-sharing one-step，block 12</td><td>41.4M</td><td>28.36</td><td>0.893</td><td>0.115</td></tr>
+      <tr><td>Non-sharing one-step，block 16</td><td>55.2M</td><td>28.40</td><td>0.893</td><td>0.115</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-recurrent-architecture" data-source-id="exp-recurrent-architecture">
+    <h3>为什么共享权重更好</h3>
+    <p>把四步换成四套独立网络会把参数增至 55.2M，却在第二步后停滞在约 28.7 dB；把单步网络加深到 16 blocks 也只有 28.40 dB。共享模型的 13.8M 参数重复四次达到 29.07。作者将其解释为 weight sharing 的隐式正则化；从信息流看，它还迫使每一步学习同一种“读取当前误差并修正”的通用算子，而不是把第几步固化进权重。它同时允许推理时改变迭代数。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s3" data-source-id="tab-s3">
+    <h3>Table S3：SplatFormer</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+      <tr><td>SplatFormer</td><td>27.03</td><td>0.868</td><td>0.140</td></tr>
+      <tr class="ours"><td>ReSplat</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-splatformer" data-source-id="exp-splatformer">
+    <h3>Scene-level SplatFormer comparison</h3>
+    <p>作者列出四项结构差异：ReSplat 使用 rendering error；是共享多步 recurrent；初始化与 refinement 都是 feed-forward；目标是复杂 scene-level 数据。SplatFormer 依赖 Point Transformer V3 的 grid serialization，object-centric 数据可归一化到 $[-1,1]$，无界场景却难选统一 grid size。作者尝试不同 normalization 和 grid search 后报告最佳值，ReSplat 高 2.04 dB。由于 baseline 适配困难，这张表既说明实用差距，也暴露了实现公平性的限制，不能简化为架构本身的纯粹单变量胜负。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s4" data-source-id="tab-s4">
+    <h3>Table S4：depth-regularized sparse-view 3DGS</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>方法</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>重建时间(s)</th></tr></thead><tbody>
+      <tr><td>3DGS，无 depth loss</td><td>23.46</td><td>0.770</td><td>0.224</td><td>70.0</td></tr>
+      <tr><td>3DGS，有 depth loss</td><td>24.54</td><td>0.796</td><td>0.204</td><td>75.4</td></tr>
+      <tr class="ours"><td>ReSplat，无外部 depth loss</td><td class="best">27.70</td><td class="best">0.868</td><td class="best">0.160</td><td class="best">0.8</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-depth-3dgs" data-source-id="exp-depth-3dgs">
+    <h3>稀疏视图优化的额外先验</h3>
+    <p>3DGS 加入 Depth Anything V2-Large 估计深度与 rendered depth 的损失后提升 1.08 dB，但仍比 ReSplat 低 3.16 dB，且因单目深度估计和 depth rendering 增至 75.4s。ReSplat 的初始化内部确实含深度预测，但不在测试优化时调用外部 monocular depth supervision；论文据此报告约 $94\times$ 重建加速。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s5" data-source-id="tab-s5">
+    <h3>Table S5：反馈特征 extractor</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>特征</th><th>#Params</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr></thead><tbody>
+      <tr class="ours"><td>ResNet</td><td>0.7M</td><td class="best">29.07</td><td class="best">0.902</td><td class="best">0.105</td></tr>
+      <tr><td>DINOv2</td><td>86.6M</td><td>29.00</td><td>0.901</td><td>0.107</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-feature-error" data-source-id="exp-feature-error">
+    <h3>ResNet vs DINOv2</h3>
+    <p>更大的 DINOv2 没有改善，反而轻微下降。作者推测 patch-based features 的空间粒度较粗，而卷积特征更保留 pixel-accurate view synthesis 所需的局部结构。0.07 dB 差距很小且无方差报告，因此可靠结论是“没有观察到升级收益”，而不是普遍证明 ResNet 比 DINOv2 更适合所有 rendering feedback。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s6" data-source-id="tab-s6">
+    <h3>Table S6：Gaussian compression factor</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>压缩率</th><th>深度网格</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>时间(s)</th></tr></thead><tbody>
+      <tr><td>$64\times$</td><td>$1/8$ 高宽</td><td>24.77</td><td>0.797</td><td>0.226</td><td class="best">0.096</td></tr>
+      <tr class="ours"><td>$16\times$</td><td>$1/4$ 高宽</td><td>26.77</td><td>0.865</td><td>0.142</td><td>0.104</td></tr>
+      <tr><td>$4\times$</td><td>$1/2$ 高宽</td><td class="best">28.36</td><td class="best">0.900</td><td class="best">0.103</td><td>0.206</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <figure class="paper-unit" id="fig-s1" data-source-id="fig-s1">
+    <img src="assets/compression_factor.webp" alt="Qualitative comparison of Gaussian compression factors">
+    <figcaption><strong>Figure S1。</strong>$64\times$ 压缩容易丢失细结构与锐利边界；$4\times$ 最清晰但点数/更新成本更高；$16\times$ 位于二者之间。图像与 Table S6 共同支持默认折中，而不是声称 $16\times$ 质量最佳。</figcaption>
+  </figure>
+
+  <section class="paper-unit experiment-card" id="exp-compression" data-source-id="exp-compression">
+    <h3>速度—精度折中</h3>
+    <p>从 $64\times$ 放宽到 $16\times$，只增加 0.008s，却提升 2.00 dB；再放宽到 $4\times$，提升 1.59 dB，但时间近乎翻倍。在 $512\times960$ 等更高分辨率下，3D attention 的额外点数代价会更明显。因此多视图主模型选 $16\times$；低分辨率双视图因信息冗余少，改用 $4\times$ 并每点解码四个 Gaussians。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s7" data-source-id="tab-s7">
+    <h3>Table S7：global vs local kNN</h3>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>kNN</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>总时间(s)</th></tr></thead><tbody>
+      <tr><td>Global</td><td class="best">27.70</td><td class="best">0.868</td><td class="best">0.160</td><td>0.816</td></tr>
+      <tr class="ours"><td>Local</td><td>27.65</td><td>0.867</td><td>0.163</td><td class="best">0.591</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-local-knn" data-source-id="exp-local-knn">
+    <h3>Camera-aware local kNN</h3>
+    <p>在 8×$512\times960$、246K Gaussians 上，local 方案把总推理时间从 0.816s 降到 0.591s，约快 27.6%，代价为 -0.05 dB、SSIM -0.001、LPIPS +0.003。它利用“表面近邻通常来自同视图邻近像素，或其他视图中的重投影邻域”这一多视图网格先验。若相机位姿错误、投影落在遮挡表面，候选集可能漏掉真实 3D 邻居；global kNN 质量略高但规模不可持续。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s8" data-source-id="tab-s8">
+    <h3>Table S8：Model Profiling</h3>
+    <p>作者在 8 views、两种分辨率下拆解初始模型和单次 recurrent model 的 latency。各分量之和与 total 基本一致，能够定位后续优化的优先级。</p>
+  </section>
+
+  <section class="paper-unit" id="tab-s8a" data-source-id="tab-s8a">
+    <h4>Table S8(a)：Initial model</h4>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>分辨率</th><th>Total</th><th>Depth pred.</th><th>kNN attn</th><th>Global attn</th><th>Gaussian head</th></tr></thead><tbody>
+      <tr><td>$256\times448$</td><td>0.149</td><td>0.111</td><td>0.024</td><td>0.013</td><td>0.001</td></tr>
+      <tr><td>$512\times960$</td><td>0.311</td><td>0.197</td><td>0.094</td><td>0.018</td><td>0.002</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit" id="tab-s8b" data-source-id="tab-s8b">
+    <h4>Table S8(b)：Single recurrent step</h4>
+    <div class="table-wrap"><table class="metric"><thead><tr><th>分辨率</th><th>Total</th><th>Render error</th><th>kNN attn</th><th>Global attn</th><th>Update head</th></tr></thead><tbody>
+      <tr><td>$256\times448$</td><td>0.022</td><td>0.003</td><td>0.015</td><td>0.002</td><td>0.002</td></tr>
+      <tr><td>$512\times960$</td><td>0.126</td><td>0.016</td><td>0.092</td><td>0.008</td><td>0.010</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="paper-unit experiment-card" id="exp-profiling" data-source-id="exp-profiling">
+    <h3>Profiling 结论</h3>
+    <p>初始化阶段的最大项是 depth prediction（高分辨率约占 63%）；单次 recurrent step 的最大项是 kNN attention（约占 73%）。global attention 经压缩后并非主要瓶颈。分辨率增大时 kNN 从 0.024→0.094 和 0.015→0.092，增长显著快于 head，说明 local kNN 或更高效邻域索引是最直接的工程方向。</p>
+  </section>
+</section>
+
+<section class="paper-unit" id="app-b" data-source-id="app-b">
+  <div class="source-ref">对应原文：Appendix B Additional Details</div>
+  <h2>Appendix B. Additional Details</h2>
+  <section class="paper-unit experiment-card" id="exp-training-details" data-source-id="exp-training-details">
+    <h3>Training Details</h3>
+    <p>所有实验使用 cosine learning-rate schedule。DL3DV 采用 progressive training：先 8 views、$256\times448$；再 fine-tune 到 8 views、$512\times960$；最后 fine-tune 到 16 views、$512\times960$。每个阶段用 16 张 NVIDIA GH200 训练 80K steps，其中 initial reconstruction 50K，recurrent model 30K。RealEstate10K $256\times256$ 先用 16 GH200 训练 initial model 200K steps，再训练 recurrent model 100K steps。</p>
+    <p><span class="evidence analysis">复现边界</span>“每阶段 80K”描述的是渐进阶段的总训练结构；具体 checkpoint 继承、batch accumulation、学习率与数据 sampler 仍由公开 shell/YAML 决定。硬件规模很大，论文没有提供单卡等效时长或能耗。</p>
+  </section>
+</section>
+
+<section class="paper-unit" id="app-c" data-source-id="app-c">
+  <div class="source-ref">对应原文：Appendix C Additional Visualizations</div>
+  <h2>Appendix C. Additional Visualizations</h2>
+  <p>Appendix C 不新增指标，而是把主文中的迭代趋势、baseline 差异和两类 attention 消融落到更多场景。阅读定性图时应关注跨视图几何一致性、细线/边缘、重复纹理与残差热区，而不是只看单张图的主观锐度。</p>
+
+  <figure class="paper-unit" id="fig-s2" data-source-id="fig-s2">
+    <img src="assets/render_vs_iterations.webp" alt="Progressive ReSplat results over recurrent iterations">
+    <figcaption><strong>Figure S2。</strong>从 initialization 到 recurrent 1–4，局部结构逐步变清晰、残差缩小；后两轮变化更细微，与 Table 1 的边际增益衰减一致。图也说明更新是渐进残差修复，而非每轮重新生成完全不同场景。</figcaption>
+  </figure>
+
+  <figure class="paper-unit" id="fig-s3" data-source-id="fig-s3">
+    <img src="assets/dl3dv_compare_supp.webp" alt="Additional DL3DV novel-view comparisons">
+    <figcaption><strong>Figure S3。</strong>更多 DL3DV 场景对比 3DGS、MVSplat、DepthSplat 与 ReSplat。ReSplat 的优势常出现在物体轮廓、长直边、室内结构与高频纹理；但这些仍是作者选择的可视化样例，完整平均表现以 Table 1 为准。</figcaption>
+  </figure>
+
+  <figure class="paper-unit" id="fig-s4" data-source-id="fig-s4">
+    <img src="assets/ablation_init.webp" alt="Visual ablation of initial model">
+    <figcaption><strong>Figure S4。</strong>initial model 的视觉消融。移除 $k$NN 后局部几何与边界明显受损；移除 global attention 主要影响跨区域/跨视图一致性；二者都移除时压缩点集难以恢复完整结构。它与 Table 6(c) 的数值排序一致。</figcaption>
+  </figure>
+
+  <figure class="paper-unit" id="fig-s5" data-source-id="fig-s5">
+    <img src="assets/ablation_refine.webp" alt="Visual ablation of recurrent model">
+    <figcaption><strong>Figure S5。</strong>recurrent model 的视觉消融。无 state 时更新器缺少丰富初始化信息，残差修复最弱；无 $k$NN 时细节一致性下降；无 global error propagation 的差异更细微。对应 Table 6(d) 中 -1.28、-0.49 与 -0.11 dB 的顺序。</figcaption>
+  </figure>
+</section>
+
+<section class="paper-unit warning" id="supp-separate" data-source-id="supp-separate">
+  <h2>独立 Supplement 状态</h2>
+  <p>项目页与 arXiv source package 没有发布另一个独立 supplementary 文件。论文指向的全部补充实验、训练细节与可视化已整合进 26 页 arXiv v3 的 Appendix A–C，本文已逐项覆盖；因此该预留项标记为 <strong>not applicable</strong>，不是资料抓取失败。</p>
+</section>
+
+<section id="code-audit">
+  <h2>官方代码逐模块核对</h2>
+  <p>以下核对基于官方仓库 commit <a href="https://github.com/cvg/resplat/tree/cc4594af97a2e559e98f5e307d80535569ae7007"><code>cc4594af97a2e559e98f5e307d80535569ae7007</code></a>。代码用于澄清执行边界，不把实现细节反向包装成论文明确声称。</p>
+
+  <section class="paper-unit experiment-card" id="code-encoder" data-source-id="code-encoder">
+    <h3>1. Depth and multi-view feature encoder</h3>
+    <p><span class="evidence code">官方代码</span><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/encoder_resplat.py">encoder_resplat.py</a> 复用 DepthSplat 式 monocular/multi-view depth features，按照配置选择 ViT-S/B/L 和 feature channels。深度、图像 feature pyramid 与相机几何共同进入后续反投影，而非仅从 RGB 直接回归 59 维参数。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-init" data-source-id="code-init">
+    <h3>2. Compact Gaussian initialization</h3>
+    <p><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/encoder_resplat.py#L343-L764">encoder_resplat.py 初始化路径</a> 将低分辨率 depth unproject 为 3D points，交给交替 point/global transformer，再经 Gaussian adapter/head 生成 means、covariances、SH 与 opacities。<a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/common/gaussian_adapter.py">gaussian_adapter.py</a> 负责把网络原始输出变成 renderer 可用、满足范围约束的参数。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-error" data-source-id="code-error">
+    <h3>3. Pixel/feature rendering error</h3>
+    <p><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/encoder_resplat.py#L830-L915">encoder_resplat.py 的 error branch</a> 先渲染 context views，再构造 RGB difference；冻结 ResNet-18 的前三阶段特征被 resize 到统一尺度后相减。RGB 经 pixel-unshuffle、linear projection 与 normalization 后和 feature error 相加，和 Equation (5)、Table 6(a) 一致。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-recurrent" data-source-id="code-recurrent">
+    <h3>4. Recurrent state transition</h3>
+    <p><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/encoder_resplat.py#L917-L1095">recurrent path</a> 明确对上一轮 Gaussian attributes 执行 <code>detach()</code>，随后 global error propagation、$k$NN update blocks 和 MLP heads 预测增量。<a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/point_transformer/layer.py#L124-L341">point_transformer/layer.py</a> 实现局部/global attention；<a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/encoder/point_transformer/local_knn.py">local_knn.py</a> 实现 camera-aware 候选生成。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-loss" data-source-id="code-loss">
+    <h3>5. Two-stage loss and gradient boundary</h3>
+    <p><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/model_wrapper.py#L192-L716">model_wrapper.py training path</a> 区分 init 与 refine 两阶段；refine 阶段以 <code>torch.no_grad()</code> 调用已训练初始化模型，再对各轮 target rendering 施加指数权重损失。loss modules 实现像素/perceptual supervision 与配置组合。由此可确认：初始化被冻结，recurrent network 仍通过 backprop 学习，但测试更新无显式 per-scene gradient。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-renderer" data-source-id="code-renderer">
+    <h3>6. gsplat-based renderer</h3>
+    <p><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/decoder/gsplat_decoder_splatting_cuda.py#L39-L97">gsplat_decoder_splatting_cuda.py</a> 将 Gaussian means、covariances、SH、opacities 与相机参数交给 gsplat rasterization，支持 RGB 与 depth 输出。renderer 同时服务于反馈回路和 target-view loss；推理无需为反馈图构建参数梯度图。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-data" data-source-id="code-data">
+    <h3>7. DL3DV / RealEstate10K data pipeline</h3>
+    <p><a href="https://github.com/cvg/resplat/tree/cc4594af97a2e559e98f5e307d80535569ae7007/src/dataset">src/dataset</a> 分别提供 DL3DV 与 RE10K loaders、crop/augmentation shims 和 bounded/evaluation view samplers。batch 显式区分 <code>context</code> 与 <code>target</code>：context images 产生 Gaussians 并形成 rendering feedback，target images 用于新视图监督/评估。相机 normalization 代码把 poses 变到选定 pivotal camera 坐标。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-training" data-source-id="code-training">
+    <h3>8. Training scripts and presets</h3>
+    <p><a href="https://github.com/cvg/resplat/tree/cc4594af97a2e559e98f5e307d80535569ae7007/scripts">scripts/</a> 为 DL3DV 8/16/32-view、Small/Base/Large、RE10K 2-view 分别提供 init/refine shell scripts；<a href="https://github.com/cvg/resplat/tree/cc4594af97a2e559e98f5e307d80535569ae7007/config">config/</a> 保存 experiment、dataset、model 与 loss overrides。这与论文的 progressive schedule 对应，也说明不同表格不是一个 checkpoint 无条件覆盖全部 setting。</p>
+  </section>
+
+  <section class="paper-unit experiment-card" id="code-inference" data-source-id="code-inference">
+    <h3>9. COLMAP inference and test-time execution</h3>
+    <p><a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/scripts/infer_colmap.py">scripts/infer_colmap.py</a> 可读取 COLMAP binary/text cameras 与 images，提供 8-view $512\times960$、16-view $540\times960$ 等 presets；batch 构建时以 middle context view 对齐 poses，<code>num_refine</code> 可设 0–4，并可保存 images、video 与 PLY。<a href="https://github.com/cvg/resplat/blob/cc4594af97a2e559e98f5e307d80535569ae7007/src/model/model_wrapper.py#L718-L996">model_wrapper.py test path</a> 执行相同初始化—循环—渲染流程及 sliding-window 选项。</p>
+  </section>
+</section>
+
+<section id="takeaways">
+  <h2>完整结论：证据支持到哪里</h2>
+  <ol>
+    <li><strong>已被主结果直接支持：</strong>在论文给定协议下，compact initialization 可以用远少于逐像素方法的 Gaussians 获得更高质量；1–4 次 learned refinement 持续改善，且远快于数千步 optimization。</li>
+    <li><strong>已被机制消融支持：</strong>rendering error 是主要增益来源，feature error 强于纯 RGB；hidden state、局部 $k$NN、global context 与 middle-view coordinate normalization 都有贡献。</li>
+    <li><strong>已被泛化实验支持：</strong>同一更新机制能缓解 dataset、view-count 与 resolution shift；但不可见区域、错误位姿、动态物体与曝光变化并未被系统压力测试。</li>
+    <li><strong>不能从论文推出：</strong>ReSplat 会随无限迭代收敛到 per-scene optimum；它完全不使用梯度训练；固定 Gaussian 数足以恢复任意复杂拓扑；所有 setting 都保持 $16\times$ 总 Gaussian 压缩。</li>
+  </ol>
+</section>
+
+<section id="coverage-audit">
+  <h2>覆盖审计</h2>
+  <div class="table-wrap"><table><thead><tr><th>类别</th><th>台账单元</th><th>状态</th><th>说明</th></tr></thead><tbody>
+    <tr><td>正文结构、主张、定义与限制</td><td>28</td><td class="coverage-ok">全部覆盖</td><td>Abstract、Sections 1–5、Related Work 三分支、方法组件、结论与两项 limitation</td></tr>
+    <tr><td>公式</td><td>11</td><td class="coverage-ok">全部覆盖</td><td>Equation (1)–(11)，含符号、执行顺序和梯度边界</td></tr>
+    <tr><td>Figures</td><td>12</td><td class="coverage-ok">全部覆盖</td><td>Figure 1–7 与 Figure S1–S5；15 个源图文件均已嵌入</td></tr>
+    <tr><td>Tables / panels</td><td>20</td><td class="coverage-ok">全部覆盖</td><td>Table 1–6、S1–S8 及承担独立结论的 6 个子面板</td></tr>
+    <tr><td>实验与设置</td><td>27</td><td class="coverage-ok">全部覆盖</td><td>20 类实验与 7 组实现/评估/训练设置</td></tr>
+    <tr><td>Appendix / supplement</td><td>5</td><td class="coverage-ok">4 covered + 1 not applicable</td><td>Appendix overview、A–C；无独立 supplementary 文件</td></tr>
+    <tr><td>官方代码映射</td><td>9</td><td class="coverage-ok">全部覆盖</td><td>固定到官方 commit cc4594a</td></tr>
+    <tr><td><strong>合计</strong></td><td><strong>112</strong></td><td class="coverage-ok"><strong>111 covered，1 not applicable</strong></td><td>无 pending / unavailable</td></tr>
+  </tbody></table></div>
+</section>
+
+<div class="footer">
+  <p>分析依据：arXiv v3（2026-03-12）26 页 PDF、arXiv HTML/LaTeX source、Appendix A–C、项目页、作者演讲稿，以及官方代码 commit <code>cc4594af97a2e559e98f5e307d80535569ae7007</code>。文章为结构化中文讲解，不替代原论文。</p>
+  <p>最后核对日期：2026-07-15。</p>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var list=document.getElementById('toc-list');
+  document.querySelectorAll('main h2[id], main section[id] > h2, main section[id] > h3').forEach(function(heading){
+    var owner=heading.closest('[id]');
+    var id=heading.id || (owner && owner.id);
+    if(!id || id==='reading-guide' || document.querySelector('#toc-list a[href="#'+id+'"]')) return;
+    if(!heading.id) heading.id=id+'-heading';
+    var li=document.createElement('li');
+    if(heading.tagName==='H3') li.className='level-3';
+    var a=document.createElement('a');
+    a.href='#'+(owner && owner.id ? owner.id : heading.id);
+    a.textContent=heading.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  if(window.mermaid){mermaid.initialize({startOnLoad:true,theme:document.documentElement.dataset.theme==='dark'?'dark':'default',securityLevel:'loose'});}
+});
+</script>
+</main>
+</div>
+</body>
+</html>

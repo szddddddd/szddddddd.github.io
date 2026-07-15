@@ -63,7 +63,17 @@ const entryCount = String(noteEntries.length).padStart(2, '0');
             <ul class="tag-list" aria-label={`${entry.title[lang]} ${t.notes.topicsTitle}`}>
               {entry.topics[lang].map((topic) => <li>{topic}</li>)}
             </ul>
-            <a class="text-link" href={entry.href} data-astro-reload>{t.notes.readEntry}</a>
+            {
+              entry.versions?.length ? (
+                <div class="notes-entry__links">
+                  {entry.versions.map((version) => (
+                    <a class="text-link" href={version.href} data-astro-reload>{version.label[lang]}</a>
+                  ))}
+                </div>
+              ) : (
+                <a class="text-link" href={entry.href} data-astro-reload>{t.notes.readEntry}</a>
+              )
+            }
           </article>
         ))
       }

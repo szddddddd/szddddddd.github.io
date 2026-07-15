@@ -1159,6 +1159,12 @@ html[data-theme='light'] .publication-archive-legend {
   margin-top: 0.1rem;
 }
 
+.notes-entry__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1rem;
+}
+
 .notes-entry .text-link {
   width: max-content;
   max-width: 100%;

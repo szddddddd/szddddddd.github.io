@@ -2,6 +2,11 @@ type NoteText = Readonly<Record<'en' | 'zh', string>>;
 
 type NoteTopics = Readonly<Record<'en' | 'zh', readonly string[]>>;
 
+type NoteVersion = Readonly<{
+  label: NoteText;
+  href: string;
+}>;
+
 export type NoteEntry = Readonly<{
   id: string;
   date: string;
@@ -10,6 +15,7 @@ export type NoteEntry = Readonly<{
   summary: NoteText;
   topics: NoteTopics;
   href: string;
+  versions?: readonly NoteVersion[];
 }>;
 
 export const noteEntries: readonly NoteEntry[] = [
@@ -47,7 +53,17 @@ export const noteEntries: readonly NoteEntry[] = [
       en: ['3D scene generation', 'Mesh conditioning', 'Image diffusion', 'Gaussian splatting'],
       zh: ['三维场景生成', '网格条件', '图像扩散', '高斯泼溅'],
     },
-    href: '/paper-analysis/worldmesh/',
+    href: '/paper-analysis/worldmesh/concise/',
+    versions: [
+      {
+        label: { en: 'Academic version', zh: '学术版' },
+        href: '/paper-analysis/worldmesh/academic/',
+      },
+      {
+        label: { en: 'Concise version', zh: '精炼版' },
+        href: '/paper-analysis/worldmesh/concise/',
+      },
+    ],
   },
   {
     id: 'scal3r-paper-analysis',

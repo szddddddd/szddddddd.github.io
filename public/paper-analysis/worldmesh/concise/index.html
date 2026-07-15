@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="WorldMesh 的 concise 中文论文解读：网格条件图像扩散如何生成可导航的多房间 3D 场景。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/worldmesh/concise/">
+<title>WorldMesh：网格条件扩散的精炼解读</title>
+<style>
+:root{--ink:#182322;--muted:#60706d;--paper:#fbfcfa;--panel:#fff;--line:#d8e2de;--teal:#0d6b68;--deep:#073f3d;--orange:#b65c3c;--pale:#e6f2ef;--warm:#fff4ec;--code:#182525;--code-ink:#e9f4f0}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:30px 24px 80px}header{max-width:920px;margin:0 auto 20px}.eyebrow{margin:0 0 8px;color:var(--teal);font-size:.77rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1,h2,h3{font-family:Georgia,"Noto Serif SC",serif;color:var(--deep)}h1{margin:0 0 12px;font-size:clamp(2rem,5vw,3.55rem);line-height:1.14;letter-spacing:0}h2{font-size:1.65rem;line-height:1.25;margin:42px 0 14px;padding-top:10px;border-top:2px solid var(--teal)}h3{font-size:1.12rem;margin:24px 0 7px;color:var(--teal)}p{margin:10px 0}.lede{font-size:1.08rem;color:var(--muted);max-width:820px}.meta{display:flex;flex-wrap:wrap;gap:6px 16px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--muted);font-size:.89rem}.meta a,.links a{color:var(--teal);text-decoration:none;border-bottom:1px solid #9dcac4}.meta a:hover,.links a:hover{color:var(--orange);border-color:var(--orange)}.hero-diagram{margin:24px 0 18px;padding:15px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.hero-diagram h2{margin:0 0 8px;padding:0;border:0;font-size:1.22rem}.mermaid{margin:0;min-height:180px;display:grid;place-items:center;white-space:pre-wrap;font-family:inherit;font-size:.9rem;background:#fff}.hero-image{margin:18px 0 26px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.hero-image img{display:block;width:100%;max-height:420px;object-fit:cover;border-radius:6px}.caption{margin:8px 2px 0;color:var(--muted);font-size:.86rem;line-height:1.55}.summary{background:var(--pale);border-left:5px solid var(--teal);padding:18px 22px;margin:22px 0 28px;border-radius:0 9px 9px 0}.summary h2{margin:0 0 7px;padding:0;border:0;font-size:1.2rem}.summary ul{margin:7px 0 0;padding-left:1.25rem}.summary li{margin:4px 0}.toc{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 28px;padding-bottom:16px;border-bottom:1px solid var(--line)}.toc a{padding:4px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--deep);text-decoration:none;font-size:.82rem}.toc a:hover{border-color:var(--teal);background:var(--pale)}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:13px}.card b{display:block;color:var(--orange);font-size:.9rem;margin-bottom:5px}.card p{margin:0;font-size:.92rem;line-height:1.6}.tag{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:4px;background:var(--warm);color:var(--orange);font-size:.75rem;font-weight:700}.figure{margin:20px 0;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:9px}.figure img{display:block;width:100%;max-height:580px;object-fit:contain}.figure.narrow{max-width:760px;margin-left:auto;margin-right:auto}.figure-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.figure-grid .figure{margin:0}.figure-grid img{height:170px;object-fit:cover}.table-wrap{overflow-x:auto;margin:16px 0 20px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}table{width:100%;min-width:650px;border-collapse:collapse;font-size:.85rem;line-height:1.42}th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}thead th{background:var(--pale);color:var(--deep)}tbody tr:last-child td{border-bottom:0}.ours{background:var(--warm);font-weight:700}.note{color:var(--muted);font-size:.83rem;margin-top:-8px}.formula{padding:12px 16px;background:#fff;border:1px solid var(--line);border-radius:7px;text-align:center;overflow-x:auto;margin:15px 0 6px}.formula-explain{color:#42504d;font-size:.91rem}.golden{margin:30px 0 28px;padding:19px 16px;background:var(--warm);border-top:2px solid var(--orange);border-bottom:2px solid var(--orange);color:var(--deep);font-family:Georgia,"Noto Serif SC",serif;font-size:1.22rem;line-height:1.55}.evidence{display:inline-block;margin-right:5px;color:var(--orange);font-size:.76rem;font-weight:800;letter-spacing:.03em}.code-label{margin:16px 0 5px;color:var(--muted);font-size:.82rem}.code{margin:0 0 10px;padding:14px 16px;overflow-x:auto;background:var(--code);color:var(--code-ink);border-radius:8px;font:12.5px/1.55 "SFMono-Regular",Consolas,"Liberation Mono",monospace}.improve td{white-space:normal;vertical-align:top;min-width:130px}.research{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.research .card{font-size:.9rem}.research .card p{margin:5px 0}.callout{padding:13px 16px;background:#fff8f2;border:1px solid #edd5c4;border-radius:8px}.links{display:flex;flex-wrap:wrap;gap:7px 16px;margin:12px 0 22px;font-size:.9rem}.refs{color:var(--muted);font-size:.84rem}.refs li{margin:5px 0}@media(max-width:820px){.grid4,.research{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){main{padding:22px 14px 55px}body{font-size:15.5px}h1{font-size:2rem}h2{font-size:1.42rem}.grid4,.research,.figure-grid{grid-template-columns:1fr}.figure-grid img{height:auto}.hero-image img{max-height:260px}.toc{gap:5px}}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'neutral',securityLevel:'loose'});</script>
+
+<style>
+.version-switch{display:inline-flex;gap:0;margin:0 0 1.25rem;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.version-switch a{padding:.42rem .78rem;border-right:1px solid var(--line);color:var(--teal);font-size:.78rem;font-weight:700;text-decoration:none}
+.version-switch a:last-child{border-right:0}
+.version-switch a:hover{background:var(--accent-soft,#e6f2ef);color:var(--teal-dark,var(--deep))}
+.version-switch a[aria-current="page"]{background:var(--teal);color:#fff}
+</style>
+</head>
+<body>
+<main>
+<header>
+<nav class="version-switch" aria-label="WorldMesh reading versions"><a href="../academic/">Academic</a><a href="../concise/" aria-current="page">Concise</a></nav>
+  <p class="eyebrow">Paper Analyzer / Concise Reading Note</p>
+  <h1>WorldMesh：用网格条件扩散生成可导航的多房间 3D 世界</h1>
+  <p class="lede"><em>WorldMesh: Generating Navigable Multi-Room 3D Scenes via Mesh-Conditioned Image Diffusion</em> 把“世界的几何”与“图像的真实感”拆开，再用可回写的 mesh 把二者接回去。</p>
+  <div class="meta"><span>Manuel-Andreas Schneider · Angela Dai</span><span>TUM</span><span>arXiv:2603.22972v3 · 2026-07-05</span><span>ECCV 2026</span><span>代码与数据已公开</span></div>
+</header>
+
+<section class="hero-diagram" aria-label="WorldMesh architecture diagram">
+  <h2>头图：从文本到可导航世界</h2>
+  <pre class="mermaid">flowchart TB
+    A["1. Structure<br/>Text -> Layout -> Mesh"]
+    B["2. Objects<br/>SAM3 -> SAM-3D"]
+    C["3. Appearance memory<br/>Depth + Objects + Wall texture"]
+    D["4. Verify and reconstruct<br/>Edge Recall -> Depth 3DGS"]
+    E["Navigable multi-room scene"]
+    A --> B --> C --> D --> E
+    C -->|project colors back| A</pre>
+  <p class="caption"><strong>读图要点：</strong>mesh 不是一次性的控制图，而是生成结果会写回的持久状态；它同时约束房间拓扑、下一视角的条件图和最终 3DGS 的几何。</p>
+</section>
+
+<figure class="hero-image"><img src="../assets/teaser.jpg" alt="WorldMesh teaser showing mesh scaffold and generated rooms"><p class="caption"><strong>论文 Figure 1 的核心信息。</strong>结构先行让扩散模型在局部近景与跨房间长程视角中共享同一套世界坐标。</p></figure>
+
+<section class="summary">
+  <h2>核心摘要（5 行）</h2>
+  <ul>
+    <li><span class="evidence">论文事实</span><strong>问题：</strong>像素/视频扩散在近距离绕物体和跨房间轨迹上缺少持久几何，易出现漂移、重影和布局断裂。</li>
+    <li><span class="evidence">论文事实</span><strong>方法：</strong>文本生成经规则校验的 floor plan；再构建墙、地板、门窗与对象组成的 mesh scaffold。</li>
+    <li><span class="evidence">论文事实</span><strong>闭环：</strong>用 mesh 的深度、对象几何和累积墙纹理条件化图像扩散；成功视图反投影回 mesh。</li>
+    <li><span class="evidence">论文事实</span><strong>效果：</strong>31 人研究的 Quality / 3D Objects / 3D Structure 为 4.48 / 4.40 / 4.35，平均偏好 96.2%。</li>
+    <li><span class="evidence">边界</span><strong>限制：</strong>只支持单层布局；对象背面依赖 SAM-3D-Objects；官方复现需要多套权重、24 GB 显存，默认外观阶段可调用 API。</li>
+  </ul>
+</section>
+
+<nav class="toc"><a href="#innovation">关键创新</a><a href="#method">技术路径</a><a href="#code">源码核对</a><a href="#results">核心数据</a><a href="#improvements">改进与选题</a><a href="#limits">局限</a></nav>
+
+<section id="innovation">
+<h2>1. 关键创新</h2>
+<div class="grid4">
+  <article class="card"><b>01 · 几何优先</b><p>论文称其为 <q>geometry-first approach</q>：把全局空间一致性交给显式 mesh，把局部材质、光照和细节交给图像扩散；因此生成范围可以随房间数扩展，而不是把所有记忆压进一条像素轨迹。</p></article>
+  <article class="card"><b>02 · 可验证布局</b><p>LLM 只负责提出 JSON floor plan，程序检查房间不重叠、共享墙、门连通和窗位置；通过后才挤出 3D 结构，减少“语义合理但几何不可能”。</p></article>
+  <article class="card"><b>03 · 三路条件</b><p>每个视角同时看到深度、重建对象和已积累的墙面颜色；消融显示缺掉任一路都会分别损害结构、对象或表面一致性。</p></article>
+  <article class="card"><b>04 · 验证再重建</b><p>用深度边缘召回拒绝不符合 scaffold 的图，再以 scaffold 深度点云初始化 3DGS，并加入深度损失抑制漂移。</p></article>
+</div>
+<p class="callout"><span class="evidence">一句话判断</span>WorldMesh 的贡献不只是“给扩散模型加深度图”，而是让生成、记忆、验证和 3D 重建都读写同一个几何对象 $M$。</p>
+</section>
+
+<section id="method">
+<h2>2. 技术路径：输入、信息流与三个关键公式</h2>
+<h3>2.1 布局与结构 mesh</h3>
+<p><span class="evidence">论文事实</span>主题 $T$ 先被 Claude Opus 4.6 转成布局 $L$：房间 floor polygon、墙厚、层高和 opening。结构阶段对 polygon 做 inset，再沿高度挤出；共享墙用半厚度，门窗以 boolean subtraction 切除，并把共享墙上的 opening 同步到邻室。官方约束文档还规定 door graph 必须连通，保证每个房间可达。</p>
+<p><span class="evidence">分析推断</span>这一步把导航问题提前解决：若门洞关系在 mesh 拓扑层已经断裂，后面的 3DGS 再逼真也只能得到互相独立的漂亮房间。</p>
+<h3>2.2 对象实例化与墙面记忆</h3>
+<p>结构 mesh 从 coverage camera 渲染深度，Flux2-Klein 生成一张带建筑上下文的对象布局图；SAM3 提供 mask，SAM-3D-Objects 生成对象 mesh 和相机到世界的变换。落地、墙挂、吊顶对象分别按重力、支撑面和高度规则校正。墙面颜色则在每个成功视角生成后投影回 $M_{geo}$，让外观始终 <q>anchored to the underlying 3D geometry</q>；下一个视角继承已知颜色，未知区域仍用深度占位。</p>
+<div class="formula">$$\operatorname{sim}(q_1,q_2)=|\hat q_1\cdot\hat q_2|$$</div>
+<p class="formula-explain">$q$ 是相机旋转四元数，帽子表示单位化；点积绝对值消除了四元数正负等价。生成器从 bootstrap 相机开始，每次选与既有视角旋转最接近的候选，并把该图作为 style reference，目的是让外观沿相机序列渐进传播，而不是每帧重新抽样一个风格。</p>
+<div class="formula">$$\operatorname{Recall}=\frac{|E_i^{M}\cap\operatorname{dilate}(E_i',\delta)|}{|E_i^{M}|},\qquad \delta=10\ \text{px}$$</div>
+<p class="formula-explain">$E_i^{M}$ 是 mesh 深度图的 Canny 结构边缘，$E_i'$ 是生成图经深度估计后的边缘；膨胀容许少量像素偏移。该分数只惩罚“缺失的结构边”，不会因为扩散模型想象了额外家具而拒绝样本；低于阈值就换 seed 重生成。</p>
+<h3>2.3 3DGS 的几何锚定</h3>
+<div class="formula">$$\mathcal L=(1-\lambda_s)\mathcal L_1+\lambda_s\mathcal L_{DSSIM}+\lambda_d\lVert D_i-D_i^{S}\rVert_1,\quad \lambda_s=0.2,\ \lambda_d=0.7$$</div>
+<p class="formula-explain">$\hat I_i$ 与 $D_i^S$ 是从高斯场景 $S$ 渲染的颜色和深度，$D_i$ 是 mesh 渲染深度；前两项保留照片细节，最后一项把墙、地板和开口拉回 scaffold。论文的消融直接验证了这项作用：去掉深度损失后 Reproj MAE-norm 从 0.1615 升到 0.3009，同时图像审美几乎不变。</p>
+<p class="golden">该方法将文本主题依次送入经规则校验的 floor plan、对象重建与增量墙面纹理，再以深度边缘验证和 mesh 深度正则 3DGS 输出可导航场景；但论文的接缝/遮挡说明与消融中的纹理缺失暴露出外观记忆仍不可靠，因此可在 <code>project_wall_texture.py</code> 的投影累积处加入可见性置信度融合，检验其能否在跨视角 AbsRel 与纹理接缝率上同时下降。</p>
+</section>
+
+<section id="code">
+<h2>3. 源码核对：论文模块确实落地</h2>
+<p><span class="evidence">源码事实</span>官方仓库已发布，README 的默认流程分为“初始渲染 + mask”与“对象重建 + 全量生成”两阶段；仓库还提供本地 Flux2-Klein 路径和公开数据集。下面两段是与论文方法直接对应的最小片段。</p>
+<p class="code-label"><a href="https://github.com/mschneider456/worldmesh/blob/main/method/project_wall_texture.py#L104-L139">method/project_wall_texture.py:104–139</a> · 世界坐标 → 相机 → UV</p>
+<pre class="code"><code>w2c = np.linalg.inv(camera_c2w)
+verts_h = np.hstack([vertices_world, np.ones((len(vertices_world), 1))])
+cam_coords = (w2c @ verts_h.T).T[:, :3]
+z = -cam_coords[:, 2]
+px = fx * cam_coords[:, 0] / z + cx
+py = fy * (-cam_coords[:, 1]) / z + cy
+u = px / width
+v = 1.0 - (py / height)
+return np.stack([u, v], axis=1), z</code></pre>
+<p class="caption">这对应论文的 projective texturing。源码明确处理 OpenGL 的 $-Z$ 前向和 glTF 的 $v$ 翻转；后续函数再做面朝向、深度遮挡和房间过滤。</p>
+<p class="code-label"><a href="https://github.com/mschneider456/worldmesh/blob/main/method/create_splatfacto_colmap.py#L141-L189">method/create_splatfacto_colmap.py:141–189</a> · mesh 深度 → 3DGS 初始化点云</p>
+<pre class="code"><code>v, u = np.where(depth &gt; 0)
+d = depth[v, u]
+indices = np.arange(0, len(u), subsample)
+u, v, d = u[indices], v[indices], d[indices]
+x_c = (u - cx) / fx * d
+y_c = (v - cy) / fy * d
+points_cam = np.stack([x_c, -y_c, -d], axis=1)
+R_c2w = R_w2c.T
+t_c2w = -R_c2w @ t_w2c
+points_world = (R_c2w @ points_cam.T).T + t_c2w</code></pre>
+<p class="caption">源码不是把 3DGS 当成黑盒：它从深度反投影点云、转换 Z-up/Y-up 坐标，并按最多 5M 点自动下采样；阶段 8 用 <code>depth-splatfacto</code> 传入 <code>depth-loss-mult 0.7</code>。</p>
+<div class="table-wrap"><table><thead><tr><th>论文组件</th><th>官方文件</th><th>可核对行为</th></tr></thead><tbody>
+<tr><td>结构 mesh / 共享墙</td><td><a href="https://github.com/mschneider456/worldmesh/blob/main/method/generate_scene.py">generate_scene.py</a></td><td>半厚共享墙、opening 传播、boolean cutout</td></tr>
+<tr><td>墙面纹理记忆</td><td><a href="https://github.com/mschneider456/worldmesh/blob/main/method/project_wall_texture.py">project_wall_texture.py</a></td><td>UV 投影、面朝向与遮挡过滤、纹理累积</td></tr>
+<tr><td>深度边缘验证</td><td><a href="https://github.com/mschneider456/worldmesh/tree/main/method/flux_generation">flux_generation/</a></td><td>Canny edge recall，低分样本换 seed</td></tr>
+<tr><td>3DGS 训练</td><td><a href="https://github.com/mschneider456/worldmesh/blob/main/method/run_full_pipeline.py#L2709-L2771">run_full_pipeline.py</a></td><td>导出 COLMAP、点云初始化、depth-splatfacto</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="results">
+<h2>4. 核心数据：一致性增益来自哪里</h2>
+<figure class="figure"><img src="../assets/figure-3-baselines.png" alt="Paper Figure 3 qualitative comparison"><p class="caption"><strong>Figure 3。</strong>在床周围近距离旋转时，WorldExplorer、FlexWorld 等方法出现物体重影或视角依赖纹理；mesh 条件保持对象和墙的相对关系。</p></figure>
+<div class="table-wrap"><table><thead><tr><th>方法</th><th>IQA+ ↑</th><th>Aesthetic ↑</th><th>Quality ↑</th><th>3D Objects ↑</th><th>3D Structure ↑</th></tr></thead><tbody>
+<tr><td>WonderWorld</td><td>0.4872</td><td>4.7795</td><td>1.94</td><td>2.19</td><td>1.84</td></tr>
+<tr><td>WorldExplorer</td><td>0.4053</td><td>5.5476</td><td>2.58</td><td>2.47</td><td>2.76</td></tr>
+<tr><td>SpatialGen</td><td>0.4648</td><td>5.0633</td><td>2.61</td><td>3.00</td><td>3.00</td></tr>
+<tr><td>DreamScene360</td><td>0.3565</td><td>4.7270</td><td>3.19</td><td>3.10</td><td>3.37</td></tr>
+<tr class="ours"><td>WorldMesh</td><td>0.5114</td><td>5.5799</td><td>4.48</td><td>4.40</td><td>4.35</td></tr>
+</tbody></table></div>
+<p class="note">表 1 重排自论文；感知分数来自 31 位参与者，均为 1–5 分。CLIP-IQA+ 与 Aesthetic 只看 2D 画质，不能单独证明 3D 正确性。</p>
+<p><span class="evidence">解读</span>WorldMesh 的优势主要体现在三个需要跨视角记忆的维度：Quality 比最强基线 DreamScene360 高 1.29 分，3D Objects 高 1.30 分，3D Structure 高 0.98 分；平均 pairwise preference 为 96.2%。这支持“显式几何是收益来源”的解释，但不等于对所有相机轨迹都成立。</p>
+<figure class="figure"><img src="../assets/figure-5-ablation.png" alt="Paper Figure 5 ablation"><p class="caption"><strong>Figure 5。</strong>深度、对象和墙纹理各自约束不同失败模式；完整 scaffold 才同时稳定局部对象和全局建筑。</p></figure>
+<div class="table-wrap"><table><thead><tr><th>变体</th><th>Reproj MAE ↓</th><th>AbsRel ↓</th><th>Mesh MAE ↓</th><th>IQA+ ↑</th><th>Aesth. ↑</th></tr></thead><tbody>
+<tr class="ours"><td>Full (NB Pro)</td><td>0.1615</td><td>0.0761</td><td>0.0383</td><td>0.5529</td><td>5.5925</td></tr>
+<tr><td>depth + objects</td><td>0.2229</td><td>0.0997</td><td>0.1167</td><td>0.3870</td><td>5.1057</td></tr>
+<tr><td>depth only</td><td>0.1970</td><td>0.0888</td><td>0.2777</td><td>0.3818</td><td>5.0515</td></tr>
+<tr><td>w/o mesh 3DGS depth loss</td><td>0.3009</td><td>0.1641</td><td>0.1904</td><td>0.5312</td><td>5.5573</td></tr>
+<tr><td>w/o mesh init / depth</td><td>1.8804</td><td>0.6730</td><td>2.2549</td><td>0.4393</td><td>5.4270</td></tr>
+</tbody></table></div>
+<p class="note">表 2(a) 的精简版；完整表还报告法向对齐和更多条件变体。去掉初始化与深度监督后几何误差暴涨，但 Aesthetic 仍为 5.4270，说明“好看”与“正确的 3D”确实可分离。</p>
+<div class="table-wrap"><table><thead><tr><th>房间数 / 面积</th><th>Reproj MAE（NB / Flux）</th><th>Yield（NB / Flux）</th><th>时间 h（NB / Flux）</th></tr></thead><tbody>
+<tr><td>4 / 80 m²</td><td>0.11 / 0.17</td><td>74% / 74%</td><td>0.8 / 2.2</td></tr>
+<tr><td>6 / 144 m²</td><td>0.19 / 0.23</td><td>86% / 72%</td><td>1.0 / 3.3</td></tr>
+<tr><td>8 / 192 m²</td><td>0.15 / 0.25</td><td>71% / 75%</td><td>1.2 / 4.4</td></tr>
+<tr><td>12 / 256 m²</td><td>0.23 / 0.33</td><td>82% / 79%</td><td>1.5 / 6.6</td></tr>
+</tbody></table></div>
+<p class="note">表 A3；NB Pro 房间可并行，Flux2-Klein 本地路径在单张 RTX A5000 上顺序执行。附录 Figure A5 报告五个场景最大 4-连通自由空间平均覆盖 96.7%。</p>
+<div class="figure-grid"><figure class="figure"><img src="../assets/figure-4-scenes.png" alt="Paper Figure 4 diverse scenes"><p class="caption">Figure 4：主题多样性</p></figure><figure class="figure"><img src="../assets/figure-a2-scaffold-vs-final.png" alt="Paper Figure A2 scaffold versus final"><p class="caption">Figure A2：条件 mesh 与最终外观</p></figure><figure class="figure"><img src="../assets/figure-a5-navigability.png" alt="Paper Figure A5 navigability"><p class="caption">Figure A5：可导航性</p></figure></div>
+</section>
+
+<section id="improvements">
+<h2>5. 改进思路：先从证据定位瓶颈</h2>
+<p>下表把论文事实、源码事实和分析推断分开；“前沿对照”只引用可核验的论文或官方仓库，不把热门名词当成已验证结果。</p>
+<div class="table-wrap"><table class="improve"><thead><tr><th>瓶颈证据</th><th>具体改动</th><th>生效机制</th><th>预期收益</th><th>代价 / 失败条件</th><th>前沿对照</th></tr></thead><tbody>
+<tr><td><span class="evidence">论文+附录</span>墙面投影会有接缝、遮挡空洞；Figure A2 明示。</td><td>在 <code>project_wall_texture.py</code> 为每个 texel 保存可见性、入射角和深度残差置信度；用置信度加权的多视角融合替代最后一次覆盖。</td><td>低角度、被遮挡或深度不一致的像素不再覆盖高质量历史颜色；跨房间共享材质可用同一置信度图传播。</td><td>降低纹理接缝率与跨视角 AbsRel；减少扩散模型修补墙面的负担。</td><td>需额外显存和 UV 缓存；置信度错误会留下旧纹理。</td><td>与 <a href="https://cat3d.github.io/">CAT3D</a> 的多视图一致性思路可组合；“几何置信度写回 mesh”仍是本方法的可检验增量。</td></tr>
+<tr><td><span class="evidence">作者局限</span>SAM-3D-Objects 可能缺失遮挡区域和对象背面。</td><td>对象阶段改为多视角补拍：对高遮挡对象主动生成背面视角，再用 <a href="https://github.com/microsoft/TRELLIS">TRELLIS</a> 或同类结构化 3D latent 重建并回配统一尺度。</td><td>多视角证据减少单图形状幻觉；统一对象坐标后，近距离旋转不必依赖外观扩散“补背面”。</td><td>提高 3D Objects 评分、背面 Chamfer/法向一致性。</td><td>每个对象增加生成与重建成本；细长或透明物体仍可能失败。</td><td><a href="https://github.com/facebookresearch/sam-3d-objects">SAM 3D Objects</a> 是当前锚点，TRELLIS 是可组合的结构化对象先验；是否优于独立重建需实测。</td></tr>
+<tr><td><span class="evidence">作者局限</span>只支持 single-story；楼梯与跨层拓扑未建模。</td><td>把 $L$ 扩展为楼层图：每层独立 mesh，楼梯/电梯作为带高度区间的跨层 opening，并在 3DGS 中加入层间深度一致性项。</td><td>层内生成仍可并行，跨层只共享连接节点和坐标系；布局验证可以先检查图连通，再检查碰撞。</td><td>支持多层导航，保持每层 Reproj 与最大连通自由空间。</td><td>楼梯遮挡和垂直视角会增加相机规划难度；布局 LLM 的错误更难回退。</td><td><a href="https://github.com/mschneider456/worldmesh">WorldMesh</a> 当前是单层基线；<a href="https://cat3d.github.io/">CAT3D</a> 等多视图先验可用于层间过渡，但没有现成的多层 WorldMesh 基线。</td></tr>
+<tr><td><span class="evidence">表 A3+源码</span>4→12 房间时间近线性，平均 reseed 约 1.20–1.68 次；相机序列主要按四元数近邻。</td><td>用结构不确定度驱动的主动视角：优先覆盖高深度梯度、低纹理置信度和跨门洞区域；把 edge recall 作为采样预算而非只做事后拒绝。</td><td>每张新图都最大化“新结构覆盖 / 生成成本”，减少重复视角和无效 reseed。</td><td>在固定 GPU/API 预算下提高 Yield，或在相同 Yield 下减少生成时间。</td><td>需要在线不确定度估计；若评分偏向高梯度区域，平面墙面可能长期空缺。</td><td>与 <a href="https://github.com/graphdeco-inria/gaussian-splatting">3DGS</a> 的稀疏视图重建流程兼容；主动采样策略仍需在 WorldMesh 的多房间轨迹上建立新基线。</td></tr>
+</tbody></table></div>
+
+<h3>由改进推导的科研方向</h3>
+<div class="research">
+  <article class="card"><b>方向 A · Confidence-Mesh（首选）</b><p><strong>假设：</strong>显式 texel 置信度融合可使跨视角 AbsRel 至少比 full baseline 下降 10%，且不降低 Aesthetic。</p><p><strong>边界：</strong>不是重新训练扩散模型，而是改写投影记忆层。</p><p><strong>Baseline：</strong>WorldMesh full、depth+objects；数据用官方 <a href="https://huggingface.co/datasets/mas456/worldmesh">WorldMesh 数据集</a>，指标为 AbsRel、接缝率、3D Structure。</p><p><strong>消融 / MVP：</strong>last-write → 深度加权 → 置信度加权；先在 4/6 房间各 5 个场景跑 24 视角。</p><p><strong>风险：</strong>置信度标定不准会保留错误旧纹理。</p></article>
+  <article class="card"><b>方向 B · Multi-floor WorldMesh</b><p><strong>假设：</strong>楼层图 + 楼梯 opening 能在不牺牲层内质量的情况下，把最大连通自由空间保持在 90% 以上。</p><p><strong>边界：</strong>创新在拓扑与相机规划，不声称发明新的图像 backbone。</p><p><strong>Baseline：</strong>WorldMesh 单层、<a href="https://arxiv.org/abs/2403.01248">SceneCraft</a> 与 <a href="https://arxiv.org/abs/2509.14981">SpatialGen</a> 的布局控制；指标为跨层 Reproj、门/楼梯连通率、用户结构评分。</p><p><strong>消融 / MVP：</strong>先用两层、四房间程序布局；逐步加入楼梯遮挡、层间深度损失和跨层纹理共享。</p><p><strong>风险：</strong>没有真实多层 GT 时，需公开合成布局和人工检查协议。</p></article>
+  <article class="card"><b>方向 C · Complete-Object Scaffold</b><p><strong>假设：</strong>主动背面视角 + 结构化对象先验可把近距离旋转的对象一致性提高 ≥0.5 分。</p><p><strong>边界：</strong>保留 WorldMesh 的房间 mesh 与扩散阶段，只替换对象重建模块。</p><p><strong>Baseline：</strong>独立 SAM-3D-Objects、TRELLIS；指标为对象 mask 重投影、Chamfer/法向误差、3D Objects 评分。</p><p><strong>消融 / MVP：</strong>单视角 vs 两视角 vs 主动三视角，在桌椅、沙发、灯具三类对象上验证。</p><p><strong>风险：</strong>对象类别和尺度不统一会把收益误判为相机覆盖收益。</p></article>
+</div>
+<p class="callout"><strong>首选方向：</strong>先做 Confidence-Mesh。理由是改动局部、无需新训练大模型、可直接复用官方数据和指标，预计一到两周可完成最小实验；若接缝率与 AbsRel 同向改善，再扩展到主动视角调度。第一阶段只改投影累积器，固定 seed、相机集合、扩散 backbone 和 3DGS 超参数，报告 4/6 房间的 paired bootstrap 置信区间。</p>
+</section>
+
+<section id="limits">
+<h2>6. 局限、复现边界与结论</h2>
+<h3>作者明确承认</h3>
+<p>论文只处理 <q>single-story layouts</q>；多层环境需要逐层生成并重新设计布局条件。对象重建依赖 SAM-3D-Objects，遮挡区域可能缺少背面和细节。这两点是论文原文的限制，不应被宣传页的“arbitrarily-sized”解读覆盖。</p>
+<h3>从源码与实验可推断</h3>
+<p>官方向导在阶段 4 默认打开 Gradio mask 界面，文本到场景并非完全无人值守；默认 Nano Banana Pro 走 API，而本地 Flux2-Klein 虽可复现但时间更长。论文的 edge-recall 描述与仓库可配置开关并不完全等价，复现时必须记录阈值、seed、模型 backbone 和是否启用 validation。</p>
+<p>自动指标也有边界：CLIP-Aesthetic 不能证明门洞可通行，IQA+ 不能证明对象背面正确；31 人研究和六房间消融支持的是“在指定近景轨迹上 mesh 有效”，不是所有场景的统计定律。</p>
+<figure class="figure narrow"><img src="../assets/figure-a5-navigability.png" alt="Paper Figure A5 navigability occupancy grid"><p class="caption"><strong>Figure A5。</strong>最大 4-连通自由空间平均覆盖 96.7%；这是对布局连通性的直接检查，但不是建筑安全或机器人规划认证。</p></figure>
+<p><strong>结论：</strong>WorldMesh 的核心不是更大的图像模型，而是给生成过程一个可以持续查询、验证和反投影的几何状态。消融中“去掉 mesh 初始化与深度损失，几何误差从 0.1615 变成 1.8804，而审美仍很高”把这点说得最清楚：世界要先有骨架，扩散才不会把每个视角画成另一个地方。</p>
+
+<h3>可核验来源</h3>
+<div class="links"><a href="https://mschneider456.github.io/world-mesh/static/WorldMesh.pdf">论文 PDF</a><a href="https://arxiv.org/abs/2603.22972">arXiv 页面</a><a href="https://github.com/mschneider456/worldmesh">官方代码</a><a href="https://huggingface.co/datasets/mas456/worldmesh">官方数据集</a><a href="https://arxiv.org/abs/2509.14981">SpatialGen</a><a href="https://arxiv.org/abs/2506.01799">WorldExplorer</a><a href="https://cat3d.github.io/">CAT3D 项目页</a><a href="https://github.com/microsoft/TRELLIS">TRELLIS 官方仓库</a><a href="https://github.com/graphdeco-inria/gaussian-splatting">3DGS 官方仓库</a></div>
+<ol class="refs"><li><span class="evidence">论文事实</span>Schneider &amp; Dai, <em>WorldMesh</em>, arXiv:2603.22972v3（Figure 1–5、Table 1–2、Table A1–A3、Figure A2/A5）。</li><li><span class="evidence">源码事实</span>链接中的行号对应官方仓库 main 分支，页面生成时已克隆并核对 README、结构 mesh、纹理投影、深度验证和 splatfacto 导出。</li><li><span class="evidence">分析推断</span>改进收益、阈值和研究假设均是待验证命题，不是论文已报告结果。</li></ol>
+</section>
+</main>
+</body>
+</html>

@@ -2,7 +2,7 @@ import { defineNote } from '../noteSchema';
 
 export default defineNote({
   id: 'worldmesh-paper-analysis',
-  date: '2026-07-14',
+  publishedAt: '2026-03-24',
   order: 2,
   format: { en: 'Paper analysis', zh: '论文深度解析' },
   title: {

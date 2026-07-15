@@ -9,7 +9,7 @@ export type NoteVersion = Readonly<{
 
 export type NoteEntry = Readonly<{
   id: string;
-  date: string;
+  publishedAt: string;
   format: NoteText;
   title: NoteText;
   summary: NoteText;

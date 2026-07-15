@@ -189,6 +189,7 @@ export const zh = {
     intro: '论文阅读、实验过程与技术思考。',
     entryCount: '篇',
     indexTitle: '笔记索引',
+    publishedLabel: '发表',
     topicsTitle: '主题',
     readEntry: '阅读全文',
     topics: ['论文阅读', '方法', '推导', '实验', '视觉计算'],

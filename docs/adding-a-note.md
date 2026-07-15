@@ -6,7 +6,7 @@ Notes are discovered automatically from `src/data/notes/*.ts`. Each file is one 
 
 1. Put the standalone article at `public/paper-analysis/<slug>/index.html` and keep its local assets under the same directory.
 2. Add `src/data/notes/<slug>.ts` with `defineNote()`.
-3. Use an ISO date (`YYYY-MM-DD`). Newer dates appear first. Use `order` only to control the order of notes with the same date.
+3. Set `publishedAt` to the paper's first public publication date (`YYYY-MM-DD`), normally the arXiv v1 submission date. Do not use the date you wrote or revised the note. Newer publication dates appear first. Use `order` only to control the order of notes with the same date.
 4. Run `npm run check` and `npm run build`.
 
 Minimal manifest:
@@ -16,7 +16,7 @@ import { defineNote } from '../noteSchema';
 
 export default defineNote({
   id: 'my-paper-analysis',
-  date: '2026-07-15',
+  publishedAt: '2025-05-08',
   format: { en: 'Paper analysis', zh: '论文深度解析' },
   title: {
     en: 'My paper title',

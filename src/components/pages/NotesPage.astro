@@ -36,7 +36,7 @@ const entryCount = String(noteEntries.length).padStart(2, '0');
                   <span class="notes-index-list__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                   <span class="notes-index-list__copy">
                     <strong>{entry.title[lang]}</strong>
-                    <small>{entry.format[lang]} · {entry.date}</small>
+                    <small>{entry.format[lang]} · {t.notes.publishedLabel} {entry.publishedAt}</small>
                   </span>
                 </a>
               </li>
@@ -57,7 +57,7 @@ const entryCount = String(noteEntries.length).padStart(2, '0');
       {
         noteEntries.map((entry) => (
           <article id={`note-${entry.id}`} class="notes-entry">
-            <p class="panel-label">{entry.format[lang]} · {entry.date}</p>
+            <p class="panel-label">{entry.format[lang]} · {t.notes.publishedLabel} {entry.publishedAt}</p>
             <h2>{entry.title[lang]}</h2>
             <p>{entry.summary[lang]}</p>
             <ul class="tag-list" aria-label={`${entry.title[lang]} ${t.notes.topicsTitle}`}>

@@ -194,6 +194,7 @@ export const en = {
     intro: 'Reading notes, experiments, and technical reflections.',
     entryCount: 'entries',
     indexTitle: 'Note Index',
+    publishedLabel: 'Published',
     topicsTitle: 'Topics',
     readEntry: 'Read analysis',
     topics: ['Reading Notes', 'Methods', 'Derivations', 'Experiments', 'Visual Computing'],

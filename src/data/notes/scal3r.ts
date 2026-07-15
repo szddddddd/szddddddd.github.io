@@ -2,7 +2,7 @@ import { defineNote } from '../noteSchema';
 
 export default defineNote({
   id: 'scal3r-paper-analysis',
-  date: '2026-07-14',
+  publishedAt: '2026-04-09',
   order: 1,
   format: { en: 'Paper analysis', zh: '论文深度解析' },
   title: {

@@ -2,7 +2,7 @@ import { defineNote } from '../noteSchema';
 
 export default defineNote({
   id: 'quicksplat-paper-analysis',
-  date: '2026-07-15',
+  publishedAt: '2025-05-08',
   format: { en: 'Paper analysis', zh: '论文深度解析' },
   title: {
     en: 'QuickSplat: Fast 3D Surface Reconstruction via Learned Gaussian Initialization',

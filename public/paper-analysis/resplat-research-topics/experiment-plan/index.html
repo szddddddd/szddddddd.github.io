@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renderer Score Tokens：实验路线图</title>
+<meta name="description" content="Renderer Score Tokens 的 claim-driven 实验路线图，包含 correctness、one-step utility、quality-cost Pareto、GPU 预算与 stop/go gates。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/resplat-research-topics/experiment-plan/">
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="resplat-research-topics/experiment-plan.md">
+<meta name="aris:source-sha256" content="4a6df743fc300c21c6d8beee8fb080d7faa09edf126b7a5307b5ad739a528232">
+<meta name="aris:generated-at" content="2026-07-16 02:34 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<link rel="stylesheet" href="/paper-analysis/resplat-research-topics/site.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<nav class="note-toolbar" aria-label="研究路线图版本">
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a href="/paper-analysis/resplat-research-topics/report/">完整候选报告</a>
+  <a href="/paper-analysis/resplat-research-topics/proposal/">Top 1 精炼方案</a>
+  <a href="/paper-analysis/resplat-research-topics/experiment-plan/" aria-current="page">实验路线图</a>
+</nav>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#claim-map">Claim Map</a>
+</li>
+<li><a href="#paper-storyline">Paper Storyline</a>
+</li>
+<li><a href="#experiment-blocks">Experiment Blocks</a>
+<ul>
+<li><a href="#block-0renderer-score-correctness-and-identifiability">Block 0：Renderer Score Correctness and Identifiability</a></li>
+<li><a href="#block-1held-out-single-step-action-utility">Block 1：Held-Out Single-Step Action Utility</a></li>
+<li><a href="#block-2main-matched-capacity-nvs-result">Block 2：Main Matched-Capacity NVS Result</a></li>
+<li><a href="#block-3novelty-isolation-and-deletion-study">Block 3：Novelty Isolation and Deletion Study</a></li>
+<li><a href="#block-4score-replay-kernel-efficiency-and-scaling">Block 4：Score-Replay Kernel Efficiency and Scaling</a></li>
+<li><a href="#block-5failure-analysis">Block 5：Failure Analysis</a></li>
+</ul>
+</li>
+<li><a href="#run-order-and-milestones">Run Order and Milestones</a>
+</li>
+<li><a href="#stop--go-gates">Stop / Go Gates</a>
+</li>
+<li><a href="#compute-and-data-budget">Compute and Data Budget</a>
+</li>
+<li><a href="#timeline">Timeline</a>
+</li>
+<li><a href="#risks-and-mitigations">Risks and Mitigations</a>
+</li>
+<li><a href="#final-checklist">Final Checklist</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">ReSplat Research Roadmap</div>
+  <h1>Renderer Score Tokens：实验路线图</h1>
+  <p class="subtitle">Claim-driven validation、stop/go gates 与 GPU 预算；尚未运行实验</p>
+
+  <div class="meta">
+    <span><strong>Published:</strong> 2026-07-16</span>
+    <span><strong>Scope:</strong> claim-driven validation</span>
+    <span><strong>Status:</strong> planning only；所有 runs 均未启动</span>
+
+  </div>
+</header>
+
+<h1 id="experiment-plan">Experiment Plan</h1>
+<p><strong>Problem</strong>：ReSplat 的 residual 与当前 renderer primitive/action 不对齐，容易在遮挡、重叠和参数耦合区域产生错误更新。 <strong>Method Thesis</strong>：standard render 后的 analytic score-replay primitive tokens，比 scalar attribution、index-bound residual 更适合作为 recurrent Gaussian updater 的固定维度 action interface，并应接近 gradient-conditioned quality、获得更好的 latency/VRAM Pareto。 <strong>Date</strong>：2026-07-15 <strong>Execution status</strong>：PLANNING ONLY；本轮没有启动任何 run。</p>
+<h2 id="claim-map">Claim Map</h2>
+<table><thead><tr><th>Claim</th><th>Why It Matters</th><th>Minimum Convincing Evidence</th><th>Linked Blocks</th></tr></thead><tbody><tr><td>C1：typed renderer score 更能预测有用 Gaussian action</td><td>这是超越 PRIMU/GaussianPOP 用途迁移质疑的核心</td><td>相对 index residual、alphaT scatter、GaussianPOP score，held-out one-step utility 更高、loss-increasing step fraction 更低，并在 overlap/occlusion 分层中保持优势</td><td>B0, B1, B3</td></tr><tr><td>C2：score-replay interface 在 matched time/capacity 下改善 NVS</td><td>证明方法不是只在诊断指标上好看</td><td>DL3DV 8-view 四步 PSNR 约 +0.25 dB 或遮挡区域显著改善且 global 不退化；端到端 overhead ≤20%；3 seeds</td><td>B2, B3, B4</td></tr><tr><td>Anti-claim：收益不是额外参数、手写近似 gradient 或更多 render</td><td>否则 paper 会被判为工程迁移</td><td>matched-capacity projection、raw/detached gradient updater、显式 gradient descent、相同 render/time 对照</td><td>B3, B4</td></tr></tbody></table>
+<h2 id="paper-storyline">Paper Storyline</h2>
+<ul><li><p><strong>Main paper must prove</strong>：</p>
+<ol><li>scalar primitive attribution 不足以预测 parameter-typed action；</li><li>proposed token 提高 held-out single-step utility；</li><li>该 utility 转化为 matched-time NVS/geometry 收益；</li><li>render + analytic score replay 保留 ReSplat 的质量—成本优势。</li></ol></li><li><strong>Appendix can support</strong>：完整公式推导、数值 finite-difference check、top-K debug、更多 view counts、cross-dataset、coded probes。</li><li><strong>Experiments intentionally cut</strong>：dynamic topology、pose refinement、diffusion prior、长 horizon 8–16 步、额外 optical-flow/depth backbone。</li><li><strong>Frontier primitive</strong>：无。该方法刻意不引入 VLM、Diffusion 或 RL；renderer backward 只可作为 teacher/critic 诊断，不能成为主系统。</li></ul>
+<h2 id="experiment-blocks">Experiment Blocks</h2>
+<h3 id="block-0renderer-score-correctness-and-identifiability">Block 0：Renderer Score Correctness and Identifiability</h3>
+<ul><li><strong>Claim tested</strong>：定义的 score 确实对应可解释的局部 renderer response，而不是任意 feature engineering。</li><li><strong>Why this block exists</strong>：在投入训练前验证公式、符号、Jacobian lift 和 fused kernel。</li><li><p><strong>Dataset / split / task</strong>：</p>
+<ul><li>两平面/三层遮挡 synthetic diagnostic；</li><li>10–20 个 DL3DV 场景的 256×448 小 batch。</li></ul></li><li><p><strong>Compared systems</strong>：</p>
+<ul><li>CPU/naive reference implementation；</li><li>CUDA score-replay reduction；</li><li>finite difference/group perturbation；</li><li>autograd gradient oracle。</li></ul></li><li><p><strong>Metrics</strong>：</p>
+<ul><li>score 数值相对误差；</li><li>sign accuracy；</li><li>blockwise cosine/top-k overlap；</li><li>multi-view normal equation rank/condition number；</li><li>kernel time/VRAM。</li></ul></li><li><strong>Setup details</strong>：不训练；固定 checkpoint；RGB residual only；debug top-K 仅在小 tiles 开启。</li><li><p><strong>Success criterion</strong>：</p>
+<ul><li>suffix recovery 与 score replay/reference relative error &lt;1e-3；</li><li>sign accuracy &gt;80% 于高 support primitive；</li><li>多视图 mean score 相对单视图显著降低 ray-null ambiguity；</li><li>256×448 score aggregation overhead &lt;30%。</li></ul></li><li><strong>Failure interpretation</strong>：若公式/实现无法稳定复现或大部分 geometry score rank-deficient，停止该方向。</li><li><strong>Table / figure target</strong>：Appendix numerical validation + main paper mechanism figure。</li><li><strong>Priority</strong>：MUST-RUN。</li></ul>
+<h3 id="block-1held-out-single-step-action-utility">Block 1：Held-Out Single-Step Action Utility</h3>
+<ul><li><strong>Claim tested</strong>：typed score 比 scalar attribution/index residual 更能产生对未参与候选更新 target view 有益的一步。</li><li><strong>Why this block exists</strong>：这是 novelty isolation 的最直接证据。</li><li><strong>Dataset / split / task</strong>：DL3DV 8-view；每次用 context residual 产生一个候选 step，用额外 held-out target 计算前后 utility。</li><li><p><strong>Compared systems</strong>：</p>
+<ul><li>ReSplat index-bound RGB+feature residual；</li><li>RGB-only ReSplat；</li><li>alphaT scatter；</li><li>PRIMU-style error+coverage token；</li><li>GaussianPOP removal score token；</li><li>raw gradient input；</li><li>detached gradient feature；</li><li>proposed typed score。</li></ul></li><li><p><strong>Metrics</strong>：</p>
+<ul><li>held-out target loss delta；</li><li>loss-increasing step fraction；</li><li>context-gradient cosine，仅诊断；</li><li>overlap、occlusion、view baseline、iteration 分层。</li></ul></li><li><strong>Setup details</strong>：matched Point Transformer、matched parameter count；initializer frozen；1-step 和 4-step checkpoints。</li><li><p><strong>Success criterion</strong>：</p>
+<ul><li>high-overlap/occlusion stratum 的 mean/median target utility 显著更好；</li><li>loss-increasing step fraction 相对最强 scalar baseline 至少下降 20%；</li><li>不是仅由 extra parameter capacity 解释。</li></ul></li><li><strong>Failure interpretation</strong>：若 scalar attribution 已达到相同 utility，主 novelty 失败。</li><li><strong>Table / figure target</strong>：Main Figure 3 / mechanism diagnosis table。</li><li><strong>Priority</strong>：MUST-RUN。</li></ul>
+<h3 id="block-2main-matched-capacity-nvs-result">Block 2：Main Matched-Capacity NVS Result</h3>
+<ul><li><strong>Claim tested</strong>：better action utility 能转化为标准 NVS/geometry 收益。</li><li><strong>Why this block exists</strong>：决定 CVPR/ICCV 投稿是否成立。</li><li><p><strong>Dataset / split / task</strong>：</p>
+<ul><li>主：DL3DV 8-view，256×448；</li><li>confirmation：DL3DV 8-view，512×960；</li><li>cross-dataset：RealEstate10K，沿用 ReSplat setting。</li></ul></li><li><p><strong>Compared systems</strong>：</p>
+<ul><li>official ReSplat；</li><li>matched-capacity ReSplat；</li><li>strongest scalar attribution baseline；</li><li>raw/detached gradient updater；</li><li>proposed method。</li></ul></li><li><p><strong>Metrics</strong>：</p>
+<ul><li>PSNR、SSIM、LPIPS；</li><li>input/context 与 target gap；</li><li>depth reprojection、depth boundary proxy；</li><li>per-step target utility；</li><li>reconstruction time、render time、VRAM。</li></ul></li><li><p><strong>Setup details</strong>：</p>
+<ul><li>3 seeds；</li><li>1/2/4 steps；</li><li>identical initializer、data、loss、training steps；</li><li>H200 完成主训练，A6000 做评测。</li></ul></li><li><p><strong>Success criterion</strong>：</p>
+<ul><li>四步 global PSNR 约 +0.25 dB；或遮挡/重叠区域有强、稳定收益且 global 不退化超过 0.05 dB；</li><li>3 seeds 方向一致；</li><li>overhead ≤20%。</li></ul></li><li><strong>Failure interpretation</strong>：诊断收益不转化为 NVS，说明 interface 不是实际瓶颈。</li><li><strong>Table / figure target</strong>：Main Table 1、quality/latency Pareto。</li><li><strong>Priority</strong>：MUST-RUN。</li></ul>
+<h3 id="block-3novelty-isolation-and-deletion-study">Block 3：Novelty Isolation and Deletion Study</h3>
+<ul><li><strong>Claim tested</strong>：有效性来自 typed vector/tensor score，而不是已有 alpha attribution、更多特征或参数化清理。</li><li><strong>Why this block exists</strong>：直接回应 PRIMU/GaussianPOP/Diff3R objection。</li><li><strong>Dataset / split / task</strong>：DL3DV 8-view 256×448；单 seed 预筛，关键项 3 seeds。</li><li><p><strong>Compared variants</strong>：</p>
+<ol><li>support/alphaT only；</li><li><ul><li>signed opacity/SH；</li></ul></li><li><ul><li>mean first moment；</li></ul></li><li><ul><li>multi-view Jacobian pullback；</li></ul></li><li>full typed score；</li><li>equal-width random/learned projection；</li><li>raw/detached/support-normalized/parameter-normalized gradient。</li></ol></li><li><strong>Metrics</strong>：PSNR/LPIPS、held-out utility、loss-increasing step fraction、latency。</li><li><strong>Success criterion</strong>：full typed score 明显超过 alphaT scalar；去掉 sign、type 或 multi-view pullback 有一致退化。</li><li><strong>Failure interpretation</strong>：若 alphaT only 或 learned projection 等价，机制 claim 不成立。</li><li><strong>Table / figure target</strong>：Main Table 2；次级组合放 appendix。</li><li><strong>Priority</strong>：MUST-RUN。</li></ul>
+<h3 id="block-4score-replay-kernel-efficiency-and-scaling">Block 4：Score-Replay Kernel Efficiency and Scaling</h3>
+<ul><li><strong>Claim tested</strong>：解析 score replay 相对通用 autograd gradient 具有真实质量—延迟—显存优势。</li><li><strong>Why this block exists</strong>：回答“为何不用 gradient”。</li><li><strong>Dataset / split / task</strong>：4/8/16/32 views；256×448 与 512×960。</li><li><p><strong>Compared systems</strong>：</p>
+<ul><li>original ReSplat；</li><li>debug metadata path；</li><li>score-replay path；</li><li>raw、detached、support-normalized、parameter-scale-normalized gradient feature；</li><li>explicit gradient descent/TTO。</li></ul></li><li><strong>Metrics</strong>：forward、backward、aggregation、updater 分项时间；peak VRAM；rendered contributions；end-to-end wall-clock。</li><li><p><strong>Success criterion</strong>：</p>
+<ul><li>render + replay 相对原 render/update overhead ≤20% 于 512×960；</li><li>相对 raw gradient path 显著降低 peak memory 或 wall time；</li><li>随 view count/resolution 近线性可控。</li></ul></li><li><strong>Failure interpretation</strong>：若 matched-wall-time raw gradient 持续更优，backward-free 主张失败。</li><li><strong>Table / figure target</strong>：Main efficiency table。</li><li><strong>Priority</strong>：MUST-RUN。</li></ul>
+<h3 id="block-5failure-analysis">Block 5：Failure Analysis</h3>
+<ul><li><strong>Claim tested</strong>：界定 score tokens 的适用边界。</li><li><strong>Dataset / split / task</strong>：低 overlap、单视图 support、镜面、重复纹理、极薄结构、错误 pose。</li><li><strong>Compared systems</strong>：ReSplat、alphaT、proposed、raw gradient。</li><li><strong>Metrics</strong>：rank-deficient rate、wrong-sign rate、regional PSNR/LPIPS、failure gallery。</li><li><strong>Success criterion</strong>：明确而非隐藏 failure；confidence statistics 能识别至少一部分不可靠 geometry scores。</li><li><strong>Failure interpretation</strong>：若主要场景均 rank-deficient，方法不值得继续。</li><li><strong>Table / figure target</strong>：Main qualitative failure figure + appendix。</li><li><strong>Priority</strong>：NICE-TO-HAVE，但至少保留一个失败图。</li></ul>
+<h2 id="run-order-and-milestones">Run Order and Milestones</h2>
+<table><thead><tr><th>Milestone</th><th>Goal</th><th>Runs</th><th>Decision Gate</th><th style="text-align:right">Cost Estimate</th><th>Risk</th></tr></thead><tbody><tr><td>M0</td><td>score 公式、suffix recovery 与 replay kernel 正确</td><td>R000–R004</td><td>reference error &lt;1e-3；geometry rank 可用；overhead &lt;30%</td><td style="text-align:right">0–20 H200h + 40–100 A6000h</td><td>CUDA/公式错误</td></tr><tr><td>M1</td><td>official baseline 与 matched baseline</td><td>R010–R012</td><td>指标接近论文/官方 checkpoint；seed variance 可接受</td><td style="text-align:right">120–300 H200h</td><td>基线复现偏差</td></tr><tr><td>M2</td><td>single-step utility 决策</td><td>R020–R026</td><td>proposed 超过 alphaT/GaussianPOP；否则 STOP</td><td style="text-align:right">70–180 H200h</td><td>novelty 被 scalar baseline 吞掉</td></tr><tr><td>M3</td><td>主方法 3 seeds</td><td>R030–R032</td><td>+0.25 dB 或强区域收益且 global 不退化</td><td style="text-align:right">450–900 H200h</td><td>utility 不转化</td></tr><tr><td>M4</td><td>decisive ablations + gradient kill test</td><td>R040–R049</td><td>typed/sign/lift 必须；matched-time gradient 不支配</td><td style="text-align:right">450–1,000 H200h</td><td>手写 gradient objection</td></tr><tr><td>M5</td><td>full-res、cross-dataset、efficiency</td><td>R050–R057</td><td>overhead ≤20%；跨分辨率/数据集不崩</td><td style="text-align:right">350–900 H200h</td><td>fused kernel 不扩展</td></tr><tr><td>M6</td><td>failure/qualitative polish</td><td>R060–R064</td><td>形成可信边界和可视化</td><td style="text-align:right">100–300 H200h</td><td>时间不足</td></tr></tbody></table>
+<h2 id="stop--go-gates">Stop / Go Gates</h2>
+<ol><li><strong>Gate G0 — renderer correctness</strong>：M0 不通过，停止。</li><li><strong>Gate G1 — novelty isolation</strong>：alphaT/GaussianPOP 与 proposed 单步 utility 相同，停止。</li><li><strong>Gate G2 — action-to-NVS transfer</strong>：四步没有 global 或高难区域收益，停止或降为 workshop。</li><li><strong>Gate G3 — backward-free value</strong>：matched-wall-time gradient updater 更好且资源差异很小，停止主 claim。</li><li><strong>Gate G4 — venue readiness</strong>：3 seeds、full-res、效率和 failure analysis 均成立后，才进入投稿写作。</li></ol>
+<h2 id="compute-and-data-budget">Compute and Data Budget</h2>
+<ul><li><strong>MVP decision budget</strong>：约 70–160 H200-GPUh；240–620 A6000-GPUh 以内。</li><li><strong>Must-run paper budget</strong>：约 1,400–2,700 H200-GPUh。</li><li><strong>Full paper upper range</strong>：约 1,600–3,600 H200-GPUh。</li><li><strong>A6000 role</strong>：数值核验、评测、低分辨率消融；不承担 paper-level 主训练。</li><li><strong>4×H200 wall-clock interpretation</strong>：1,600–3,600 aggregate GPUh 约等于 17–38 天满载墙钟；实际排队、失败重跑和数据开销使项目周期仍为 3–6 个月。</li><li><strong>Data preparation</strong>：复用 DL3DV/RE10K；synthetic occlusion diagnostic 只用于机制验证，不作为数据集贡献。</li><li><strong>Human evaluation</strong>：不需要。</li><li><strong>Biggest bottleneck</strong>：score-replay suffix recovery、per-Gaussian aggregation 与 geometry pullback 的正确性/效率。</li></ul>
+<h2 id="timeline">Timeline</h2>
+<table><thead><tr><th>周</th><th>目标</th></tr></thead><tbody><tr><td>1–2</td><td>reference score、synthetic diagnostic、数值核验</td></tr><tr><td>3–5</td><td>score-replay prototype、M0 gate</td></tr><tr><td>6–8</td><td>baseline 与 single-step utility、G1 gate</td></tr><tr><td>9–12</td><td>主训练单 seed、G2 gate</td></tr><tr><td>13–16</td><td>3 seeds、核心 deletion、gradient kill test</td></tr><tr><td>17–19</td><td>512×960、view-count、RE10K、效率</td></tr><tr><td>20–22</td><td>failure analysis、图表、增量查新</td></tr><tr><td>23–24</td><td>buffer：重跑、写作、审稿风险修补</td></tr></tbody></table>
+<h2 id="risks-and-mitigations">Risks and Mitigations</h2>
+<ul><li><strong>Risk：score 实际就是较差的 gradient approximation</strong> <strong>Mitigation</strong>：不回避该关系；用 matched-time raw/detached gradient kill test。</li><li><strong>Risk：geometry lift rank-deficient</strong> <strong>Mitigation</strong>：输出 condition statistics；低 rank 时由 updater 降权，不伪造沿 ray 的方向证据。</li><li><strong>Risk：score-replay CUDA 开发超期</strong> <strong>Mitigation</strong>：先 reference/PyTorch 证伪机制；G1 通过后再投入 kernel。</li><li><strong>Risk：删除 feature residual 后损失过大</strong> <strong>Mitigation</strong>：主方法默认删除 ResNet residual 以保证归因清晰；RGB+feature 只作为消融，若必须依赖旧 source-index feature binding 才能恢复质量，则主系统失败。</li><li><strong>Risk：并发工作</strong> <strong>Mitigation</strong>：第 2、6、10、18 周增量查新，重点监控 renderer attribution、forward gradient、generalizable GS optimization。</li></ul>
+<h2 id="final-checklist">Final Checklist</h2>
+<ul><li>[ ] Main paper tables are covered</li><li>[ ] Novelty is isolated against PRIMU/GaussianPOP</li><li>[ ] Raw/detached gradient kill criterion is run</li><li>[ ] Simplicity is defended with matched capacity</li><li>[ ] No frontier component is forced</li><li>[ ] Nice-to-have runs are separated</li><li>[ ] Three seeds and full-resolution confirmation are included</li><li>[ ] 本轮没有误标任何计划为实验结果</li></ul>
+
+<footer class="aris-footer">
+  Renderer Score Tokens · claim-driven experiment roadmap · 本页不包含已运行实验。
+</footer>
+</main>
+
+</div>
+</body>
+</html>

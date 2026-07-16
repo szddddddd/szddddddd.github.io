@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renderer Score Tokens for Recurrent Gaussian Splatting</title>
+<meta name="description" content="ReSplat Top 1 精炼研究方案：通过 standard render 与 analytic score replay 构造 parameter-typed primitive tokens。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/resplat-research-topics/proposal/">
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="resplat-research-topics/proposal.md">
+<meta name="aris:source-sha256" content="f3bf95b0d529d17bc8f89d14ee9ba2b3f50c70b518b7acc0884318c26c27e7e9">
+<meta name="aris:generated-at" content="2026-07-16 02:34 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<link rel="stylesheet" href="/paper-analysis/resplat-research-topics/site.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<nav class="note-toolbar" aria-label="研究路线图版本">
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a href="/paper-analysis/resplat-research-topics/report/">完整候选报告</a>
+  <a href="/paper-analysis/resplat-research-topics/proposal/" aria-current="page">Top 1 精炼方案</a>
+  <a href="/paper-analysis/resplat-research-topics/experiment-plan/">实验路线图</a>
+</nav>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#problem-anchor">Problem Anchor</a>
+</li>
+<li><a href="#method-thesis">Method Thesis</a>
+</li>
+<li><a href="#contribution-focus">Contribution Focus</a>
+</li>
+<li><a href="#why-resplat-needs-this-interface">Why ReSplat Needs This Interface</a>
+</li>
+<li><a href="#two-stage-algorithm">Two-Stage Algorithm</a>
+<ul>
+<li><a href="#stage-1standard-render">Stage 1：Standard Render</a></li>
+<li><a href="#stage-2analytic-score-replay">Stage 2：Analytic Score Replay</a></li>
+</ul>
+</li>
+<li><a href="#exact-score-operators">Exact Score Operators</a>
+<ul>
+<li><a href="#opacity-logit-score">Opacity-Logit Score</a></li>
+<li><a href="#sh-score">SH Score</a></li>
+<li><a href="#projected-center-mean-partial-score">Projected-Center Mean Partial Score</a></li>
+</ul>
+</li>
+<li><a href="#final-token-and-updater">Final Token and Updater</a>
+</li>
+<li><a href="#relation-to-gradient">Relation to Gradient</a>
+</li>
+<li><a href="#novelty-boundary">Novelty Boundary</a>
+</li>
+<li><a href="#training-and-inference">Training and Inference</a>
+</li>
+<li><a href="#claim-driven-validation">Claim-Driven Validation</a>
+<ul>
+<li><a href="#block-ascore-replay-correctness">Block A：Score-Replay Correctness</a></li>
+<li><a href="#block-bheld-out-one-step-utility">Block B：Held-Out One-Step Utility</a></li>
+<li><a href="#block-cqualitycost-pareto">Block C：Quality–Cost Pareto</a></li>
+</ul>
+</li>
+<li><a href="#go--no-go-gates">Go / No-Go Gates</a>
+</li>
+<li><a href="#compute-and-timeline">Compute and Timeline</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">ReSplat Research Roadmap</div>
+  <h1>Renderer Score Tokens for Recurrent Gaussian Splatting</h1>
+  <p class="subtitle">Top 1 精炼方案：从 renderer residual 到 parameter-typed primitive token</p>
+
+  <div class="meta">
+    <span><strong>Published:</strong> 2026-07-16</span>
+    <span><strong>Review:</strong> same-family provisional 9.12/10</span>
+    <span><strong>Status:</strong> READY for experiment planning；未运行实验</span>
+
+  </div>
+</header>
+
+<h1 id="research-proposal-renderer-score-tokens-for-recurrent-gaussian-splatting">Research Proposal: Renderer Score Tokens for Recurrent Gaussian Splatting</h1>
+<h2 id="problem-anchor">Problem Anchor</h2>
+<ul><li><strong>Bottom-line problem</strong>：ReSplat 在每轮把二维 RGB/feature residual 通过全局 attention 混合后，按原潜网格索引绑定回已经移动的 Gaussians；在遮挡、重叠和跨视图冲突区域，当前像素误差可能被分配给错误 primitive 或错误参数块。</li><li><strong>Must-solve bottleneck</strong>：构造与当前 alpha compositing、visibility 和 depth order 对齐的、带符号的 parameter-specific residual score，使 learned updater 知道哪个 Gaussian 的哪个参数块具有何种局部响应。</li><li><strong>Non-goals</strong>：不更换 ReSplat/DepthSplat backbone；不以换数据集为贡献；不加入 diffusion/VLM/RL；不同时解决动态 topology、pose refinement、长序列或长 horizon；不把标准 autograd optimization 包装成前馈方法。</li><li><strong>Constraints</strong>：目标 CVPR/ICCV；3–6 个月；4×H200 + 4×A6000；官方 ReSplat commit cc4594a；本轮不运行实验。</li><li><strong>Success condition</strong>：在 matched updater capacity、wall time 和 VRAM 下，renderer score 比 source-index residual 与 scalar attribution 产生更好的 held-out one-step utility，并在标准 NVS 上形成稳定收益，同时接近 gradient-conditioned updater 的质量—成本 Pareto。</li></ul>
+<h2 id="method-thesis">Method Thesis</h2>
+<p>使用一个解析的 post-render score-replay kernel，把当前 renderer 中 mean、opacity 和 SH 的 support-normalized partial score 聚合成 fixed-dimensional primitive tokens。该 interface 直接按当前渲染 primitive ID 绑定 residual 与 action，不调用通用 renderer autograd 或逐场景 optimizer。</p>
+<h2 id="contribution-focus">Contribution Focus</h2>
+<ul><li><strong>Dominant contribution</strong>：standard render + analytic score replay 的 parameter-typed primitive-token interface。</li><li><p><strong>Explicit non-contributions</strong>：</p>
+<ul><li>不声称 single-pass；</li><li>不声称完全没有 backward-like analytic computation；</li><li>不为 scale/rotation 构造 direct score；</li><li>不保留原 ResNet residual 主路径；</li><li>不使用 gating、gradient teacher、coded probes、topology 或 trust region。</li></ul></li><li><strong>Claim boundary</strong>：完整 gradient 原则上信息更多。本文只主张 structured fixed token 的质量—延迟—显存 Pareto。</li></ul>
+<h2 id="why-resplat-needs-this-interface">Why ReSplat Needs This Interface</h2>
+<p>ReSplat 当前把 RGB 与 frozen ResNet residual 变成二维 tokens，经 global attention 后按 source latent-grid 顺序与 Gaussian state 拼接。Gaussian 在循环中已经移动，但 residual binding 没有随当前 renderer responsibility 改变。该设计无法显式表达：</p>
+<ul><li>哪个当前 primitive 真正贡献了误差像素；</li><li>前后遮挡顺序；</li><li>residual 对 mean、opacity、SH 的不同符号与语义。</li></ul>
+<p>PRIMU 和 GaussianPOP 提供 scalar attribution，分别服务 uncertainty 与 pruning；它们无法表达 parameter-typed local response。Diff3R、G3R 和 Learn2Splat 能使用 renderer gradient 或完整 optimization，但改变了 ReSplat 的 fixed-cost recurrent inference 形态。</p>
+<h2 id="two-stage-algorithm">Two-Stage Algorithm</h2>
+<h3 id="stage-1standard-render">Stage 1：Standard Render</h3>
+<ol><li>使用原 gsplat tile binning 与 contributor sorting。</li><li>正常 front-to-back compositing，得到 rendered color \(\hat C_{pv}\)、final transmittance 与 contributor count。</li><li>与 observation 计算 RGB residual：</li></ol>
+<p>\[ r_{pv}=\hat C_{pv}-C_{pv}. \]</p>
+<ol><li>tile bins 与 sorted contributor indices 保留在 renderer workspace；不向 PyTorch 暴露完整 per-pixel contributor tensor。</li></ol>
+<h3 id="stage-2analytic-score-replay">Stage 2：Analytic Score Replay</h3>
+<p>score-replay kernel 复用相同 tile bins 与 contributor order。对每个 pixel 再做一次 front-to-back traversal，并维护：</p>
+<ul><li>\(P_{pgv}\)：当前 Gaussian 之前已累积的 prefix color；</li><li>\(T_{pgv}\)：prefix transmittance；</li><li>Stage 1 的完整 rendered color \(\hat C_{pv}\)。</li></ul>
+<p>当前 Gaussian 后方的 suffix composite 可解析恢复为：</p>
+<p>\[ C^+_{pgv} = \frac{ \hat C_{pv}-P_{pgv}-T_{pgv}\alpha_{pgv}c_{gv} }{ T_{pgv}(1-\alpha_{pgv})+\epsilon }. \]</p>
+<p>当 denominator 太小、alpha/color clamp 饱和或数值不稳定时，由明确 mask 排除该 contribution。kernel 随后直接做 per-Gaussian segmented/atomic accumulation，只输出 fixed-dimensional score token。</p>
+<p>因此推理需要一次标准 render 和一次专用 score replay，但：</p>
+<ul><li>不保存 reverse-mode autograd graph；</li><li>不运行通用 renderer backward；</li><li>不运行 per-scene optimizer、learning-rate schedule 或 PCG；</li><li>不搬运完整 contributor metadata tensor。</li></ul>
+<h2 id="exact-score-operators">Exact Score Operators</h2>
+<p>标准 3DGS 中：</p>
+<p>\[ o_g=\sigma(a_g),\qquad \alpha_{pgv}=o_gG_{pgv},\qquad w_{pgv}=T_{pgv}\alpha_{pgv}. \]</p>
+<p>定义 residual-suffix contrast 与 visibility support：</p>
+<p>\[ \rho_{pgv} = \langle r_{pv},c_{gv}-C^+_{pgv}\rangle, \qquad q_{gv}=\epsilon+\sum_p w_{pgv}. \]</p>
+<p>令 \(M^\alpha_{pgv}\) 为 alpha、suffix denominator 和相关 clamp 均有效的 mask，\(M^{color}_{pgv}\) 为 renderer color clamp 未饱和的 mask。</p>
+<h3 id="opacity-logit-score">Opacity-Logit Score</h3>
+<p>\[ \frac{\partial\alpha_{pgv}}{\partial a_g} = G_{pgv}o_g(1-o_g) = \alpha_{pgv}(1-o_g). \]</p>
+<p>\[ s^\alpha_{gv} = \frac{1}{q_{gv}} \sum_p M^\alpha_{pgv} T_{pgv}\alpha_{pgv}(1-o_g)\rho_{pgv}. \]</p>
+<p>在 fixed contributor order/visibility、RGB squared loss 与明确 clamp mask 下，该 block 是 opacity logit 的 support-normalized local VJP。</p>
+<h3 id="sh-score">SH Score</h3>
+<p>令 \(B(d_{gv})\in\mathbb{R}^{d_{SH}}\) 为 view direction 的 SH basis：</p>
+<p>\[ s^{SH}_{gv} = \frac{1}{q_{gv}} \sum_p M^{color}_{pgv} w_{pgv}[B(d_{gv})\otimes r_{pv}] \in\mathbb{R}^{3d_{SH}}. \]</p>
+<p>在 stop-gradient viewing direction 与 fixed order/visibility 下，该 block 是 SH coefficients 的 support-normalized local VJP。</p>
+<h3 id="projected-center-mean-partial-score">Projected-Center Mean Partial Score</h3>
+<p>二维 Gaussian kernel：</p>
+<p>\[ G_{pgv} = \exp\left[ -\frac{1}{2} (p-\mu^{2D}_{gv})^\top (\Sigma^{2D}_{gv})^{-1} (p-\mu^{2D}_{gv}) \right]. \]</p>
+<p>\[ \nabla_{\mu^{2D}_{gv}}G_{pgv} = G_{pgv}(\Sigma^{2D}_{gv})^{-1} (p-\mu^{2D}_{gv}). \]</p>
+<p>\[ s^{\mu,2D}_{gv} = \frac{1}{q_{gv}} \sum_p M^\alpha_{pgv} T_{pgv}o_g \nabla_{\mu^{2D}_{gv}}G_{pgv} \rho_{pgv}. \]</p>
+<p>此 block 明确对以下路径 stop-gradient：</p>
+<ul><li>projected covariance \(\Sigma^{2D}_{gv}\)；</li><li>viewing direction 与 SH color；</li><li>contributor order；</li><li>depth-dependent antialiasing；</li><li>clamp decisions。</li></ul>
+<p>因此它是 <strong>projected-center partial VJP</strong>，不是完整 3D mean VJP。</p>
+<p>令：</p>
+<p>\[ J_{gv} = \frac{\partial\pi_v(\mu_g)} {\partial\mu_g} \in\mathbb{R}^{2\times3}. \]</p>
+<p>固定跨视图权重：</p>
+<p>\[ \gamma_{gv} = \frac{q_{gv}} {\epsilon+\sum_{v'}q_{gv'}}. \]</p>
+<p>三维 covector pullback：</p>
+<p>\[ b^\mu_g = \sum_v \gamma_{gv} J_{gv}^{\top} s^{\mu,2D}_{gv}. \]</p>
+<p>conditioning matrix：</p>
+<p>\[ A_g = \lambda I+ \sum_v \gamma_{gv} J_{gv}^{\top}J_{gv}. \]</p>
+<p>\(\lambda\) 在 scene scale normalization 后固定，并在所有训练/评测中保持同一约定。只输出 conditioning statistics，不计算 \(A_g^{-1}b_g\)：</p>
+<p>\[ \tilde e_g = \frac{\mathrm{eig}(A_g)} {\mathrm{tr}(A_g)+\epsilon}, \qquad \ell_g = \log(\mathrm{tr}(A_g)+\epsilon). \]</p>
+<p>appearance 跨视图聚合为：</p>
+<p>\[ s^\alpha_g = \sum_v\gamma_{gv}s^\alpha_{gv}, \qquad s^{SH}_g = \sum_v\gamma_{gv}s^{SH}_{gv}. \]</p>
+<h2 id="final-token-and-updater">Final Token and Updater</h2>
+<p>\[ z_g=[ b^\mu_g(3),\, s^\alpha_g(1),\, s^{SH}_g(3d_{SH}),\, \log q_g(1),\, \tilde e_g(3),\, \ell_g(1) ]. \]</p>
+<p>总维度为 \(9+3d_{SH}\)。一个共享 linear–GELU–linear projection 将 \(z_g\) 映射到 ReSplat 的 \(D_{error}\)，输出 \([B,G,D_{error}]\)。</p>
+<p>主方法默认删除原 source-index ResNet residual。Point Transformer 输入只有：</p>
+<ul><li>current Gaussian attributes；</li><li>recurrent hidden state；</li><li>renderer score token。</li></ul>
+<p>updater 仍可输出 mean、scale、rotation、opacity 和 SH；但 direct typed-score claim 只覆盖：</p>
+<ul><li>mean projected-center partial score；</li><li>opacity-logit local VJP；</li><li>SH local VJP。</li></ul>
+<p>scale/rotation 由 Gaussian state、neighborhood 和 score context 间接更新，不构成本文贡献。</p>
+<h2 id="relation-to-gradient">Relation to Gradient</h2>
+<p>完整 gradient 原则上包含更多一阶信息。本文 token 是选择性、support-normalized、parameter-typed local VJP/partial VJP 的 score-replay 表达。</p>
+<p>必须比较：</p>
+<ol><li>raw gradient；</li><li>detached gradient；</li><li>support-normalized gradient；</li><li>parameter-scale-normalized gradient；</li><li>proposed score replay token。</li></ol>
+<p><strong>Kill criterion</strong>：若 normalized gradient 在 matched wall time 与 peak VRAM 下持续支配 proposed token，则该 interface 的论文主张失败。</p>
+<h2 id="novelty-boundary">Novelty Boundary</h2>
+<ul><li><strong>PRIMU</strong>：scalar primitive error/coverage；无法表达 mean、opacity、SH 的有符号 response。</li><li><strong>GaussianPOP</strong>：scalar removal error；无法表达 parameter-typed covector。</li><li><strong>G3R/Learn2Splat</strong>：消费通用 renderer backward gradient。</li><li><strong>Diff3R</strong>：完整 Jacobian、Gauss–Newton/PCG 与显式 optimization。</li><li><strong>ReSplat</strong>：source-index global residual binding。</li></ul>
+<p>本文贡献是 post-render analytic score replay、structured primitive token 与 amortized recurrent updater 的组合 interface；不是单纯把 attribution 用途改成 update。</p>
+<h2 id="training-and-inference">Training and Inference</h2>
+<ul><li>MVP 冻结 initializer，只训练共享 score projection 与原 updater。</li><li>训练 loss、数据与 recurrent steps 沿用 ReSplat。</li><li>默认不需要 gradient teacher。</li><li>推理执行 render、score replay、recurrent update。</li><li>主实验不加入 ResNet residual；RGB+feature 只作为归因清晰度消融。</li></ul>
+<h2 id="claim-driven-validation">Claim-Driven Validation</h2>
+<h3 id="block-ascore-replay-correctness">Block A：Score-Replay Correctness</h3>
+<ul><li>suffix recovery/reference error；</li><li>opacity/SH score 与 reference VJP；</li><li>projected-center finite difference；</li><li>clamp-mask 与 conditioning stability；</li><li>replay kernel overhead。</li></ul>
+<h3 id="block-bheld-out-one-step-utility">Block B：Held-Out One-Step Utility</h3>
+<ul><li>target loss delta mean、median、quantiles；</li><li>loss-increasing step fraction；</li><li>overlap、occlusion、view baseline、iteration 分层；</li><li>scalar attribution 与四类 gradient baselines。</li></ul>
+<h3 id="block-cqualitycost-pareto">Block C：Quality–Cost Pareto</h3>
+<ul><li>DL3DV 8-view，3 seeds；</li><li>256×448 主实验与 512×960 confirmation；</li><li>PSNR、SSIM、LPIPS、regional metrics、time、VRAM；</li><li>RealEstate10K 复用 ReSplat setting 做 generalization。</li></ul>
+<h2 id="go--no-go-gates">Go / No-Go Gates</h2>
+<ol><li>suffix recovery 或 score reference error 不可靠：STOP。</li><li>alphaT/PRIMU/GaussianPOP scalar token 的 one-step utility 等价：STOP。</li><li>normalized gradient 在 matched cost 下支配：STOP。</li><li>四步没有约 0.25 dB global 增益，且困难区域也无稳定显著收益：STOP。</li><li>score replay overhead 超过 20% 且质量收益不足：STOP。</li><li>删除 ResNet residual 后质量损失无法由 score 恢复：STOP。</li></ol>
+<h2 id="compute-and-timeline">Compute and Timeline</h2>
+<ul><li><strong>MVP</strong>：4–6 周；70–160 H200-GPUh；A6000 240–620 GPUh，用于 correctness、评测和低分辨率消融。</li><li><strong>Paper-level</strong>：1,600–3,600 H200-GPUh；A6000 不承担主训练。</li><li><strong>Project timeline</strong>：约 20–24 周，包含三次增量查新与失败重跑 buffer。</li><li>score-replay CUDA 若第 6 周仍未通过 correctness gate，停止而不是堆叠新模块。</li><li><strong>本轮状态</strong>：未运行任何实验。</li></ul>
+
+<footer class="aris-footer">
+  Renderer Score Tokens · paper-only refined proposal · 本方案尚无实验结果。
+</footer>
+</main>
+
+</div>
+</body>
+</html>

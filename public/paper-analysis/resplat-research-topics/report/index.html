@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReSplat 改进方向 Idea Discovery 报告</title>
+<meta name="description" content="基于 ReSplat 论文与官方代码、覆盖近 12 个月文献的 3D Gaussian Splatting 研究选题报告：10 个候选、逐项查新、Top 3 推荐与 GPU 预算。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/resplat-research-topics/report/">
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="resplat-research-topics/report.md">
+<meta name="aris:source-sha256" content="70c7f15c1200b5141c0f0f98e9b2115dc765a36ac0b091244a97eb7d94a0f971">
+<meta name="aris:generated-at" content="2026-07-15 17:13 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<link rel="stylesheet" href="/paper-analysis/resplat-research-topics/site.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<nav class="note-toolbar" aria-label="研究路线图版本">
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a href="/paper-analysis/resplat-research-topics/report/" aria-current="page">完整候选报告</a>
+  <a href="/paper-analysis/resplat-research-topics/proposal/">Top 1 精炼方案</a>
+  <a href="/paper-analysis/resplat-research-topics/experiment-plan/">实验路线图</a>
+</nav>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#一结论先行">一、结论先行</a>
+</li>
+<li><a href="#二resplat-中真正值得改的结构性空白">二、ReSplat 中真正值得改的结构性空白</a>
+<ul>
+<li><a href="#21-论文层面的证据">2.1 论文层面的证据</a></li>
+<li><a href="#22-代码层面的证据">2.2 代码层面的证据</a></li>
+</ul>
+</li>
+<li><a href="#三最近-12-个月研究格局与不能再做的简单版本">三、最近 12 个月研究格局与“不能再做”的简单版本</a>
+<ul>
+<li><a href="#31-迭代反馈与-learned-optimization">3.1 迭代、反馈与 learned optimization</a></li>
+<li><a href="#32-几何误差和不确定性">3.2 几何、误差和不确定性</a></li>
+<li><a href="#33-primitive-数量与效率">3.3 Primitive 数量与效率</a></li>
+<li><a href="#34-查新后的禁区">3.4 查新后的禁区</a></li>
+</ul>
+</li>
+<li><a href="#四十个候选的统一排序">四、十个候选的统一排序</a>
+</li>
+<li><a href="#五候选-1渲染器对齐的有符号参数块信用分配">五、候选 1：渲染器对齐的有符号参数块信用分配</a>
+<ul>
+<li><a href="#核心方法">核心方法</a></li>
+<li><a href="#可证伪假设">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验">最小验证实验</a></li>
+<li><a href="#baselines">Baselines</a></li>
+<li><a href="#必须消融">必须消融</a></li>
+<li><a href="#gpu-与周期估算">GPU 与周期估算</a></li>
+<li><a href="#失败条件">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由">审稿人最可能的拒稿理由</a></li>
+<li><a href="#代码入口">代码入口</a></li>
+</ul>
+</li>
+<li><a href="#六候选-2sim3-等变的-recurrent-gaussian-更新场">六、候选 2：Sim(3)-等变的 Recurrent Gaussian 更新场</a>
+<ul>
+<li><a href="#核心方法-1">核心方法</a></li>
+<li><a href="#可证伪假设-1">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-1">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-1">最小验证实验</a></li>
+<li><a href="#baselines-1">Baselines</a></li>
+<li><a href="#必须消融-1">必须消融</a></li>
+<li><a href="#gpu-与周期估算-1">GPU 与周期估算</a></li>
+<li><a href="#失败条件-1">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-1">审稿人最可能的拒稿理由</a></li>
+<li><a href="#代码入口-1">代码入口</a></li>
+</ul>
+</li>
+<li><a href="#七候选-3crossfit-未参与更新视图的信赖门控">七、候选 3：CrossFit 未参与更新视图的信赖门控</a>
+<ul>
+<li><a href="#核心方法-2">核心方法</a></li>
+<li><a href="#可证伪假设-2">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-2">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-2">最小验证实验</a></li>
+<li><a href="#baselines-2">Baselines</a></li>
+<li><a href="#必须消融-2">必须消融</a></li>
+<li><a href="#gpu-与周期估算-2">GPU 与周期估算</a></li>
+<li><a href="#失败条件-2">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-2">审稿人最可能的拒稿理由</a></li>
+<li><a href="#代码入口-2">代码入口</a></li>
+</ul>
+</li>
+<li><a href="#八候选-4带单调保护的-contractive-anytime-solver">八、候选 4：带单调保护的 Contractive Anytime Solver</a>
+<ul>
+<li><a href="#核心方法-3">核心方法</a></li>
+<li><a href="#可证伪假设-3">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-3">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-3">最小验证实验</a></li>
+<li><a href="#baselines-3">Baselines</a></li>
+<li><a href="#必须消融-3">必须消融</a></li>
+<li><a href="#gpu-与周期估算-3">GPU 与周期估算</a></li>
+<li><a href="#失败条件-3">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-3">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#九候选-5冲突感知的多视图-gaussian-credit">九、候选 5：冲突感知的多视图 Gaussian Credit</a>
+<ul>
+<li><a href="#核心方法-4">核心方法</a></li>
+<li><a href="#可证伪假设-4">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-4">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-4">最小验证实验</a></li>
+<li><a href="#baselines-4">Baselines</a></li>
+<li><a href="#必须消融-4">必须消融</a></li>
+<li><a href="#gpu-与周期估算-4">GPU 与周期估算</a></li>
+<li><a href="#失败条件-4">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-4">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#十候选-6跨视图证据许可矩守恒的固定预算-topology">十、候选 6：跨视图证据许可、矩守恒的固定预算 Topology</a>
+<ul>
+<li><a href="#核心方法-5">核心方法</a></li>
+<li><a href="#可证伪假设-5">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-5">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-5">最小验证实验</a></li>
+<li><a href="#baselines-5">Baselines</a></li>
+<li><a href="#必须消融-5">必须消融</a></li>
+<li><a href="#gpu-与周期估算-5">GPU 与周期估算</a></li>
+<li><a href="#失败条件-5">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-5">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#十一候选-7geometryappearance-因果残差路由">十一、候选 7：Geometry–Appearance 因果残差路由</a>
+<ul>
+<li><a href="#核心方法-6">核心方法</a></li>
+<li><a href="#可证伪假设-6">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-6">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-6">最小验证实验</a></li>
+<li><a href="#baselines-6">Baselines</a></li>
+<li><a href="#必须消融-6">必须消融</a></li>
+<li><a href="#gpu-与周期估算-6">GPU 与周期估算</a></li>
+<li><a href="#失败条件-6">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-6">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#十二候选-8贯穿循环的-multi-modal-ray-depth-belief">十二、候选 8：贯穿循环的 Multi-Modal Ray-Depth Belief</a>
+<ul>
+<li><a href="#核心方法-7">核心方法</a></li>
+<li><a href="#可证伪假设-7">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-7">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-7">最小验证实验</a></li>
+<li><a href="#baselines-7">Baselines</a></li>
+<li><a href="#必须消融-7">必须消融</a></li>
+<li><a href="#gpu-与周期估算-7">GPU 与周期估算</a></li>
+<li><a href="#失败条件-7">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-7">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#十三候选-9correctability-aware-局部停止与计算分配">十三、候选 9：Correctability-Aware 局部停止与计算分配</a>
+<ul>
+<li><a href="#核心方法-8">核心方法</a></li>
+<li><a href="#可证伪假设-8">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-8">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-8">最小验证实验</a></li>
+<li><a href="#baselines-8">Baselines</a></li>
+<li><a href="#必须消融-8">必须消融</a></li>
+<li><a href="#gpu-与周期估算-8">GPU 与周期估算</a></li>
+<li><a href="#失败条件-8">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-8">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#十四候选-10secant-memory-局部响应预条件器">十四、候选 10：Secant-Memory 局部响应预条件器</a>
+<ul>
+<li><a href="#核心方法-9">核心方法</a></li>
+<li><a href="#可证伪假设-9">可证伪假设</a></li>
+<li><a href="#最近邻与精确创新差异-9">最近邻与精确创新差异</a></li>
+<li><a href="#最小验证实验-9">最小验证实验</a></li>
+<li><a href="#baselines-9">Baselines</a></li>
+<li><a href="#必须消融-9">必须消融</a></li>
+<li><a href="#gpu-与周期估算-9">GPU 与周期估算</a></li>
+<li><a href="#失败条件-9">失败条件</a></li>
+<li><a href="#审稿人最可能的拒稿理由-9">审稿人最可能的拒稿理由</a></li>
+</ul>
+</li>
+<li><a href="#十五为什么最终推荐这三项">十五、为什么最终推荐这三项</a>
+</li>
+<li><a href="#十六合并和淘汰记录">十六、合并和淘汰记录</a>
+</li>
+<li><a href="#十七评审结论与证据等级">十七、评审结论与证据等级</a>
+</li>
+<li><a href="#十八本轮明确未做的事情">十八、本轮明确未做的事情</a>
+</li>
+<li><a href="#十九关联产物">十九、关联产物</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">ARIS Idea Discovery</div>
+  <h1>ReSplat 改进方向 Idea Discovery 报告</h1>
+  <p class="subtitle">10 个候选、近 12 个月查新与 Top 3 推荐；本轮未运行实验</p>
+
+  <div class="meta">
+    <span><strong>Published:</strong> 2026-07-16</span>
+    <span><strong>Literature cutoff:</strong> 2026-07-15</span>
+    <span><strong>Status:</strong> paper-only analysis；未运行实验</span>
+
+  </div>
+</header>
+
+<h1 id="resplat-改进方向-idea-discovery-报告">ReSplat 改进方向 Idea Discovery 报告</h1>
+<p><strong>任务</strong>：基于 ReSplat 论文与官方代码库，寻找可在 3–6 个月内完成、面向 CVPR/ICCV 的 3D Gaussian Splatting 改进主题 <strong>参考论文</strong>：Haofei Xu et al., ReSplat: Learning Recurrent Gaussian Splatting, arXiv:2510.08575v3 <strong>代码基线</strong>：ReSplat 官方仓库，commit cc4594a <strong>检索窗口</strong>：2025-07-15 至 2026-07-15，以 arXiv v1 日期为准 <strong>硬件约束</strong>：4×H200 + 4×A6000 <strong>实验状态</strong>：本轮未运行任何训练、推理或 pilot <strong>评审属性</strong>：review_independence = same-family；acceptance_status = provisional</p>
+<div class="callout callout-warn"><div class="callout-title">Warning</div><p>本报告的排名来自论文、代码和查新证据，不是实验结果。所有 GPU 成本均为规划估算，不是仓库实测吞吐或云计费数据。2026 年论文中相当一部分仍是预印本，后续版本和并发工作可能改变 novelty 判断。</p></div>
+<h2 id="一结论先行">一、结论先行</h2>
+<p>推荐优先级如下：</p>
+<ol><li><strong>渲染器对齐的有符号参数块信用分配</strong>  最直接击中 ReSplat 的核心反馈缺陷，工程范围集中，首个可证伪版本约 4–6 周。必须超越 PRIMU 的 alpha-transmittance 误差投影和 GaussianPOP 的单 Gaussian 删除误差，把贡献收窄到“可执行的、带符号的、参数块特异的 recurrent update credit”。</li><li><strong>Sim(3)-等变的 Recurrent Gaussian 更新场</strong>  机制最干净，ReSplat 自身 middle-view 比 COLMAP gauge 高约 0.9 dB，提供了直接动机。核心不是换成等变 backbone，而是使更新律满足 U(TG, TC) = T U(G, C)，并正确运输 covariance、rotation、scale 和 directional SH。</li><li><strong>CrossFit 未参与更新视图的信赖门控</strong>  工程侵入最小，适合快速证伪。每一步由 proposal views 产生候选更新，由未参与该候选的 audit views 仅做 accept、damp 或 reject。范围应明确限制在 8 视图及以上，不宣称 2-view 通用。</li></ol>
+<p>不建议把动态 topology 放入前三。它的理论上限高，但 F4Splat、SparseSplat、SplatWeaver、L2D2-GS、GaussianPOP 和 DP-Splat 已形成拥挤赛道；同时 ReSplat 当前代码大量依赖固定的 source-view-indexed V×H×W primitive 布局，工程与查新风险同时偏高。</p>
+<p>第一名随后经过 4 轮 paper-only method refinement，从抽象 responsibility credit 收敛为 <strong>standard render + analytic score replay 的 Renderer Score Tokens</strong>。same-family provisional reviewer 最终评分 9.12/10、Verdict = READY；该 READY 只表示方案足够具体可进入实验规划，不表示已有正向结果或跨模型录用判断。</p>
+<h2 id="二resplat-中真正值得改的结构性空白">二、ReSplat 中真正值得改的结构性空白</h2>
+<h3 id="21-论文层面的证据">2.1 论文层面的证据</h3>
+<ul><li>DL3DV 8-view、512×960：ReSplat iter4 为 27.70 dB、246K Gaussians、0.816 s；DepthSplat 为 24.17 dB、3.93M Gaussians。</li><li>16×压缩相对 4×压缩损失约 1.59 dB，说明固定均匀 primitive 预算仍有明显可分配空间。</li><li>论文明确报告模型约在第 4 步饱和，并把更有信息量的反馈机制列为未来方向。</li><li>middle-view gauge 为 29.07 dB，COLMAP gauge 为 28.14 dB，约 0.9 dB 差距说明循环更新器依赖任意世界坐标表达。</li><li>512×960 的单步 recurrent 时间约 0.126 s，其中 kNN 约 0.092 s，是主要瓶颈。</li></ul>
+<h3 id="22-代码层面的证据">2.2 代码层面的证据</h3>
+<ul><li>渲染器在 gsplat_decoder_splatting_cuda.py 中接收 rasterization 返回的 meta，但最终只返回 color、depth 和 accumulated alpha；逐 primitive 可见性与贡献信息没有进入 updater。</li><li>encoder_resplat.py 先构造 RGB 与 ResNet feature residual，再在二维 token 间进行 global attention，随后按原潜网格顺序与 Gaussian state 拼接。Gaussian 已经移动后，反馈仍依赖原 source-grid identity，而不是当前 renderer responsibility。</li><li>mean、scale、quaternion、opacity 和 SH 由同一个 head 输出，并在世界坐标中直接做加法更新。</li><li>refinement 的核心 reshape 假设 Gaussian 数量可写成 source-view-indexed V×H×W；动态 birth、merge、prune 会同时影响 state、kNN、offset 和 covariance 路径。</li><li>context_remain 与 final_state 等接口已经存在但没有形成完整的 cross-fit 或 sliding-window state 消费机制。</li></ul>
+<h2 id="三最近-12-个月研究格局与不能再做的简单版本">三、最近 12 个月研究格局与“不能再做”的简单版本</h2>
+<h3 id="31-迭代反馈与-learned-optimization">3.1 迭代、反馈与 learned optimization</h3>
+<ul><li><a href="https://arxiv.org/abs/2510.08575">ReSplat</a>, 2025-10-09：无 renderer backward 的 recurrent residual refinement。</li><li><a href="https://arxiv.org/abs/2602.22571">GIFSplat</a>, 2026-02-26：生成先验指导的迭代前馈反馈。</li><li><a href="https://arxiv.org/abs/2603.09968">ReCoSplat</a>, 2026-03-10：incoming observation 上的 render-and-compare 自回归重建。</li><li><a href="https://arxiv.org/abs/2604.01030">Diff3R</a>, 2026-04-01：residual Jacobian、Gauss–Newton/PCG 与 uncertainty-aware differentiable optimization。</li><li><a href="https://arxiv.org/abs/2605.15760">Learn2Splat</a>, 2026-05-15：延长 learned 3DGS optimizer 的稳定 horizon，但依赖显式梯度。</li><li><a href="https://arxiv.org/abs/2605.22020">ForeSplat</a>, 2026-05-21：用短优化轨迹训练更适合后续优化的初始化。</li><li><a href="https://arxiv.org/abs/2607.08808">StereoSplat+</a>, 2026-07-09：diffusion-assisted progressive render-enhance-feedback。</li></ul>
+<h3 id="32-几何误差和不确定性">3.2 几何、误差和不确定性</h3>
+<ul><li><a href="https://arxiv.org/abs/2508.02443">PRIMU</a>, 2025-08-04：把训练误差与 coverage 以 alpha-transmittance 权重投影到 primitive，用于后处理 uncertainty 和 active view selection。</li><li><a href="https://arxiv.org/abs/2512.17547">G3Splat</a>, 2025-12-19：用 viewing-ray 与 surface 几何先验抑制 appearance loss 下的几何退化。</li><li><a href="https://arxiv.org/abs/2601.03824">IDESplat</a>, 2026-01-07：Gaussian 生成前迭代更新 depth probability。</li><li><a href="https://arxiv.org/abs/2603.22786">Predictive Photometric Uncertainty</a>, 2026-03-24：冻结 3DGS 上的 residual uncertainty head。</li><li><a href="https://arxiv.org/abs/2606.23027">CanonicalGS</a>, 2026-06-22：构造随观测增加而稳定的 canonical latent world。</li><li><a href="https://arxiv.org/abs/2607.00595">GADA</a>, 2026-07-01：geometry-aware deformable aggregation 与 confidence weighting。</li><li><a href="https://arxiv.org/abs/2607.05522">Rendering-Aware Bayesian 3DGS</a>, 2026-07-06：renderer-derived surrogate summaries、几何后验、不确定性与复杂度控制。</li><li><a href="https://arxiv.org/abs/2607.10792">MAC-Splat</a>, 2026-07-12：稀疏视图下的多属性一致性。</li></ul>
+<h3 id="33-primitive-数量与效率">3.3 Primitive 数量与效率</h3>
+<ul><li><a href="https://arxiv.org/abs/2602.06830">GaussianPOP</a>, 2026-02-06：从 alpha blending 解析单 Gaussian 删除造成的 counterfactual visual error，用于剪枝。</li><li><a href="https://arxiv.org/abs/2602.09999">Faster-GS</a>, 2026-02-10：系统分析数值稳定、截断和 gradient approximation。</li><li><a href="https://arxiv.org/abs/2603.21304">F4Splat</a>, 2026-03-22：前馈预测 densification 和可控 primitive 预算。</li><li><a href="https://arxiv.org/abs/2604.03069">SparseSplat</a>, 2026-04-03：pixel-unaligned sparse Gaussian prediction。</li><li><a href="https://arxiv.org/abs/2604.15239">TokenGS</a>, 2026-04-16：用 learnable tokens 解耦 Gaussian 与像素。</li><li><a href="https://arxiv.org/abs/2605.07287">SplatWeaver</a>, 2026-05-08：区域自适应 cardinality experts 和预算正则。</li><li><a href="https://arxiv.org/abs/2606.15924">TurboGS</a>, 2026-06-14：error-guided view/tile/pixel sampling 与密度控制。</li><li><a href="https://arxiv.org/abs/2606.29374">L2D2-GS</a>, 2026-06-28：动态驾驶场景中的循环 learned densification。</li><li><a href="https://arxiv.org/abs/2607.10912">DP-Splat</a>, 2026-07-12：Bayesian nonparametric complexity control。</li></ul>
+<h3 id="34-查新后的禁区">3.4 查新后的禁区</h3>
+<ul><li>只做 residual × alpha-transmittance scatter：会被 PRIMU 直接击中。</li><li>只计算单 Gaussian 删除误差：会被 GaussianPOP 直接击中。</li><li>只增加 learned densification：会被 F4Splat、SplatWeaver、SparseSplat 和 L2D2-GS 包围。</li><li>只把 ReSplat 展开到更多步：会撞 Learn2Splat 和 ReSplat 自身的 variable-iteration 接口。</li><li>只用生成式虚拟视图回灌：会撞 GIFSplat 与 StereoSplat+。</li><li>只做 parameter-wise uncertainty 或 step scaling：会撞 Diff3R。</li><li>只把投影局部邻域称为 visibility graph：ReSplat 的 local kNN 已经先投影到其他视图筛选候选。</li></ul>
+<h2 id="四十个候选的统一排序">四、十个候选的统一排序</h2>
+<p>评分为 1–5，Reviewer risk 越高越危险。排名同时考虑 3–6 个月落地性、查新边界清晰度和 CVPR/ICCV 叙事完整性，不由简单加权和机械决定。</p>
+<p>GPU 预算采用“主训练放在 H200、A6000 承担评测/诊断/低分辨率消融”的调度。各节的 A6000 数字是该工作若大量迁移到 A6000 时的等价范围或可分流上限，不应与 H200 数字相加，也不建议把 paper-level 主训练全部放到 A6000。</p>
+<table><thead><tr><th style="text-align:right">排名</th><th>Topic</th><th style="text-align:right">Novelty</th><th style="text-align:right">Impact</th><th style="text-align:right">Feasibility</th><th style="text-align:right">Reviewer risk</th><th>结论</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td>Renderer-aligned signed blockwise credit</td><td style="text-align:right">4.0</td><td style="text-align:right">5.0</td><td style="text-align:right">4.5</td><td style="text-align:right">3.0</td><td>推荐</td></tr><tr><td style="text-align:right">2</td><td>Sim(3)-equivariant recurrent update field</td><td style="text-align:right">5.0</td><td style="text-align:right">4.5</td><td style="text-align:right">3.5</td><td style="text-align:right">3.5</td><td>推荐</td></tr><tr><td style="text-align:right">3</td><td>CrossFit held-out-view trust gate</td><td style="text-align:right">4.0</td><td style="text-align:right">4.0</td><td style="text-align:right">4.5</td><td style="text-align:right">3.0</td><td>推荐</td></tr><tr><td style="text-align:right">4</td><td>Monotone contractive anytime solver</td><td style="text-align:right">3.5</td><td style="text-align:right">5.0</td><td style="text-align:right">3.0</td><td style="text-align:right">4.5</td><td>候选</td></tr><tr><td style="text-align:right">5</td><td>Conflict-aware multi-view credit</td><td style="text-align:right">4.0</td><td style="text-align:right">3.5</td><td style="text-align:right">4.0</td><td style="text-align:right">3.5</td><td>候选</td></tr><tr><td style="text-align:right">6</td><td>Evidence-gated moment-conserving topology</td><td style="text-align:right">4.5</td><td style="text-align:right">5.0</td><td style="text-align:right">2.5</td><td style="text-align:right">4.5</td><td>高风险候选</td></tr><tr><td style="text-align:right">7</td><td>Geometry–appearance causal residual routing</td><td style="text-align:right">3.5</td><td style="text-align:right">4.5</td><td style="text-align:right">3.0</td><td style="text-align:right">4.5</td><td>候选</td></tr><tr><td style="text-align:right">8</td><td>Persistent multi-modal ray-depth belief</td><td style="text-align:right">3.5</td><td style="text-align:right">4.5</td><td style="text-align:right">3.0</td><td style="text-align:right">4.5</td><td>候选</td></tr><tr><td style="text-align:right">9</td><td>Correctability-aware local halting</td><td style="text-align:right">3.0</td><td style="text-align:right">4.0</td><td style="text-align:right">4.0</td><td style="text-align:right">4.0</td><td>效率型候选</td></tr><tr><td style="text-align:right">10</td><td>Secant-memory response preconditioner</td><td style="text-align:right">4.0</td><td style="text-align:right">4.0</td><td style="text-align:right">2.0</td><td style="text-align:right">5.0</td><td>高风险候选</td></tr></tbody></table>
+<h2 id="五候选-1渲染器对齐的有符号参数块信用分配">五、候选 1：渲染器对齐的有符号参数块信用分配</h2>
+<p><strong>Working title</strong>：Renderer-Aligned Credit for Gradient-Free Recurrent Gaussian Splatting</p>
+<h3 id="核心方法">核心方法</h3>
+<ol><li>采用两阶段 renderer interface：先完成标准 render 并得到 RGB residual；再复用同一 tile binning 和 contributor order 执行解析 score-replay。replay 只维护 prefix color/transmittance，并由完整 rendered color 解析 suffix composite，不把完整 per-pixel contributor tensor搬回 PyTorch。</li><li><p>不再只生成每个 Gaussian 一个无方向的 error magnitude，而是在固定 contributor order 的局部线性化下 fused 构造三类 support-normalized renderer score：</p>
+<ul><li>SH：残差与 SH basis、alpha-transmittance 的有符号 local VJP；</li><li>opacity-logit：残差与当前 primitive 相对 suffix composite 的对比，并使用正确的 alpha 对 opacity logit 导数；</li><li>mean：Gaussian footprint 的二维均值 local VJP，经多视图 projection Jacobian 的转置 pullback 到 3D；只输出 pullback 与 conditioning，不执行手写 Gauss–Newton step。</li></ul></li><li>score-replay kernel 按当前 primitive ID 直接聚合 fixed-dimensional token，再送入原 ReSplat Point Transformer。mean 明确只是 projected-center partial score，对 projected covariance、view direction、depth order 等路径 stop-gradient。首篇不为 scale/rotation 构造半定义 score；它们可由 state/neighborhood 间接更新，但不进入核心 claim。</li><li>主方法默认删除原 source-index ResNet residual，以保证归因清晰；coded probes 和 gradient teacher 只作为诊断，不进入默认训练或推理。</li></ol>
+<h3 id="可证伪假设">可证伪假设</h3>
+<p>在相同 updater 参数量和训练预算下，相对原始 index-bound residual feedback：</p>
+<ul><li>逐 Gaussian、逐参数块与 autograd gradient oracle 的平均 cosine 至少提高 0.15，作为机制诊断而非最终正确性定义；</li><li>overlap/occlusion 区域中 loss-increasing update 比例至少下降 25%；</li><li>DL3DV 8-view 四步 PSNR 至少提高 0.25 dB，且端到端 recurrent 延迟增加不超过 20%。</li></ul>
+<p>若 cosine 提升不足 0.15 或 PSNR 提升不足 0.25 dB，则主假设失败。</p>
+<h3 id="最近邻与精确创新差异">最近邻与精确创新差异</h3>
+<ul><li>PRIMU：已有 residual × alpha-transmittance 的 primitive error/coverage 投影，但用途是 post-hoc uncertainty。</li><li>GaussianPOP：已有单 Gaussian 删除造成的解析 counterfactual visual error，但用途是 pruning。</li><li>Diff3R：用完整 residual Jacobian、Gauss–Newton 和 PCG 做显式优化。</li><li>Rendering-Aware Bayesian 3DGS：用 renderer-derived summaries 更新几何后验。</li></ul>
+<p><strong>精确差异</strong>：本 topic 的贡献不是“谁参与了像素”，而是用 post-render analytic score replay 把 mean projected-center partial score、opacity 与 SH local VJP 聚合成 support-normalized、fixed-dimensional primitive tokens，并作为 amortized recurrent updater interface。它不宣称比完整 gradient 信息更多；必须证明在匹配延迟/显存下达到更好的质量—成本 Pareto。</p>
+<h3 id="最小验证实验">最小验证实验</h3>
+<ul><li>冻结 ReSplat-Small 初始化器，只训练新的 credit encoder 与同容量 updater。</li><li>DL3DV 8-view、256×448、约 10% 训练子集、单 seed、20k updater steps；30 个场景做诊断。</li><li>先验证 credit-gradient cosine、top-k overlap、遮挡边界更新方向，再看四步 NVS。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines">Baselines</h3>
+<ul><li>原始 ReSplat global error attention，以及 RGB-only ReSplat。</li><li>PRIMU-style alpha-transmittance scatter。</li><li>GaussianPOP-style removal score 作为额外 feature。</li><li>仅 visibility support、无符号 residual。</li><li>raw、detached、support-normalized 和 parameter-scale-normalized autograd gradient feature。</li><li>等宽随机/learned projection，排除参数量收益。</li></ul>
+<h3 id="必须消融">必须消融</h3>
+<ul><li>去掉 sign。</li><li>去掉 parameter type。</li><li>去掉 visibility normalization。</li><li>只保留 alpha-transmittance，不保留 mean pullback。</li><li>去掉 foreground/suffix occlusion contrast。</li><li>top-2、top-4、top-8 contributors。</li><li>coded probes 作为诊断是否真的增加信息。</li></ul>
+<h3 id="gpu-与周期估算">GPU 与周期估算</h3>
+<ul><li>MVP：4–6 周；约 70–160 H200-GPUh，另用 240–620 A6000-GPUh 做评测和诊断。</li><li>Paper-level，3 seeds + 核心消融 + 512×960 确认：约 1,600–3,600 H200-GPUh；A6000 等价评测/低分辨率消融约 5,600–13,000 GPUh。</li><li>以上为规划估算；若需要精确 per-pixel CUDA responsibility，工程可能额外增加 3–5 周。</li></ul>
+<h3 id="失败条件">失败条件</h3>
+<ul><li>typed score 与 held-out one-step utility 无关。</li><li>normalized gradient 在 matched wall time/VRAM 下持续支配 proposed token。</li><li>改善只出现在训练 context residual，不改善 target view 或几何。</li><li>rasterizer metadata 的显存/延迟超过质量收益。</li><li>低 overlap 场景几乎无收益，方法过度依赖遮挡特例。</li></ul>
+<h3 id="审稿人最可能的拒稿理由">审稿人最可能的拒稿理由</h3>
+<p>“这只是把 PRIMU/GaussianPOP 的 attribution 接到 ReSplat 上；作者没有证明 parameter-specific signed credit 比标准 alpha responsibility 或直接 gradient 更有价值。”</p>
+<h3 id="代码入口">代码入口</h3>
+<ul><li>resplat/src/model/decoder/gsplat_decoder_splatting_cuda.py</li><li>resplat/src/model/encoder/encoder_resplat.py 的 render-error 构造与 update_head</li><li>gsplat packed rasterization 的 contributor/meta 输出</li></ul>
+<h2 id="六候选-2sim3-等变的-recurrent-gaussian-更新场">六、候选 2：Sim(3)-等变的 Recurrent Gaussian 更新场</h2>
+<p><strong>Working title</strong>：Gauge-Equivariant Recurrent Gaussian Splatting</p>
+<h3 id="核心方法-1">核心方法</h3>
+<ol><li>保留现有 Point Transformer 的标量 attention 结构，但把几何消息改写为相对距离、点积、夹角等 invariant scalars，以及邻居位移、viewing ray、cross-product 等 equivariant bases。</li><li>现有网络只预测这些 basis 的标量系数；mean delta 由 equivariant vector basis 线性组合，covariance delta 由对称二阶 tensor basis 组合，不直接在世界坐标预测任意三维向量。</li><li>scale 在无量纲局部尺度中更新，rotation 在 tangent space 组合；directional SH 使用对应旋转表示运输。</li><li>训练时对同一相机与 Gaussian 集施加随机全局 rotation、translation 和 scale，约束更新前后满足 U(TG, TC) = T U(G, C)。推理不选择 first、middle 或 COLMAP camera 作为特殊 gauge。</li></ol>
+<h3 id="可证伪假设-1">可证伪假设</h3>
+<ul><li>同一场景在至少 10 个等价 Sim(3) gauge 下，最终 PSNR 标准差低于 0.05 dB；</li><li>逆变换后的 mean/covariance 匹配误差相对原 ReSplat 降低至少 30%；</li><li>在跨数据集尺度、不同参考相机或长基线 OOD 设置中，相对“随机 Sim(3) augmentation”仍提升至少 0.20 dB。</li></ul>
+<p>若只改善人工 gauge consistency 而真实 NVS/几何没有至少 0.20 dB 或显著几何收益，则否定投稿价值。</p>
+<h3 id="最近邻与精确创新差异-1">最近邻与精确创新差异</h3>
+<ul><li>CanonicalGS：学习稳定 canonical world，但不要求 recurrent update field 对任意群作用严格交换。</li><li>ReCoSplat：在局部 camera space 预测再组装到世界坐标。</li><li>G3Splat：约束 Gaussian 几何退化。</li><li>MAC-Splat：约束多属性一致性。</li></ul>
+<p><strong>精确差异</strong>：不是选择更好的 canonical frame，也不是简单数据增强，而是定义并实现 Gaussian recurrent update 的 Sim(3) 变换律，覆盖 mean、covariance、scale、rotation 和 directional SH。</p>
+<h3 id="最小验证实验-1">最小验证实验</h3>
+<ul><li>冻结初始化器，仅替换 recurrent geometry input/output law。</li><li>ReSplat-Small、DL3DV 8-view；对每个测试场景施加 10 个随机 rotation、translation、scale。</li><li>先测严格 equivariance，再测不同 reference camera、长基线和跨数据集尺度。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-1">Baselines</h3>
+<ul><li>原始 middle-view ReSplat。</li><li>COLMAP gauge ReSplat。</li><li>仅 random Sim(3) augmentation。</li><li>scene centering / PCA canonicalization。</li><li>local-camera-frame update。</li><li>SE(3)-only 与完整 Sim(3)。</li></ul>
+<h3 id="必须消融-1">必须消融</h3>
+<ul><li>只对 mean 等变。</li><li>mean + covariance。</li><li>加入 scale transport。</li><li>加入 SH rotation。</li><li>invariant scalar MLP 直接输出三维 delta，与 basis-coefficient 输出比较。</li><li>middle-view canonicalization 与 exact equivariance 的组合/替代。</li></ul>
+<h3 id="gpu-与周期估算-1">GPU 与周期估算</h3>
+<ul><li>MVP：4–7 周；约 50–110 H200-GPUh，170–420 A6000-GPUh。</li><li>Paper-level：约 1,100–2,400 H200-GPUh，3,800–8,500 A6000-GPUh。</li></ul>
+<h3 id="失败条件-1">失败条件</h3>
+<ul><li>0.9 dB 差异主要来自 near/far、scale clamp 或数值归一化，而非 gauge dependence。</li><li>局部 frame 在平面、对称或退化邻域中不唯一。</li><li>exact equivariance 带来明显延迟，但 augmentation 已达到相同效果。</li><li>标准/OOD benchmark 没有实际质量收益。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-1">审稿人最可能的拒稿理由</h3>
+<p>“精确等变架构只让合成 gauge 测试更漂亮；简单 canonicalization 或 augmentation 已足够，真实重建没有实质收益。”</p>
+<h3 id="代码入口-1">代码入口</h3>
+<ul><li>resplat/src/model/encoder/point_transformer/</li><li>resplat/src/model/encoder/encoder_resplat.py 的 point_cloud、delta_means、delta_scales、delta_rotations</li><li>resplat/src/misc/sh_rotation.py</li><li>dataset pose、near/far 与 scale normalization</li></ul>
+<h2 id="七候选-3crossfit-未参与更新视图的信赖门控">七、候选 3：CrossFit 未参与更新视图的信赖门控</h2>
+<p><strong>Working title</strong>：Cross-Fitted Trust-Gated Recurrent Gaussian Splatting</p>
+<h3 id="核心方法-2">核心方法</h3>
+<ol><li>每个 recurrent step 把已有 context views 划分为 proposal fold 与 audit fold。</li><li>候选 Gaussian delta 只能读取 proposal views 的图像、feature 和 residual；audit views 在候选产生前完全不可见。</li><li>对当前状态和候选状态在低分辨率 audit views 上重渲染，根据 audit loss 的实际变化执行 accept、damp 或 reject。</li><li>下一步轮换 folds，使所有 view 最终都参与更新，但同一步内严格保持 proposal/audit 分离。首版只做全局或 geometry/appearance 两块步长，不同时加入 contraction、local halting 和多个新 heads。</li></ol>
+<h3 id="可证伪假设-2">可证伪假设</h3>
+<ul><li>audit loss delta 与真正 target-view loss delta 的 Spearman 相关至少 0.4；</li><li>识别 harmful update 的 AUC 至少 0.70；</li><li>8/16-view 中至少 90% 已接受步骤不增加 audit loss；</li><li>在相同最大 iteration 或相同 render budget 下，target-view PSNR 至少提高 0.30 dB，或 8–12 步不再出现明显退化。</li></ul>
+<p>若 audit delta 不能预测 target delta，则该 topic 应直接终止。</p>
+<h3 id="最近邻与精确创新差异-2">最近邻与精确创新差异</h3>
+<ul><li>ReCoSplat：incoming observed view 被作为 render-and-compare 条件参与新预测。</li><li>Diff3R：训练期 inner context / outer novel-view bilevel objective，但测试时没有逐步 cross-fit gate。</li><li>PRIMU：holdout 用于 uncertainty calibration。</li><li>ReSplat：同一步使用所有输入 residual 产生更新。</li></ul>
+<p><strong>精确差异</strong>：audit view 不进入候选更新网络，只作为该候选的独立接受证据；全部视图都是已给 context，不新增采集、不生成伪视图、不使用 renderer gradient。</p>
+<h3 id="最小验证实验-2">最小验证实验</h3>
+<ul><li>DL3DV 8-view 用 4/4 folds，16-view 用 8/8；4-view 可做 3/1 辅助，2-view 明确标记不适用。</li><li>只修改 recurrent stage，初始化器完全相同。</li><li>先测 audit-target delta 相关和 harmful-update AUC，再决定是否训练门控。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-2">Baselines</h3>
+<ul><li>固定 1/2/4/8/12 步 ReSplat。</li><li>用 proposal/self loss 做普通 early stopping。</li><li>不 cross-fit、所有视图同时更新和验证。</li><li>随机 accept/reject 或固定 damping。</li><li>在同等额外 render 数下直接多跑 ReSplat。</li></ul>
+<h3 id="必须消融-2">必须消融</h3>
+<ul><li>hard accept/reject 与连续 damping。</li><li>固定 fold 与每步重采样。</li><li>全局 gate 与 geometry/appearance block gate。</li><li>audit 分辨率。</li><li>4/8/16/32 views。</li><li>是否允许 audit feature 进入 updater；该项应证明严格隔离的重要性。</li></ul>
+<h3 id="gpu-与周期估算-2">GPU 与周期估算</h3>
+<ul><li>MVP：2–3 周；约 35–75 H200-GPUh，120–280 A6000-GPUh。</li><li>Paper-level：约 850–1,700 H200-GPUh，2,900–6,000 A6000-GPUh。</li></ul>
+<h3 id="失败条件-2">失败条件</h3>
+<ul><li>audit view 与真正 novel-view 分布不一致。</li><li>视图过少时 proposal 信息不足。</li><li>低分辨率 audit 错误拒绝恢复高频细节的正确步骤。</li><li>额外 audit render 使 quality-per-wall-clock 不优于多跑一次 ReSplat。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-2">审稿人最可能的拒稿理由</h3>
+<p>“这只是用额外输入视图和额外渲染做简单 line search；audit 改善不等价于 novel-view 泛化。”</p>
+<h3 id="代码入口-2">代码入口</h3>
+<ul><li>resplat/src/model/encoder/encoder_resplat.py 的 forward_update</li><li>resplat/src/model/model_wrapper.py 的 context_remain 路径</li><li>decoder 的低分辨率 audit render</li></ul>
+<h2 id="八候选-4带单调保护的-contractive-anytime-solver">八、候选 4：带单调保护的 Contractive Anytime Solver</h2>
+<h3 id="核心方法-3">核心方法</h3>
+<ol><li>updater 同时预测 Gaussian delta、局部 damping 和停止概率。</li><li>训练从随机 1–12 步 rollout，加入 multi-step residual decrease 与 transition contraction 约束。</li><li>推理用低分辨率 context render 检查实际下降；不下降时 damp/reject，边际收益低时 halt。</li></ol>
+<h3 id="可证伪假设-3">可证伪假设</h3>
+<p>8–12 步相对原始第 4 步再提升至少 0.25 dB，且 target PSNR 退化超过 0.10 dB 的场景比例低于 5%。否则“稳定扩展 test-time compute”的核心假设失败。</p>
+<h3 id="最近邻与精确创新差异-3">最近邻与精确创新差异</h3>
+<ul><li>ReSplat 已支持不同步数，但四步后饱和。</li><li>Learn2Splat 已以长 horizon learned optimizer 为主 claim，但消费显式 gradient。</li><li>Diff3R 使用显式 differentiable optimization。</li><li>DP-Splat 对完全不同的 Bayesian objective 给出单调 CAVI。</li></ul>
+<p><strong>精确差异</strong>：gradient-free renderer-feedback transition 的可观测下降证书、damping/rejection 和 scene-adaptive halting；不能只写“训练更多步”。</p>
+<h3 id="最小验证实验-3">最小验证实验</h3>
+<ul><li>原始 1–4 步训练、直接扩展 1–12 步、trust-only、contraction-only、完整 solver。</li><li>报告 1/2/4/8/12 步 PSNR/LPIPS、单调率、退化场景比例和额外 render 成本。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-3">Baselines</h3>
+<ul><li>ReSplat 原始 variable iterations。</li><li>Learn2Splat/G3R 风格 gradient-consuming optimizer。</li><li>仅 stop head。</li><li>仅 step norm clipping。</li><li>仅 inference-time rejection。</li></ul>
+<h3 id="必须消融-3">必须消融</h3>
+<ul><li>contraction penalty。</li><li>low-resolution trust check。</li><li>learned damping。</li><li>learned halt。</li><li>context energy 与 target generalization 的相关性。</li></ul>
+<h3 id="gpu-与周期估算-3">GPU 与周期估算</h3>
+<ul><li>MVP：3–5 周；约 60–140 H200-GPUh，210–540 A6000-GPUh。</li><li>Paper-level：约 1,300–3,000 H200-GPUh，4,500–10,500 A6000-GPUh。</li></ul>
+<h3 id="失败条件-3">失败条件</h3>
+<ul><li>context residual 单调但 novel view 变差。</li><li>contraction 过强导致过平滑。</li><li>extra render 抵消 longer horizon 的收益。</li><li>长展开训练不稳定或显存不可控。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-3">审稿人最可能的拒稿理由</h3>
+<p>“Learn2Splat 已占据长 horizon 叙事；本文只是 gradient-free 版本并增加一个 early-stop/trust head。”</p>
+<h2 id="九候选-5冲突感知的多视图-gaussian-credit">九、候选 5：冲突感知的多视图 Gaussian Credit</h2>
+<h3 id="核心方法-4">核心方法</h3>
+<ol><li>对每个 Gaussian 保留逐视图 signed residual、visibility support、入射方向、depth order 和遮挡状态，不先做全局混合。</li><li>将多视图证据分解为 consensus、view-specific 和 conflict 三部分。</li><li>geometry 只接收具有足够跨视图支持的 consensus；SH/opacity 接收 view-specific 分量；conflict 控制 step size。</li></ol>
+<h3 id="可证伪假设-4">可证伪假设</h3>
+<p>在 pose noise、局部遮挡和镜面 stress split 上，PSNR 至少提高 0.30 dB、clean split 下降不超过 0.10 dB，并使跨视图相反方向的 geometry update 至少减少 30%。</p>
+<h3 id="最近邻与精确创新差异-4">最近邻与精确创新差异</h3>
+<ul><li>PRIMU：primitive coverage/error uncertainty。</li><li>CanonicalGS：uncertainty-aware evidence fusion。</li><li>GADA：图像空间 geometry correction 与 confidence weighting。</li><li>ReCoSplat：frame-level render-and-compare。</li></ul>
+<p><strong>精确差异</strong>：冲突保留在 per-Gaussian、per-view、per-parameter 的 recurrent credit 中；不是先验融合或一个标量 uncertainty gate。</p>
+<h3 id="最小验证实验-4">最小验证实验</h3>
+<ul><li>DL3DV validation 构造 0–2° pose perturbation、随机遮挡和高镜面区域。</li><li>先验证 consensus/conflict 是否能预测 geometry update disagreement。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-4">Baselines</h3>
+<ul><li>原 ReSplat global attention。</li><li>mean/median pooling。</li><li>标量 uncertainty weighting。</li><li>leave-one-view robust estimator。</li><li>geometry/appearance 双头但无 conflict decomposition。</li></ul>
+<h3 id="必须消融-4">必须消融</h3>
+<ul><li>consensus、view-specific、conflict 三项逐一删除。</li><li>hard outlier rejection 与 soft robust aggregation。</li><li>是否限制 geometry route。</li><li>view baseline 与最小支持视图数。</li></ul>
+<h3 id="gpu-与周期估算-4">GPU 与周期估算</h3>
+<ul><li>MVP：4–6 周；约 60–150 H200-GPUh，220–580 A6000-GPUh。</li><li>Paper-level：约 1,200–2,800 H200-GPUh，4,200–9,800 A6000-GPUh。</li></ul>
+<h3 id="失败条件-4">失败条件</h3>
+<ul><li>wide-baseline 的高价值视图被误判为 outlier。</li><li>收益只存在于人为 corruption。</li><li>conflict estimator 退化为普通 robust weighting。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-4">审稿人最可能的拒稿理由</h3>
+<p>“本质是 robust pooling/confidence weighting，缺少 3DGS 特异的机制创新。”</p>
+<h2 id="十候选-6跨视图证据许可矩守恒的固定预算-topology">十、候选 6：跨视图证据许可、矩守恒的固定预算 Topology</h2>
+<h3 id="核心方法-5">核心方法</h3>
+<ol><li>在硬 Gaussian budget 下选择 split、merge、prune 或 keep。</li><li>topology action 必须由多视图、跨 iteration 的 residual-ray 证据许可；单视图高误差不能直接 birth。</li><li>split/merge 初始化严格保持 opacity mass、一阶均值和二阶空间矩，减少 topology change 的瞬时渲染跳变。</li><li>定义 recurrent hidden state 的继承、加权合并与 lineage；预分配 slots + mask 作为 MVP，避免立即重写全部动态 CUDA。</li></ol>
+<h3 id="可证伪假设-5">可证伪假设</h3>
+<p>在相同平均 Gaussian 数下 PSNR 至少提高 0.25 dB，或 Gaussian 数减少至少 30% 时 PSNR 损失不超过 0.10 dB；新显露区域 PSNR 至少提高 0.5 dB、ghost primitive 至少下降 20%。</p>
+<h3 id="最近邻与精确创新差异-5">最近邻与精确创新差异</h3>
+<ul><li>F4Splat、SparseSplat、SplatWeaver：一次性前馈 allocation/cardinality。</li><li>L2D2-GS：循环 learned densification，但面向动态驾驶且以 add 为主。</li><li>GaussianPOP：renderer-error pruning。</li><li>DP-Splat：Bayesian complexity control。</li></ul>
+<p><strong>精确差异</strong>：静态 ReSplat 内同时支持预算守恒的 split、merge、prune，并显式保存几何矩和 recurrent state；多视图 evidence 是 topology action 的许可规则，而不是局部复杂度分数。</p>
+<h3 id="最小验证实验-5">最小验证实验</h3>
+<ul><li>ReSplat-Small 57K 设置，只允许两轮 topology action。</li><li>先做 topology oracle：用真实后续 target 选择 action，判断固定 topology 是否确实限制性能。</li><li>若 oracle 不能在 matched budget 下带来约 0.5 dB 或显著几何收益，停止工程化。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-5">Baselines</h3>
+<ul><li>固定 topology ReSplat。</li><li>opacity prune。</li><li>split-only。</li><li>F4Splat/SplatWeaver 风格一次性 allocation。</li><li>L2D2-GS 风格 densify-only。</li><li>无矩守恒的随机 child 初始化。</li></ul>
+<h3 id="必须消融-5">必须消融</h3>
+<ul><li>split、merge、prune。</li><li>moment conservation。</li><li>state transfer。</li><li>evidence gate。</li><li>hard budget。</li><li>slots + mask 与真正 packed dynamic representation。</li></ul>
+<h3 id="gpu-与周期估算-5">GPU 与周期估算</h3>
+<ul><li>MVP：7–11 周；约 110–260 H200-GPUh，400–1,000 A6000-GPUh。</li><li>Paper-level：约 2,400–5,500 H200-GPUh，8,500–20,000 A6000-GPUh。</li></ul>
+<h3 id="失败条件-5">失败条件</h3>
+<ul><li>residual 无法区分缺失几何、阴影、动态物体与 pose error。</li><li>discrete identity/state transfer 不稳定。</li><li>fixed V×H×W 假设导致工程范围失控。</li><li>oracle 本身不能证明 topology 是瓶颈。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-5">审稿人最可能的拒稿理由</h3>
+<p>“这是 split、merge、prune、visibility 和 state transfer 的模块拼接；L2D2-GS/F4Splat 已覆盖主方向，新增复杂度没有带来清晰机制。”</p>
+<h2 id="十一候选-7geometryappearance-因果残差路由">十一、候选 7：Geometry–Appearance 因果残差路由</h2>
+<h3 id="核心方法-6">核心方法</h3>
+<ol><li>在现有冻结 ResNet feature 上做 Gaussian footprint 内的局部极线相关，不引入新的 optical-flow backbone。</li><li>将跨视图一致的 screen displacement 三角化为 mean/shape correction suggestion。</li><li>对齐后的剩余 residual 定义为 appearance component。</li><li>geometry route 只更新 mean/scale/rotation；appearance route 只更新 opacity/SH，并测量 leakage。</li></ol>
+<h3 id="可证伪假设-6">可证伪假设</h3>
+<p>深度 AbsRel、normal 或 reprojection error 至少改善 8%，clean target PSNR 下降不超过 0.10 dB；在曝光/白平衡扰动下 geometry update 的敏感度至少下降 30%。</p>
+<h3 id="最近邻与精确创新差异-6">最近邻与精确创新差异</h3>
+<ul><li>G3Splat：静态 geometry priors。</li><li>IDESplat：Gaussian 生成前的 depth probability refinement。</li><li>Diff3R：parameter-specific uncertainty/regularization。</li><li>GADA：deformable warp correction 与 confidence fusion。</li></ul>
+<p><strong>精确差异</strong>：每次 render 后从 residual motion 提取可执行三维 geometry correction，再把对齐余项路由给 appearance；不是静态 loss、双 branch backbone 或 per-parameter step scaling。</p>
+<h3 id="最小验证实验-6">最小验证实验</h3>
+<ul><li>冻结初始化器；DL3DV 8-view。</li><li>使用已有 feature，不引入额外 flow/depth 网络。</li><li>评估 NVS、depth、normal、reprojection 和参数 leakage。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-6">Baselines</h3>
+<ul><li>原 ReSplat。</li><li>只拆双 heads。</li><li>G3Splat-style geometry loss。</li><li>epipolar displacement 但无 parameter routing。</li><li>routing labels 随机交换。</li></ul>
+<h3 id="必须消融-6">必须消融</h3>
+<ul><li>RGB 与 feature correlation。</li><li>triangulation confidence。</li><li>hard 与 soft route。</li><li>geometry/appearance leakage penalty。</li><li>exposure/specular/textureless stress split。</li></ul>
+<h3 id="gpu-与周期估算-6">GPU 与周期估算</h3>
+<ul><li>MVP：5–8 周；约 80–180 H200-GPUh，280–700 A6000-GPUh。</li><li>Paper-level：约 1,700–3,800 H200-GPUh，6,000–13,500 A6000-GPUh。</li></ul>
+<h3 id="失败条件-6">失败条件</h3>
+<ul><li>sparse view 下 geometry/appearance 不可辨识。</li><li>mirror、重复纹理、遮挡使 local matching 系统性错误。</li><li>为救性能不得不引入 flow/depth backbone，论文退化为 module collage。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-6">审稿人最可能的拒稿理由</h3>
+<p>“残差原因不可识别；所谓因果路由其实是额外局部匹配模块，收益来自更多几何先验而非新原则。”</p>
+<h2 id="十二候选-8贯穿循环的-multi-modal-ray-depth-belief">十二、候选 8：贯穿循环的 Multi-Modal Ray-Depth Belief</h2>
+<h3 id="核心方法-7">核心方法</h3>
+<ol><li>不把初始化 depth probability 立即压成单个期望；每个低分辨率 ray 保留 K=2–3 个 depth modes、logits 和共享 appearance/state group。</li><li>各 mode 以 group-normalized opacity 参与低分辨率或稀疏 render，recurrent feedback 更新 mode logits 与 depth offsets。</li><li>只有当跨视图 support 和 posterior entropy 达到阈值时才合并模式；未决歧义在循环中保留。</li></ol>
+<h3 id="可证伪假设-7">可证伪假设</h3>
+<p>低纹理、重复纹理和遮挡区域的 depth tail error 至少下降 15%，2/4-view target PSNR 至少提高 0.30 dB，最终 active Gaussian 数不超过 matched-budget baseline 的 1.2×。</p>
+<h3 id="最近邻与精确创新差异-7">最近邻与精确创新差异</h3>
+<ul><li>IDESplat：Gaussian 生成前迭代更新 depth probability/candidates。</li><li>ReSplat：用单一 depth prediction 生成固定 Gaussian。</li><li>Rendering-Aware Bayesian 3DGS：几何 posterior 主要是 unimodal mean/covariance。</li><li>Diff3R：parameter uncertainty 约束显式 optimization。</li></ul>
+<p><strong>精确差异</strong>：depth modes 在 Gaussian 生成之后仍作为显式 belief state 存活，并由 renderer feedback 在多轮中消歧；不是更换 depth backbone 或只在初始化前多迭代几次。</p>
+<h3 id="最小验证实验-7">最小验证实验</h3>
+<ul><li>只在 ReSplat 16×初始化的每个 ray 保留 K=2。</li><li>2-view 与 4-view 的低纹理/repeated-texture 子集。</li><li>对比模式在 init 后立即 collapse、step 2 collapse 和完整 persistent belief。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-7">Baselines</h3>
+<ul><li>单 depth expectation ReSplat。</li><li>top-1 mode。</li><li>IDESplat-style pre-generation probability refinement。</li><li>K modes 但 logits 不更新。</li><li>unimodal variance/covariance uncertainty。</li></ul>
+<h3 id="必须消融-7">必须消融</h3>
+<ul><li>K=2/3/4。</li><li>group-normalized opacity。</li><li>entropy regularization。</li><li>collapse timing。</li><li>RGB、feature、depth feedback 对 mode logits 的作用。</li></ul>
+<h3 id="gpu-与周期估算-7">GPU 与周期估算</h3>
+<ul><li>MVP：5–8 周；约 80–200 H200-GPUh，300–800 A6000-GPUh。</li><li>Paper-level：约 1,800–4,200 H200-GPUh，6,500–15,000 A6000-GPUh。</li></ul>
+<h3 id="失败条件-7">失败条件</h3>
+<ul><li>posterior collapse。</li><li>多模式造成透明 ghost surfaces。</li><li>K 倍 render/memory 成本。</li><li>被审稿人视为 depth head 变体，不能证明“跨 recurrent steps 保留歧义”是必要的。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-7">审稿人最可能的拒稿理由</h3>
+<p>“IDESplat 已经做 depth probability refinement；本文只是把多候选保留得更久，代价高且贡献像初始化细节。”</p>
+<h2 id="十三候选-9correctability-aware-局部停止与计算分配">十三、候选 9：Correctability-Aware 局部停止与计算分配</h2>
+<h3 id="核心方法-8">核心方法</h3>
+<ol><li>从训练 rollout 中记录每个 tile/Gaussian neighborhood 再执行一步的真实 counterfactual gain。</li><li>训练 gain-per-cost certificate，输入 residual history、coverage、state change 和估计 kNN/render 成本。</li><li>只更新预期收益成本比高的 active neighborhoods，并在剩余总收益低时全局停止。</li><li>功能 MVP 与真实加速分开验收；paper claim 必须落到 packed kNN/增量 renderer 后的 wall-clock。</li></ol>
+<h3 id="可证伪假设-8">可证伪假设</h3>
+<p>在 PSNR 变化不超过 0.05 dB 时，recurrent wall time 至少降低 35%，且预测 gain 与真实 one-step gain 的 Spearman 相关超过 0.5。</p>
+<h3 id="最近邻与精确创新差异-8">最近邻与精确创新差异</h3>
+<ul><li>ReSplat：每轮更新全部 Gaussians。</li><li>PRIMU/PPU：预测当前 error/uncertainty。</li><li>TurboGS：optimization 期间按 error map 选择 view/tile/pixels。</li><li>Rendering-Aware Bayesian 3DGS：选择新增观测视角。</li></ul>
+<p><strong>精确差异</strong>：选择目标是“ReSplat 下一步可带来的边际 residual reduction / GPU cost”，不是当前 error 最大、uncertainty 最大或新增视角价值。</p>
+<h3 id="最小验证实验-8">最小验证实验</h3>
+<ul><li>第一阶段只稀疏 updater，不声称 renderer 加速。</li><li>25%、50%、75% active ratios；测真实 gain ranking。</li><li>第二阶段只有在 quality-compute Pareto 正向后才做 packed kernels。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-8">Baselines</h3>
+<ul><li>全量 ReSplat。</li><li>random active set。</li><li>residual magnitude top-k。</li><li>opacity/coverage top-k。</li><li>PRIMU-style uncertainty top-k。</li><li>TurboGS-style current-error heuristic。</li></ul>
+<h3 id="必须消融-8">必须消融</h3>
+<ul><li>gain 与 current error。</li><li>cost model。</li><li>exploration quota。</li><li>local 与 global halting。</li><li>PyTorch mask 与 packed implementation。</li></ul>
+<h3 id="gpu-与周期估算-8">GPU 与周期估算</h3>
+<ul><li>功能 MVP：4–7 周；真实加速版本约 7–10 周。</li><li>MVP：约 45–110 H200-GPUh，160–430 A6000-GPUh。</li><li>Paper-level：约 1,100–2,600 H200-GPUh，3,800–9,500 A6000-GPUh。</li></ul>
+<h3 id="失败条件-8">失败条件</h3>
+<ul><li>mask 后 GPU kernel 仍全量执行。</li><li>不规则稀疏访问降低 GPU utilization。</li><li>独立 gain 估计在遮挡/邻域相互作用下失效。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-8">审稿人最可能的拒稿理由</h3>
+<p>“只有 FLOP 或 active-count 节省，没有真实 wall-clock；本质是把 TurboGS 的 error-guided sampling 搬到 ReSplat。”</p>
+<h2 id="十四候选-10secant-memory-局部响应预条件器">十四、候选 10：Secant-Memory 局部响应预条件器</h2>
+<h3 id="核心方法-9">核心方法</h3>
+<ol><li>保存最近 K=2–4 步的低维 residual sketch 变化和 Gaussian parameter displacement。</li><li>在局部 neighborhood 中形成 secant pairs，并学习受约束的低秩 Broyden/Anderson response map。</li><li>将 response proposal 与基础 neural updater 混合；curvature test 失败或 residual 上升时重置 memory。</li><li>避免宣称经典 quasi-Newton 收敛性，论文表述收窄为 fixed-topology local response preconditioning。</li></ol>
+<h3 id="可证伪假设-9">可证伪假设</h3>
+<p>两步模型达到原 ReSplat 四步质量的 ±0.05 dB，或八步相对原四步提高至少 0.15 dB；两者均不满足则否定。</p>
+<h3 id="最近邻与精确创新差异-9">最近邻与精确创新差异</h3>
+<ul><li>Learn2Splat/G3R：带状态的 learned gradient optimizer。</li><li>Diff3R：完整 residual Jacobian、Gauss–Newton 和 matrix-free PCG。</li><li>ForeSplat：利用短优化轨迹训练 initialization。</li><li>ReSplat：hidden state 没有显式 secant relation。</li></ul>
+<p><strong>精确差异</strong>：推理时显式维护 residual-response pairs 并构建低秩 inverse response，不调用 backward、JVP 或 VJP；仅有 GRU hidden state 不足以支撑 claim。</p>
+<h3 id="最小验证实验-9">最小验证实验</h3>
+<ul><li>固定 topology ReSplat-Small，K=2/4。</li><li>先比较 local secant prediction error 与 momentum/GRU history；只有显著更低才继续完整训练。</li><li><strong>Pilot</strong>：SKIPPED：用户要求不运行实验。</li></ul>
+<h3 id="baselines-9">Baselines</h3>
+<ul><li>原 recurrent hidden state。</li><li>momentum/exponential moving average。</li><li>Anderson mixing。</li><li>low-rank Broyden 无 safeguard。</li><li>explicit gradient feature。</li></ul>
+<h3 id="必须消融-9">必须消融</h3>
+<ul><li>sketch 维度。</li><li>K。</li><li>neighborhood 固定或每步更新。</li><li>curvature safeguard。</li><li>reset rule。</li><li>neural proposal 与 secant proposal 的混合。</li></ul>
+<h3 id="gpu-与周期估算-9">GPU 与周期估算</h3>
+<ul><li>MVP：2–4 周；约 40–90 H200-GPUh，140–340 A6000-GPUh。</li><li>Paper-level：约 900–1,900 H200-GPUh，3,100–6,800 A6000-GPUh。</li></ul>
+<h3 id="失败条件-9">失败条件</h3>
+<ul><li>visibility、alpha order 和 neighborhood 每步变化，secant relation 非平稳。</li><li>low-rank inverse map 病态。</li><li>普通 momentum/GRU 已达到相同效果。</li></ul>
+<h3 id="审稿人最可能的拒稿理由-9">审稿人最可能的拒稿理由</h3>
+<p>“残差不是梯度，经典 secant 假设不成立；作者借用了 quasi-Newton 名称，但没有理论或稳定经验优势。”</p>
+<h2 id="十五为什么最终推荐这三项">十五、为什么最终推荐这三项</h2>
+<table><thead><tr><th>维度</th><th>Renderer credit</th><th>Sim(3) update</th><th>CrossFit trust</th></tr></thead><tbody><tr><td>与 ReSplat 核心缺陷的直接性</td><td>极高</td><td>高</td><td>高</td></tr><tr><td>3–6 月可控性</td><td>高</td><td>中高</td><td>很高</td></tr><tr><td>最近工作拥挤度</td><td>中高，需严控 claim</td><td>中</td><td>中</td></tr><tr><td>最小证伪速度</td><td>4–6 周</td><td>4–7 周</td><td>2–3 周</td></tr><tr><td>主要风险</td><td>被判 attribution 迁移</td><td>真实 benchmark 收益小</td><td>被判额外 render 的 line search</td></tr><tr><td>最佳论文故事</td><td>feedback 应按当前 renderer responsibility 绑定</td><td>update field 不应依赖任意 gauge</td><td>每一步需要独立泛化证据</td></tr></tbody></table>
+<p>建议的实际决策顺序：</p>
+<ol><li><strong>先做 paper-only 设计与 instrumentation</strong>：同时准备 candidate 1 的 credit oracle、candidate 2 的 gauge counterfactual test、candidate 3 的 audit-target correlation 分析。</li><li>真正开始实验后，最先运行 candidate 3 的相关性诊断，因为成本最低、几天内即可否证。</li><li>candidate 1 若只能复现 PRIMU-style alpha scatter 而无法形成 blockwise signed credit，应立即停止。</li><li>candidate 2 若 random gauge augmentation 已消除大多数差异，精确等变架构不值得继续。</li><li>topology 只有在 matched-budget oracle 显示约 0.5 dB 或明显几何上界时才立项。</li></ol>
+<h2 id="十六合并和淘汰记录">十六、合并和淘汰记录</h2>
+<ul><li>Coded counterfactual probes → 合并进 candidate 1，作为 credit 符号诊断或消融，不单独成文。</li><li>Blockwise trust region → 合并进 candidate 4 或 candidate 3 的最小 accept/damp/reject 机制。</li><li>Evidence-qualified topology → 合并进 candidate 6，作为 action license。</li><li>Manifold-consistent update → 合并进 candidate 2/4 的正确参数化消融。</li><li>Angular residual factorization → 合并进 candidate 5/7。</li><li>Photometric nuisance marginalization → 只作为 robustness stress test；单独贡献过窄。</li><li>Virtual probe-view consensus → 淘汰。错误 geometry 可同时使 warp 与 render 自洽，而且 GIFSplat、StereoSplat+、GADA、CoR-GS 并发压力大。</li><li>Multigrid Gaussian solver → 淘汰。层次图、co-visibility 与 multigrid 同时引入，3–6 个月内容易变成 overbuilt graph-module collage。</li></ul>
+<h2 id="十七评审结论与证据等级">十七、评审结论与证据等级</h2>
+<ul><li>候选池由多视角生成后机械去重，再由同一 OpenAI family 的 reviewer thread 做统一 jury 和批判复核。</li><li>由于宿主并发线程限制，本轮不是跨模型、跨 family 的独立 accepted review。</li><li>review_independence：same-family。</li><li>acceptance_status：provisional。</li><li>所有新近论文由 arXiv 元数据、OpenAlex 或项目页核验；Semantic Scholar 在检索时出现 429，批量 verify_papers.py 超时，因此没有把它作为唯一证据源。</li><li>查新截止 2026-07-15。提交前应在立项第 2、6、10 周各做一次增量查新。</li></ul>
+<h2 id="十八本轮明确未做的事情">十八、本轮明确未做的事情</h2>
+<ul><li>未运行 ReSplat 训练、推理或 benchmark。</li><li>未运行任何 pilot、toy experiment、GPU profiling 或 CUDA prototype。</li><li>未把计划阈值写成已观察结果。</li><li>未修改 ReSplat 官方代码基线。</li></ul>
+<p>所有十个 topic 的 Pilot 状态均为：<strong>SKIPPED：用户要求不运行实验</strong>。</p>
+<h2 id="十九关联产物">十九、关联产物</h2>
+<ul><li><a href="/paper-analysis/resplat/">ReSplat 论文完整解析</a></li><li><a href="/paper-analysis/resplat-research-topics/proposal/">第一推荐方向的精炼方案</a></li><li><a href="/paper-analysis/resplat-research-topics/experiment-plan/">第一推荐方向的实验路线图</a></li><li><a href="https://arxiv.org/abs/2510.08575">ReSplat arXiv 页面</a></li><li><a href="https://github.com/cvg/resplat">ReSplat 官方代码</a></li></ul>
+
+<footer class="aris-footer">
+  ReSplat Research Roadmap · 文献检索截止 2026-07-15 · 本报告未运行实验。
+</footer>
+</main>
+
+</div>
+</body>
+</html>

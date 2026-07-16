@@ -1,0 +1,13 @@
+---
+import ProjectDetail from '../../components/projects/ProjectDetail.astro';
+import { projects } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.filter((project) => project.isPublic).map((project) => ({ params: { slug: project.slug } }));
+}
+
+const { slug } = Astro.params;
+if (!slug) throw new Error('Missing project slug');
+---
+
+<ProjectDetail lang="en" slug={slug} />

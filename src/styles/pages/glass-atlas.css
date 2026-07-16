@@ -22,10 +22,6 @@ html[data-theme='light'] {
   --glass-shadow: 0 1.25rem 3.6rem rgba(44, 55, 75, 0.12), inset 0 1px 0 var(--glass-highlight);
 }
 
-body[data-rsui-engine='ready'] .visual-background {
-  opacity: 0.5;
-}
-
 .page-stack {
   padding-top: 3.5rem;
 }

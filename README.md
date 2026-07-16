@@ -38,37 +38,40 @@ src/
     layout/        App shell and locale dispatcher
     navigation/    Spatial Ribbon, index dialog, mobile dock, language control
     pages/         Shared bilingual Home/About/Projects/Publications/Notes structures
-    projects/      Project index and dedicated detail views
+    projects/      Shared data-driven project detail renderer and index rows
     publications/  Technical report presentation
     spatial/       Persisted canvas root
     ui/            Reusable semantic primitives and controls
   config/          Site and authoritative route configuration
-  data/            Profile, project, publication, and Shadertoy facts
-  i18n/            English/Chinese UI and project-detail prose
+  data/            Profile, auto-discovered project/note manifests, publications, and Shadertoy facts
+  i18n/            Shared English/Chinese interface copy
   layouts/         Metadata, ClientRouter, and page shell
   pages/           Thin English and Chinese public entry points
   spatial/         Engine, routing, scene, shader, resource, and rendering code
   styles/          Tokens, navigation, page, and spatial fallback styles
-public/projects/   Stable public assets and reports
-source-materials/  Preserved originals, excluded from the website build
+public/            Stable website assets, reports, and standalone note pages
 docs/              Architecture, refactor audit, and maintenance guides
+.local-archive/    Ignored local-only originals and generated files
 ```
 
 ## Content Ownership
 
 - Profile and contact facts: `src/data/profile.ts`
-- Project registry, public links, covers, filters, and display tags: `src/data/projects.ts`
+- Project registry, public links, covers, filters, and display tags: `src/data/projects/facts/*.ts`
+- Bilingual project prose and section layouts: `src/data/projects/content/*.ts`
 - Peer-reviewed and technical-report grouping: `src/data/publications.ts`
 - Notes index manifests and version links: `src/data/notes/*.ts` (see [docs/adding-a-note.md](docs/adding-a-note.md))
-- Localized interface and long project copy: `src/i18n/en.ts`, `src/i18n/zh.ts`
+- Localized interface copy: `src/i18n/en.ts`, `src/i18n/zh.ts`
 - Public downloads: `public/projects/<slug>/`
-- Source archive: `source-materials/projects/<slug>/`
+- Local-only editable originals: `.local-archive/reference/source-materials/projects/<slug>/`
+
+`.local-archive/` is intentionally ignored. It preserves raw papers, editable project sources, and generated local files without publishing them or adding them to repository history.
 
 `src/config/routes.ts` is the sole source for primary navigation and bilingual route mapping. Project details map to the Projects spatial preset. Legacy `/coursework/` routes remain compatible but do not duplicate the project index.
 
 The four route visuals are configuration-driven: About uses a teal identity field, Projects a violet scan/media flow, Publications a low-density gold archive grid, and Notes a rose-violet network. They share one precompiled material and one engine session.
 
-See [docs/architecture.md](docs/architecture.md), [docs/refactor-audit.md](docs/refactor-audit.md), [docs/adding-a-project.md](docs/adding-a-project.md), and [docs/adding-a-note.md](docs/adding-a-note.md).
+See [ARCHITECTURE.md](ARCHITECTURE.md), [docs/refactor-audit.md](docs/refactor-audit.md), [docs/adding-a-project.md](docs/adding-a-project.md), and [docs/adding-a-note.md](docs/adding-a-note.md).
 
 ## Deployment
 

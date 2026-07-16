@@ -1,15 +1,17 @@
 ---
 import { getCopy, getOppositeLang, localizedPath, type Lang, type PageKey } from '../../i18n';
+import type { Locale } from '../../config/routes';
 
 interface Props {
   lang: Lang;
   page: PageKey;
+  localizedPaths?: Readonly<Record<Locale, string>>;
 }
 
-const { lang, page } = Astro.props as Props;
+const { lang, page, localizedPaths } = Astro.props as Props;
 const nextLang = getOppositeLang(lang);
 const t = getCopy(lang);
-const target = localizedPath(nextLang, page);
+const target = localizedPaths?.[nextLang] ?? localizedPath(nextLang, page);
 ---
 
 <a class="language-toggle" data-rsui-magnetic href={target} hreflang={nextLang} aria-label={`Switch language to ${t.switchLabel}`}>

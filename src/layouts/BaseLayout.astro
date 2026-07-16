@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import AppShell from '../components/layout/AppShell.astro';
-import { getRouteForPage } from '../config/routes';
+import { getRouteForPage, type Locale } from '../config/routes';
 import { site } from '../config/site';
 import { profile } from '../data/profile';
 import { getCopy, getPath, type Lang, type PageKey } from '../i18n';
@@ -16,18 +16,19 @@ interface Props {
   page: PageKey;
   title?: string;
   description?: string;
+  localizedPaths?: Readonly<Record<Locale, string>>;
 }
 
-const { lang, page, title, description } = Astro.props as Props;
+const { lang, page, title, description, localizedPaths } = Astro.props as Props;
 const t = getCopy(lang);
 const route = getRouteForPage(page);
 const canonicalPage = page === 'coursework' ? 'projects' : page;
 const pageTitle = title ?? `${route.label[lang]} | ${profile.display[lang].name}`;
 const pageDescription = description ?? route.description[lang];
 const siteUrl = Astro.site ?? new URL(site.url);
-const canonical = new URL(getPath(lang, canonicalPage), siteUrl).toString();
-const alternateEn = new URL(getPath('en', canonicalPage), siteUrl).toString();
-const alternateZh = new URL(getPath('zh', canonicalPage), siteUrl).toString();
+const canonical = new URL(localizedPaths?.[lang] ?? getPath(lang, canonicalPage), siteUrl).toString();
+const alternateEn = new URL(localizedPaths?.en ?? getPath('en', canonicalPage), siteUrl).toString();
+const alternateZh = new URL(localizedPaths?.zh ?? getPath('zh', canonicalPage), siteUrl).toString();
 ---
 
 <!doctype html>
@@ -72,7 +73,7 @@ const alternateZh = new URL(getPath('zh', canonicalPage), siteUrl).toString();
   </head>
   <body data-page-key={page} data-spatial-route={route.id} style={`--page-accent:${route.accent};`}>
     <a class="skip-link" href="#main-content">{t.common.skipToContent}</a>
-    <AppShell lang={lang} page={page}>
+    <AppShell lang={lang} page={page} localizedPaths={localizedPaths}>
       <slot />
     </AppShell>
     <script>

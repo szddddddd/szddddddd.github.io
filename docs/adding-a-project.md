@@ -1,96 +1,157 @@
 # Adding a Project
 
-Project facts, long-form copy, public assets, and original source materials have separate owners. Follow this workflow to preserve the bilingual index, report aggregation, spatial route behavior, and existing public URLs.
+Projects use the same manifest-driven workflow as Notes. A new project requires one factual manifest, one bilingual content manifest, and its public assets. Do not add route wrappers, project-specific Astro components, i18n top-level keys, or registry entries.
 
 ## 1. Choose a stable slug
 
-Use a lowercase URL-safe slug such as `example-project`. A published slug is part of the public API. Add it to the `ProjectSlug` union in `src/data/projects.ts`; do not rename an existing slug.
+Use a lowercase URL-safe slug such as `example-project`. Published slugs are public API and must not be renamed.
 
-## 2. Register the project fact record
+The generated routes are automatic:
 
-Add one record to `src/data/projects.ts` and include:
+```text
+/projects/example-project/
+/zh/projects/example-project/
+```
+
+## 2. Add the factual manifest
+
+Create `src/data/projects/facts/example-project.ts`:
 
 ```ts
-{
+import { defineProject } from '../projectSchema';
+
+export default defineProject({
   id: 'example-project',
-  number: '07',
   slug: 'example-project',
-  sortOrder: 70,
+  number: '08',
+  sortOrder: 80,
   featured: false,
   isPublic: true,
   title: { en: 'English title', zh: '中文标题' },
-  summary: { en: 'Short summary.', zh: '简短摘要。' },
-  description: { en: 'Short summary.', zh: '简短摘要。' },
+  type: { en: 'Research Project', zh: '研究项目' },
+  course: { en: 'Course or context', zh: '课程或项目背景' },
   year: '2026',
+  description: { en: 'Method description.', zh: '方法描述。' },
+  summary: { en: 'Index summary.', zh: '索引摘要。' },
   categories: ['3d-vision', 'coursework'],
   displayTags: [
     { en: '3D Vision', zh: '三维视觉' },
     { en: 'Method', zh: '方法' },
-    { en: 'Coursework', zh: '课程项目' },
   ],
-  allTags: ['3D Vision', 'Method', 'Coursework'],
-  tags: ['3D Vision', 'Method', 'Coursework'],
+  allTags: ['3D Vision', 'Method'],
+  tags: ['3D Vision', 'Method'],
   image: '/projects/example-project/cover.png',
   cover: {
     src: '/projects/example-project/cover.png',
-    alt: { en: 'Describe the actual cover image.', zh: '描述真实封面内容。' },
+    alt: { en: 'Describe the real cover.', zh: '描述真实封面。' },
   },
   spatialAccent: '#8b7cff',
   links: {
     details: { en: '/projects/example-project/', zh: '/zh/projects/example-project/' },
     report: '/projects/example-project/report.pdf',
   },
-}
+});
 ```
 
-Use only factual categories: `3d-vision`, `medical-imaging`, `creative-coding`, and/or `coursework`. Limit `displayTags` to three. `allTags` can retain the complete factual list. Omit a link when it is not public; never use an empty string. Add `previewVideo` only when there is a real public video and poster.
+IDs and numbers must be unique. Use only factual categories: `3d-vision`, `medical-imaging`, `creative-coding`, and `coursework`. Omit unavailable links instead of using empty strings.
 
-Add the record to both `projects` and `projectsBySlug`. Keep public paths root-relative and preserve trailing slash conventions for HTML routes.
+## 3. Add the content manifest
 
-## 3. Add the cover and downloads
+Create `src/data/projects/content/example-project.ts` with `defineProjectContent()`.
 
-Put web-facing images, PDFs, PPTX files, and videos under:
+Each locale document must provide `metaTitle`, `metaDescription`, `hero`, `metadata`, and `details`. The shared `sections` array defines presentation with discriminated blocks:
+
+```ts
+import { defineProjectContent } from '../contentSchema';
+
+const en = {
+  metaTitle: 'Example Project — Song Zidong',
+  metaDescription: 'Search description.',
+  hero: {
+    eyebrow: 'Research Project / 3D Vision',
+    title: 'Example Project',
+    subtitle: 'One-sentence project statement.',
+    affiliation: 'Research context · 2026',
+  },
+  metadata: ['3D Vision', 'Method'],
+  details: [
+    { label: 'Type', value: 'Research Project' },
+    { label: 'Year', value: '2026' },
+  ],
+  labels: { summary: 'Summary', method: 'Method' },
+  sections: { overview: 'Overview', method: 'Method', gallery: 'Visuals' },
+  overview: 'Overview paragraph.',
+  overviewBullets: ['First contribution.', 'Second contribution.'],
+  methodCards: [{ title: 'Stage one', items: ['Step A', 'Step B'] }],
+  gallery: [{ src: '/projects/example-project/result.png', alt: 'Result description.', caption: 'Result caption.' }],
+} as const;
+
+const zh = {
+  ...en,
+  metaTitle: '示例项目 — 宋梓冬',
+  metaDescription: '中文搜索描述。',
+  hero: { eyebrow: '研究项目 / 三维视觉', title: '示例项目', subtitle: '一句话项目说明。', affiliation: '项目背景 · 2026' },
+  metadata: ['三维视觉', '方法'],
+  details: [{ label: '类型', value: '研究项目' }, { label: '年份', value: '2026' }],
+  labels: { summary: '摘要', method: '方法' },
+  sections: { overview: '概览', method: '方法', gallery: '图像' },
+  overview: '中文概览。',
+  overviewBullets: ['贡献一。', '贡献二。'],
+  methodCards: [{ title: '阶段一', items: ['步骤 A', '步骤 B'] }],
+  gallery: [{ src: '/projects/example-project/result.png', alt: '结果描述。', caption: '结果图。' }],
+} as const;
+
+export default defineProjectContent({
+  id: 'example-project',
+  heroActions: [{ type: 'project-link', link: 'report', label: 'report', optional: true }],
+  documents: { en, zh },
+  sections: [
+    {
+      eyebrow: 'EXAMPLE',
+      title: 'sections.overview',
+      intro: 'overview',
+      blocks: [{ type: 'bullet-panel', items: 'overviewBullets', label: 'labels.summary' }],
+    },
+    {
+      title: 'sections.method',
+      blocks: [{ type: 'card-grid', items: 'methodCards', label: 'labels.method' }],
+    },
+    {
+      title: 'sections.gallery',
+      blocks: [{ type: 'gallery', items: 'gallery' }],
+    },
+  ],
+});
+```
+
+Available block types are defined in `src/data/projects/contentSchema.ts`. Prefer existing block types and CSS classes; extend the schema only when a genuinely new semantic presentation cannot be represented.
+
+## 4. Add assets
+
+Put web-facing images, PDFs, slides, and videos under:
 
 ```text
 public/projects/example-project/
 ```
 
-Use descriptive alt text and preserve the native image ratio. Put editable reports, TeX, source code snapshots, raw data, and course handouts under:
+Put editable reports, TeX, source snapshots, raw data, and course material under:
 
 ```text
-source-materials/projects/example-project/
+.local-archive/reference/source-materials/projects/example-project/
 ```
 
-Do not link the website directly to `source-materials/`.
+Never link the website directly to `.local-archive/`. The directory is intentionally ignored and does not exist in CI or on GitHub Pages. The build rejects missing local figure paths referenced from content documents.
 
-If fixing a publicly visible filename such as `comparsion.png`, retain the legacy file or URL in addition to a corrected internal name.
+## 5. Optional publication record
 
-## 4. Add bilingual detail content and wrappers
-
-Add English and Chinese project prose with the same shape in `src/i18n/en.ts` and `src/i18n/zh.ts`. Preserve real metrics, figures, contributions, and report context; do not infer authors, venues, awards, or results.
-
-Add thin public entry points:
-
-```text
-src/pages/projects/example-project.astro
-src/pages/zh/projects/example-project.astro
-```
-
-Both wrappers render the same project component with `lang="en"` or `lang="zh"`. Detail pages automatically inherit the Projects spatial preset through `routes.ts`; do not add a new primary navigation entry or spatial engine.
-
-Use `data-astro-reload` for PDF, PPTX, and external links so Astro client transitions are not used for downloads or off-site navigation.
-
-## 5. Add a technical report only when real
-
-For a course report, add a `technicalReports` record in `src/data/publications.ts` with `projectId`. The item resolves title, course, year, PDF, code, and project URL from the project registry. Add `authors` only when they are known. Do not put coursework in `peerReviewed`.
+For a real course report, add a `technicalReports` entry in `src/data/publications.ts` using the project ID. The publication item resolves project facts and links from the project registry.
 
 ## 6. Verify
 
 ```bash
 npm run check
 npm run build
-npm run preview
 git diff --check
 ```
 
-Check both locale index and detail paths, the language toggle, cover alt text, filter membership, every public download, and the route's active Projects navigation state. Confirm that the project is visible with JavaScript disabled and that no asset path points outside `public/`.
+Check both locale URLs, language switching, canonical and hreflang metadata, cover alt text, category filtering, downloads, and the Projects active navigation state. Confirm the page remains readable without JavaScript and WebGL.

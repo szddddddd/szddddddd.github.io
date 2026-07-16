@@ -1,5 +1,6 @@
 ---
 import type { Lang, PageKey } from '../../i18n';
+import type { Locale } from '../../config/routes';
 import { getRouteForPage } from '../../config/routes';
 import { profile } from '../../data/profile';
 import SpatialRibbon from '../navigation/SpatialRibbon.astro';
@@ -8,16 +9,17 @@ import SpatialUIRoot from '../spatial/SpatialUIRoot.astro';
 interface Props {
   lang: Lang;
   page: PageKey;
+  localizedPaths?: Readonly<Record<Locale, string>>;
 }
 
-const { lang, page } = Astro.props as Props;
+const { lang, page, localizedPaths } = Astro.props as Props;
 const route = getRouteForPage(page);
 ---
 
 <div class="spatial-ui-persistence" transition:persist="spatial-ui">
   <SpatialUIRoot />
 </div>
-<SpatialRibbon lang={lang} page={page} />
+<SpatialRibbon lang={lang} page={page} localizedPaths={localizedPaths} />
 <main
   id="main-content"
   class:list={['site-main', page === 'home' && 'site-main--home']}

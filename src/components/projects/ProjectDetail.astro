@@ -1,0 +1,81 @@
+---
+import { profile } from '../../data/profile';
+import { getProject } from '../../data/projects';
+import { getProjectContent } from '../../data/projects/contentRegistry';
+import type { ProjectLinkSet } from '../../data/projects/projectSchema';
+import { getCopy, type Lang } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../ui/Section.astro';
+import ProjectContentBlock from './ProjectContentBlock.astro';
+
+interface Props { lang: Lang; slug: string }
+const { lang, slug } = Astro.props as Props;
+const t = getCopy(lang);
+const project = getProject(slug);
+const content = getProjectContent(slug);
+const document = content.documents[lang];
+const resolve = (path: string | undefined): any => path?.split('.').reduce<any>((value, key) => value?.[key], document);
+const resolveLink = (key: keyof ProjectLinkSet): string => {
+  const value = project.links[key];
+  return typeof value === 'string' ? value : value?.[lang] ?? '';
+};
+const localizedPaths = {
+  en: typeof project.links.details === 'string' ? project.links.details : project.links.details?.en ?? `/projects/${slug}/`,
+  zh: typeof project.links.details === 'string' ? project.links.details : project.links.details?.zh ?? `/zh/projects/${slug}/`,
+};
+const linkLabels = { ...t.projects.labels, readme: t.projects.labels.readme };
+const isExternal = (href: string) => href.startsWith('http');
+const requiresReload = (href: string) => isExternal(href) || /\.(?:pdf|pptx)(?:$|[?#])/i.test(href);
+const heroCaption = resolve(content.heroCaption) ?? (content.heroCaptionFallback === 'project-title' ? project.title[lang] : project.title[lang]);
+const hasShadertoyGallery = content.sections.some((section) => section.blocks.some((block) => block.type === 'shadertoy-gallery'));
+---
+
+<BaseLayout lang={lang} page="projects" title={document.metaTitle} description={document.metaDescription} localizedPaths={localizedPaths}>
+  <article class:list={['project-detail', content.articleClass]}>
+    <header class:list={['project-detail-hero', project.id === 'arts1308' && 'arts-hero']}>
+      <div class="detail-hero-copy reveal-block">
+        <p class="eyebrow" transition:name="page-index">{document.hero.eyebrow}</p>
+        <h1 class="project-detail-title" transition:name={`project-title-${slug}`}>{document.hero.title}</h1>
+        <p class="detail-subtitle wide-subtitle">{document.hero.subtitle}</p>
+        {document.hero.affiliation && <p class="detail-affiliation">{document.hero.affiliation}</p>}
+        <ul class="tag-list expanded-tags detail-tags" aria-label="Project metadata tags">{document.metadata.map((item) => <li>{item}</li>)}</ul>
+        {content.heroActions && <div class="hero-actions detail-actions">
+          {content.heroActions.map((action) => {
+            if (action.type === 'email') return <a class="button button-secondary" href={`mailto:${profile.email}`}>{t.hero.emailAction}</a>;
+            if (action.type === 'anchor') return <a class="button button-secondary" href={action.href}>{resolve(action.label)}</a>;
+            if (action.type === 'external') return <a class="button button-secondary" href={action.href} target="_blank" rel="noreferrer" data-astro-reload>{resolve(action.label)}</a>;
+            const href = resolveLink(action.link);
+            if (!href && action.optional) return null;
+            return href ? <a class="button button-secondary" href={href} target={isExternal(href) ? '_blank' : undefined} rel={isExternal(href) ? 'noreferrer' : undefined} data-astro-reload={requiresReload(href) ? '' : undefined}>{linkLabels[action.label as keyof typeof linkLabels] ?? action.label}</a> : <span class="button button-disabled" aria-disabled="true">{linkLabels[action.label as keyof typeof linkLabels] ?? action.label}: {t.common.comingSoon}</span>;
+          })}
+        </div>}
+      </div>
+      <figure class:list={['detail-hero-figure', content.heroFigureClass, 'reveal-block']}>
+        <img class={content.heroImageClass} src={project.cover.src} alt={project.cover.alt[lang]} loading="eager" transition:name={`project-cover-${slug}`} />
+        <figcaption>{heroCaption}</figcaption>
+      </figure>
+    </header>
+
+    <section class="metadata-grid" aria-label="Project metadata">
+      {document.details.map((item) => <article><span>{item.label}</span><strong>{item.value}</strong></article>)}
+    </section>
+
+    {content.sections.map((section) => (
+      <Section id={section.id} eyebrow={section.eyebrow} title={resolve(section.title)} intro={section.introSource === 'project-description' ? project.description[lang] : resolve(section.intro)}>
+        {section.blocks.map((block) => <ProjectContentBlock block={block} document={document} project={project} lang={lang} linkLabels={linkLabels} />)}
+      </Section>
+    ))}
+  </article>
+
+  {hasShadertoyGallery && <script>
+    document.querySelectorAll('details[data-shader-embed]').forEach((details) => {
+      details.addEventListener('toggle', () => {
+        if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+        const iframe = details.querySelector('iframe[data-src]');
+        if (!(iframe instanceof HTMLIFrameElement) || iframe.src) return;
+        const src = iframe.dataset.src;
+        if (src) iframe.src = src;
+      });
+    });
+  </script>}
+</BaseLayout>

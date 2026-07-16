@@ -1,6 +1,7 @@
 ---
 import { getPath, primaryRoutes, type Lang, type PageKey } from '../../i18n';
 import { getRouteForPage, type RouteDefinition } from '../../config/routes';
+import type { Locale } from '../../config/routes';
 import { profile } from '../../data/profile';
 import LanguageToggle from './LanguageToggle.astro';
 import MobileDock from './MobileDock.astro';
@@ -12,9 +13,10 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 interface Props {
   lang: Lang;
   page: PageKey;
+  localizedPaths?: Readonly<Record<Locale, string>>;
 }
 
-const { lang, page } = Astro.props as Props;
+const { lang, page, localizedPaths } = Astro.props as Props;
 const activeRoute = getRouteForPage(page);
 const routes = primaryRoutes as readonly RouteDefinition[];
 const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
@@ -30,7 +32,7 @@ const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
       {routes.map((route) => <SpatialRouteTab route={route} lang={lang} active={route.id === activeRoute.id} />)}
     </nav>
     <div class="spatial-ribbon__tools">
-      <LanguageToggle lang={lang} page={page} />
+      <LanguageToggle lang={lang} page={page} localizedPaths={localizedPaths} />
       <ThemeToggle lang={lang} />
       <MotionToggle lang={lang} />
     </div>
@@ -41,7 +43,7 @@ const indexLabel = lang === 'zh' ? '索引' : 'INDEX';
     <span class="spatial-ribbon__current">{activeRoute.shortLabel[lang]}</span>
     <button class="index-control" type="button" data-spatial-index-trigger aria-expanded="false" aria-controls="spatial-index-dialog">{indexLabel}</button>
     <div class="spatial-ribbon__tools">
-      <LanguageToggle lang={lang} page={page} />
+      <LanguageToggle lang={lang} page={page} localizedPaths={localizedPaths} />
       <ThemeToggle lang={lang} />
       <MotionToggle lang={lang} />
     </div>

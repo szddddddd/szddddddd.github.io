@@ -1,9 +1,0 @@
-\section{Conclusion}
-
-% 这个现在是 AI 写的，一定要找时间人工审核一下！！！
-
-In this work, we presented MOF3R, a segmentation-guided framework for object-centric 3D reconstruction from monocular videos. By incorporating SAM2-generated foreground masks into the 3D Gaussian Splatting optimization process, our Mask-Guided Compound Loss encourages Gaussian primitives to focus on the target object while suppressing background fitting. We further introduced a geometry-aware multi-metric pruning strategy that combines multi-view mask consistency, local density analysis, and anisotropy filtering to remove floating artifacts and refine object boundaries.
-
-Experiments on challenging categories from the CO3Dv2 dataset demonstrate that the proposed approach produces cleaner reconstructions with fewer background artifacts and sharper object boundaries compared with original 3DGS. The results suggest that semantic priors and geometric refinement provide complementary benefits for object-centric reconstruction in unconstrained environments.
-
-For future work, we plan to investigate tighter integration between segmentation and reconstruction, as well as more robust geometric regularization techniques for handling transparent objects, reflective surfaces, and highly occluded scenes.

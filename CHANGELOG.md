@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Manifest-driven project content
+
+- Split project facts and bilingual long-form content into one auto-discovered module per project.
+- Added build-time validation for duplicate project IDs/numbers, bilingual content metadata, and local project figure paths.
+- Replaced seven bespoke detail components and fourteen locale wrappers with one data-driven renderer and two dynamic locale routes.
+- Reduced the shared i18n modules to interface copy and removed project-specific metadata/page exceptions.
+- Removed legacy RSUI style remnants and consolidated architecture and project-authoring documentation.
+
+### Repository cleanup
+
+- Moved non-public editable sources and raw paper workspaces into the ignored local `.local-archive/` directory without deleting local data.
+- Kept only build sources, maintenance documentation, and browser-facing `public/` assets in version control.
+
 ### Spatial Research Atlas visual upgrade
 
 - Fixed the Spatial Ribbon's fixed positioning, added a global reading-progress line, compact progress, desktop 64px-to-52px compression, anchor clearance, and mobile safe-area handling.

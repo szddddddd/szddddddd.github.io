@@ -1,0 +1,139 @@
+---
+import type { ProjectContentBlock, ProjectDocument } from '../../data/projects/contentSchema';
+import type { Project, ProjectLinkSet } from '../../data/projects/projectSchema';
+import type { Lang } from '../../i18n';
+import MathBlock from '../ui/MathBlock.astro';
+import ShaderWorkCard from './ShaderWorkCard.astro';
+import { shadertoyWorks } from '../../data/shadertoy';
+
+interface Props {
+  block: ProjectContentBlock;
+  document: ProjectDocument;
+  project: Project;
+  lang: Lang;
+  linkLabels: Record<string, string>;
+}
+
+const { block, document, project, lang, linkLabels } = Astro.props as Props;
+const resolve = (path: string | undefined): any => {
+  if (!path) return undefined;
+  return path.split('.').reduce<any>((value, key) => value?.[key], document);
+};
+const resolveLink = (key: keyof ProjectLinkSet): string => {
+  const value = project.links[key];
+  return typeof value === 'string' ? value : value?.[lang] ?? '';
+};
+const requiresReload = (href: string) => href.startsWith('http') || /\.(?:pdf|pptx)(?:$|[?#])/i.test(href);
+const isExternal = (href: string) => href.startsWith('http');
+const figure = block.type === 'figure' && block.item ? resolve(block.item) : undefined;
+const galleryItems = block.type === 'gallery' ? (resolve(block.items) ?? []).slice(block.start ?? 0) : [];
+---
+
+{block.type === 'group' && (
+  <div class={block.className}>
+    {block.blocks.map((child) => <Astro.self block={child} document={document} project={project} lang={lang} linkLabels={linkLabels} />)}
+  </div>
+)}
+
+{block.type === 'bullet-panel' && (
+  <div class:list={['panel', 'project-summary-panel', block.className]}>
+    {block.label && <p class="panel-label">{resolve(block.label)}</p>}
+    <ul class="interest-list">{(resolve(block.items) ?? []).map((item: string) => <li>{item}</li>)}</ul>
+  </div>
+)}
+
+{block.type === 'narrative' && (
+  <div class:list={['panel', 'narrative-panel', block.className]}>
+    {block.label && <p class="panel-label">{resolve(block.label)}</p>}
+    <p>{resolve(block.text)}</p>
+  </div>
+)}
+
+{block.type === 'figure' && (
+  <figure class:list={['detail-figure', block.className]}>
+    <img src={figure?.src ?? block.src} alt={figure?.alt ?? resolve(block.alt)} loading="lazy" />
+    <figcaption>{figure?.caption ?? resolve(block.caption)}</figcaption>
+  </figure>
+)}
+
+{block.type === 'card-grid' && (
+  <div class={block.className ?? 'method-grid'}>
+    {(resolve(block.items) ?? []).map((card: { title: string; items: readonly string[] }) => (
+      <article class={block.cardClassName ?? 'method-card'}>
+        {block.label && <p class="panel-label">{resolve(block.label)}</p>}
+        <h3>{card.title}</h3>
+        <ul class="interest-list compact-interest-list">{card.items.map((item) => <li>{item}</li>)}</ul>
+      </article>
+    ))}
+  </div>
+)}
+
+{block.type === 'metric-cards' && (
+  <div class:list={['metric-cards', block.className]} aria-label={resolve(block.ariaLabel)}>
+    {(resolve(block.items) ?? []).map((item: { label: string; value: string; note?: string }) => (
+      <article><span>{item.label}</span><strong>{item.value}</strong>{item.note && <p>{item.note}</p>}</article>
+    ))}
+  </div>
+)}
+
+{block.type === 'metric-table' && (
+  <div class="metric-table" role="table" aria-label={block.ariaLabel}>
+    <div class:list={['metric-row', block.className, 'metric-head']} role="row">
+      {(resolve(block.columns) ?? []).map((column: string) => <span role="columnheader">{column}</span>)}
+    </div>
+    {(resolve(block.rows) ?? []).map((row: readonly string[]) => (
+      <div class:list={['metric-row', block.className]} role="row">
+        {row.map((cell, index) => <span role="cell" class:list={{ 'metric-model': index === 0 }}>{cell}</span>)}
+      </div>
+    ))}
+  </div>
+)}
+
+{block.type === 'gallery' && (
+  <div class:list={['gallery-grid', block.className]}>
+    {galleryItems.map((item: { src: string; alt: string; caption: string }, index: number) => (
+      <figure class:list={['detail-figure', block.figureClassName, project.id === 'si100b' && 'si100b-gallery-card', project.id === 'si100b' && (index === 3 || index === 5) && 'is-contain']}>
+        <img src={item.src} alt={item.alt} loading="lazy" />
+        <figcaption>{item.caption}</figcaption>
+      </figure>
+    ))}
+  </div>
+)}
+
+{block.type === 'highlight' && (
+  <div class:list={['panel', 'highlight-panel', block.className]}>
+    {block.label && <p class="panel-label">{resolve(block.label)}</p>}
+    <ul class="highlight-list">{(resolve(block.items) ?? []).map((item: string) => <li>{item}</li>)}</ul>
+  </div>
+)}
+
+{block.type === 'future-grid' && (
+  <div class="future-grid">{(resolve(block.items) ?? []).map((item: string) => <article class="panel future-card"><p>{item}</p></article>)}</div>
+)}
+
+{block.type === 'math-panel' && (
+  <article class="panel formula-card method-technical-panel">
+    {block.label && <p class="panel-label">{resolve(block.label)}</p>}
+    <MathBlock tex={resolve(block.formula)} />
+    {block.intro && <p>{resolve(block.intro)}</p>}
+    {block.highlights && <ul class="interest-list compact-interest-list">{(resolve(block.highlights) ?? []).map((item: string) => <li>{item}</li>)}</ul>}
+  </article>
+)}
+
+{block.type === 'links' && (
+  <div class:list={['panel', 'narrative-panel', 'asset-link-panel', block.className]}>
+    {block.text && <p>{resolve(block.text)}</p>}
+    <div class="hero-actions detail-actions">
+      {block.links.map((key) => {
+        const href = resolveLink(key);
+        return href && <a class="button button-secondary" href={href} target={isExternal(href) ? '_blank' : undefined} rel={isExternal(href) ? 'noreferrer' : undefined} data-astro-reload={requiresReload(href) ? '' : undefined}>{linkLabels[key]}</a>;
+      })}
+    </div>
+  </div>
+)}
+
+{block.type === 'shadertoy-gallery' && (
+  <div class="shader-gallery-grid">
+    {shadertoyWorks.map((work, index) => <ShaderWorkCard work={work} index={index + 1} labels={resolve(block.labels)} />)}
+  </div>
+)}

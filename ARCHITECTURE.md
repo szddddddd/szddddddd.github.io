@@ -1,12 +1,12 @@
 # Spatial Research Atlas Architecture
 
-This portfolio is a static Astro site with a progressive spatial rendering layer. Research content is always semantic HTML; WebGL enriches the document but never owns navigation, content, or accessibility.
+This repository is a static bilingual Astro site with a progressively enhanced Three.js spatial layer. Semantic HTML owns content, navigation, and accessibility; WebGL remains decorative.
 
 ## Runtime
 
 ```text
-Astro route wrapper
-  -> LocalizedPage / project detail component
+Astro route
+  -> LocalizedPage or dynamic ProjectDetail
   -> BaseLayout + ClientRouter
      -> AppShell
         -> SpatialRibbon + semantic main content
@@ -14,49 +14,67 @@ Astro route wrapper
            -> one SpatialEngine
               -> one WebGLRenderer and canvas
               -> one AnimationLoop
-              -> one SpatialScene and CameraRig
+              -> SpatialScene + CameraRig
               -> ResourceManager + ShaderRegistry
 ```
 
-`SpatialUIRoot` uses Astro `transition:persist`, so the renderer remains mounted across all Astro client-route transitions, including project detail pages. A normal multi-page navigation still works when JavaScript or View Transitions are unavailable.
+`SpatialUIRoot` uses `transition:persist`, so the engine remains mounted across Astro client transitions. Normal multi-page navigation remains available without JavaScript, View Transitions, or WebGL.
 
-## Route Ownership
+## Ownership Boundaries
 
-`src/config/routes.ts` is the only route configuration for primary navigation, bilingual paths, indexes, labels, descriptions, accents, and active-route resolution. Project details and legacy Coursework paths resolve to the Projects spatial preset.
+- `src/config/routes.ts` owns primary routes, localized paths, labels, active-route resolution, accents, and spatial presets.
+- Astro `ClientRouter` owns URL changes, history, document fetching, DOM swaps, and fallback navigation.
+- `src/spatial/` owns the persistent visual engine. It never replaces page DOM or mutates browser history.
+- `src/i18n/en.ts` and `src/i18n/zh.ts` contain shared interface copy only.
+- `src/data/projects/facts/` contains one factual project manifest per project.
+- `src/data/projects/content/` contains one bilingual long-form project document and layout manifest per project.
+- `src/data/notes/` contains one note manifest per note.
+- `public/` contains browser-facing assets.
+- `.local-archive/` preserves editable originals, raw paper workspaces, dependencies, and generated builds locally; Git ignores the entire directory.
 
-Astro `ClientRouter` owns URL changes, browser history, fetches, DOM swaps, scroll behavior, and ordinary fallback navigation. `SpatialRouteController` only observes Astro lifecycle events and asks the engine to apply a route preset. It never calls `fetch`, `DOMParser`, or the History API.
+## Project Content Pipeline
+
+Project detail pages use the same pattern as Notes:
+
+```text
+facts/<slug>.ts --------------------┐
+                                   ├─> dynamic /projects/[slug] routes
+content/<slug>.ts ------------------┘      -> ProjectDetail.astro
+                                             -> ProjectContentBlock.astro
+```
+
+`src/data/projects.ts` discovers fact modules with `import.meta.glob`, validates IDs and numbers, sorts them, and derives `projectsBySlug`. `src/data/projects/contentRegistry.ts` discovers content modules, validates bilingual metadata, rejects duplicate IDs, and verifies local `/projects/` figure paths during the Astro build.
+
+`contentSchema.ts` defines discriminated section blocks including groups, bullet panels, narratives, figures, card grids, metric cards, metric tables, galleries, highlights, math panels, links, and Shadertoy galleries. `ProjectDetail.astro` is the only project detail page renderer; adding a project does not require a new Astro component or route wrapper.
+
+Dynamic English and Chinese routes pass explicit localized paths into `BaseLayout`. This keeps canonical URLs, hreflang metadata, and the language toggle aligned while both locales share the Projects spatial preset.
 
 ## Spatial Engine
 
-`SpatialEngine` is the session singleton. It owns the renderer, camera, scene, resource manager, input boundary, and `AnimationLoop`.
+- `SpatialEngine` owns one renderer, canvas, scene, resource manager, input boundary, and animation loop per browser session.
+- `AnimationLoop` is the only RAF owner and pauses while the document is hidden.
+- Motion Off disables continuous rendering and redraws only on invalidation.
+- `SpatialRenderer` caps DPR at `1.5` for full quality and `1` for reduced/mobile quality.
+- `ViewportInput` owns resize, scroll, and pointer input.
+- Context loss falls back to CSS while semantic content remains usable.
+- `routeStates.ts` owns camera, palette, density, flow, noise, bloom, vignette, scene preset, and transition duration.
+- `SpatialRouteController` observes Astro lifecycle events and maps the current path to a route preset; it does not fetch pages or mutate history.
 
-- `AnimationLoop` is the only RAF owner. It pauses while the document is hidden.
-- Motion Off stops continuous animation and renders only after state changes.
-- `SpatialRenderer` caps DPR at `1.5` for full quality and `1` for reduced/mobile quality; `SpatialScene` also scales field density and glow down in reduced quality.
-- `ViewportInput` owns the one resize, scroll, and pointer input boundary.
-- Context loss changes the root to the CSS spatial fallback while DOM content remains usable.
-- `ResourceManager` reference-counts geometry and material ownership. `ShaderRegistry` caches program materials by key.
+## Interaction Rules
 
-Typed events are `ROUTE_PREPARE`, `ROUTE_ENTER`, `ROUTE_LEAVE`, `NAV_PREVIEW`, `NAV_PREVIEW_END`, `THEME_CHANGE`, `MOTION_CHANGE`, `QUALITY_CHANGE`, `VIEWPORT_RESIZE`, and `DOCUMENT_VISIBILITY_CHANGE`.
+- Keep one `WebGLRenderer`, one canvas, and one animation loop.
+- Do not construct vectors, colors, shader strings, textures, or materials every frame.
+- Reuse programs through `ShaderRegistry` and release resources through `ResourceManager`.
+- Keep all navigation as real anchors and all filters as progressive enhancement.
+- Keep the fixed Spatial Ribbon as a direct body child and preserve top/bottom safe areas.
+- Keep reading content on local translucent surfaces rather than covering the decorative spatial field with an opaque page background.
 
-## Scene and Shaders
+## Verification
 
-`src/spatial/config/routeStates.ts` defines each route's camera, field density, flow, noise scale, colors, bloom/vignette response, scene preset, and tween duration. The precompiled neural field derives its identity trajectory, scan bands, archive grid, and knowledge-network motif from the already-tweened camera/palette state; route changes and previews never compile or replace a shader.
+```bash
+npm run check
+npm run build
+git diff --check
+```
 
-Projects also has factual category scene overrides for `all`, `3d-vision`, `medical-imaging`, `creative-coding`, and `coursework`. `spatial:project-filter` only adjusts the same persistent scene's palette values, then clears when Astro swaps away from the project index.
-
-The active neural-field program is organized under `src/spatial/shaders/programs/neural-field/` with separate vertex, fragment, uniforms, material factory, shared chunks, and `ShaderRegistry`. The field consolidates low-cost particle and flow behavior into one cached program. It uses shader-level glow/grain rather than a stack of expensive full-screen post-process passes.
-
-## Content and UI
-
-- `components/pages/` contains shared English/Chinese page structures.
-- `components/navigation/` owns DOM navigation: the Spatial Ribbon, responsive dock, and accessible index dialog.
-- `components/projects/` owns detail presentations and the project index row; `ProjectsPage` owns the 4/12 sticky Research Index Rail and progressive filter enhancement.
-- `data/projects.ts` is the project fact source; `data/publications.ts` references projects for reports instead of duplicating URLs.
-- `i18n/en.ts` and `i18n/zh.ts` own localized UI and project-detail prose.
-
-Canvas is decorative and `aria-hidden`; headings, descriptions, links, filters, toggles, and dialog controls stay in the DOM.
-
-## Navigation and Reading Offset
-
-`SpatialRibbon` is a direct `body` child with no transformed, filtered, or contained ancestor. Its fixed position must not be overridden by global body-child rules. `html` and `#main-content` reserve the ribbon height for anchor targets, while the page shell retains the maximum reading clearance during the 64px-to-52px visual compression. The compact ribbon gets the same global progress value, and the mobile dock adds safe-area bottom clearance.
+The build is also the content-integrity check: it discovers every project and note manifest, validates unique identifiers, and verifies required local article and figure assets.

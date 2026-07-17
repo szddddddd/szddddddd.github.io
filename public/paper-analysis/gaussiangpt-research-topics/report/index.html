@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GaussianGPT 可发表改进方向：Idea Discovery 报告</title>
+<meta name="description" content="基于 GaussianGPT 论文与官方代码的研究选题报告：12 个去重候选、近邻查新、Top 3 审稿风险与 Top 1 精炼方案；本轮未运行 GPU 实验。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/gaussiangpt-research-topics/report/">
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="artifacts/IDEA_REPORT.md">
+<meta name="aris:source-sha256" content="ae47cb11c6da17afef78a99c6c18cf8a20e77be8134540724ed9f7cac3a9e44a">
+<meta name="aris:generated-at" content="2026-07-17 04:38 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<link rel="stylesheet" href="/paper-analysis/gaussiangpt-research-topics/site.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<nav class="note-toolbar" aria-label="研究路线图版本">
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/report/" aria-current="page">完整候选报告</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/">Top 1 精炼方案</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/experiment-plan/">实验路线图</a>
+  <a href="#published-artifacts">Markdown 附件</a>
+</nav>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#executive-summary">Executive Summary</a>
+</li>
+<li><a href="#evidence-boundary">Evidence Boundary</a>
+</li>
+<li><a href="#gaussiangpt-baseline-audit">GaussianGPT Baseline Audit</a>
+<ul>
+<li><a href="#paper-level-facts">Paper-level facts</a></li>
+<li><a href="#code-level-facts">Code-level facts</a></li>
+</ul>
+</li>
+<li><a href="#literature-landscape">Literature Landscape</a>
+<ul>
+<li><a href="#1-order-and-factorization">1. Order and factorization</a></li>
+<li><a href="#2-long-horizon-scene-growth-and-memory">2. Long-horizon scene growth and memory</a></li>
+<li><a href="#3-adaptive-tokenization-and-rate-distortion">3. Adaptive tokenization and rate-distortion</a></li>
+<li><a href="#4-partial-observation-and-completion">4. Partial observation and completion</a></li>
+<li><a href="#5-decoding-and-sampling-efficiency">5. Decoding and sampling efficiency</a></li>
+</ul>
+</li>
+<li><a href="#pre-generation-banlist">Pre-Generation Banlist</a>
+</li>
+<li><a href="#fresh-jury-ranking">Fresh-Jury Ranking</a>
+</li>
+<li><a href="#recommended-ideas">Recommended Ideas</a>
+<ul>
+<li><a href="#idea-1--chart-consistent-column-events-for-gaussiangpt--recommended">Idea 1 — Chart-Consistent Column Events for GaussianGPT — RECOMMENDED</a></li>
+<li><a href="#idea-2--tri-state-probabilistic-gaussian-completion--backup">Idea 2 — Tri-State Probabilistic Gaussian Completion — BACKUP</a></li>
+<li><a href="#idea-3--base-compatible-render-attributed-sparse-exceptions--backup--oracle-only">Idea 3 — Base-Compatible Render-Attributed Sparse Exceptions — BACKUP / ORACLE ONLY</a></li>
+</ul>
+</li>
+<li><a href="#remaining-ranked-ideas">Remaining Ranked Ideas</a>
+<ul>
+<li><a href="#c03--exact-marked-spatial-survival-gaussiangpt">C03 — Exact Marked Spatial Survival GaussianGPT</a></li>
+<li><a href="#c08--direction-conditioned-multi-order">C08 — Direction-Conditioned Multi-Order</a></li>
+<li><a href="#c12--gravity-aligned-metric-rope">C12 — Gravity-Aligned Metric RoPE</a></li>
+<li><a href="#c09--geometryappearance-successive-codes">C09 — Geometry–Appearance Successive Codes</a></li>
+<li><a href="#c04--rope-transported-persistent-kv">C04 — RoPE-Transported Persistent KV</a></li>
+<li><a href="#c11--set-aware-voxel-stem--mixture-decode">C11 — Set-Aware Voxel Stem + Mixture Decode</a></li>
+<li><a href="#c05--frontier-landmark-coordinate-kv">C05 — Frontier-Landmark Coordinate KV</a></li>
+<li><a href="#c07--progressive-residual-lfq-stop">C07 — Progressive Residual-LFQ Stop</a></li>
+<li><a href="#c10--lfq-bit-structured-prediction">C10 — LFQ Bit-Structured Prediction</a></li>
+</ul>
+</li>
+<li><a href="#eliminated--withheld-directions">Eliminated / Withheld Directions</a>
+</li>
+<li><a href="#deep-novelty-verification">Deep Novelty Verification</a>
+<ul>
+<li><a href="#c01-claim-level-result">C01 claim-level result</a></li>
+<li><a href="#c02-claim-level-result">C02 claim-level result</a></li>
+<li><a href="#c06-claim-level-result">C06 claim-level result</a></li>
+</ul>
+</li>
+<li><a href="#external-critical-review-and-refinement">External Critical Review and Refinement</a>
+<ul>
+<li><a href="#top-3-brutal-review">Top-3 brutal review</a></li>
+<li><a href="#research-refine-evolution">Research-refine evolution</a></li>
+</ul>
+</li>
+<li><a href="#refined-c01-snapshot">Refined C01 Snapshot</a>
+<ul>
+<li><a href="#exact-contribution">Exact contribution</a></li>
+<li><a href="#production-event-map">Production event map</a></li>
+<li><a href="#gates">Gates</a></li>
+<li><a href="#experiment-blocks">Experiment blocks</a></li>
+<li><a href="#refined-artifacts">Refined artifacts</a></li>
+</ul>
+</li>
+<li><a href="#compute-and-execution">Compute and Execution</a>
+</li>
+<li><a href="#research-contract">Research Contract</a>
+</li>
+<li><a href="#retrieval-and-assurance-notes">Retrieval and Assurance Notes</a>
+</li>
+<li><a href="#final-recommendation">Final Recommendation</a>
+</li>
+<li><a href="#next-steps">Next Steps</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">GaussianGPT Research Roadmap</div>
+  <h1>GaussianGPT 可发表改进方向：Idea Discovery 报告</h1>
+  <p class="subtitle">基于论文与官方代码的 12 个候选、查新、Top 1 精炼与零 GPU 实验边界</p>
+
+  <div class="meta">
+    <span><strong>Source:</strong> <code>artifacts/IDEA_REPORT.md</code></span>
+    <span><strong>SHA256:</strong> <code>ae47cb11c6da</code></span>
+    <span><strong>Rendered:</strong> 2026-07-17 04:38 UTC</span>
+
+  </div>
+</header>
+
+<h1 id="gaussiangpt-可发表改进方向idea-discovery-report">GaussianGPT 可发表改进方向：Idea Discovery Report</h1>
+<ul><li><strong>Direction</strong>: 基于 GaussianGPT 寻找可发表的改进方向</li><li><strong>Reference</strong>: <a href="https://arxiv.org/abs/2603.26661">GaussianGPT: Towards Autoregressive 3D Gaussian Scene Generation</a>, arXiv:2603.26661v2 / ECCV 2026 repository status</li><li><strong>Local materials</strong>: <code>2603.26661v2.pdf</code>, <code>GaussianGPT/</code></li><li><strong>Date</strong>: 2026-07-16</li><li><strong>Pipeline</strong>: research-lit → idea-creator → novelty-check → research-review → research-refine-pipeline</li><li><strong>Retrieval cutoff</strong>: 2026-07-16</li><li><strong>Ideas</strong>: 12 mechanically deduplicated → 12 fresh-jury scored → 3 deep novelty checked → 0 GPU-piloted → 1 fully refined</li><li><strong>Assurance</strong>: conference-ready planning; all model-family reviews are <code>same-family</code>, all novelty/acceptance judgments are <code>provisional</code></li><li><strong>GPU experiments</strong>: <strong>none</strong> — explicitly skipped per user request</li></ul>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>推荐主线是 <strong>C01：Chart-Consistent Column Events for GaussianGPT</strong>。它不再做宽泛的“不同滑窗一致性”，而是固定完全相同的物理 production prompt 与 target column，只改变合法 local window origin；随后把 GaussianGPT 的完整 position/EOS token 概率无损映射到共同 <code>{z0,...,z19, EXIT}</code> 事件空间，并对齐两个 chart 的条件分布。</p>
+<p>它优先于其他方向的原因：</p>
+<ol><li><strong>直接命中论文/代码暴露的 failure</strong>：大场景随距离退化、x/y 明显不对称，而代码在每个 window 中把相同全局 voxel 重写成新的 local position ID。</li><li><strong>方法足够小</strong>：零新参数，冻结 VQ-VAE/decoder，不增加 memory、planner、new head、consensus 或 inference pass。</li><li><strong>最容易被严谨证伪</strong>：真实 prompt pair coverage、冻结模型 chart effect、origin-change localization 任一失败都立即 kill。</li><li><strong>静态定义已过第一道检查</strong>：CPU audit 验证 48 个非零 synthetic translations、完整 8001→21 event partition、order 与 monotonic target-event support；但没有 checkpoint/data，因此尚无真实 pair coverage 或模型效果。</li><li><strong>审稿收敛</strong>：fresh jury 排名第 1；Top-3 brutal review 只允许它进入 refine；research-refine 从 6.30→8.15→9.05，最终仅判定“可进入实验规划”，不代表论文已验证。</li></ol>
+<p>备选：</p>
+<ul><li><strong>C02 Tri-State Probabilistic Gaussian Completion</strong>：问题重要，但 AutoSDF、ShapeFormer、Probabilistic Implicit Scene Completion、CompleteSplat、GaussFiller 等近邻密集；只有“任意射线条件下严格观测一致的 Gaussian scene posterior”暂时存活。</li><li><strong>C06 Base-Compatible Render-Attributed Sparse Exceptions</strong>：只能先做 oracle；若完整计费 10% token 不能收回至少 70% PSNR/LPIPS tokenizer gap，立即停止。</li></ul>
+<p>最先做的三个未来 runs：</p>
+<ol><li>R001：default parser 与 <code>A_o</code> 的 exact property test，CPU。</li><li>R002：verbatim rollout prompt pair-coverage scan，CPU；禁止截断 prompt。</li><li>R003：冻结 checkpoint 的 chart-only counterfactual audit，2–6 GPUh，仅在 R001/R002 通过后运行。</li></ol>
+<h2 id="evidence-boundary">Evidence Boundary</h2>
+<p>本报告没有下列证据：</p>
+<ul><li>没有 checkpoint forward；</li><li>没有 tokenizer/GPT fine-tune；</li><li>没有 FID/KID/COV/MMD/diversity 新结果；</li><li>没有 4/8/12 m 新场景；</li><li>没有速度或显存改进；</li><li>没有跨模型/外部独立审稿。</li></ul>
+<p>因此：<code>READY</code> 仅指方法和实验交接文档已经足够具体；<strong>empirical acceptance remains unvalidated</strong>。</p>
+<h2 id="gaussiangpt-baseline-audit">GaussianGPT Baseline Audit</h2>
+<h3 id="paper-level-facts">Paper-level facts</h3>
+<ul><li>2.5 cm Gaussian grid 经 3-stage sparse CNN 压到 20 cm latent；平均约 3.2k occupied latents，每个 position+feature 两 token。</li><li>固定 xyz serialization，GPT-2-medium，16,384 context，3D/4D RoPE。</li><li>3D-FRONT 中 appearance/layout 优于 L3DG，但无条件 geometry COV/MMD 较弱。</li><li>A100 无条件推理 78.1 s，对比 L3DG 23.8 s；峰值显存约 3.2–3.4×。</li><li>12 m × 12 m 场景约 6000 s/GH200；随 seed 距离退化，x 方向显著差于 y。</li><li>tokenizer rate-distortion 明显：约 53k/14k/3.2k latents 对应 PSNR 24.34/23.73/21.11。</li><li>ScanNet++ 只给 qualitative，并指出高频细节丢失及 missing/unobserved 表达不足。</li></ul>
+<h3 id="code-level-facts">Code-level facts</h3>
+<ul><li>Repository was clean at commit <code>e3be826</code>; 59 Python files passed import-free AST parsing; no tests/CI or local checkpoint。</li><li>Current environment has no torch, so no tensor CPU smoke was run。</li><li><code>generate_scene.py</code> rebuilds local prompts and performs full prefill per column/group; sparse RoPE rebuilds prefix position indices per step。</li><li>Default large-scene config: <code>no_empty_columns=false</code>, <code>resample_empty_columns=true</code>, max retries 5。</li><li>Single-column parser accepts rows at target local xy and stops on the first other xy/end event。</li><li>Tokenized payload preserves <code>{coords, feature_ids}</code>; sampler exposes logits processor and return-logit intervention hooks。</li><li>GaussianGPT repository was not modified by this discovery workflow。</li></ul>
+<p>Detailed reference summary: <code>idea-stage/REF_PAPER_SUMMARY.md</code>。</p>
+<h2 id="literature-landscape">Literature Landscape</h2>
+<h3 id="1-order-and-factorization">1. Order and factorization</h3>
+<ul><li><a href="https://arxiv.org/abs/2412.01827">RandAR</a> already supports random-order decoder-only visual generation with position instructions。</li><li><a href="https://arxiv.org/abs/2503.20519">MAR-3D</a> uses random masked autoregressive denoising for high-resolution 3D generation。</li><li><a href="https://arxiv.org/abs/2409.06322">G3PT</a>, SAR3D and <a href="https://arxiv.org/abs/2602.13818">VAR-3D</a> occupy cross-scale/multiscale/view-aware 3D autoregression。</li><li><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Meng_PointNSP_Autoregressive_3D_Point_Cloud_Generation_with_Next-Scale_Level-of-Detail_Prediction_CVPR_2026_paper.html">PointNSP</a> further weakens broad permutation/order novelty claims。</li></ul>
+<p><strong>Implication</strong>: random, arbitrary, masked, multiscale or simply axis-switched order cannot be the main contribution。C01 survives only by fixing evidence and action semantics while changing coordinate chart。</p>
+<h3 id="2-long-horizon-scene-growth-and-memory">2. Long-horizon scene growth and memory</h3>
+<ul><li><a href="https://arxiv.org/abs/2510.21682">WorldGrow</a> handles infinite 3D worlds with block inpainting and coarse-to-fine generation。</li><li><a href="https://arxiv.org/abs/2506.01799">WorldExplorer</a>, <a href="https://arxiv.org/abs/2605.21472">Stream3D</a>, <a href="https://arxiv.org/abs/2511.22815">Captain Safari</a> and <a href="https://arxiv.org/abs/2602.13172">LongStream</a> occupy navigable world generation, evidential/pose-aligned memory and cache-consistent streaming geometry。</li><li><a href="https://arxiv.org/abs/2512.12080">BAgger</a> directly addresses long-horizon autoregressive exposure bias with corrective rollouts。</li></ul>
+<p><strong>Implication</strong>: generic memory, coarse planning and self-rollout correction are banlisted as primary innovations。</p>
+<h3 id="3-adaptive-tokenization-and-rate-distortion">3. Adaptive tokenization and rate-distortion</h3>
+<ul><li><a href="https://arxiv.org/abs/2605.29655">SuperVoxelGPT</a> provides adaptive ordered 3D supervoxels。</li><li><a href="https://arxiv.org/abs/2605.25563">CodecSplat</a>, F4Splat, SplatWeaver, Differentiable Gaussian Hierarchies and Gaussian compression work crowd rate-distortion and adaptive allocation。</li><li><a href="https://arxiv.org/abs/2508.01464">Can3Tok</a> and <a href="https://arxiv.org/abs/2512.14692">Native and Compact Structured Latents</a> occupy scene-level/structured 3D latent design。</li></ul>
+<p><strong>Implication</strong>: C06 can only claim fixed-base compatibility plus a sparse render-attributed enhancement stream—not first adaptive tokenization or residual coding。</p>
+<h3 id="4-partial-observation-and-completion">4. Partial observation and completion</h3>
+<ul><li>AutoSDF and ShapeFormer already support arbitrary spatial conditions/partial inputs。</li><li>Probabilistic Implicit Scene Completion models multimodal large-scene completion。</li><li><a href="https://arxiv.org/abs/2508.21542">CompleteSplat</a> produces diverse completed Gaussian splats from one image；GaussFiller, GSCompleter and PanoPlane further crowd recent Gaussian completion。</li></ul>
+<p><strong>Implication</strong>: O/F/U states, arbitrary masks and diversity are individually not new。C02 needs a physically constrained Gaussian posterior with strict observed preservation and proper scoring。</p>
+<h3 id="5-decoding-and-sampling-efficiency">5. Decoding and sampling efficiency</h3>
+<ul><li><a href="https://arxiv.org/abs/2605.09430">FlashAR</a> and <a href="https://arxiv.org/abs/2606.05703">Parallel Jacobi Decoding</a> occupy post-training and parallel AR acceleration。</li><li><a href="https://arxiv.org/abs/2601.19488">Entropy-Guided k-Guard Sampling</a> occupies simple entropy-adaptive candidate budgets。</li></ul>
+<p><strong>Implication</strong>: parallel decoding or entropy-only branching is not a clean GaussianGPT paper thesis。</p>
+<h2 id="pre-generation-banlist">Pre-Generation Banlist</h2>
+<table><thead><tr><th>Broad direction</th><th>Why it is not a primary contribution</th></tr></thead><tbody><tr><td>random/arbitrary order</td><td>RandAR/RAR/PARD</td></tr><tr><td>masked/random-order 3D</td><td>MAR-3D</td></tr><tr><td>multiscale/coarse-to-fine</td><td>G3PT/SAR3D/VAR-3D/WorldGrow</td></tr><tr><td>adaptive 3D token cells</td><td>SuperVoxelGPT</td></tr><tr><td>generic adaptive visual tokens</td><td>DPAR/EVATok/AdapTok</td></tr><tr><td>entropy-only sampling</td><td>ENkG</td></tr><tr><td>generic parallel decoding</td><td>FlashAR/Parallel Jacobi</td></tr><tr><td>generic long-term memory</td><td>LongStream/WorldExplorer/Stream3D/Captain Safari</td></tr><tr><td>generic rollout correction</td><td>BAgger</td></tr><tr><td>scene-level Gaussian latent alone</td><td>Can3Tok</td></tr><tr><td>compact/native 3D latent alone</td><td>Structured/Native Compact Latents</td></tr><tr><td>adaptive Gaussian allocation alone</td><td>F4Splat/SplatWeaver/hierarchies</td></tr><tr><td>generic partial Gaussian completion</td><td>CompleteSplat/GaussFiller/GSCompleter</td></tr><tr><td>generic uncertainty or compression</td><td>uncertainty GS / CodecSplat</td></tr></tbody></table>
+<h2 id="fresh-jury-ranking">Fresh-Jury Ranking</h2>
+<p>Scales are 1–5; reviewer risk 5 is highest. Weighted total is from the fresh jury, not experimental evidence。</p>
+<table><thead><tr><th style="text-align:right">Rank</th><th>ID</th><th>Idea</th><th style="text-align:right">Novelty</th><th style="text-align:right">Problem leverage</th><th style="text-align:right">Elegance</th><th style="text-align:right">Falsifiability</th><th style="text-align:right">Feasibility</th><th style="text-align:right">Reviewer risk</th><th style="text-align:right">Total / 100</th><th>Jury verdict</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td>C01</td><td>Same-Evidence Gauge Consistency</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">4</td><td style="text-align:right">4</td><td style="text-align:right">81</td><td>RECOMMENDED, narrow claim</td></tr><tr><td style="text-align:right">2</td><td>C02</td><td>Tri-State Probabilistic Completion</td><td style="text-align:right">3</td><td style="text-align:right">5</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">74</td><td>BACKUP</td></tr><tr><td style="text-align:right">3</td><td>C06</td><td>Render-Attributed Sparse Exceptions</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">—</td><td>BACKUP / oracle first</td></tr><tr><td style="text-align:right">4</td><td>C03</td><td>Exact Spatial Survival</td><td style="text-align:right">2</td><td style="text-align:right">4</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">3</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>kill standalone; CPU proof only</td></tr><tr><td style="text-align:right">5</td><td>C08</td><td>Direction-Conditioned Multi-Order</td><td style="text-align:right">2</td><td style="text-align:right">4</td><td style="text-align:right">3</td><td style="text-align:right">5</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>merge into C01 ablation</td></tr><tr><td style="text-align:right">6</td><td>C12</td><td>Metric-Equivariant RoPE</td><td style="text-align:right">3</td><td style="text-align:right">3</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">—</td><td>merge into C01 scope/ablation</td></tr><tr><td style="text-align:right">7</td><td>C09</td><td>Geometry–Appearance Codes</td><td style="text-align:right">2</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">4</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">—</td><td>tokenizer baseline for C06</td></tr><tr><td style="text-align:right">8</td><td>C04</td><td>RoPE-Transported KV</td><td style="text-align:right">2</td><td style="text-align:right">5</td><td style="text-align:right">2</td><td style="text-align:right">5</td><td style="text-align:right">1</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>analytic claim invalid in current architecture</td></tr><tr><td style="text-align:right">9</td><td>C11</td><td>Set-Aware Voxel Stem</td><td style="text-align:right">2</td><td style="text-align:right">3</td><td style="text-align:right">3</td><td style="text-align:right">5</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>early collision kill gate</td></tr><tr><td style="text-align:right">10</td><td>C05</td><td>Coordinate Sparse KV</td><td style="text-align:right">2</td><td style="text-align:right">4</td><td style="text-align:right">3</td><td style="text-align:right">3</td><td style="text-align:right">3</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>systems baseline only</td></tr><tr><td style="text-align:right">11</td><td>C07</td><td>Progressive Residual-LFQ</td><td style="text-align:right">1</td><td style="text-align:right">3</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>merge into C06</td></tr><tr><td style="text-align:right">12</td><td>C10</td><td>LFQ Bit Prediction</td><td style="text-align:right">1</td><td style="text-align:right">2</td><td style="text-align:right">4</td><td style="text-align:right">5</td><td style="text-align:right">5</td><td style="text-align:right">5</td><td style="text-align:right">—</td><td>kill standalone</td></tr></tbody></table>
+<p>Full mechanically deduplicated pool: <code>.aris/traces/idea-creator/2026-07-16_run01/candidate_pool.md</code>。</p>
+<h2 id="recommended-ideas">Recommended Ideas</h2>
+<h3 id="idea-1--chart-consistent-column-events-for-gaussiangpt--recommended">Idea 1 — Chart-Consistent Column Events for GaussianGPT — RECOMMENDED</h3>
+<ul><li><p><strong>Method</strong>:</p>
+<ol><li>Extract verbatim production state <code>(H,T)</code> with fixed global context rows and target column。</li><li>Re-encode the same H/T under two legal local origins without changing evidence or order。</li><li>Push all 8000 position outcomes plus EOS into the common parser event space <code>{z0...z19, EXIT}</code> with no discarded mass。</li><li>Train matched event distributions with selected-slot stop-gradient KL; keep architecture and inference unchanged。</li></ol></li><li><strong>Hypothesis</strong>: chart-only event jumps are a causal contributor to origin-switch seams and long-scene drift。</li><li><strong>Minimum experiment</strong>: R001/R002 CPU gates, then frozen R003; no fine-tune unless real coverage and frozen effect pass。</li><li><strong>Expected success</strong>: method beats origin augmentation and R-Drop; &gt;=15% seam-excess and &gt;=10% KID-slope reduction with no chunk/diversity regression。</li><li><strong>Novelty</strong>: approximately 7/10 in Top-3 review; claim-level result <code>PARTIAL / provisional</code>。Closest conceptual work includes panorama crop consistency, SyncTweedies, group-equivariant positional work, RandAR/MAR-3D and LongStream, but no exact full tuple was found。</li><li><strong>Feasibility</strong>: high after G0; zero new parameters, K selected slots, one gradient branch。Real pair coverage remains unknown。</li><li><strong>Risk</strong>: MEDIUM-HIGH。It can die before training if G1/G2 fails。</li><li><strong>Contribution type</strong>: method + causal diagnostic。</li><li><strong>Pilot result</strong>: <code>SKIPPED — user requested no GPU</code>。</li><li><strong>Strongest objection</strong>: a changed origin often changes physical support/evidence; the refined method survives only because it fixes verbatim H/T and uses parser-consumed action semantics, not raw window overlap。</li><li><strong>Why do it</strong>: among all ideas, this has the cleanest documented failure, smallest intervention and strongest kill logic。</li></ul>
+<h4 id="static-g0-result">Static G0 result</h4>
+<p><code>idea-stage/STATIC_PREMISE_AUDIT.md</code> verifies the synthetic/default grammar construction only. It does not establish model failure or quality gain。</p>
+<h4 id="refined-method-status">Refined method status</h4>
+<ul><li>Research-refine scores: 6.30 → 8.15 → 9.05。</li><li>Final verdict: READY for experiment planning only。</li><li>Clean proposal: <code>refine-logs/FINAL_PROPOSAL.md</code>。</li><li>Experiment plan: <code>refine-logs/EXPERIMENT_PLAN.md</code>。</li></ul>
+<h3 id="idea-2--tri-state-probabilistic-gaussian-completion--backup">Idea 2 — Tri-State Probabilistic Gaussian Completion — BACKUP</h3>
+<ul><li><p><strong>Method</strong>:</p>
+<ol><li>Compile arbitrary RGB-D/ray observations into observed occupied / observed free / unknown。</li><li>Copy-through observed occupied, assign zero posterior support to known-free, and sample only unknown occupancy/features。</li><li>Use a permutation-invariant observation compiler and proper-scoring calibration; preserve observations after decode。</li><li>Evaluate real multi-view ray masks rather than prefix/box-only masks。</li></ol></li><li><strong>Hypothesis</strong>: physical tri-state posterior semantics improve unknown-region calibration/coverage beyond hard masking。</li><li><strong>Minimum experiment</strong>: first compare partial-view vs full-scene visible-voxel LFQ exact match; if copy-through is not identifiable without GT leakage, kill raw-RGB-D framing。</li><li><strong>Expected success</strong>: beat AutoSDF-like arbitrary query and hard-mask-only on unknown NLL/Brier/energy score, COV/MMD and diversity—not only free-space violation。</li><li><strong>Novelty</strong>: <code>PARTIAL</code>, roughly 5–6/10。Arbitrary conditioning and O/F/U semantics are not new; strict scene-level Gaussian posterior is the only provisional delta。</li><li><strong>Feasibility</strong>: medium; no new labels, but partial observation encoding and output-level preservation are nontrivial。</li><li><strong>Risk</strong>: HIGH。GT latent leakage and observation-code mismatch are fatal。</li><li><strong>Contribution type</strong>: conditional generative method + calibration protocol。</li><li><strong>Pilot result</strong>: <code>SKIPPED — user requested no GPU</code>。</li><li><strong>Strongest objection</strong>: AutoSDF + OctoMap semantics + CompleteSplat is an obvious composition unless unknown-region proper scores improve materially。</li><li><strong>Backup condition</strong>: start only if C01 is killed and the visible-latent identifiability gate passes without GT leakage。</li></ul>
+<h3 id="idea-3--base-compatible-render-attributed-sparse-exceptions--backup--oracle-only">Idea 3 — Base-Compatible Render-Attributed Sparse Exceptions — BACKUP / ORACLE ONLY</h3>
+<ul><li><p><strong>Method</strong>:</p>
+<ol><li>Freeze the existing 20 cm base lattice, LFQ, decoder and base token stream byte-for-byte。</li><li>Use visibility-normalized multi-view marginal render distortion to identify sparse exception support。</li><li>Condition on the completed base stream to generate exception coordinates and residual LFQ codes。</li><li>Count coordinates/separators/END/entropy cost in a strict &lt;=10% enhancement budget；the layer is discardable。</li></ol></li><li><strong>Hypothesis</strong>: tokenizer distortion is concentrated enough that a sparse enhancement recovers most shallow-tokenizer quality。</li><li><strong>Minimum experiment</strong>: no-GPT oracle at 1/2.5/5/10/20% full cost against random, latent magnitude, SuperVoxel/F4Splat saliency and same-position RVQ。</li><li><strong>Expected success</strong>: at 10%, recover &gt;=70% of both PSNR and LPIPS gaps on novel views; learned support reaches &gt;=85% oracle gain。</li><li><strong>Novelty</strong>: <code>PARTIAL</code>, about 5.5/10 now。Broad scalable/residual coding is not new；fixed-base generative exception channel is the provisional delta。</li><li><strong>Feasibility</strong>: medium-low; AE residual path and GPT grammar changes required。</li><li><strong>Risk</strong>: HIGH。Oracle support may not be predictable from the base stream。</li><li><strong>Contribution type</strong>: tokenizer/rate-distortion method。</li><li><strong>Pilot result</strong>: <code>SKIPPED — user requested no GPU</code>。</li><li><strong>Strongest objection</strong>: PRIMU/GaussianPOP attribution + top-k RVQ or SuperVoxelGPT/F4Splat-style allocation may fully explain it。</li><li><strong>Backup condition</strong>: only after C01/C02 are killed and the strict oracle gate passes。</li></ul>
+<h2 id="remaining-ranked-ideas">Remaining Ranked Ideas</h2>
+<h3 id="c03--exact-marked-spatial-survival-gaussiangpt">C03 — Exact Marked Spatial Survival GaussianGPT</h3>
+<ul><li><strong>Method</strong>: exact zero-run/extent survival → column count/subset → Gaussian feature marks；retry-free likelihood。</li><li><strong>Hypothesis</strong>: temperature-changing retries create density/extent bias and harm geometry coverage。</li><li><strong>Minimum experiment</strong>: CPU analytic/Monte-Carlo sampler-bias proof before training。</li><li><strong>Prior work</strong>: ShapeFormer, VoxelDNN/MSVoxelDNN, OctSqueeze/OctAttention, ACNP child-count, occupancy→attribute compression, point processes。</li><li><strong>Feasibility</strong>: medium；grammar/loss/sampler changes。</li><li><strong>Static verdict</strong>: standalone KILL unless exact bias proof and scene-scale survival delta both hold。</li><li><strong>Pilot</strong>: skipped; no GPU。</li></ul>
+<h3 id="c08--direction-conditioned-multi-order">C08 — Direction-Conditioned Multi-Order</h3>
+<ul><li><strong>Method</strong>: finite axis traversal family, order instruction, frontier-aligned selection, cross-order distillation。</li><li><strong>Hypothesis</strong>: fixed xyz causes directional KID gap。</li><li><strong>Minimum experiment</strong>: xyz vs augmentation vs instruction on six directions。</li><li><strong>Prior work</strong>: RandAR/RAR/MAR-3D and fixed Z/Hilbert ordering make independent novelty weak。</li><li><strong>Feasibility</strong>: high。</li><li><strong>Verdict</strong>: merge as C01 ablation only；not a paper thesis。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c12--gravity-aligned-metric-rope">C12 — Gravity-Aligned Metric RoPE</h3>
+<ul><li><strong>Method</strong>: gravity alignment, metric coordinate phases, yaw consistency, weak Manhattan orientation token。</li><li><strong>Hypothesis</strong>: fixed dataset axes hurt ScanNet++ and directional robustness。</li><li><strong>Minimum experiment</strong>: continuous-yaw CE/completion and directional KID。</li><li><strong>Prior work</strong>: SE(2)/SE(3) equivariant transformers, coordinate RoPE, canonicalization。</li><li><strong>Feasibility</strong>: medium；categorical position tokens still leak gauge。</li><li><strong>Verdict</strong>: C01 scope/ablation, not standalone。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c09--geometryappearance-successive-codes">C09 — Geometry–Appearance Successive Codes</h3>
+<ul><li><strong>Method</strong>: shared stem, geometry LFQ then optional appearance LFQ, matched token budget。</li><li><strong>Hypothesis</strong>: single codebook causes geometry/perceptual competition。</li><li><strong>Minimum experiment</strong>: equal-token COV/MMD, FID/KID and leakage audit。</li><li><strong>Prior work</strong>: disentangled/factorized codes, Can3Tok and structured latents。</li><li><strong>Feasibility</strong>: medium; full AE+GPT retraining。</li><li><strong>Verdict</strong>: baseline for C06, not independent claim。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c04--rope-transported-persistent-kv">C04 — RoPE-Transported Persistent KV</h3>
+<ul><li><strong>Method</strong>: phase-rotate cached keys under origin shift, persistent voxel-indexed cache, refresh/distill。</li><li><strong>Hypothesis</strong>: avoid repeated prefill and 6000 s large-scene runtime。</li><li><strong>Minimum experiment</strong>: logit equivalence and cache reuse audit。</li><li><strong>Fatal flaw</strong>: local position token embeddings change content hidden states and values；RoPE phase transport cannot repair them。</li><li><strong>Feasibility</strong>: low in current architecture。</li><li><strong>Verdict</strong>: kill analytic equivalence；learned approximate cache belongs to C05 baseline。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c11--set-aware-voxel-stem--mixture-decode">C11 — Set-Aware Voxel Stem + Mixture Decode</h3>
+<ul><li><strong>Method</strong>: opacity-aware set pooling instead of RANDOM_SUBSAMPLE；1–3 components for collision voxels。</li><li><strong>Hypothesis</strong>: real-scan detail loss comes from within-voxel collisions。</li><li><strong>Minimum experiment</strong>: collision histogram；kill if &gt;95% occupied voxels are singleton。</li><li><strong>Prior work</strong>: DeepSets/PointNet/mixture decoder are standard。</li><li><strong>Feasibility</strong>: medium-high if collisions exist。</li><li><strong>Verdict</strong>: early kill gate；possible C06 auxiliary only。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c05--frontier-landmark-coordinate-kv">C05 — Frontier-Landmark Coordinate KV</h3>
+<ul><li><strong>Method</strong>: local 3D KV plus compressed remote landmarks, selected by voxel coordinates。</li><li><strong>Hypothesis</strong>: larger physical context at lower memory improves distant quality。</li><li><strong>Minimum experiment</strong>: matched cost/memory with larger chunk, not FLOPs alone。</li><li><strong>Prior work</strong>: sparse/local attention, octree transformers, LongStream, streaming memory。</li><li><strong>Feasibility</strong>: medium with high kernel risk。</li><li><strong>Verdict</strong>: systems baseline, not independent paper。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c07--progressive-residual-lfq-stop">C07 — Progressive Residual-LFQ Stop</h3>
+<ul><li><strong>Method</strong>: variable 1–3 residual LFQ codes per voxel with learned stop。</li><li><strong>Hypothesis</strong>: average &lt;=1.5 codes approaches 3-code quality。</li><li><strong>Minimum experiment</strong>: fixed 1/2/3 vs learned stop, full control-symbol cost。</li><li><strong>Prior work</strong>: residual VQ/LFQ and learned depth are mature; repository already implements ResidualLFQ。</li><li><strong>Feasibility</strong>: high。</li><li><strong>Verdict</strong>: merge into C06; no standalone novelty。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h3 id="c10--lfq-bit-structured-prediction">C10 — LFQ Bit-Structured Prediction</h3>
+<ul><li><strong>Method</strong>: predict 12 LFQ sign bits/nibbles instead of 4096-way class。</li><li><strong>Hypothesis</strong>: structured errors improve long-tail sample efficiency。</li><li><strong>Minimum experiment</strong>: exact code, decoded MSE, calibration and FID/KID at matched FLOPs。</li><li><strong>Prior work</strong>: binary latents, bitwise AR, product codes。</li><li><strong>Feasibility</strong>: high, possibly &lt;=2 GPUh head-only pilot。</li><li><strong>Verdict</strong>: kill standalone；head-size reduction is not a paper contribution。</li><li><strong>Pilot</strong>: skipped。</li></ul>
+<h2 id="eliminated--withheld-directions">Eliminated / Withheld Directions</h2>
+<table><thead><tr><th>Direction</th><th>Decision</th><th>Reason</th></tr></thead><tbody><tr><td>self-rollout corrective training / repair</td><td>KILL</td><td>BAgger directly occupies the mechanism; spatial corruption alone is insufficient delta</td></tr><tr><td>generic persistent global memory</td><td>KILL</td><td>LongStream/Stream3D/WorldExplorer/Captain Safari crowded</td></tr><tr><td>plan-then-splat coarse-to-fine</td><td>KILL</td><td>WorldGrow and multiscale 3D AR are direct</td></tr><tr><td>entropy branching</td><td>KILL</td><td>ENkG direct mechanism overlap</td></tr><tr><td>topology verifier/reranking</td><td>BASELINE ONLY</td><td>decoding engineering unless tied to a distributional training claim</td></tr><tr><td>adaptive Gaussian allocation/refiner</td><td>KILL</td><td>F4Splat/SplatWeaver/hierarchies/post-refiners crowded</td></tr></tbody></table>
+<h2 id="deep-novelty-verification">Deep Novelty Verification</h2>
+<h3 id="c01-claim-level-result">C01 claim-level result</h3>
+<table><thead><tr><th>Claim</th><th>Verdict</th><th>Boundary</th></tr></thead><tbody><tr><td>broad gauge/equivariant principle</td><td>PARTIAL</td><td>group/SE(3) equivariance already known</td></tr><tr><td>same evidence, different local origin, global-remapped position + same-target feature predictive consistency</td><td>NOVEL — provisional</td><td>no exact scene-level sparse Gaussian AR tuple found</td></tr><tr><td>arbitrary order/serialization invariance</td><td>NOT NOVEL</td><td>RandAR/RAR/MAR-3D/PARD</td></tr><tr><td>broad patch/window consistency</td><td>PARTIAL</td><td>panorama/crop/synchronized diffusion precedents</td></tr><tr><td>seam/drift improvement</td><td>PARTIAL</td><td>problem known; causal chart attribution must be proven</td></tr></tbody></table>
+<p>Fatal condition: concurrent work with the full tuple—scene-level sparse Gaussian AR, same H/T, different legal origins, complete global action remap, position/feature conditional alignment, no different-evidence matching, long-scene validation—would kill the core novelty。</p>
+<h3 id="c02-claim-level-result">C02 claim-level result</h3>
+<ul><li>O/F/U semantics: partial, not new。</li><li>Arbitrary set conditioning: not new。</li><li>Multimodal calibrated completion: partial。</li><li>Strict arbitrary-ray, observation-preserving Gaussian scene posterior: provisional surviving claim。</li></ul>
+<h3 id="c06-claim-level-result">C06 claim-level result</h3>
+<ul><li>render attribution: partial；PRIMU/GaussianPOP/F4Splat neighbors。</li><li>base/enhancement coding: broadly not new。</li><li>fixed unchanged base plus sparse generative exception stream: partial provisional。</li><li>10%/70% result: only a potential empirical finding, not evidence yet。</li></ul>
+<p>Trace: <code>.aris/traces/novelty-check/2026-07-16_run01/</code>。</p>
+<h2 id="external-critical-review-and-refinement">External Critical Review and Refinement</h2>
+<h3 id="top-3-brutal-review">Top-3 brutal review</h3>
+<table><thead><tr><th>Candidate</th><th style="text-align:right">Significance</th><th style="text-align:right">Novelty</th><th style="text-align:right">Soundness</th><th style="text-align:right">Feasibility</th><th style="text-align:right">Submission-state overall</th></tr></thead><tbody><tr><td>C01</td><td style="text-align:right">8</td><td style="text-align:right">7</td><td style="text-align:right">6</td><td style="text-align:right">8</td><td style="text-align:right">4/10 Weak Reject before premise audit</td></tr><tr><td>C02</td><td style="text-align:right">8</td><td style="text-align:right">5</td><td style="text-align:right">5</td><td style="text-align:right">6</td><td style="text-align:right">3/10 Reject</td></tr><tr><td>C06</td><td style="text-align:right">7</td><td style="text-align:right">5</td><td style="text-align:right">5</td><td style="text-align:right">5</td><td style="text-align:right">3/10 Reject</td></tr></tbody></table>
+<p>The review selected exactly one mainline: C01。C02 requires a no-leakage visible-code identifiability gate；C06 requires the strict oracle gate。</p>
+<h3 id="research-refine-evolution">Research-refine evolution</h3>
+<table><thead><tr><th style="text-align:right">Round</th><th style="text-align:right">Score</th><th>Verdict</th><th>Main resolution</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td style="text-align:right">6.30</td><td>REVISE</td><td>active-domain mask invalid；must use production parser semantics</td></tr><tr><td style="text-align:right">2</td><td style="text-align:right">8.15</td><td>REVISE</td><td>full token mass pushforward to z/EXIT；method and causal interface closed</td></tr><tr><td style="text-align:right">3</td><td style="text-align:right">9.05</td><td>READY for planning only</td><td>CPU G0, exact scope, preregistered G1–G3, no empirical overclaim</td></tr></tbody></table>
+<p><code>CALIBRATION: none</code>。No curated taste anchors were available。</p>
+<h2 id="refined-c01-snapshot">Refined C01 Snapshot</h2>
+<h3 id="exact-contribution">Exact contribution</h3>
+<blockquote><p>Fix physical evidence and parser-consumed action semantics, change only the local coordinate chart, push the complete sparse-token distribution into a common physical column-event space, and train away the isolated window-origin dependence.</p></blockquote>
+<h3 id="production-event-map">Production event map</h3>
+<pre><code class="language-text">8000 position tokens + EOS
+        |
+        | target local xy and z=0..19
+        +--------------------------&gt; 20 z events
+        |
+        | all other valid positions or EOS
+        +--------------------------&gt; EXIT</code></pre>
+<h3 id="gates">Gates</h3>
+<ul><li>G0 parser equivalence：synthetic/static partial pass；exact production property test pending。</li><li>G1 real pair coverage：pending；kill if inadequate。</li><li>G2 frozen chart effect/localization：pending；kill before fine-tune if noise-level。</li><li>G3 feature materiality：pending；delete feature loss if weak。</li></ul>
+<h3 id="experiment-blocks">Experiment blocks</h3>
+<ol><li>Grammar and real-pair premise gates。</li><li>Frozen causal audit。</li><li>Matched-compute method isolation。</li><li>4/8/12 m long-scene anchor result。</li><li>Minimality/robustness/failure envelope。</li></ol>
+<h3 id="refined-artifacts">Refined artifacts</h3>
+<ul><li>Full proposal: <code>refine-logs/FINAL_PROPOSAL.md</code>。</li><li>Full plan: <code>refine-logs/EXPERIMENT_PLAN.md</code>。</li><li>Tracker: <code>refine-logs/EXPERIMENT_TRACKER.md</code>。</li></ul>
+<h2 id="compute-and-execution">Compute and Execution</h2>
+<ul><li>R001/R002: CPU only。</li><li>R003 frozen audit: 2–6 GPUh after checkpoint/data acquisition。</li><li>Minimum go/no-go pilot through single-seed comparison: 45–105 GPUh。</li><li>Full paper program: 300–550 GPUh；optional appendix/ScanNet++ +20–100 GPUh。</li><li>Dominant cost: 12 m scene generation；stage 4 m→8 m→12 m with hard stops。</li></ul>
+<h2 id="research-contract">Research Contract</h2>
+<p>Active idea contract: <code>idea-stage/docs/research_contract.md</code>。It contains only the selected idea, claims, gates, decisions and next-step pointer for session recovery。</p>
+<h2 id="retrieval-and-assurance-notes">Retrieval and Assurance Notes</h2>
+<ul><li>Search covered arXiv, CVF/CVPR 2026 pages, OpenAlex, DOI/Crossref and local paper/code through 2026-07-16。</li><li>Semantic Scholar returned 429; Exa lacked an API key; arXiv/OpenAlex also rate-limited some later requests; DBLP had an SSL EOF on one route。</li><li>These failures were mitigated with direct arXiv/CVF/DOI/local evidence, but they prevent any claim of exhaustive novelty proof。</li><li>Every reviewer route used an OpenAI same-family Codex agent. <code>acceptance_status</code> is therefore provisional, never accepted。</li></ul>
+<h2 id="final-recommendation">Final Recommendation</h2>
+<p>Proceed with <strong>C01 only</strong>, in gate order。Do not parallelize C02/C06 and do not add modules to rescue C01 if G1/G2 fails。The most valuable immediate result may be negative: if real pair coverage or frozen chart effect is negligible, stop early and switch to the backup whose own gate passes。</p>
+<h2 id="next-steps">Next Steps</h2>
+<ul><li>☐ R001 exact parser property test (CPU)</li><li>☐ R002 verbatim rollout pair coverage (CPU)</li><li>☐ Acquire/checksum official checkpoint and tokenized rollout data</li><li>☐ R003 frozen counterfactual audit (first GPU run)</li><li>☐ Only after G1/G2: matched-compute pilot</li><li>☐ After positive evidence: full multi-seed and long-scene program</li></ul>
+<p>No GPU experiment was run in this report generation task。</p>
+
+<h2 id="published-artifacts">Published Markdown Artifacts</h2>
+<ul>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/IDEA_REPORT.md">完整 Idea Discovery 报告</a></li>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/FINAL_PROPOSAL.md">Top 1 精炼研究方案</a></li>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/EXPERIMENT_PLAN.md">Claim-driven 实验计划</a></li>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/EXPERIMENT_TRACKER.md">实验 tracker</a></li>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/PIPELINE_SUMMARY.md">Pipeline summary</a></li>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/STATIC_PREMISE_AUDIT.md">静态 premise audit</a></li>
+  <li><a href="/paper-analysis/gaussiangpt-research-topics/artifacts/research_contract.md">Research contract</a></li>
+</ul>
+
+<footer class="aris-footer">
+  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
+  source path <code>artifacts/IDEA_REPORT.md</code> ·
+  SHA256 <code>ae47cb11c6da</code> ·
+  generated at 2026-07-17 04:38 UTC.
+  This is a generated view — edit the source Markdown, then re-render.
+</footer>
+</main>
+
+</div>
+</body>
+</html>

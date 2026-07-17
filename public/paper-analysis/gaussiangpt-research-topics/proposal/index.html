@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart-Consistent Column Events：Top 1 精炼方案</title>
+<meta name="description" content="GaussianGPT Top 1 精炼方案：在固定物理 evidence 下，通过 parser-aligned 21-way column events 消除 sliding-window local chart 依赖；零新参数、推理不变。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/gaussiangpt-research-topics/proposal/">
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="artifacts/FINAL_PROPOSAL.md">
+<meta name="aris:source-sha256" content="dd571061f6d60234ad2728e1d2b5306bb1d32c378e60a18dd4c9e4bb93e1d0e4">
+<meta name="aris:generated-at" content="2026-07-17 03:31 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<link rel="stylesheet" href="/paper-analysis/gaussiangpt-research-topics/site.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<nav class="note-toolbar" aria-label="研究路线图版本">
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/report/">完整候选报告</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/" aria-current="page">Top 1 精炼方案</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/experiment-plan/">实验路线图</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/report/#published-artifacts">Markdown 附件</a>
+</nav>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#problem-anchor">Problem Anchor</a>
+</li>
+<li><a href="#executive-thesis">Executive Thesis</a>
+</li>
+<li><a href="#why-the-baseline-can-fail">Why the Baseline Can Fail</a>
+</li>
+<li><a href="#method">Method</a>
+<ul>
+<li><a href="#1-production-state-and-legal-chart-pair">1. Production State and Legal Chart Pair</a></li>
+<li><a href="#2-complete-token-to-event-pushforward">2. Complete Token-to-Event Pushforward</a></li>
+<li><a href="#3-counterfactual-consistency">3. Counterfactual Consistency</a></li>
+<li><a href="#4-training-objective">4. Training Objective</a></li>
+<li><a href="#5-efficient-interface">5. Efficient Interface</a></li>
+<li><a href="#6-formal-scope">6. Formal Scope</a></li>
+<li><a href="#7-inference">7. Inference</a></li>
+</ul>
+</li>
+<li><a href="#static-evidence-already-available">Static Evidence Already Available</a>
+</li>
+<li><a href="#preregistered-gates">Preregistered Gates</a>
+</li>
+<li><a href="#claim-driven-evidence-plan">Claim-Driven Evidence Plan</a>
+<ul>
+<li><a href="#claim-1-real-origin-changes-expose-chart-only-event-jumps">Claim 1: Real origin changes expose chart-only event jumps</a></li>
+<li><a href="#claim-2-semantic-chart-pairing-beats-generic-regularization">Claim 2: Semantic chart pairing beats generic regularization</a></li>
+<li><a href="#claim-3-removing-chart-jumps-improves-long-scene-generation">Claim 3: Removing chart jumps improves long-scene generation</a></li>
+</ul>
+</li>
+<li><a href="#failure-modes">Failure Modes</a>
+</li>
+<li><a href="#novelty-boundary">Novelty Boundary</a>
+</li>
+<li><a href="#implementation-and-compute">Implementation and Compute</a>
+</li>
+<li><a href="#first-three-runs">First Three Runs</a>
+</li>
+<li><a href="#current-status">Current Status</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">GaussianGPT Research Roadmap</div>
+  <h1>Chart-Consistent Column Events：Top 1 精炼方案</h1>
+  <p class="subtitle">固定物理证据，只消除滑窗 local chart 引入的条件分布差异；零新参数、推理不变</p>
+
+  <div class="meta">
+    <span><strong>Source:</strong> <code>artifacts/FINAL_PROPOSAL.md</code></span>
+    <span><strong>SHA256:</strong> <code>dd571061f6d6</code></span>
+    <span><strong>Rendered:</strong> 2026-07-17 03:31 UTC</span>
+
+  </div>
+</header>
+
+<h1 id="research-proposal-chart-consistent-column-events-for-gaussiangpt">Research Proposal: Chart-Consistent Column Events for GaussianGPT</h1>
+<h2 id="problem-anchor">Problem Anchor</h2>
+<ul><li><strong>Bottom-line problem</strong>: GaussianGPT 在滑窗式大场景生成中会把物理上相同的稀疏 Gaussian 上下文编码到不同的 chunk-relative coordinate charts；如果预测仅因 local chart 改变而改变，这种 nuisance dependence 会累积为 seam、方向偏置与远距离退化。</li><li><strong>Must-solve bottleneck</strong>: 在物理证据、预测事件、因果顺序与全局合法 support 完全相同时，消除由局部坐标 re-embedding 单独造成的 next-position 与 feature 条件分布差异。</li><li><strong>Non-goals</strong>: 不做任意顺序或随机顺序生成；不宣称一般 SE(3) 等变；不约束证据或合法 support 不同的窗口；不增加全局 memory、coarse-to-fine planner、cache transport、consensus decoding、seam refiner 或新 tokenizer。</li><li><strong>Constraints</strong>: 基于本地 GaussianGPT 论文与代码；冻结 VQ-VAE/decoder；不新增人工标注；本轮不运行 GPU；后续以 3D-FRONT 为主、ScanNet++ 为迁移验证；方法必须保持现有推理接口并达到 CVPR/ICCV/ECCV 级可证伪标准。</li><li><strong>Success condition</strong>: (1) 能构造非平凡且通过机械断言的 support-equivalent chart pairs；(2) 冻结 checkpoint 在这些 pairs 上存在显著、可复现且与长程失稳相关的 gauge disagreement；(3) 单一 consistency objective 相比 origin augmentation 与等算力 self-distillation 更能降低 held-out chart disagreement、seam、distance-binned KID 和 x/y gap；(4) 无 consensus decoding 时单 chunk 质量与多样性不显著下降。</li></ul>
+<h2 id="executive-thesis">Executive Thesis</h2>
+<p>GaussianGPT 的 production outpainting parser 真正消费的空间事件不是完整的 8000-way local position ID，而是“目标全局 column 中的下一个 z row”或“离开该 column”。本方案把每个 chart 的完整 token 概率无损推送到共同的物理事件空间 <code>{z0,...,z19, EXIT}</code>，然后在固定物理 prompt/target、只改变合法 window origin 的 counterfactual pairs 上对齐条件分布。</p>
+<p>方法不增加参数、不修改 tokenizer/decoder/vocabulary/parser，也不改变推理。核心贡献不是通用 KL，而是一个与 production grammar 对齐的 same-state/same-action-space chart counterfactual interface。</p>
+<h2 id="why-the-baseline-can-fail">Why the Baseline Can Fail</h2>
+<p>同一全局 context row 在不同 window origins 下会得到不同的 local position token 与 3D RoPE coordinate。RoPE 的相对结构不能消除 categorical token embedding、output head 与 nonlinear hidden states 对 local chart 的依赖。当前 full-sequence teacher-forced CE 让每种编码独立拟合 one-hot target，但不要求完整 parser-consumed conditional 一致。</p>
+<p>简单替代方案不足：</p>
+<ul><li>origin augmentation 不约束非 target 概率质量；</li><li>R-Drop 只平滑同一 chart；</li><li>random/multi-order 改变因果 factorization，并已被 RandAR/RAR/MAR-3D 等覆盖；</li><li>overlap-window consistency 比较了不同证据，目标本身不成立；</li><li>memory/cache/coarse-to-fine 不修复相同证据的 chart nuisance。</li></ul>
+<h2 id="method">Method</h2>
+<h3 id="1-production-state-and-legal-chart-pair">1. Production State and Legal Chart Pair</h3>
+<p>一个状态写为 <code>(H,T)</code>：</p>
+<ul><li><code>H</code>：production prompt 中 verbatim 的全局 occupied context rows 及 LFQ feature IDs，保持原 xyz order；</li><li><code>T=(x,y)</code>：物理目标 column。</li></ul>
+<p>枚举两个不同 origins <code>o_a,o_b</code>，要求 <code>H</code> 的全部 rows 以及所有 <code>(T,z)</code> 均能映入 20×20×20 canvas。两支只重写 local coordinates，不添加、删除或截断任何 evidence。</p>
+<p>Pair compiler 对每个样本做机械断言：</p>
+<ul><li>global H/T/features 完全一致；</li><li>token-slot pattern 与长度一致；</li><li>local/global mapping 为双射；</li><li>xyz order 保持；</li><li>target z 与 feature labels 一致；</li><li>parser 的离开目标 column 语义一致。</li></ul>
+<h3 id="2-complete-token-to-event-pushforward">2. Complete Token-to-Event Pushforward</h3>
+<p>首个 paper scope 限定为仓库默认大场景配置：single-column tokenwise path，<code>no_empty_columns=false</code>，<code>resample_empty_columns=true</code>。</p>
+<p>在 existing slot/monotonic constraints 后，令 <code>r_o(v|h)</code> 为 position/EOS token 分布。定义确定性映射 <code>A_o</code>：</p>
+<ul><li>若 token <code>v</code> 解码到目标 local <code>(x,y)</code> 的高度 z，则 <code>A_o(v)=z</code>；</li><li>EOS 或任何其他合法 position token 都映射为 <code>EXIT</code>。</li></ul>
+<p>事件概率为：</p>
+<p><code>p_o(e|h)=sum_{v:A_o(v)=e} r_o(v|h)</code>，<code>e in {z0,...,z19,EXIT}</code>。</p>
+<p>实现使用 <code>logsumexp</code>。8000 个 position outcomes 与 EOS 全部被计入；没有 support intersection、截断或重新归一化。这个事件恰好对应 <code>_accept_sparse_rows_for_target</code> 的状态转移：目标 xy row 被接受，其他 position/end 终止该 column attempt。</p>
+<h3 id="3-counterfactual-consistency">3. Counterfactual Consistency</h3>
+<p>在 teacher-forced target column 上抽样 <code>K=32</code> 个 matched position slots，使用交替单向 stop-gradient KL：</p>
+<p><code>L_event(a-&gt;b)=KL(sg(p_a)||p_b)</code>。</p>
+<p>minibatches 交替 <code>a-&gt;b</code> 与 <code>b-&gt;a</code>，在期望意义上对称，但只保留一个 gradient graph。</p>
+<p>对 occupied target，强制输入 chart-specific position token 后读取 LFQ feature distribution。只有当 frozen audit 显示 feature JS 至少为 replay noise 的 2 倍且与 seam/event failure 有材料性关系时，才启用 <code>L_feat</code>；否则最终方法为 event-only。</p>
+<h3 id="4-training-objective">4. Training Objective</h3>
+<p>保留标准 full-sequence CE，并增加 paired column auxiliary batch：</p>
+<p><code>L_pair = 0.5(L_colCE_a+L_colCE_b) + lambda_e L_event + I_feat lambda_f L_feat</code></p>
+<p><code>L = L_fullCE + beta L_pair</code>。</p>
+<p><code>L_colCE</code> 监督 parser event（next z 或 EXIT）和 ordinary feature CE。对照：</p>
+<ul><li><strong>origin augmentation</strong>：同样 paired column/event CE，但 consistency weights 为 0；</li><li><strong>same-chart R-Drop</strong>：同一 chart 的两个 stochastic forwards，forward count 匹配；</li><li><strong>evidence-changed negative control</strong>：证明不应对齐不同 conditioning evidence。</li></ul>
+<h3 id="5-efficient-interface">5. Efficient Interface</h3>
+<ul><li>Forward 只返回 K 个 selected hidden states；shared lm head 仅作用于这些 states。</li><li>对 position slot，gather 20 个 target-z logits，EXIT 用 EOS 与其他合法 position logits 的 <code>logsumexp</code>。</li><li>直接在 21-way log-probability space 计算 KL。</li><li>Paired sequence 只含 verbatim context 与一个 teacher-forced target column，不保留两条 16k×vocab logits graphs。</li><li>一支 no-grad teacher、一支 student，下一 minibatch 交换方向。</li></ul>
+<h3 id="6-formal-scope">6. Formal Scope</h3>
+<p>理论对象是 parser-induced target-column marked process。若每个 reachable paired history 的 event/mark conditionals 相等，则 chain rule 给出 induced column distribution 相等；两种 chart-induced column distributions 的 KL 可分解为 matched histories 上的 expected stepwise conditional KL。</p>
+<p>训练 objective 只是对 GT/rollout sampled histories 的 Monte Carlo surrogate。本文不声称：</p>
+<ul><li>whole-scene joint 完全 gauge-invariant；</li><li>off-support branches 得到保证；</li><li>arbitrary order invariance；</li><li>general SE(3) equivariance。</li></ul>
+<h3 id="7-inference">7. Inference</h3>
+<p>完全不变。只使用单次原 GaussianGPT sampler；不做第二 chart、reranking、consensus 或额外 decoder。</p>
+<h2 id="static-evidence-already-available">Static Evidence Already Available</h2>
+<p>确定性 CPU/code audit 已验证：</p>
+<ul><li>scene position vocabulary 为 8000=20³；</li><li>默认 <code>no_empty_columns=false</code>；</li><li>full action space 无损分为 20 个 z events 与 EXIT：20 个 target tokens、7980 个其他 position tokens加 EOS；</li><li>一个 synthetic production-like context 上 48 个非零合法 xy translations 均保持 xyz order；</li><li>strict monotonic rule 后的剩余 target-z event support 在两 chart 下相同。</li></ul>
+<p>这只证明定义自洽、非平凡。没有 checkpoint/data，因此没有证明 real pair coverage、frozen disagreement 或质量提升。</p>
+<h2 id="preregistered-gates">Preregistered Gates</h2>
+<table><thead><tr><th>Gate</th><th>Test</th><th>Pass criterion</th><th>Failure action</th></tr></thead><tbody><tr><td>G0 Parser equivalence</td><td>exhaustive property test against exact default parser</td><td>every legal token/EOS yields the same <code>A_o</code> event and parser transition; probabilities sum to 1</td><td>repair definition or kill before model use</td></tr><tr><td>G1 Real pair coverage</td><td>verbatim validation rollouts only</td><td>&gt;=20% non-bootstrap origin-change target states have a nonzero pair; &gt;=10k states; covered/uncovered context length and occupancy standardized differences &lt;=0.25 after planned reweighting</td><td>kill; never truncate prompts</td></tr><tr><td>G2 Frozen chart effect</td><td>replay/dropout/chart intervention</td><td>median event JS &gt;=5× replay noise; origin-change states have &gt;=25% excess matched JS over stable states; coupled-sample divergence nontrivial</td><td>kill before fine-tuning</td></tr><tr><td>G3 Feature materiality</td><td>same-target feature audit</td><td>feature JS &gt;=2× replay noise and materially linked to failure</td><td>otherwise delete feature loss</td></tr></tbody></table>
+<h2 id="claim-driven-evidence-plan">Claim-Driven Evidence Plan</h2>
+<h3 id="claim-1-real-origin-changes-expose-chart-only-event-jumps">Claim 1: Real origin changes expose chart-only event jumps</h3>
+<ul><li>Extract verbatim <code>(H,T)</code> rollout states.</li><li>Hold H, T, model, temperature and random uniforms fixed; intervene only on legal origin.</li><li>Compare event JS, target NLL, coupled sample divergence and next-column seam.</li><li>Stratify actual runs by origin-change vs origin-stable steps with matching on context length, occupancy and target distance.</li></ul>
+<p>Kill if G1/G2 fails.</p>
+<h3 id="claim-2-semantic-chart-pairing-beats-generic-regularization">Claim 2: Semantic chart pairing beats generic regularization</h3>
+<p>Matched-compute arms:</p>
+<ol><li>standard fine-tune;</li><li>origin augmentation;</li><li>same-chart R-Drop;</li><li>chart-event consistency;</li><li>event+feature only if G3 passes.</li></ol>
+<p>Metrics: held-out event JS/NLL, chunk FID/KID/COV/MMD, entropy and pairwise diversity. Predeclared no-degradation margins: relative FID/KID &lt;=3%, COV decrease &lt;=2 percentage points, diversity decrease &lt;=5%.</p>
+<h3 id="claim-3-removing-chart-jumps-improves-long-scene-generation">Claim 3: Removing chart jumps improves long-scene generation</h3>
+<ul><li>Generate 4/8/12 m scenes, at least 3 seeds, unchanged inference.</li><li>Primary: &gt;=15% reduction in origin-switch-localized seam jump and &gt;=10% reduction in distance-KID slope relative to both augmentation and R-Drop, confidence intervals excluding zero.</li><li>Mandatory secondary: fully report <code>|KID_x-KID_y|</code>; when baseline directional gap is significant, target &gt;=20% relative reduction.</li><li>Reject causal claim if improvement is not localized to origin changes, depends on consensus, or harms chunk quality/diversity.</li></ul>
+<h2 id="failure-modes">Failure Modes</h2>
+<ul><li>No adequate real pairs: kill C01.</li><li>Frozen effect near noise: kill before training.</li><li>R-Drop matches: conclude generic smoothing, reject method novelty.</li><li>EXIT aggregation erases all signal: kill parser-level thesis; do not return to intersection KL.</li><li>Feature signal weak: delete feature loss.</li><li>Only global quality changes, no origin localization: reject causal mechanism.</li><li>x/y gap unchanged despite significant baseline gap: success condition is incomplete; report honestly.</li></ul>
+<h2 id="novelty-boundary">Novelty Boundary</h2>
+<p>Do not claim first equivariant model, first patch consistency, first random-order 3D AR, or first long-scene generator. The provisional delta is:</p>
+<blockquote><p>Fix physical evidence and parser-consumed action semantics, change only the local coordinate chart, push the complete sparse-token distribution into a common physical column-event space, and train away the isolated window-origin dependence.</p></blockquote>
+<p>Deep novelty status remains <code>PARTIAL / provisional</code>; absence of an exact 2024–2026 hit is not proof.</p>
+<h2 id="implementation-and-compute">Implementation and Compute</h2>
+<ul><li>G0/G1 compiler and coverage report: CPU, 2–4 days.</li><li>G2/G3 frozen audit: estimated 2–6 GPU-hours once checkpoint/tokenized rollouts are available.</li><li>One-batch selected-slot memory/throughput benchmark before training.</li><li>Minimal fine-tune: 12–30 GPU-hours per arm.</li><li>Full 3-seed/long-scene matrix: roughly 200–500 GPU-hours, staged behind gates.</li><li>Current run launched zero GPU jobs.</li></ul>
+<h2 id="first-three-runs">First Three Runs</h2>
+<ol><li><strong>G1 real-prompt pair coverage scan</strong> — CPU only; kill on inadequate coverage/bias.</li><li><strong>G2 frozen counterfactual audit</strong> — same H/T/randomness, chart-only intervention; kill on noise-level or non-localized effect.</li><li><strong>Selected-slot microbenchmark + minimal matched-compute pilot</strong> — only after G1/G2; compare augmentation, R-Drop and event consistency.</li></ol>
+<h2 id="current-status">Current Status</h2>
+<ul><li>Method proposal: READY for experiment planning.</li><li>Static parser construction: partial G0 pass in default synthetic single-column setting.</li><li>Empirical method validation: not started.</li><li>Paper acceptance: unvalidated.</li><li>Review independence: same-family.</li><li>Acceptance status: provisional.</li></ul>
+
+<footer class="aris-footer">
+  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
+  source path <code>artifacts/FINAL_PROPOSAL.md</code> ·
+  SHA256 <code>dd571061f6d6</code> ·
+  generated at 2026-07-17 03:31 UTC.
+  This is a generated view — edit the source Markdown, then re-render.
+</footer>
+</main>
+
+</div>
+</body>
+</html>

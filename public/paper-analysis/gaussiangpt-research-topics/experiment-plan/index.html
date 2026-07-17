@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart-Consistent Column Events：实验路线图</title>
+<meta name="description" content="Chart-Consistent Column Events 的 claim-driven 实验路线图：G0–G3 kill gates、matched-compute baselines、4/8/12 m 评测与 300–550 GPUh 分阶段预算。">
+<link rel="canonical" href="https://szddddddd.github.io/paper-analysis/gaussiangpt-research-topics/experiment-plan/">
+
+<meta name="generator" content="ARIS render-html (academic, v1)">
+<meta name="aris:source-path" content="artifacts/EXPERIMENT_PLAN.md">
+<meta name="aris:source-sha256" content="cef2d048535214730eecfcbd37e46cd976a84d3ae47d0ecee8280b530b36355c">
+<meta name="aris:generated-at" content="2026-07-17 04:25 UTC">
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+
+
+<style>
+:root {
+  --bg: #fdfcf7;
+  --bg-soft: #f4f1ea;
+  --bg-code: #f8f5ec;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #6b6b6b;
+  --primary: #1a4a8c;
+  --primary-soft: #2d6cb8;
+  --accent: #b8390e;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --good-bg: #d1fae5;
+  --good: #065f46;
+  --bad-bg: #fee2e2;
+  --bad: #991b1b;
+  --border: #d6d0c0;
+  --border-soft: #e8e3d5;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Source Serif Pro", "Source Serif 4", "Crimson Pro", "Georgia", "Songti SC", "STSong", serif;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 48px;
+  padding: 40px 32px;
+}
+
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  font-size: 13px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
+}
+nav.toc h3 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+nav.toc ol li { margin: 5px 0; counter-increment: toc; }
+nav.toc ol li::before { content: counter(toc) ". "; color: var(--ink-muted); margin-right: 4px; }
+nav.toc a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+nav.toc a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+nav.toc ul { list-style: none; padding-left: 14px; margin: 3px 0; font-size: 12px; }
+nav.toc ul li::before { content: "→ "; color: var(--border); }
+
+main { min-width: 0; }
+
+header.hero {
+  border-bottom: 3px double var(--primary);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+header.hero .eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+header.hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.hero .subtitle {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+header.hero .byline {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+header.hero .byline strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+header.hero .meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+header.hero .meta span strong { color: var(--ink-soft); }
+header.hero .meta code {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+h2 {
+  font-size: 24px;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-weight: 700;
+}
+h2 .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+h3 { font-size: 19px; margin: 28px 0 10px; color: var(--primary); font-weight: 600; }
+h4 { font-size: 16px; margin: 20px 0 8px; color: var(--ink); font-weight: 600; }
+
+p { margin: 10px 0; }
+ul, ol { padding-left: 22px; margin: 10px 0; }
+ul li, ol li { margin: 4px 0; }
+ul li::marker { color: var(--primary); }
+
+strong { color: var(--accent); font-weight: 600; }
+em { color: var(--ink-soft); }
+
+a { color: var(--primary); }
+a:hover { color: var(--accent); }
+
+code:not(.hljs) {
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.86em;
+  background: var(--bg-code);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
+pre {
+  background: #fafaf6;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 4px;
+  margin: 14px 0;
+}
+pre code, pre code.hljs {
+  background: transparent !important;
+  display: block;
+  padding: 14px 18px !important;
+  font-size: 13px;
+  line-height: 1.55;
+  font-family: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  color: var(--ink);
+}
+pre.diagram {
+  background: #f9f6ed;
+  border-left: 4px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.callout {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border-left: 4px solid;
+  font-size: 15px;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.callout-info { background: var(--info-bg); border-left-color: var(--primary); }
+.callout-info .callout-title { color: var(--primary); }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.callout-warn .callout-title { color: var(--warn); }
+.callout-good { background: var(--good-bg); border-left-color: var(--good); }
+.callout-good .callout-title { color: var(--good); }
+.callout-bad { background: var(--bad-bg); border-left-color: var(--bad); }
+.callout-bad .callout-title { color: var(--bad); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+thead { background: var(--primary); color: white; }
+th, td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+th { font-weight: 600; font-size: 13px; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+details.qa, details {
+  background: white;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  margin: 10px 0;
+  padding: 0;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  list-style: none;
+  user-select: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "▸ ";
+  margin-right: 4px;
+  display: inline-block;
+  transition: transform 0.15s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details[open] summary { border-bottom: 1px solid var(--border-soft); }
+details > :not(summary) { padding: 10px 14px; }
+details p:first-of-type { margin-top: 8px; }
+
+mjx-container[display="true"] { margin: 12px 0 !important; }
+
+footer.aris-footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--border); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px; }
+  nav.toc {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border-soft);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+  header.hero h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { grid-template-columns: 1fr; padding: 0; }
+  body { background: white; }
+  header.hero { border-bottom-color: var(--ink); }
+}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<link rel="stylesheet" href="/paper-analysis/gaussiangpt-research-topics/site.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<nav class="note-toolbar" aria-label="研究路线图版本">
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/report/">完整候选报告</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/">Top 1 精炼方案</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/experiment-plan/" aria-current="page">实验路线图</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/report/#published-artifacts">Markdown 附件</a>
+</nav>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+<li><a href="#claim-map">Claim Map</a>
+<ul>
+<li><a href="#anti-claims-to-rule-out">Anti-claims to rule out</a></li>
+</ul>
+</li>
+<li><a href="#paper-storyline">Paper Storyline</a>
+</li>
+<li><a href="#experimental-protocol-shared-across-blocks">Experimental Protocol Shared Across Blocks</a>
+<ul>
+<li><a href="#code-and-model-provenance">Code and model provenance</a></li>
+<li><a href="#data">Data</a></li>
+<li><a href="#statistics">Statistics</a></li>
+</ul>
+</li>
+<li><a href="#experiment-blocks">Experiment Blocks</a>
+<ul>
+<li><a href="#b0--grammar-and-real-pair-premise-gates">B0 — Grammar and Real-Pair Premise Gates</a></li>
+<li><a href="#b1--frozen-counterfactual-causal-audit">B1 — Frozen Counterfactual Causal Audit</a></li>
+<li><a href="#b2--matched-compute-method-isolation">B2 — Matched-Compute Method Isolation</a></li>
+<li><a href="#b3--main-long-scene-anchor-result">B3 — Main Long-Scene Anchor Result</a></li>
+<li><a href="#b4--simplicity-robustness-and-failure-envelope">B4 — Simplicity, Robustness and Failure Envelope</a></li>
+</ul>
+</li>
+<li><a href="#run-order-and-milestones">Run Order and Milestones</a>
+</li>
+<li><a href="#first-three-runs-to-launch">First Three Runs to Launch</a>
+</li>
+<li><a href="#compute-and-data-budget">Compute and Data Budget</a>
+</li>
+<li><a href="#risks-and-mitigations">Risks and Mitigations</a>
+</li>
+<li><a href="#final-checklist">Final Checklist</a>
+</li>
+</ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">GaussianGPT Research Roadmap</div>
+  <h1>Chart-Consistent Column Events：实验路线图</h1>
+  <p class="subtitle">Claim-driven validation、stop/go gates 与 GPU 预算；尚未运行实验</p>
+
+  <div class="meta">
+    <span><strong>Source:</strong> <code>artifacts/EXPERIMENT_PLAN.md</code></span>
+    <span><strong>SHA256:</strong> <code>cef2d0485352</code></span>
+    <span><strong>Rendered:</strong> 2026-07-17 04:25 UTC</span>
+
+  </div>
+</header>
+
+<h1 id="experiment-plan">Experiment Plan</h1>
+<ul><li><strong>Problem</strong>: GaussianGPT 的 production sliding-window outpainting 可能仅因 local window origin 改变而产生不同的 target-column conditional，进而积累为 seam、远距离退化和方向偏置。</li><li><strong>Method thesis</strong>: 对固定物理 prompt/target 的合法 chart counterfactuals，将完整 token 概率无损推送到共同 <code>{z0...z19, EXIT}</code> 事件空间，并训练 away origin-induced event jumps；架构和推理不变。</li><li><strong>Date</strong>: 2026-07-16</li><li><strong>Current evidence</strong>: only deterministic static G0 evidence; no GPU/model result</li><li><strong>Review status</strong>: same-family provisional; proposal READY for experiment planning, empirical acceptance unvalidated</li></ul>
+<h2 id="claim-map">Claim Map</h2>
+<table><thead><tr><th>Claim</th><th>Why it matters</th><th>Minimum convincing evidence</th><th>Linked blocks</th></tr></thead><tbody><tr><td>C1 — Production origin changes create a material chart-only failure, and chart-event consistency removes it</td><td>This is the anchored mechanism claim; without it the method is just generic regularization</td><td>Adequate verbatim-prompt pair coverage; frozen chart intervention above replay/dropout noise and localized to origin changes; trained method beats origin augmentation and R-Drop on held-out event jump</td><td>B0, B1, B2</td></tr><tr><td>C2 — Removing chart-only event jumps improves long-scene quality without inference changes or chunk/diversity regression</td><td>Converts the diagnostic into a top-venue scene-generation contribution</td><td>At &gt;=3 seeds, significant reductions in origin-switch seam excess and distance-KID slope, mandatory x/y analysis, unchanged sampler and predeclared chunk-quality margins</td><td>B3, B4</td></tr></tbody></table>
+<h3 id="anti-claims-to-rule-out">Anti-claims to rule out</h3>
+<ul><li>Gains come only from two forward passes, paired CE, dropout smoothing, or ordinary origin augmentation.</li><li>The method improves synthetic chart metrics but not real origin-change states.</li><li><code>EXIT</code> aggregation hides probability differences that matter to the parser.</li><li>Feature KL or a larger stack is necessary; the minimal event-only route should be preferred if it suffices.</li><li>Improvements require consensus/reranking or change the inference budget.</li></ul>
+<h2 id="paper-storyline">Paper Storyline</h2>
+<ul><li><p><strong>Main paper must prove</strong>:</p>
+<ol><li>the exact production grammar admits enough real same-state chart counterfactuals;</li><li>frozen GaussianGPT exhibits origin-localized event/sample jumps;</li><li>the zero-parameter training signal beats matched-compute augmentation and R-Drop;</li><li>unchanged inference improves 4/8/12 m generation with no chunk/diversity regression.</li></ol></li><li><strong>Appendix can support</strong>: pair coverage stratification, K/lambda sweeps, feature gate, shift direction/magnitude, optional ScanNet++ transfer, grouped/no-empty exploratory audit.</li><li><strong>Experiments intentionally cut</strong>: multi-order training, new RoPE/equivariant architecture, KV/cache/memory, consensus decoding, new tokenizer, coarse-to-fine planner, generic seam refiner.</li><li><strong>Frontier necessity block</strong>: cut. No LLM/VLM/diffusion/RL component is central; forcing one would weaken the method.</li></ul>
+<h2 id="experimental-protocol-shared-across-blocks">Experimental Protocol Shared Across Blocks</h2>
+<h3 id="code-and-model-provenance">Code and model provenance</h3>
+<ul><li>GaussianGPT repository commit: <code>e3be826</code> on clean <code>main</code> at audit time.</li><li>Acquire the official scene checkpoint and record checksum/config; no checkpoint is currently local.</li><li>Freeze VQ-VAE/decoder for every arm.</li><li>Use the default single-column large-scene semantics first: <code>no_empty_columns=false</code>, <code>resample_empty_columns=true</code>, <code>chunk_order=xyz</code>.</li><li>Do not silently include grouped/no-empty variants in the main claim.</li></ul>
+<h3 id="data">Data</h3>
+<ul><li>Primary: 3D-FRONT train/validation split used by GaussianGPT, with cached <code>{global coords, feature_ids}</code> and reproducible production/GT-simulated rollout states.</li><li>Long-scene: use the paper's large-scene generation protocol and fixed scene seeds, with 4 m, 8 m and 12 m extents.</li><li>Secondary/optional: ScanNet++ only after C1/C2 pass; no result there can rescue a failed primary premise.</li></ul>
+<h3 id="statistics">Statistics</h3>
+<ul><li>Use common random numbers for chart counterfactual samples and matched generation seeds across systems.</li><li>Report median, mean, bootstrap 95% CI and per-scene distributions for primary metrics.</li><li>For origin localization, fit a mixed-effects or paired regression with <code>method</code>, <code>origin_change</code>, and their interaction; scene is a random intercept, with matching/controls for context length, occupancy and target distance.</li><li>Pre-register two primary long-scene endpoints: origin-switch seam excess and distance-KID slope. Correct their p-values with Holm; other metrics are secondary.</li><li>Three independent fine-tuning seeds for any result entering the main paper.</li></ul>
+<h2 id="experiment-blocks">Experiment Blocks</h2>
+<h3 id="b0--grammar-and-real-pair-premise-gates">B0 — Grammar and Real-Pair Premise Gates</h3>
+<ul><li><strong>Claim tested</strong>: C1 prerequisite — the method's counterfactual state/action interface exists in production data.</li><li><strong>Why this block exists</strong>: prevents spending GPU budget on a mathematically correct but irrelevant pairing task.</li><li><strong>Dataset / task</strong>: exact default parser property tests; then verbatim 3D-FRONT validation rollout prompts <code>(H,T)</code>.</li><li><strong>Compared systems</strong>: no learned systems; zero shift, legal nonzero shifts, deliberately invalid shifts, optional truncated-prompt diagnostic only as a negative control.</li><li><p><strong>Metrics</strong>:</p>
+<ul><li>parser property-test pass count and probability-mass conservation;</li><li>fraction of non-bootstrap origin-change states with &gt;=1 nonzero legal pair;</li><li>legal-origin count/state, shift direction/magnitude;</li><li>pair coverage by context length, occupied rows, target distance and scene type;</li><li>standardized differences between covered and uncovered states.</li></ul></li><li><strong>Setup</strong>: no prompt row may be removed for the main coverage number; exact token/config checksums recorded.</li><li><p><strong>Success criterion</strong>:</p>
+<ul><li>G0 exhaustive property tests pass;</li><li>≥20% eligible origin-change states have a nonzero pair;</li><li>≥10k paired states in validation;</li><li>covered/uncovered context-length and occupancy standardized differences &lt;=0.25 after a predeclared reweighting analysis.</li></ul></li><li><strong>Failure interpretation</strong>: kill C01; do not relax to support intersection or prompt truncation.</li><li><strong>Table / figure target</strong>: Main paper Table 1 (premise/coverage); pair diagram in Method Figure 2; detailed strata in appendix.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
+<h3 id="b1--frozen-counterfactual-causal-audit">B1 — Frozen Counterfactual Causal Audit</h3>
+<ul><li><strong>Claim tested</strong>: C1 — a chart-only intervention causes a material production event/sample jump localized at real origin changes.</li><li><strong>Why this block exists</strong>: establishes the failure before any training and separates it from generic exposure bias.</li><li><strong>Dataset / task</strong>: B0-passing validation states; exact replay, same-chart dropout, legal alternate origin, evidence-changed negative pairs.</li><li><strong>Compared systems</strong>: one frozen official GaussianGPT checkpoint only.</li><li><p><strong>Metrics</strong>:</p>
+<ul><li>21-way event JS/KL and target event NLL variance;</li><li>coupled-sampling divergence under identical uniform random variates;</li><li>optional feature JS and exact top-1 disagreement;</li><li>origin-switch-localized latent seam score;</li><li>excess event/seam jump at origin-change vs matched stable steps.</li></ul></li><li><strong>Setup</strong>: temperature/top-p identical; no retry temperature change inside the one-step intervention; 10k+ paired states if available.</li><li><p><strong>Success criterion</strong>:</p>
+<ul><li>median chart event JS &gt;=5× exact replay noise;</li><li>origin-change states show &gt;=25% excess matched JS over stable states with CI excluding zero;</li><li>coupled-sample divergence is nontrivial and correlates with next-column seam anomaly;</li><li>feature loss is enabled only if feature JS &gt;=2× replay noise and contributes materially.</li></ul></li><li><strong>Failure interpretation</strong>: kill before training; a null result is valuable and rules out C01.</li><li><strong>Table / figure target</strong>: Main paper Figure 3 (counterfactual distributions and origin-change localization); Table 1 gate status.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
+<h3 id="b2--matched-compute-method-isolation">B2 — Matched-Compute Method Isolation</h3>
+<ul><li><strong>Claim tested</strong>: C1 and anti-claims — semantic chart pairing, not generic smoothing or extra compute, removes the failure.</li><li><strong>Why this block exists</strong>: isolates the exact contribution.</li><li><strong>Dataset / split / task</strong>: 3D-FRONT training; held-out validation chart pairs and standard chunk generation.</li><li><p><strong>Compared systems</strong>:</p>
+<ol><li>official checkpoint / standard matched-duration fine-tune;</li><li>paired column CE + origin augmentation;</li><li>same-chart R-Drop with matched forward count;</li><li>chart-event consistency;</li><li>event+feature only if G3 passes.</li></ol></li><li><p><strong>Metrics</strong>:</p>
+<ul><li>primary: held-out event JS, target event NLL, origin-change coupled-sample divergence;</li><li>secondary: chunk FID/KID, geometry COV/MMD, entropy, pairwise diversity, training throughput and peak memory.</li></ul></li><li><p><strong>Setup</strong>:</p>
+<ul><li>pilot one seed on a fixed subset, then 3 seeds full data;</li><li>VQ-VAE frozen; same optimizer, update count, paired batch count and lm-head evaluations;</li><li>default K=32, single-gradient alternating direction; lambda/beta selected on validation event JS subject to no-degradation constraints.</li></ul></li><li><p><strong>Success criterion</strong>:</p>
+<ul><li>chart method materially beats both augmentation and R-Drop on event JS/NLL with CIs excluding zero;</li><li>relative FID/KID degradation &lt;=3%, COV decrease &lt;=2 points, diversity decrease &lt;=5%;</li><li>feature variant is retained only if it adds significant gain over event-only.</li></ul></li><li><p><strong>Failure interpretation</strong>:</p>
+<ul><li>R-Drop tie =&gt; generic regularization, novelty rejected;</li><li>augmentation tie =&gt; paired semantics unnecessary;</li><li>quality/diversity loss =&gt; method fails even if chart JS improves.</li></ul></li><li><strong>Table / figure target</strong>: Main paper Table 2 (method isolation), small training-cost column; appendix hyperparameters.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
+<h3 id="b3--main-long-scene-anchor-result">B3 — Main Long-Scene Anchor Result</h3>
+<ul><li><strong>Claim tested</strong>: C2 — eliminating chart-event jumps improves scene growth with unchanged inference.</li><li><strong>Why this block exists</strong>: this is the paper's actual application payoff.</li><li><strong>Dataset / task</strong>: 3D-FRONT large-scene generation at 4 m, 8 m, 12 m; x- and y-oriented growth; common scene seeds.</li><li><strong>Compared systems</strong>: official GaussianGPT, origin augmentation, R-Drop, chart-event consistency; feature variant only if B2 retains it.</li><li><p><strong>Metrics</strong>:</p>
+<ul><li>primary 1: origin-switch seam excess, defined from standardized occupancy-connectivity deficit plus adjacent LFQ/decoded-feature jump relative to matched stable boundaries;</li><li>primary 2: distance-binned normalized KID slope from seed;</li><li>mandatory secondary: <code>|KID_x-KID_y|</code>, empty-column/retry rate, geometry COV/MMD where applicable, total wall-clock and peak memory;</li><li>chunk FID/KID/diversity repeated as safety metrics.</li></ul></li><li><strong>Setup</strong>: &gt;=3 model seeds; same sampling temperature/top-p and common generation seeds; no consensus/reranking; stage extents to stop early on failure.</li><li><p><strong>Success criterion</strong>:</p>
+<ul><li>≥15% reduction in origin-switch seam excess vs both augmentation and R-Drop;</li><li>≥10% reduction in distance-KID slope, CI excluding zero;</li><li>if baseline x/y gap is significant, &gt;=20% relative reduction;</li><li>no predeclared chunk/diversity regression and negligible inference overhead.</li></ul></li><li><p><strong>Failure interpretation</strong>:</p>
+<ul><li>improvement not localized to origin switches =&gt; causal story fails;</li><li>only 4 m gain =&gt; insufficient long-horizon evidence;</li><li>x/y gap persists =&gt; report incomplete success; fixed xyz factorization remains a separate limitation.</li></ul></li><li><strong>Table / figure target</strong>: Main paper Table 3; distance curves and spatial heatmaps in Figure 4; qualitative boundary crops in Figure 5.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
+<h3 id="b4--simplicity-robustness-and-failure-envelope">B4 — Simplicity, Robustness and Failure Envelope</h3>
+<ul><li><strong>Claim tested</strong>: C2 supporting claim — the minimal event-only method is sufficient and its limits are understood.</li><li><strong>Why this block exists</strong>: defends elegance without adding a second contribution.</li><li><strong>Dataset / task</strong>: validation pairs, chunk generation, selected 8/12 m scenes; optional ScanNet++ after primary success.</li><li><p><strong>Compared variants</strong>:</p>
+<ul><li>event-only vs event+feature if G3 passes;</li><li>K in {16,32,64}; lambda/beta low/medium/high;</li><li>small vs larger legal shifts; x vs y directions;</li><li>default single-column vs optional configs only as an appendix scope audit.</li></ul></li><li><strong>Metrics</strong>: event JS, long-scene primary endpoints, compute, entropy/diversity, pair coverage.</li><li><strong>Success criterion</strong>: K=32 event-only should lie on or near the Pareto frontier; extra components should not be required for the main result.</li><li><strong>Failure interpretation</strong>: if only a complex variant works, revise the simplicity claim before paper writing.</li><li><strong>Table / figure target</strong>: compact main ablation row; full sweeps and failures in appendix.</li><li><strong>Priority</strong>: MUST-RUN for event-only/feature decision; NICE-TO-HAVE for ScanNet++ and optional parser variants.</li></ul>
+<h2 id="run-order-and-milestones">Run Order and Milestones</h2>
+<table><thead><tr><th>Milestone</th><th>Goal</th><th>Runs</th><th>Decision gate</th><th>Estimated cost</th><th>Main risk</th></tr></thead><tbody><tr><td>M0 — deterministic sanity</td><td>exact parser semantics and tooling</td><td>R000–R002</td><td>G0/G1 pass; otherwise stop project</td><td>2–4 CPU days, 0 GPUh</td><td>real prompts admit too few shifts</td></tr><tr><td>M1 — frozen premise</td><td>prove chart-only failure exists and localizes</td><td>R003</td><td>G2 pass; feature G3 decision</td><td>2–6 GPUh</td><td>signal near replay noise</td></tr><tr><td>M2 — implementation sanity</td><td>memory, gradients, overfit and metric correctness</td><td>R004–R006</td><td>selected-slot path fits budget; one-batch losses behave</td><td>2–8 GPUh</td><td>logsumexp/mask bug or memory overhead</td></tr><tr><td>M3 — single-seed decision</td><td>compare four core arms cheaply</td><td>R010–R014</td><td>chart method beats augmentation/R-Drop without chunk regression</td><td>40–90 GPUh</td><td>generic regularization explains gains</td></tr><tr><td>M4 — full method evidence</td><td>3-seed full-data isolation</td><td>R020–R024</td><td>C1 confirmed with statistics</td><td>160–280 GPUh</td><td>variance or training instability</td></tr><tr><td>M5 — long-scene anchor</td><td>4/8/12 m unchanged-inference evaluation</td><td>R030–R032</td><td>C2 thresholds pass</td><td>100–220 GPUh</td><td>evaluation wall-clock dominates</td></tr><tr><td>M6 — polish</td><td>ablations, failure cases, optional transfer</td><td>R040–R050</td><td>paper completeness only; cannot rescue failed C1/C2</td><td>20–80 GPUh</td><td>scope creep</td></tr></tbody></table>
+<h2 id="first-three-runs-to-launch">First Three Runs to Launch</h2>
+<ol><li><strong>R001 — Exact production parser property test</strong>: compare <code>A_o</code> with every actual token/EOS transition in the default single-column path; CPU only.</li><li><strong>R002 — Verbatim rollout pair coverage scan</strong>: no prompt truncation; produce coverage/bias table and G1 decision; CPU only.</li><li><strong>R003 — Frozen counterfactual audit</strong>: chart-only intervention with common random numbers, G2/G3 decision; first GPU run, only after R001/R002 pass.</li></ol>
+<h2 id="compute-and-data-budget">Compute and Data Budget</h2>
+<ul><li><strong>Gate-only budget</strong>: 0 GPUh for R001/R002; 2–6 GPUh for R003.</li><li><strong>Minimum go/no-go pilot through M3</strong>: approximately 45–105 GPUh.</li><li><strong>Full must-run paper program</strong>: approximately 300–550 GPUh, dominated by 3-seed fine-tuning and 12 m sampling.</li><li><strong>Nice-to-have appendix/ScanNet++</strong>: additional 20–100 GPUh.</li><li><strong>Data preparation</strong>: official checkpoint, tokenized full-scene payloads, production rollout-state exporter, stable large-scene evaluator.</li><li><strong>Human evaluation</strong>: none required.</li><li><strong>Biggest bottleneck</strong>: large-scene generation wall-clock; use staged extents and kill gates before 12 m.</li></ul>
+<h2 id="risks-and-mitigations">Risks and Mitigations</h2>
+<ul><li><strong>Low real pair coverage</strong>: stop; do not truncate prompts or expand to different evidence.</li><li><strong>Parser mapping bug</strong>: exhaustive property tests against real state transitions before any forward pass.</li><li><strong>No frozen effect</strong>: stop before fine-tuning.</li><li><strong>R-Drop/augmentation tie</strong>: reject novelty and document negative result.</li><li><strong>Feature signal absent</strong>: event-only final method.</li><li><strong>Expensive long-scene evaluation</strong>: 4 m pilot → 8 m → 12 m only after thresholds; common seeds and paired statistics reduce required sample count.</li><li><strong>Metric confounding</strong>: primary causal metric localized at origin switches; x/y gap and global KID remain required but secondary to the mechanism test.</li><li><strong>Optional config mismatch</strong>: scope paper to default parser; optional variants are appendix audits, not hidden assumptions.</li></ul>
+<h2 id="final-checklist">Final Checklist</h2>
+<ul><li>☑ Problem Anchor and claims are frozen.</li><li>☑ Main paper blocks are compact and claim-driven.</li><li>☑ Novelty is isolated against augmentation and R-Drop.</li><li>☑ Simplicity is defended with event-only gating and no extra modules.</li><li>☑ Frontier-model component is explicitly absent and not forced.</li><li>☑ Nice-to-have runs are separated from must-run runs.</li><li>☑ Kill gates precede expensive training and 12 m generation.</li><li>☐ Official checkpoint/data acquired and checksummed.</li><li>☐ G1/G2/G3 empirical gates executed.</li><li>☐ No GPU work has been run in the current discovery task.</li></ul>
+
+<footer class="aris-footer">
+  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
+  source path <code>artifacts/EXPERIMENT_PLAN.md</code> ·
+  SHA256 <code>cef2d0485352</code> ·
+  generated at 2026-07-17 04:25 UTC.
+  This is a generated view — edit the source Markdown, then re-render.
+</footer>
+</main>
+
+</div>
+</body>
+</html>

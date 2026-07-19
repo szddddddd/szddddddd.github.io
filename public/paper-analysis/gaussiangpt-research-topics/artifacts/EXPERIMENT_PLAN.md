@@ -1,224 +1,224 @@
-# Experiment Plan
+# 实验计划（Experiment Plan）
 
-- **Problem**: GaussianGPT 的 production sliding-window outpainting 可能仅因 local window origin 改变而产生不同的 target-column conditional，进而积累为 seam、远距离退化和方向偏置。
-- **Method thesis**: 对固定物理 prompt/target 的合法 chart counterfactuals，将完整 token 概率无损推送到共同 `{z0...z19, EXIT}` 事件空间，并训练 away origin-induced event jumps；架构和推理不变。
-- **Date**: 2026-07-16
-- **Current evidence**: only deterministic static G0 evidence; no GPU/model result
-- **Review status**: same-family provisional; proposal READY for experiment planning, empirical acceptance unvalidated
+- **问题（Problem）**：GaussianGPT 的生产级滑动窗口外扩生成（production sliding-window outpainting）可能仅因局部窗口原点（local window origin）改变，就产生不同的目标列条件分布（target-column conditional），并逐步积累为接缝（seam）、远距离退化和方向偏置。
+- **方法论点（Method thesis）**：针对固定物理提示与目标（prompt/target）的合法坐标图反事实样本（chart counterfactuals），将完整词元（token）概率无损推送到共同的 `{z0...z19, EXIT}` 事件空间，并通过训练消除由原点引起的事件跳变（origin-induced event jumps）；架构和推理保持不变。
+- **日期（Date）**：2026-07-16
+- **当前证据（Current evidence）**：仅有确定性的静态 G0 证据；尚无 GPU 或模型实验结果。
+- **评审状态（Review status）**：同模型家族的暂定评审（same-family provisional）；方案已可进入实验规划（READY），但经验性可接受度尚未验证（empirical acceptance unvalidated）。
 
-## Claim Map
+## 论断映射（Claim Map）
 
-| Claim | Why it matters | Minimum convincing evidence | Linked blocks |
+| 论断（Claim） | 重要性（Why it matters） | 最低可信证据（Minimum convincing evidence） | 关联模块（Linked blocks） |
 |---|---|---|---|
-| C1 — Production origin changes create a material chart-only failure, and chart-event consistency removes it | This is the anchored mechanism claim; without it the method is just generic regularization | Adequate verbatim-prompt pair coverage; frozen chart intervention above replay/dropout noise and localized to origin changes; trained method beats origin augmentation and R-Drop on held-out event jump | B0, B1, B2 |
-| C2 — Removing chart-only event jumps improves long-scene quality without inference changes or chunk/diversity regression | Converts the diagnostic into a top-venue scene-generation contribution | At >=3 seeds, significant reductions in origin-switch seam excess and distance-KID slope, mandatory x/y analysis, unchanged sampler and predeclared chunk-quality margins | B3, B4 |
+| C1 — 生产流程中的原点切换会造成显著的纯坐标图失效（chart-only failure），而坐标图—事件一致性（chart-event consistency）可消除该失效 | 这是锚定机制的核心论断；缺少它，方法就只是普通正则化 | 逐字保留提示的配对覆盖率足够；冻结模型的坐标图干预效应高于重放/丢弃噪声且集中于原点切换；训练后方法在留出的事件跳变上优于原点增强（origin augmentation）和 R-Drop | B0、B1、B2 |
+| C2 — 消除纯坐标图事件跳变可在不改变推理、且不损害分块质量或多样性的前提下提升长场景质量 | 将诊断性发现转化为顶级会议级场景生成贡献 | 至少 3 个随机种子下，原点切换接缝超额（origin-switch seam excess）与距离—KID 斜率显著下降；必须进行 x/y 分析；采样器不变，并满足预注册的分块质量边界 | B3、B4 |
 
-### Anti-claims to rule out
+### 需要排除的反论断（Anti-claims）
 
-- Gains come only from two forward passes, paired CE, dropout smoothing, or ordinary origin augmentation.
-- The method improves synthetic chart metrics but not real origin-change states.
-- `EXIT` aggregation hides probability differences that matter to the parser.
-- Feature KL or a larger stack is necessary; the minimal event-only route should be preferred if it suffices.
-- Improvements require consensus/reranking or change the inference budget.
+- 收益仅来自两次前向传播、配对交叉熵（paired CE）、丢弃平滑（dropout smoothing）或普通原点增强。
+- 方法只改善合成坐标图指标，却不改善真实原点切换状态。
+- `EXIT` 聚合掩盖了解析器（parser）真正关心的概率差异。
+- 必须使用特征 KL 散度（feature KL）或更大的模块堆栈；若最简事件分支已经足够，应优先采用仅事件方案（event-only）。
+- 改进依赖共识解码/重排序（consensus/reranking），或改变了推理预算。
 
-## Paper Storyline
+## 论文叙事线（Paper Storyline）
 
-- **Main paper must prove**:
-  1. the exact production grammar admits enough real same-state chart counterfactuals;
-  2. frozen GaussianGPT exhibits origin-localized event/sample jumps;
-  3. the zero-parameter training signal beats matched-compute augmentation and R-Drop;
-  4. unchanged inference improves 4/8/12 m generation with no chunk/diversity regression.
-- **Appendix can support**: pair coverage stratification, K/lambda sweeps, feature gate, shift direction/magnitude, optional ScanNet++ transfer, grouped/no-empty exploratory audit.
-- **Experiments intentionally cut**: multi-order training, new RoPE/equivariant architecture, KV/cache/memory, consensus decoding, new tokenizer, coarse-to-fine planner, generic seam refiner.
-- **Frontier necessity block**: cut. No LLM/VLM/diffusion/RL component is central; forcing one would weaken the method.
+- **正文必须证明（Main paper must prove）**：
+  1. 精确的生产语法允许足够多真实的同状态坐标图反事实样本（same-state chart counterfactuals）；
+  2. 冻结的 GaussianGPT 会出现集中于原点切换的事件/采样跳变；
+  3. 零新增参数的训练信号优于等算力增强和 R-Drop；
+  4. 在不改变推理的情况下，4/8/12 m 生成得到改善，且分块质量与多样性不退化。
+- **附录可提供（Appendix can support）**：配对覆盖率分层、K/λ 扫描、特征门控、位移方向/幅度、可选 ScanNet++ 迁移，以及分组/非空配置的探索性审计。
+- **主动删去的实验（Experiments intentionally cut）**：多顺序训练、新 RoPE/等变架构、KV/缓存/记忆、共识解码、新分词器（tokenizer）、由粗到细规划器（coarse-to-fine planner）和通用接缝修复器。
+- **前沿模型必要性模块（Frontier necessity block）**：删除。大语言模型（LLM）、视觉语言模型（VLM）、扩散模型（diffusion）或强化学习（RL）都不是核心组件，强行加入反而会削弱方法。
 
-## Experimental Protocol Shared Across Blocks
+## 各模块共用的实验协议（Experimental Protocol Shared Across Blocks）
 
-### Code and model provenance
+### 代码与模型来源（Code and model provenance）
 
-- GaussianGPT repository commit: `e3be826` on clean `main` at audit time.
-- Acquire the official scene checkpoint and record checksum/config; no checkpoint is currently local.
-- Freeze VQ-VAE/decoder for every arm.
-- Use the default single-column large-scene semantics first: `no_empty_columns=false`, `resample_empty_columns=true`, `chunk_order=xyz`.
-- Do not silently include grouped/no-empty variants in the main claim.
+- 审计时 GaussianGPT 仓库位于干净的 `main` 分支，提交为 `e3be826`。
+- 获取官方场景检查点（checkpoint）并记录校验和与配置；当前本地尚无检查点。
+- 所有实验分支都冻结 VQ-VAE/解码器（decoder）。
+- 首先使用默认的单列大场景语义：`no_empty_columns=false`、`resample_empty_columns=true`、`chunk_order=xyz`。
+- 不得在主要论断中暗中加入分组或非空变体。
 
-### Data
+### 数据（Data）
 
-- Primary: 3D-FRONT train/validation split used by GaussianGPT, with cached `{global coords, feature_ids}` and reproducible production/GT-simulated rollout states.
-- Long-scene: use the paper's large-scene generation protocol and fixed scene seeds, with 4 m, 8 m and 12 m extents.
-- Secondary/optional: ScanNet++ only after C1/C2 pass; no result there can rescue a failed primary premise.
+- **主要数据**：GaussianGPT 使用的 3D-FRONT 训练/验证划分；缓存 `{global coords, feature_ids}`，并保存可复现的生产流程/真值模拟（GT-simulated）滚动状态。
+- **长场景数据**：沿用论文的大场景生成协议与固定场景种子，范围为 4 m、8 m 和 12 m。
+- **次要/可选数据**：仅在 C1/C2 通过后测试 ScanNet++；该数据集上的结果不能挽救失败的主要前提。
 
-### Statistics
+### 统计方法（Statistics）
 
-- Use common random numbers for chart counterfactual samples and matched generation seeds across systems.
-- Report median, mean, bootstrap 95% CI and per-scene distributions for primary metrics.
-- For origin localization, fit a mixed-effects or paired regression with `method`, `origin_change`, and their interaction; scene is a random intercept, with matching/controls for context length, occupancy and target distance.
-- Pre-register two primary long-scene endpoints: origin-switch seam excess and distance-KID slope. Correct their p-values with Holm; other metrics are secondary.
-- Three independent fine-tuning seeds for any result entering the main paper.
+- 对坐标图反事实采样和不同系统的匹配生成种子使用公共随机数（common random numbers）。
+- 主要指标报告中位数、均值、自助法 95% 置信区间（bootstrap 95% CI）及逐场景分布。
+- 对原点定位效应拟合混合效应或配对回归：固定效应包括 `method`、`origin_change` 及二者交互项；场景作为随机截距，并匹配/控制上下文长度、占用率和目标距离。
+- 预注册两个主要长场景终点：原点切换接缝超额和距离—KID 斜率。使用 Holm 方法校正二者的 p 值；其他指标均为次要指标。
+- 任何进入论文正文的结果都使用 3 个独立微调随机种子。
 
-## Experiment Blocks
+## 实验模块（Experiment Blocks）
 
-### B0 — Grammar and Real-Pair Premise Gates
+### B0 — 语法与真实配对前提门槛（Grammar and Real-Pair Premise Gates）
 
-- **Claim tested**: C1 prerequisite — the method's counterfactual state/action interface exists in production data.
-- **Why this block exists**: prevents spending GPU budget on a mathematically correct but irrelevant pairing task.
-- **Dataset / task**: exact default parser property tests; then verbatim 3D-FRONT validation rollout prompts `(H,T)`.
-- **Compared systems**: no learned systems; zero shift, legal nonzero shifts, deliberately invalid shifts, optional truncated-prompt diagnostic only as a negative control.
-- **Metrics**:
-  - parser property-test pass count and probability-mass conservation;
-  - fraction of non-bootstrap origin-change states with >=1 nonzero legal pair;
-  - legal-origin count/state, shift direction/magnitude;
-  - pair coverage by context length, occupied rows, target distance and scene type;
-  - standardized differences between covered and uncovered states.
-- **Setup**: no prompt row may be removed for the main coverage number; exact token/config checksums recorded.
-- **Success criterion**:
-  - G0 exhaustive property tests pass;
-  - ≥20% eligible origin-change states have a nonzero pair;
-  - ≥10k paired states in validation;
-  - covered/uncovered context-length and occupancy standardized differences <=0.25 after a predeclared reweighting analysis.
-- **Failure interpretation**: kill C01; do not relax to support intersection or prompt truncation.
-- **Table / figure target**: Main paper Table 1 (premise/coverage); pair diagram in Method Figure 2; detailed strata in appendix.
-- **Priority**: MUST-RUN.
+- **检验论断（Claim tested）**：C1 的前提——方法所需的反事实状态/动作接口确实存在于生产数据中。
+- **设置本模块的原因**：避免为数学上正确、但与实际生产流程无关的配对任务消耗 GPU 预算。
+- **数据集/任务（Dataset / task）**：先对默认解析器做精确属性测试（property tests），再使用逐字保留的 3D-FRONT 验证集滚动提示 `(H,T)`。
+- **比较系统（Compared systems）**：不涉及学习系统；比较零位移、合法非零位移、刻意构造的非法位移，以及仅作为负对照的可选截断提示诊断。
+- **指标（Metrics）**：
+  - 解析器属性测试通过数与概率质量守恒；
+  - 非自举原点切换状态中，至少存在 1 个非零合法配对的比例；
+  - 每个状态的合法原点数、位移方向和幅度；
+  - 按上下文长度、占用行数、目标距离和场景类型分层的配对覆盖率；
+  - 已覆盖与未覆盖状态之间的标准化差异。
+- **设置（Setup）**：计算主要覆盖率时不得删除任何提示行；记录精确的词元与配置校验和。
+- **成功标准（Success criterion）**：
+  - G0 穷举属性测试全部通过；
+  - 至少 20% 的合格原点切换状态具有非零配对；
+  - 验证集中至少有 10k 个配对状态；
+  - 经预注册重加权分析后，已覆盖/未覆盖状态在上下文长度与占用率上的标准化差异不超过 0.25。
+- **失败解释（Failure interpretation）**：终止 C01；不得放宽为支撑集交集（support intersection）或截断提示。
+- **目标表格/图（Table / figure target）**：正文表 1（前提/覆盖率）；方法图 2 的配对示意图；附录提供详细分层结果。
+- **优先级（Priority）**：必须运行（MUST-RUN）。
 
-### B1 — Frozen Counterfactual Causal Audit
+### B1 — 冻结反事实因果审计（Frozen Counterfactual Causal Audit）
 
-- **Claim tested**: C1 — a chart-only intervention causes a material production event/sample jump localized at real origin changes.
-- **Why this block exists**: establishes the failure before any training and separates it from generic exposure bias.
-- **Dataset / task**: B0-passing validation states; exact replay, same-chart dropout, legal alternate origin, evidence-changed negative pairs.
-- **Compared systems**: one frozen official GaussianGPT checkpoint only.
-- **Metrics**:
-  - 21-way event JS/KL and target event NLL variance;
-  - coupled-sampling divergence under identical uniform random variates;
-  - optional feature JS and exact top-1 disagreement;
-  - origin-switch-localized latent seam score;
-  - excess event/seam jump at origin-change vs matched stable steps.
-- **Setup**: temperature/top-p identical; no retry temperature change inside the one-step intervention; 10k+ paired states if available.
-- **Success criterion**:
-  - median chart event JS >=5× exact replay noise;
-  - origin-change states show >=25% excess matched JS over stable states with CI excluding zero;
-  - coupled-sample divergence is nontrivial and correlates with next-column seam anomaly;
-  - feature loss is enabled only if feature JS >=2× replay noise and contributes materially.
-- **Failure interpretation**: kill before training; a null result is valuable and rules out C01.
-- **Table / figure target**: Main paper Figure 3 (counterfactual distributions and origin-change localization); Table 1 gate status.
-- **Priority**: MUST-RUN.
+- **检验论断**：C1——纯坐标图干预会导致显著的生产事件/采样跳变，且效应集中于真实原点切换。
+- **设置本模块的原因**：在训练前确认失效确实存在，并将其与一般暴露偏差（exposure bias）区分。
+- **数据集/任务**：通过 B0 的验证状态；精确重放、同坐标图丢弃、合法替代原点，以及证据改变的负配对。
+- **比较系统**：仅使用一个冻结的官方 GaussianGPT 检查点。
+- **指标**：
+  - 21 类事件的 Jensen–Shannon/KL 散度（JS/KL）与目标事件负对数似然（NLL）方差；
+  - 在相同均匀随机变量下的耦合采样分歧（coupled-sampling divergence）；
+  - 可选的特征 JS 散度与精确 top-1 不一致率；
+  - 原点切换局部化的潜变量接缝分数；
+  - 原点切换步骤相对匹配稳定步骤的额外事件/接缝跳变。
+- **设置**：温度与 top-p 完全相同；单步干预内不得改变重试温度；如数据允许，使用至少 10k 个配对状态。
+- **成功标准**：
+  - 坐标图事件 JS 中位数至少为精确重放噪声的 5 倍；
+  - 原点切换状态相对稳定状态的匹配 JS 至少高 25%，且置信区间不含 0；
+  - 耦合采样分歧不可忽略，并与下一列接缝异常相关；
+  - 仅当特征 JS 至少为重放噪声的 2 倍且具有实质贡献时，才启用特征损失。
+- **失败解释**：训练前终止；零结果同样有价值，可排除 C01。
+- **目标表格/图**：正文图 3（反事实分布与原点切换定位）；表 1 的门槛状态。
+- **优先级**：必须运行（MUST-RUN）。
 
-### B2 — Matched-Compute Method Isolation
+### B2 — 等算力方法隔离（Matched-Compute Method Isolation）
 
-- **Claim tested**: C1 and anti-claims — semantic chart pairing, not generic smoothing or extra compute, removes the failure.
-- **Why this block exists**: isolates the exact contribution.
-- **Dataset / split / task**: 3D-FRONT training; held-out validation chart pairs and standard chunk generation.
-- **Compared systems**:
-  1. official checkpoint / standard matched-duration fine-tune;
-  2. paired column CE + origin augmentation;
-  3. same-chart R-Drop with matched forward count;
-  4. chart-event consistency;
-  5. event+feature only if G3 passes.
-- **Metrics**:
-  - primary: held-out event JS, target event NLL, origin-change coupled-sample divergence;
-  - secondary: chunk FID/KID, geometry COV/MMD, entropy, pairwise diversity, training throughput and peak memory.
-- **Setup**:
-  - pilot one seed on a fixed subset, then 3 seeds full data;
-  - VQ-VAE frozen; same optimizer, update count, paired batch count and lm-head evaluations;
-  - default K=32, single-gradient alternating direction; lambda/beta selected on validation event JS subject to no-degradation constraints.
-- **Success criterion**:
-  - chart method materially beats both augmentation and R-Drop on event JS/NLL with CIs excluding zero;
-  - relative FID/KID degradation <=3%, COV decrease <=2 points, diversity decrease <=5%;
-  - feature variant is retained only if it adds significant gain over event-only.
-- **Failure interpretation**:
-  - R-Drop tie => generic regularization, novelty rejected;
-  - augmentation tie => paired semantics unnecessary;
-  - quality/diversity loss => method fails even if chart JS improves.
-- **Table / figure target**: Main paper Table 2 (method isolation), small training-cost column; appendix hyperparameters.
-- **Priority**: MUST-RUN.
+- **检验论断**：C1 及反论断——消除失效的是具有语义约束的坐标图配对，而不是通用平滑或额外算力。
+- **设置本模块的原因**：隔离精确贡献。
+- **数据集/划分/任务**：3D-FRONT 训练集；留出的验证坐标图配对和标准分块生成。
+- **比较系统**：
+  1. 官方检查点/标准等时长微调；
+  2. 配对列交叉熵（CE）+ 原点增强；
+  3. 前向次数匹配的同坐标图 R-Drop；
+  4. 坐标图—事件一致性；
+  5. 仅在 G3 通过时加入事件+特征版本。
+- **指标**：
+  - 主要指标：留出事件 JS、目标事件 NLL、原点切换耦合采样分歧；
+  - 次要指标：分块 FID/KID、几何 COV/MMD、熵、两两多样性、训练吞吐量和峰值显存。
+- **设置**：
+  - 先在固定子集上运行单种子试验，再进行 3 种子全数据实验；
+  - 冻结 VQ-VAE；优化器、更新次数、配对批次数和语言模型头（lm-head）评估次数相同；
+  - 默认 `K=32`，采用单梯度交替方向；在不退化约束下，根据验证事件 JS 选择 λ/β。
+- **成功标准**：
+  - 坐标图方法在事件 JS/NLL 上实质性优于增强和 R-Drop，且置信区间不含 0；
+  - FID/KID 相对退化不超过 3%，COV 下降不超过 2 个百分点，多样性下降不超过 5%；
+  - 仅当特征版本相对仅事件版本带来显著增益时才保留。
+- **失败解释**：
+  - 与 R-Drop 持平：收益属于通用正则化，否定新颖性；
+  - 与增强持平：配对语义并非必要；
+  - 质量/多样性下降：即使坐标图 JS 改善，方法仍判定失败。
+- **目标表格/图**：正文表 2（方法隔离），附一列简洁训练成本；附录报告超参数。
+- **优先级**：必须运行（MUST-RUN）。
 
-### B3 — Main Long-Scene Anchor Result
+### B3 — 主要长场景锚定结果（Main Long-Scene Anchor Result）
 
-- **Claim tested**: C2 — eliminating chart-event jumps improves scene growth with unchanged inference.
-- **Why this block exists**: this is the paper's actual application payoff.
-- **Dataset / task**: 3D-FRONT large-scene generation at 4 m, 8 m, 12 m; x- and y-oriented growth; common scene seeds.
-- **Compared systems**: official GaussianGPT, origin augmentation, R-Drop, chart-event consistency; feature variant only if B2 retains it.
-- **Metrics**:
-  - primary 1: origin-switch seam excess, defined from standardized occupancy-connectivity deficit plus adjacent LFQ/decoded-feature jump relative to matched stable boundaries;
-  - primary 2: distance-binned normalized KID slope from seed;
-  - mandatory secondary: `|KID_x-KID_y|`, empty-column/retry rate, geometry COV/MMD where applicable, total wall-clock and peak memory;
-  - chunk FID/KID/diversity repeated as safety metrics.
-- **Setup**: >=3 model seeds; same sampling temperature/top-p and common generation seeds; no consensus/reranking; stage extents to stop early on failure.
-- **Success criterion**:
-  - ≥15% reduction in origin-switch seam excess vs both augmentation and R-Drop;
-  - ≥10% reduction in distance-KID slope, CI excluding zero;
-  - if baseline x/y gap is significant, >=20% relative reduction;
-  - no predeclared chunk/diversity regression and negligible inference overhead.
-- **Failure interpretation**:
-  - improvement not localized to origin switches => causal story fails;
-  - only 4 m gain => insufficient long-horizon evidence;
-  - x/y gap persists => report incomplete success; fixed xyz factorization remains a separate limitation.
-- **Table / figure target**: Main paper Table 3; distance curves and spatial heatmaps in Figure 4; qualitative boundary crops in Figure 5.
-- **Priority**: MUST-RUN.
+- **检验论断**：C2——消除坐标图—事件跳变可在不改变推理的情况下改善场景扩展。
+- **设置本模块的原因**：这是论文真正的应用收益。
+- **数据集/任务**：3D-FRONT 大场景生成，范围为 4 m、8 m、12 m；分别沿 x、y 方向扩展，并使用共同场景种子。
+- **比较系统**：官方 GaussianGPT、原点增强、R-Drop、坐标图—事件一致性；仅当 B2 保留特征版本时才加入该版本。
+- **指标**：
+  - 主要指标 1：原点切换接缝超额，定义为标准化占用连通性缺损加相邻 LFQ/解码特征跳变，相对于匹配稳定边界的超额；
+  - 主要指标 2：按距种子距离分箱的归一化 KID 斜率；
+  - 强制次要指标：`|KID_x-KID_y|`、空列/重试率、适用时的几何 COV/MMD、总墙钟时间和峰值显存；
+  - 重复报告分块 FID/KID/多样性作为安全指标。
+- **设置**：至少 3 个模型种子；采样温度/top-p 相同并使用共同生成种子；禁止共识/重排序；按范围分阶段运行，以便失败时提前停止。
+- **成功标准**：
+  - 相比增强和 R-Drop，原点切换接缝超额至少降低 15%；
+  - 距离—KID 斜率至少降低 10%，且置信区间不含 0；
+  - 若基线 x/y 差异显著，则相对差异至少降低 20%；
+  - 不违反预注册的分块质量/多样性边界，且推理开销可忽略。
+- **失败解释**：
+  - 改进不集中于原点切换：因果叙事失败；
+  - 只在 4 m 上改善：长时程证据不足；
+  - x/y 差异持续存在：报告为不完全成功；固定 xyz 因子分解仍是独立限制。
+- **目标表格/图**：正文表 3；图 4 展示距离曲线和空间热图；图 5 展示定性边界裁剪图。
+- **优先级**：必须运行（MUST-RUN）。
 
-### B4 — Simplicity, Robustness and Failure Envelope
+### B4 — 简洁性、稳健性与失效边界（Simplicity, Robustness and Failure Envelope）
 
-- **Claim tested**: C2 supporting claim — the minimal event-only method is sufficient and its limits are understood.
-- **Why this block exists**: defends elegance without adding a second contribution.
-- **Dataset / task**: validation pairs, chunk generation, selected 8/12 m scenes; optional ScanNet++ after primary success.
-- **Compared variants**:
-  - event-only vs event+feature if G3 passes;
-  - K in {16,32,64}; lambda/beta low/medium/high;
-  - small vs larger legal shifts; x vs y directions;
-  - default single-column vs optional configs only as an appendix scope audit.
-- **Metrics**: event JS, long-scene primary endpoints, compute, entropy/diversity, pair coverage.
-- **Success criterion**: K=32 event-only should lie on or near the Pareto frontier; extra components should not be required for the main result.
-- **Failure interpretation**: if only a complex variant works, revise the simplicity claim before paper writing.
-- **Table / figure target**: compact main ablation row; full sweeps and failures in appendix.
-- **Priority**: MUST-RUN for event-only/feature decision; NICE-TO-HAVE for ScanNet++ and optional parser variants.
+- **检验论断**：C2 的支撑论断——最简仅事件方法已经足够，且其限制得到明确描述。
+- **设置本模块的原因**：在不引入第二项贡献的前提下论证方法的简洁性。
+- **数据集/任务**：验证配对、分块生成、选定的 8/12 m 场景；主要结果成功后可选做 ScanNet++。
+- **比较变体**：
+  - 若 G3 通过，比较仅事件与事件+特征；
+  - `K ∈ {16,32,64}`；λ/β 取低、中、高三档；
+  - 小位移与较大合法位移；x 与 y 方向；
+  - 默认单列配置与可选配置的比较仅作为附录范围审计。
+- **指标**：事件 JS、长场景主要终点、算力、熵/多样性、配对覆盖率。
+- **成功标准**：`K=32` 的仅事件版本应位于或接近帕累托前沿（Pareto frontier）；主要结果不应依赖额外组件。
+- **失败解释**：如果只有复杂版本有效，应在论文写作前修订简洁性论断。
+- **目标表格/图**：正文使用紧凑消融行；完整扫描与失败结果放入附录。
+- **优先级**：仅事件/特征决策为必须运行（MUST-RUN）；ScanNet++ 和可选解析器变体为可选（NICE-TO-HAVE）。
 
-## Run Order and Milestones
+## 运行顺序与里程碑（Run Order and Milestones）
 
-| Milestone | Goal | Runs | Decision gate | Estimated cost | Main risk |
+| 里程碑（Milestone） | 目标（Goal） | 运行（Runs） | 决策门槛（Decision gate） | 预计成本（Estimated cost） | 主要风险（Main risk） |
 |---|---|---|---|---|---|
-| M0 — deterministic sanity | exact parser semantics and tooling | R000–R002 | G0/G1 pass; otherwise stop project | 2–4 CPU days, 0 GPUh | real prompts admit too few shifts |
-| M1 — frozen premise | prove chart-only failure exists and localizes | R003 | G2 pass; feature G3 decision | 2–6 GPUh | signal near replay noise |
-| M2 — implementation sanity | memory, gradients, overfit and metric correctness | R004–R006 | selected-slot path fits budget; one-batch losses behave | 2–8 GPUh | logsumexp/mask bug or memory overhead |
-| M3 — single-seed decision | compare four core arms cheaply | R010–R014 | chart method beats augmentation/R-Drop without chunk regression | 40–90 GPUh | generic regularization explains gains |
-| M4 — full method evidence | 3-seed full-data isolation | R020–R024 | C1 confirmed with statistics | 160–280 GPUh | variance or training instability |
-| M5 — long-scene anchor | 4/8/12 m unchanged-inference evaluation | R030–R032 | C2 thresholds pass | 100–220 GPUh | evaluation wall-clock dominates |
-| M6 — polish | ablations, failure cases, optional transfer | R040–R050 | paper completeness only; cannot rescue failed C1/C2 | 20–80 GPUh | scope creep |
+| M0 — 确定性健全性检查 | 精确解析器语义与工具 | R000–R002 | G0/G1 通过，否则终止项目 | 2–4 个 CPU 日，0 GPUh | 真实提示允许的位移过少 |
+| M1 — 冻结前提 | 证明纯坐标图失效存在且可定位 | R003 | G2 通过；决定特征 G3 | 2–6 GPUh | 信号接近重放噪声 |
+| M2 — 实现健全性 | 验证内存、梯度、过拟合和指标正确性 | R004–R006 | 选定槽位路径符合预算；单批次损失行为正常 | 2–8 GPUh | `logsumexp`/掩码错误或内存开销 |
+| M3 — 单种子决策 | 低成本比较四个核心分支 | R010–R014 | 坐标图方法优于增强/R-Drop，且分块质量不退化 | 40–90 GPUh | 通用正则化即可解释收益 |
+| M4 — 完整方法证据 | 3 种子全数据隔离实验 | R020–R024 | 用统计证据确认 C1 | 160–280 GPUh | 方差或训练不稳定 |
+| M5 — 长场景锚点 | 4/8/12 m 不变推理评估 | R030–R032 | C2 阈值通过 | 100–220 GPUh | 评估墙钟时间占主导 |
+| M6 — 完善 | 消融、失败案例和可选迁移 | R040–R050 | 仅用于论文完整性，不能挽救失败的 C1/C2 | 20–80 GPUh | 范围蔓延（scope creep） |
 
-## First Three Runs to Launch
+## 首先启动的三项运行（First Three Runs to Launch）
 
-1. **R001 — Exact production parser property test**: compare `A_o` with every actual token/EOS transition in the default single-column path; CPU only.
-2. **R002 — Verbatim rollout pair coverage scan**: no prompt truncation; produce coverage/bias table and G1 decision; CPU only.
-3. **R003 — Frozen counterfactual audit**: chart-only intervention with common random numbers, G2/G3 decision; first GPU run, only after R001/R002 pass.
+1. **R001 — 精确生产解析器属性测试（Exact production parser property test）**：将 `A_o` 与默认单列路径中的每个真实词元/EOS 转移逐一比较；仅使用 CPU。
+2. **R002 — 逐字滚动提示配对覆盖扫描（Verbatim rollout pair coverage scan）**：不得截断提示；生成覆盖率/偏差表与 G1 决策；仅使用 CPU。
+3. **R003 — 冻结反事实审计（Frozen counterfactual audit）**：使用公共随机数进行纯坐标图干预并作出 G2/G3 决策；这是第一个 GPU 运行，只能在 R001/R002 通过后执行。
 
-## Compute and Data Budget
+## 算力与数据预算（Compute and Data Budget）
 
-- **Gate-only budget**: 0 GPUh for R001/R002; 2–6 GPUh for R003.
-- **Minimum go/no-go pilot through M3**: approximately 45–105 GPUh.
-- **Full must-run paper program**: approximately 300–550 GPUh, dominated by 3-seed fine-tuning and 12 m sampling.
-- **Nice-to-have appendix/ScanNet++**: additional 20–100 GPUh.
-- **Data preparation**: official checkpoint, tokenized full-scene payloads, production rollout-state exporter, stable large-scene evaluator.
-- **Human evaluation**: none required.
-- **Biggest bottleneck**: large-scene generation wall-clock; use staged extents and kill gates before 12 m.
+- **仅门槛预算（Gate-only budget）**：R001/R002 为 0 GPUh；R003 为 2–6 GPUh。
+- **到 M3 的最低继续/停止试验预算（Minimum go/no-go pilot）**：约 45–105 GPUh。
+- **完整必做论文实验计划（Full must-run paper program）**：约 300–550 GPUh，主要消耗来自 3 种子微调和 12 m 采样。
+- **可选附录/ScanNet++（Nice-to-have appendix/ScanNet++）**：额外 20–100 GPUh。
+- **数据准备（Data preparation）**：官方检查点、词元化完整场景载荷、生产滚动状态导出器、稳定的大场景评估器。
+- **人工评估（Human evaluation）**：不需要。
+- **最大瓶颈（Biggest bottleneck）**：大场景生成的墙钟时间；采用分阶段范围，并在 12 m 之前执行终止门槛。
 
-## Risks and Mitigations
+## 风险与缓解措施（Risks and Mitigations）
 
-- **Low real pair coverage**: stop; do not truncate prompts or expand to different evidence.
-- **Parser mapping bug**: exhaustive property tests against real state transitions before any forward pass.
-- **No frozen effect**: stop before fine-tuning.
-- **R-Drop/augmentation tie**: reject novelty and document negative result.
-- **Feature signal absent**: event-only final method.
-- **Expensive long-scene evaluation**: 4 m pilot → 8 m → 12 m only after thresholds; common seeds and paired statistics reduce required sample count.
-- **Metric confounding**: primary causal metric localized at origin switches; x/y gap and global KID remain required but secondary to the mechanism test.
-- **Optional config mismatch**: scope paper to default parser; optional variants are appendix audits, not hidden assumptions.
+- **真实配对覆盖率低**：终止；不得截断提示或扩展到不同证据。
+- **解析器映射错误**：任何前向传播前，针对真实状态转移运行穷举属性测试。
+- **冻结效应不存在**：微调前终止。
+- **R-Drop/增强持平**：否定新颖性并记录负结果。
+- **特征信号缺失**：最终采用仅事件方法。
+- **长场景评估昂贵**：仅在达到阈值后按 4 m → 8 m → 12 m 推进；公共种子与配对统计可减少所需样本数。
+- **指标混杂**：主要因果指标定位于原点切换；x/y 差异与全局 KID 仍必须报告，但相对机制检验属于次要指标。
+- **可选配置不匹配**：论文范围限定于默认解析器；可选变体只作为附录审计，不能成为隐藏假设。
 
-## Final Checklist
+## 最终检查表（Final Checklist）
 
-- ☑ Problem Anchor and claims are frozen.
-- ☑ Main paper blocks are compact and claim-driven.
-- ☑ Novelty is isolated against augmentation and R-Drop.
-- ☑ Simplicity is defended with event-only gating and no extra modules.
-- ☑ Frontier-model component is explicitly absent and not forced.
-- ☑ Nice-to-have runs are separated from must-run runs.
-- ☑ Kill gates precede expensive training and 12 m generation.
-- ☐ Official checkpoint/data acquired and checksummed.
-- ☐ G1/G2/G3 empirical gates executed.
-- ☐ No GPU work has been run in the current discovery task.
+- ☑ 问题锚点（Problem Anchor）与论断已冻结。
+- ☑ 正文实验模块紧凑，并由论断驱动。
+- ☑ 已通过增强和 R-Drop 对照隔离新颖性。
+- ☑ 通过仅事件门控且不增加模块来论证简洁性。
+- ☑ 明确说明无需前沿模型组件，也未强行加入。
+- ☑ 可选运行与必须运行已分离。
+- ☑ 终止门槛位于昂贵训练和 12 m 生成之前。
+- ☐ 已获取官方检查点/数据并记录校验和。
+- ☐ 已执行 G1/G2/G3 经验门槛。
+- ☐ 当前研究发现任务尚未运行任何 GPU 工作。

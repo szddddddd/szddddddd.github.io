@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chart-Consistent Column Events：实验路线图</title>
-<meta name="description" content="Chart-Consistent Column Events 的 claim-driven 实验路线图：G0–G3 kill gates、matched-compute baselines、4/8/12 m 评测与 300–550 GPUh 分阶段预算。">
+<title>坐标图一致列事件：实验路线图</title>
+<meta name="description" content="坐标图一致列事件的论断驱动实验路线图：G0–G3 终止门槛、等算力基线、4/8/12 m 评测与 300–550 GPUh 分阶段预算。">
 <link rel="canonical" href="https://szddddddd.github.io/paper-analysis/gaussiangpt-research-topics/experiment-plan/">
 
 <meta name="generator" content="ARIS render-html (academic, v1)">
 <meta name="aris:source-path" content="artifacts/EXPERIMENT_PLAN.md">
-<meta name="aris:source-sha256" content="cef2d048535214730eecfcbd37e46cd976a84d3ae47d0ecee8280b530b36355c">
-<meta name="aris:generated-at" content="2026-07-17 04:25 UTC">
+<meta name="aris:source-sha256" content="21603324eb69c98c9330798e024e3d098574400987268eb163e4d14303e6cd51">
+<meta name="aris:generated-at" content="2026-07-19 16:31 UTC">
 
 <!-- MathJax 3 -->
 <script>
@@ -324,124 +324,418 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 </head>
 <body>
 <nav class="note-toolbar" aria-label="研究路线图版本">
-  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回笔记</a>
   <a href="/paper-analysis/gaussiangpt-research-topics/report/">完整候选报告</a>
-  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/">Top 1 精炼方案</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/">首选精炼方案</a>
   <a href="/paper-analysis/gaussiangpt-research-topics/experiment-plan/" aria-current="page">实验路线图</a>
   <a href="/paper-analysis/gaussiangpt-research-topics/report/#published-artifacts">Markdown 附件</a>
 </nav>
 <div class="layout">
 
 <nav class="toc">
-  <h3>Contents</h3>
+  <h3>目录</h3>
   <ol>
-<li><a href="#claim-map">Claim Map</a>
+<li><a href="#论断映射claim-map">论断映射（Claim Map）</a>
 <ul>
-<li><a href="#anti-claims-to-rule-out">Anti-claims to rule out</a></li>
+<li><a href="#需要排除的反论断anti-claims">需要排除的反论断（Anti-claims）</a></li>
 </ul>
 </li>
-<li><a href="#paper-storyline">Paper Storyline</a>
+<li><a href="#论文叙事线paper-storyline">论文叙事线（Paper Storyline）</a>
 </li>
-<li><a href="#experimental-protocol-shared-across-blocks">Experimental Protocol Shared Across Blocks</a>
+<li><a href="#各模块共用的实验协议experimental-protocol-shared-across-blocks">各模块共用的实验协议（Experimental Protocol Shared Across Blocks）</a>
 <ul>
-<li><a href="#code-and-model-provenance">Code and model provenance</a></li>
-<li><a href="#data">Data</a></li>
-<li><a href="#statistics">Statistics</a></li>
+<li><a href="#代码与模型来源code-and-model-provenance">代码与模型来源（Code and model provenance）</a></li>
+<li><a href="#数据data">数据（Data）</a></li>
+<li><a href="#统计方法statistics">统计方法（Statistics）</a></li>
 </ul>
 </li>
-<li><a href="#experiment-blocks">Experiment Blocks</a>
+<li><a href="#实验模块experiment-blocks">实验模块（Experiment Blocks）</a>
 <ul>
-<li><a href="#b0--grammar-and-real-pair-premise-gates">B0 — Grammar and Real-Pair Premise Gates</a></li>
-<li><a href="#b1--frozen-counterfactual-causal-audit">B1 — Frozen Counterfactual Causal Audit</a></li>
-<li><a href="#b2--matched-compute-method-isolation">B2 — Matched-Compute Method Isolation</a></li>
-<li><a href="#b3--main-long-scene-anchor-result">B3 — Main Long-Scene Anchor Result</a></li>
-<li><a href="#b4--simplicity-robustness-and-failure-envelope">B4 — Simplicity, Robustness and Failure Envelope</a></li>
+<li><a href="#b0-语法与真实配对前提门槛grammar-and-real-pair-premise-gates">B0 — 语法与真实配对前提门槛（Grammar and Real-Pair Premise Gates）</a></li>
+<li><a href="#b1-冻结反事实因果审计frozen-counterfactual-causal-audit">B1 — 冻结反事实因果审计（Frozen Counterfactual Causal Audit）</a></li>
+<li><a href="#b2-等算力方法隔离matched-compute-method-isolation">B2 — 等算力方法隔离（Matched-Compute Method Isolation）</a></li>
+<li><a href="#b3-主要长场景锚定结果main-long-scene-anchor-result">B3 — 主要长场景锚定结果（Main Long-Scene Anchor Result）</a></li>
+<li><a href="#b4-简洁性稳健性与失效边界simplicity-robustness-and-failure-envelope">B4 — 简洁性、稳健性与失效边界（Simplicity, Robustness and Failure Envelope）</a></li>
 </ul>
 </li>
-<li><a href="#run-order-and-milestones">Run Order and Milestones</a>
+<li><a href="#运行顺序与里程碑run-order-and-milestones">运行顺序与里程碑（Run Order and Milestones）</a>
 </li>
-<li><a href="#first-three-runs-to-launch">First Three Runs to Launch</a>
+<li><a href="#首先启动的三项运行first-three-runs-to-launch">首先启动的三项运行（First Three Runs to Launch）</a>
 </li>
-<li><a href="#compute-and-data-budget">Compute and Data Budget</a>
+<li><a href="#算力与数据预算compute-and-data-budget">算力与数据预算（Compute and Data Budget）</a>
 </li>
-<li><a href="#risks-and-mitigations">Risks and Mitigations</a>
+<li><a href="#风险与缓解措施risks-and-mitigations">风险与缓解措施（Risks and Mitigations）</a>
 </li>
-<li><a href="#final-checklist">Final Checklist</a>
+<li><a href="#最终检查表final-checklist">最终检查表（Final Checklist）</a>
 </li>
-</ol>
+  </ol>
 </nav>
 
 <main>
 <header class="hero">
-  <div class="eyebrow">GaussianGPT Research Roadmap</div>
-  <h1>Chart-Consistent Column Events：实验路线图</h1>
-  <p class="subtitle">Claim-driven validation、stop/go gates 与 GPU 预算；尚未运行实验</p>
+  <div class="eyebrow">GaussianGPT 研究路线图</div>
+  <h1>坐标图一致列事件：实验路线图</h1>
+  <p class="subtitle">论断驱动验证、继续/停止门槛与 GPU 预算；尚未运行实验</p>
 
   <div class="meta">
-    <span><strong>Source:</strong> <code>artifacts/EXPERIMENT_PLAN.md</code></span>
-    <span><strong>SHA256:</strong> <code>cef2d0485352</code></span>
-    <span><strong>Rendered:</strong> 2026-07-17 04:25 UTC</span>
-
+    <span><strong>来源：</strong> <code>artifacts/EXPERIMENT_PLAN.md</code></span>
+    <span><strong>SHA256：</strong> <code>21603324eb69</code></span>
+    <span><strong>渲染时间：</strong> 2026-07-19 16:31 UTC</span>
   </div>
 </header>
 
-<h1 id="experiment-plan">Experiment Plan</h1>
-<ul><li><strong>Problem</strong>: GaussianGPT 的 production sliding-window outpainting 可能仅因 local window origin 改变而产生不同的 target-column conditional，进而积累为 seam、远距离退化和方向偏置。</li><li><strong>Method thesis</strong>: 对固定物理 prompt/target 的合法 chart counterfactuals，将完整 token 概率无损推送到共同 <code>{z0...z19, EXIT}</code> 事件空间，并训练 away origin-induced event jumps；架构和推理不变。</li><li><strong>Date</strong>: 2026-07-16</li><li><strong>Current evidence</strong>: only deterministic static G0 evidence; no GPU/model result</li><li><strong>Review status</strong>: same-family provisional; proposal READY for experiment planning, empirical acceptance unvalidated</li></ul>
-<h2 id="claim-map">Claim Map</h2>
-<table><thead><tr><th>Claim</th><th>Why it matters</th><th>Minimum convincing evidence</th><th>Linked blocks</th></tr></thead><tbody><tr><td>C1 — Production origin changes create a material chart-only failure, and chart-event consistency removes it</td><td>This is the anchored mechanism claim; without it the method is just generic regularization</td><td>Adequate verbatim-prompt pair coverage; frozen chart intervention above replay/dropout noise and localized to origin changes; trained method beats origin augmentation and R-Drop on held-out event jump</td><td>B0, B1, B2</td></tr><tr><td>C2 — Removing chart-only event jumps improves long-scene quality without inference changes or chunk/diversity regression</td><td>Converts the diagnostic into a top-venue scene-generation contribution</td><td>At &gt;=3 seeds, significant reductions in origin-switch seam excess and distance-KID slope, mandatory x/y analysis, unchanged sampler and predeclared chunk-quality margins</td><td>B3, B4</td></tr></tbody></table>
-<h3 id="anti-claims-to-rule-out">Anti-claims to rule out</h3>
-<ul><li>Gains come only from two forward passes, paired CE, dropout smoothing, or ordinary origin augmentation.</li><li>The method improves synthetic chart metrics but not real origin-change states.</li><li><code>EXIT</code> aggregation hides probability differences that matter to the parser.</li><li>Feature KL or a larger stack is necessary; the minimal event-only route should be preferred if it suffices.</li><li>Improvements require consensus/reranking or change the inference budget.</li></ul>
-<h2 id="paper-storyline">Paper Storyline</h2>
-<ul><li><p><strong>Main paper must prove</strong>:</p>
-<ol><li>the exact production grammar admits enough real same-state chart counterfactuals;</li><li>frozen GaussianGPT exhibits origin-localized event/sample jumps;</li><li>the zero-parameter training signal beats matched-compute augmentation and R-Drop;</li><li>unchanged inference improves 4/8/12 m generation with no chunk/diversity regression.</li></ol></li><li><strong>Appendix can support</strong>: pair coverage stratification, K/lambda sweeps, feature gate, shift direction/magnitude, optional ScanNet++ transfer, grouped/no-empty exploratory audit.</li><li><strong>Experiments intentionally cut</strong>: multi-order training, new RoPE/equivariant architecture, KV/cache/memory, consensus decoding, new tokenizer, coarse-to-fine planner, generic seam refiner.</li><li><strong>Frontier necessity block</strong>: cut. No LLM/VLM/diffusion/RL component is central; forcing one would weaken the method.</li></ul>
-<h2 id="experimental-protocol-shared-across-blocks">Experimental Protocol Shared Across Blocks</h2>
-<h3 id="code-and-model-provenance">Code and model provenance</h3>
-<ul><li>GaussianGPT repository commit: <code>e3be826</code> on clean <code>main</code> at audit time.</li><li>Acquire the official scene checkpoint and record checksum/config; no checkpoint is currently local.</li><li>Freeze VQ-VAE/decoder for every arm.</li><li>Use the default single-column large-scene semantics first: <code>no_empty_columns=false</code>, <code>resample_empty_columns=true</code>, <code>chunk_order=xyz</code>.</li><li>Do not silently include grouped/no-empty variants in the main claim.</li></ul>
-<h3 id="data">Data</h3>
-<ul><li>Primary: 3D-FRONT train/validation split used by GaussianGPT, with cached <code>{global coords, feature_ids}</code> and reproducible production/GT-simulated rollout states.</li><li>Long-scene: use the paper's large-scene generation protocol and fixed scene seeds, with 4 m, 8 m and 12 m extents.</li><li>Secondary/optional: ScanNet++ only after C1/C2 pass; no result there can rescue a failed primary premise.</li></ul>
-<h3 id="statistics">Statistics</h3>
-<ul><li>Use common random numbers for chart counterfactual samples and matched generation seeds across systems.</li><li>Report median, mean, bootstrap 95% CI and per-scene distributions for primary metrics.</li><li>For origin localization, fit a mixed-effects or paired regression with <code>method</code>, <code>origin_change</code>, and their interaction; scene is a random intercept, with matching/controls for context length, occupancy and target distance.</li><li>Pre-register two primary long-scene endpoints: origin-switch seam excess and distance-KID slope. Correct their p-values with Holm; other metrics are secondary.</li><li>Three independent fine-tuning seeds for any result entering the main paper.</li></ul>
-<h2 id="experiment-blocks">Experiment Blocks</h2>
-<h3 id="b0--grammar-and-real-pair-premise-gates">B0 — Grammar and Real-Pair Premise Gates</h3>
-<ul><li><strong>Claim tested</strong>: C1 prerequisite — the method's counterfactual state/action interface exists in production data.</li><li><strong>Why this block exists</strong>: prevents spending GPU budget on a mathematically correct but irrelevant pairing task.</li><li><strong>Dataset / task</strong>: exact default parser property tests; then verbatim 3D-FRONT validation rollout prompts <code>(H,T)</code>.</li><li><strong>Compared systems</strong>: no learned systems; zero shift, legal nonzero shifts, deliberately invalid shifts, optional truncated-prompt diagnostic only as a negative control.</li><li><p><strong>Metrics</strong>:</p>
-<ul><li>parser property-test pass count and probability-mass conservation;</li><li>fraction of non-bootstrap origin-change states with &gt;=1 nonzero legal pair;</li><li>legal-origin count/state, shift direction/magnitude;</li><li>pair coverage by context length, occupied rows, target distance and scene type;</li><li>standardized differences between covered and uncovered states.</li></ul></li><li><strong>Setup</strong>: no prompt row may be removed for the main coverage number; exact token/config checksums recorded.</li><li><p><strong>Success criterion</strong>:</p>
-<ul><li>G0 exhaustive property tests pass;</li><li>≥20% eligible origin-change states have a nonzero pair;</li><li>≥10k paired states in validation;</li><li>covered/uncovered context-length and occupancy standardized differences &lt;=0.25 after a predeclared reweighting analysis.</li></ul></li><li><strong>Failure interpretation</strong>: kill C01; do not relax to support intersection or prompt truncation.</li><li><strong>Table / figure target</strong>: Main paper Table 1 (premise/coverage); pair diagram in Method Figure 2; detailed strata in appendix.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
-<h3 id="b1--frozen-counterfactual-causal-audit">B1 — Frozen Counterfactual Causal Audit</h3>
-<ul><li><strong>Claim tested</strong>: C1 — a chart-only intervention causes a material production event/sample jump localized at real origin changes.</li><li><strong>Why this block exists</strong>: establishes the failure before any training and separates it from generic exposure bias.</li><li><strong>Dataset / task</strong>: B0-passing validation states; exact replay, same-chart dropout, legal alternate origin, evidence-changed negative pairs.</li><li><strong>Compared systems</strong>: one frozen official GaussianGPT checkpoint only.</li><li><p><strong>Metrics</strong>:</p>
-<ul><li>21-way event JS/KL and target event NLL variance;</li><li>coupled-sampling divergence under identical uniform random variates;</li><li>optional feature JS and exact top-1 disagreement;</li><li>origin-switch-localized latent seam score;</li><li>excess event/seam jump at origin-change vs matched stable steps.</li></ul></li><li><strong>Setup</strong>: temperature/top-p identical; no retry temperature change inside the one-step intervention; 10k+ paired states if available.</li><li><p><strong>Success criterion</strong>:</p>
-<ul><li>median chart event JS &gt;=5× exact replay noise;</li><li>origin-change states show &gt;=25% excess matched JS over stable states with CI excluding zero;</li><li>coupled-sample divergence is nontrivial and correlates with next-column seam anomaly;</li><li>feature loss is enabled only if feature JS &gt;=2× replay noise and contributes materially.</li></ul></li><li><strong>Failure interpretation</strong>: kill before training; a null result is valuable and rules out C01.</li><li><strong>Table / figure target</strong>: Main paper Figure 3 (counterfactual distributions and origin-change localization); Table 1 gate status.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
-<h3 id="b2--matched-compute-method-isolation">B2 — Matched-Compute Method Isolation</h3>
-<ul><li><strong>Claim tested</strong>: C1 and anti-claims — semantic chart pairing, not generic smoothing or extra compute, removes the failure.</li><li><strong>Why this block exists</strong>: isolates the exact contribution.</li><li><strong>Dataset / split / task</strong>: 3D-FRONT training; held-out validation chart pairs and standard chunk generation.</li><li><p><strong>Compared systems</strong>:</p>
-<ol><li>official checkpoint / standard matched-duration fine-tune;</li><li>paired column CE + origin augmentation;</li><li>same-chart R-Drop with matched forward count;</li><li>chart-event consistency;</li><li>event+feature only if G3 passes.</li></ol></li><li><p><strong>Metrics</strong>:</p>
-<ul><li>primary: held-out event JS, target event NLL, origin-change coupled-sample divergence;</li><li>secondary: chunk FID/KID, geometry COV/MMD, entropy, pairwise diversity, training throughput and peak memory.</li></ul></li><li><p><strong>Setup</strong>:</p>
-<ul><li>pilot one seed on a fixed subset, then 3 seeds full data;</li><li>VQ-VAE frozen; same optimizer, update count, paired batch count and lm-head evaluations;</li><li>default K=32, single-gradient alternating direction; lambda/beta selected on validation event JS subject to no-degradation constraints.</li></ul></li><li><p><strong>Success criterion</strong>:</p>
-<ul><li>chart method materially beats both augmentation and R-Drop on event JS/NLL with CIs excluding zero;</li><li>relative FID/KID degradation &lt;=3%, COV decrease &lt;=2 points, diversity decrease &lt;=5%;</li><li>feature variant is retained only if it adds significant gain over event-only.</li></ul></li><li><p><strong>Failure interpretation</strong>:</p>
-<ul><li>R-Drop tie =&gt; generic regularization, novelty rejected;</li><li>augmentation tie =&gt; paired semantics unnecessary;</li><li>quality/diversity loss =&gt; method fails even if chart JS improves.</li></ul></li><li><strong>Table / figure target</strong>: Main paper Table 2 (method isolation), small training-cost column; appendix hyperparameters.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
-<h3 id="b3--main-long-scene-anchor-result">B3 — Main Long-Scene Anchor Result</h3>
-<ul><li><strong>Claim tested</strong>: C2 — eliminating chart-event jumps improves scene growth with unchanged inference.</li><li><strong>Why this block exists</strong>: this is the paper's actual application payoff.</li><li><strong>Dataset / task</strong>: 3D-FRONT large-scene generation at 4 m, 8 m, 12 m; x- and y-oriented growth; common scene seeds.</li><li><strong>Compared systems</strong>: official GaussianGPT, origin augmentation, R-Drop, chart-event consistency; feature variant only if B2 retains it.</li><li><p><strong>Metrics</strong>:</p>
-<ul><li>primary 1: origin-switch seam excess, defined from standardized occupancy-connectivity deficit plus adjacent LFQ/decoded-feature jump relative to matched stable boundaries;</li><li>primary 2: distance-binned normalized KID slope from seed;</li><li>mandatory secondary: <code>|KID_x-KID_y|</code>, empty-column/retry rate, geometry COV/MMD where applicable, total wall-clock and peak memory;</li><li>chunk FID/KID/diversity repeated as safety metrics.</li></ul></li><li><strong>Setup</strong>: &gt;=3 model seeds; same sampling temperature/top-p and common generation seeds; no consensus/reranking; stage extents to stop early on failure.</li><li><p><strong>Success criterion</strong>:</p>
-<ul><li>≥15% reduction in origin-switch seam excess vs both augmentation and R-Drop;</li><li>≥10% reduction in distance-KID slope, CI excluding zero;</li><li>if baseline x/y gap is significant, &gt;=20% relative reduction;</li><li>no predeclared chunk/diversity regression and negligible inference overhead.</li></ul></li><li><p><strong>Failure interpretation</strong>:</p>
-<ul><li>improvement not localized to origin switches =&gt; causal story fails;</li><li>only 4 m gain =&gt; insufficient long-horizon evidence;</li><li>x/y gap persists =&gt; report incomplete success; fixed xyz factorization remains a separate limitation.</li></ul></li><li><strong>Table / figure target</strong>: Main paper Table 3; distance curves and spatial heatmaps in Figure 4; qualitative boundary crops in Figure 5.</li><li><strong>Priority</strong>: MUST-RUN.</li></ul>
-<h3 id="b4--simplicity-robustness-and-failure-envelope">B4 — Simplicity, Robustness and Failure Envelope</h3>
-<ul><li><strong>Claim tested</strong>: C2 supporting claim — the minimal event-only method is sufficient and its limits are understood.</li><li><strong>Why this block exists</strong>: defends elegance without adding a second contribution.</li><li><strong>Dataset / task</strong>: validation pairs, chunk generation, selected 8/12 m scenes; optional ScanNet++ after primary success.</li><li><p><strong>Compared variants</strong>:</p>
-<ul><li>event-only vs event+feature if G3 passes;</li><li>K in {16,32,64}; lambda/beta low/medium/high;</li><li>small vs larger legal shifts; x vs y directions;</li><li>default single-column vs optional configs only as an appendix scope audit.</li></ul></li><li><strong>Metrics</strong>: event JS, long-scene primary endpoints, compute, entropy/diversity, pair coverage.</li><li><strong>Success criterion</strong>: K=32 event-only should lie on or near the Pareto frontier; extra components should not be required for the main result.</li><li><strong>Failure interpretation</strong>: if only a complex variant works, revise the simplicity claim before paper writing.</li><li><strong>Table / figure target</strong>: compact main ablation row; full sweeps and failures in appendix.</li><li><strong>Priority</strong>: MUST-RUN for event-only/feature decision; NICE-TO-HAVE for ScanNet++ and optional parser variants.</li></ul>
-<h2 id="run-order-and-milestones">Run Order and Milestones</h2>
-<table><thead><tr><th>Milestone</th><th>Goal</th><th>Runs</th><th>Decision gate</th><th>Estimated cost</th><th>Main risk</th></tr></thead><tbody><tr><td>M0 — deterministic sanity</td><td>exact parser semantics and tooling</td><td>R000–R002</td><td>G0/G1 pass; otherwise stop project</td><td>2–4 CPU days, 0 GPUh</td><td>real prompts admit too few shifts</td></tr><tr><td>M1 — frozen premise</td><td>prove chart-only failure exists and localizes</td><td>R003</td><td>G2 pass; feature G3 decision</td><td>2–6 GPUh</td><td>signal near replay noise</td></tr><tr><td>M2 — implementation sanity</td><td>memory, gradients, overfit and metric correctness</td><td>R004–R006</td><td>selected-slot path fits budget; one-batch losses behave</td><td>2–8 GPUh</td><td>logsumexp/mask bug or memory overhead</td></tr><tr><td>M3 — single-seed decision</td><td>compare four core arms cheaply</td><td>R010–R014</td><td>chart method beats augmentation/R-Drop without chunk regression</td><td>40–90 GPUh</td><td>generic regularization explains gains</td></tr><tr><td>M4 — full method evidence</td><td>3-seed full-data isolation</td><td>R020–R024</td><td>C1 confirmed with statistics</td><td>160–280 GPUh</td><td>variance or training instability</td></tr><tr><td>M5 — long-scene anchor</td><td>4/8/12 m unchanged-inference evaluation</td><td>R030–R032</td><td>C2 thresholds pass</td><td>100–220 GPUh</td><td>evaluation wall-clock dominates</td></tr><tr><td>M6 — polish</td><td>ablations, failure cases, optional transfer</td><td>R040–R050</td><td>paper completeness only; cannot rescue failed C1/C2</td><td>20–80 GPUh</td><td>scope creep</td></tr></tbody></table>
-<h2 id="first-three-runs-to-launch">First Three Runs to Launch</h2>
-<ol><li><strong>R001 — Exact production parser property test</strong>: compare <code>A_o</code> with every actual token/EOS transition in the default single-column path; CPU only.</li><li><strong>R002 — Verbatim rollout pair coverage scan</strong>: no prompt truncation; produce coverage/bias table and G1 decision; CPU only.</li><li><strong>R003 — Frozen counterfactual audit</strong>: chart-only intervention with common random numbers, G2/G3 decision; first GPU run, only after R001/R002 pass.</li></ol>
-<h2 id="compute-and-data-budget">Compute and Data Budget</h2>
-<ul><li><strong>Gate-only budget</strong>: 0 GPUh for R001/R002; 2–6 GPUh for R003.</li><li><strong>Minimum go/no-go pilot through M3</strong>: approximately 45–105 GPUh.</li><li><strong>Full must-run paper program</strong>: approximately 300–550 GPUh, dominated by 3-seed fine-tuning and 12 m sampling.</li><li><strong>Nice-to-have appendix/ScanNet++</strong>: additional 20–100 GPUh.</li><li><strong>Data preparation</strong>: official checkpoint, tokenized full-scene payloads, production rollout-state exporter, stable large-scene evaluator.</li><li><strong>Human evaluation</strong>: none required.</li><li><strong>Biggest bottleneck</strong>: large-scene generation wall-clock; use staged extents and kill gates before 12 m.</li></ul>
-<h2 id="risks-and-mitigations">Risks and Mitigations</h2>
-<ul><li><strong>Low real pair coverage</strong>: stop; do not truncate prompts or expand to different evidence.</li><li><strong>Parser mapping bug</strong>: exhaustive property tests against real state transitions before any forward pass.</li><li><strong>No frozen effect</strong>: stop before fine-tuning.</li><li><strong>R-Drop/augmentation tie</strong>: reject novelty and document negative result.</li><li><strong>Feature signal absent</strong>: event-only final method.</li><li><strong>Expensive long-scene evaluation</strong>: 4 m pilot → 8 m → 12 m only after thresholds; common seeds and paired statistics reduce required sample count.</li><li><strong>Metric confounding</strong>: primary causal metric localized at origin switches; x/y gap and global KID remain required but secondary to the mechanism test.</li><li><strong>Optional config mismatch</strong>: scope paper to default parser; optional variants are appendix audits, not hidden assumptions.</li></ul>
-<h2 id="final-checklist">Final Checklist</h2>
-<ul><li>☑ Problem Anchor and claims are frozen.</li><li>☑ Main paper blocks are compact and claim-driven.</li><li>☑ Novelty is isolated against augmentation and R-Drop.</li><li>☑ Simplicity is defended with event-only gating and no extra modules.</li><li>☑ Frontier-model component is explicitly absent and not forced.</li><li>☑ Nice-to-have runs are separated from must-run runs.</li><li>☑ Kill gates precede expensive training and 12 m generation.</li><li>☐ Official checkpoint/data acquired and checksummed.</li><li>☐ G1/G2/G3 empirical gates executed.</li><li>☐ No GPU work has been run in the current discovery task.</li></ul>
+
+<h1 id="实验计划experiment-plan">实验计划（Experiment Plan）</h1>
+<ul>
+<li><strong>问题（Problem）</strong>：GaussianGPT 的生产级滑动窗口外扩生成（production sliding-window outpainting）可能仅因局部窗口原点（local window origin）改变，就产生不同的目标列条件分布（target-column conditional），并逐步积累为接缝（seam）、远距离退化和方向偏置。</li>
+<li><strong>方法论点（Method thesis）</strong>：针对固定物理提示与目标（prompt/target）的合法坐标图反事实样本（chart counterfactuals），将完整词元（token）概率无损推送到共同的 <code>{z0...z19, EXIT}</code> 事件空间，并通过训练消除由原点引起的事件跳变（origin-induced event jumps）；架构和推理保持不变。</li>
+<li><strong>日期（Date）</strong>：2026-07-16</li>
+<li><strong>当前证据（Current evidence）</strong>：仅有确定性的静态 G0 证据；尚无 GPU 或模型实验结果。</li>
+<li><strong>评审状态（Review status）</strong>：同模型家族的暂定评审（same-family provisional）；方案已可进入实验规划（READY），但经验性可接受度尚未验证（empirical acceptance unvalidated）。</li>
+</ul>
+<h2 id="论断映射claim-map">论断映射（Claim Map）</h2>
+<table>
+<thead>
+<tr>
+<th>论断（Claim）</th>
+<th>重要性（Why it matters）</th>
+<th>最低可信证据（Minimum convincing evidence）</th>
+<th>关联模块（Linked blocks）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1 — 生产流程中的原点切换会造成显著的纯坐标图失效（chart-only failure），而坐标图—事件一致性（chart-event consistency）可消除该失效</td>
+<td>这是锚定机制的核心论断；缺少它，方法就只是普通正则化</td>
+<td>逐字保留提示的配对覆盖率足够；冻结模型的坐标图干预效应高于重放/丢弃噪声且集中于原点切换；训练后方法在留出的事件跳变上优于原点增强（origin augmentation）和 R-Drop</td>
+<td>B0、B1、B2</td>
+</tr>
+<tr>
+<td>C2 — 消除纯坐标图事件跳变可在不改变推理、且不损害分块质量或多样性的前提下提升长场景质量</td>
+<td>将诊断性发现转化为顶级会议级场景生成贡献</td>
+<td>至少 3 个随机种子下，原点切换接缝超额（origin-switch seam excess）与距离—KID 斜率显著下降；必须进行 x/y 分析；采样器不变，并满足预注册的分块质量边界</td>
+<td>B3、B4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="需要排除的反论断anti-claims">需要排除的反论断（Anti-claims）</h3>
+<ul>
+<li>收益仅来自两次前向传播、配对交叉熵（paired CE）、丢弃平滑（dropout smoothing）或普通原点增强。</li>
+<li>方法只改善合成坐标图指标，却不改善真实原点切换状态。</li>
+<li><code>EXIT</code> 聚合掩盖了解析器（parser）真正关心的概率差异。</li>
+<li>必须使用特征 KL 散度（feature KL）或更大的模块堆栈；若最简事件分支已经足够，应优先采用仅事件方案（event-only）。</li>
+<li>改进依赖共识解码/重排序（consensus/reranking），或改变了推理预算。</li>
+</ul>
+<h2 id="论文叙事线paper-storyline">论文叙事线（Paper Storyline）</h2>
+<ul>
+<li><strong>正文必须证明（Main paper must prove）</strong>：
+<ol>
+<li>精确的生产语法允许足够多真实的同状态坐标图反事实样本（same-state chart counterfactuals）；</li>
+<li>冻结的 GaussianGPT 会出现集中于原点切换的事件/采样跳变；</li>
+<li>零新增参数的训练信号优于等算力增强和 R-Drop；</li>
+<li>在不改变推理的情况下，4/8/12 m 生成得到改善，且分块质量与多样性不退化。</li>
+</ol>
+</li>
+<li><strong>附录可提供（Appendix can support）</strong>：配对覆盖率分层、K/λ 扫描、特征门控、位移方向/幅度、可选 ScanNet++ 迁移，以及分组/非空配置的探索性审计。</li>
+<li><strong>主动删去的实验（Experiments intentionally cut）</strong>：多顺序训练、新 RoPE/等变架构、KV/缓存/记忆、共识解码、新分词器（tokenizer）、由粗到细规划器（coarse-to-fine planner）和通用接缝修复器。</li>
+<li><strong>前沿模型必要性模块（Frontier necessity block）</strong>：删除。大语言模型（LLM）、视觉语言模型（VLM）、扩散模型（diffusion）或强化学习（RL）都不是核心组件，强行加入反而会削弱方法。</li>
+</ul>
+<h2 id="各模块共用的实验协议experimental-protocol-shared-across-blocks">各模块共用的实验协议（Experimental Protocol Shared Across Blocks）</h2>
+<h3 id="代码与模型来源code-and-model-provenance">代码与模型来源（Code and model provenance）</h3>
+<ul>
+<li>审计时 GaussianGPT 仓库位于干净的 <code>main</code> 分支，提交为 <code>e3be826</code>。</li>
+<li>获取官方场景检查点（checkpoint）并记录校验和与配置；当前本地尚无检查点。</li>
+<li>所有实验分支都冻结 VQ-VAE/解码器（decoder）。</li>
+<li>首先使用默认的单列大场景语义：<code>no_empty_columns=false</code>、<code>resample_empty_columns=true</code>、<code>chunk_order=xyz</code>。</li>
+<li>不得在主要论断中暗中加入分组或非空变体。</li>
+</ul>
+<h3 id="数据data">数据（Data）</h3>
+<ul>
+<li><strong>主要数据</strong>：GaussianGPT 使用的 3D-FRONT 训练/验证划分；缓存 <code>{global coords, feature_ids}</code>，并保存可复现的生产流程/真值模拟（GT-simulated）滚动状态。</li>
+<li><strong>长场景数据</strong>：沿用论文的大场景生成协议与固定场景种子，范围为 4 m、8 m 和 12 m。</li>
+<li><strong>次要/可选数据</strong>：仅在 C1/C2 通过后测试 ScanNet++；该数据集上的结果不能挽救失败的主要前提。</li>
+</ul>
+<h3 id="统计方法statistics">统计方法（Statistics）</h3>
+<ul>
+<li>对坐标图反事实采样和不同系统的匹配生成种子使用公共随机数（common random numbers）。</li>
+<li>主要指标报告中位数、均值、自助法 95% 置信区间（bootstrap 95% CI）及逐场景分布。</li>
+<li>对原点定位效应拟合混合效应或配对回归：固定效应包括 <code>method</code>、<code>origin_change</code> 及二者交互项；场景作为随机截距，并匹配/控制上下文长度、占用率和目标距离。</li>
+<li>预注册两个主要长场景终点：原点切换接缝超额和距离—KID 斜率。使用 Holm 方法校正二者的 p 值；其他指标均为次要指标。</li>
+<li>任何进入论文正文的结果都使用 3 个独立微调随机种子。</li>
+</ul>
+<h2 id="实验模块experiment-blocks">实验模块（Experiment Blocks）</h2>
+<h3 id="b0-语法与真实配对前提门槛grammar-and-real-pair-premise-gates">B0 — 语法与真实配对前提门槛（Grammar and Real-Pair Premise Gates）</h3>
+<ul>
+<li><strong>检验论断（Claim tested）</strong>：C1 的前提——方法所需的反事实状态/动作接口确实存在于生产数据中。</li>
+<li><strong>设置本模块的原因</strong>：避免为数学上正确、但与实际生产流程无关的配对任务消耗 GPU 预算。</li>
+<li><strong>数据集/任务（Dataset / task）</strong>：先对默认解析器做精确属性测试（property tests），再使用逐字保留的 3D-FRONT 验证集滚动提示 <code>(H,T)</code>。</li>
+<li><strong>比较系统（Compared systems）</strong>：不涉及学习系统；比较零位移、合法非零位移、刻意构造的非法位移，以及仅作为负对照的可选截断提示诊断。</li>
+<li><strong>指标（Metrics）</strong>：
+<ul>
+<li>解析器属性测试通过数与概率质量守恒；</li>
+<li>非自举原点切换状态中，至少存在 1 个非零合法配对的比例；</li>
+<li>每个状态的合法原点数、位移方向和幅度；</li>
+<li>按上下文长度、占用行数、目标距离和场景类型分层的配对覆盖率；</li>
+<li>已覆盖与未覆盖状态之间的标准化差异。</li>
+</ul>
+</li>
+<li><strong>设置（Setup）</strong>：计算主要覆盖率时不得删除任何提示行；记录精确的词元与配置校验和。</li>
+<li><strong>成功标准（Success criterion）</strong>：
+<ul>
+<li>G0 穷举属性测试全部通过；</li>
+<li>至少 20% 的合格原点切换状态具有非零配对；</li>
+<li>验证集中至少有 10k 个配对状态；</li>
+<li>经预注册重加权分析后，已覆盖/未覆盖状态在上下文长度与占用率上的标准化差异不超过 0.25。</li>
+</ul>
+</li>
+<li><strong>失败解释（Failure interpretation）</strong>：终止 C01；不得放宽为支撑集交集（support intersection）或截断提示。</li>
+<li><strong>目标表格/图（Table / figure target）</strong>：正文表 1（前提/覆盖率）；方法图 2 的配对示意图；附录提供详细分层结果。</li>
+<li><strong>优先级（Priority）</strong>：必须运行（MUST-RUN）。</li>
+</ul>
+<h3 id="b1-冻结反事实因果审计frozen-counterfactual-causal-audit">B1 — 冻结反事实因果审计（Frozen Counterfactual Causal Audit）</h3>
+<ul>
+<li><strong>检验论断</strong>：C1——纯坐标图干预会导致显著的生产事件/采样跳变，且效应集中于真实原点切换。</li>
+<li><strong>设置本模块的原因</strong>：在训练前确认失效确实存在，并将其与一般暴露偏差（exposure bias）区分。</li>
+<li><strong>数据集/任务</strong>：通过 B0 的验证状态；精确重放、同坐标图丢弃、合法替代原点，以及证据改变的负配对。</li>
+<li><strong>比较系统</strong>：仅使用一个冻结的官方 GaussianGPT 检查点。</li>
+<li><strong>指标</strong>：
+<ul>
+<li>21 类事件的 Jensen–Shannon/KL 散度（JS/KL）与目标事件负对数似然（NLL）方差；</li>
+<li>在相同均匀随机变量下的耦合采样分歧（coupled-sampling divergence）；</li>
+<li>可选的特征 JS 散度与精确 top-1 不一致率；</li>
+<li>原点切换局部化的潜变量接缝分数；</li>
+<li>原点切换步骤相对匹配稳定步骤的额外事件/接缝跳变。</li>
+</ul>
+</li>
+<li><strong>设置</strong>：温度与 top-p 完全相同；单步干预内不得改变重试温度；如数据允许，使用至少 10k 个配对状态。</li>
+<li><strong>成功标准</strong>：
+<ul>
+<li>坐标图事件 JS 中位数至少为精确重放噪声的 5 倍；</li>
+<li>原点切换状态相对稳定状态的匹配 JS 至少高 25%，且置信区间不含 0；</li>
+<li>耦合采样分歧不可忽略，并与下一列接缝异常相关；</li>
+<li>仅当特征 JS 至少为重放噪声的 2 倍且具有实质贡献时，才启用特征损失。</li>
+</ul>
+</li>
+<li><strong>失败解释</strong>：训练前终止；零结果同样有价值，可排除 C01。</li>
+<li><strong>目标表格/图</strong>：正文图 3（反事实分布与原点切换定位）；表 1 的门槛状态。</li>
+<li><strong>优先级</strong>：必须运行（MUST-RUN）。</li>
+</ul>
+<h3 id="b2-等算力方法隔离matched-compute-method-isolation">B2 — 等算力方法隔离（Matched-Compute Method Isolation）</h3>
+<ul>
+<li><strong>检验论断</strong>：C1 及反论断——消除失效的是具有语义约束的坐标图配对，而不是通用平滑或额外算力。</li>
+<li><strong>设置本模块的原因</strong>：隔离精确贡献。</li>
+<li><strong>数据集/划分/任务</strong>：3D-FRONT 训练集；留出的验证坐标图配对和标准分块生成。</li>
+<li><strong>比较系统</strong>：
+<ol>
+<li>官方检查点/标准等时长微调；</li>
+<li>配对列交叉熵（CE）+ 原点增强；</li>
+<li>前向次数匹配的同坐标图 R-Drop；</li>
+<li>坐标图—事件一致性；</li>
+<li>仅在 G3 通过时加入事件+特征版本。</li>
+</ol>
+</li>
+<li><strong>指标</strong>：
+<ul>
+<li>主要指标：留出事件 JS、目标事件 NLL、原点切换耦合采样分歧；</li>
+<li>次要指标：分块 FID/KID、几何 COV/MMD、熵、两两多样性、训练吞吐量和峰值显存。</li>
+</ul>
+</li>
+<li><strong>设置</strong>：
+<ul>
+<li>先在固定子集上运行单种子试验，再进行 3 种子全数据实验；</li>
+<li>冻结 VQ-VAE；优化器、更新次数、配对批次数和语言模型头（lm-head）评估次数相同；</li>
+<li>默认 <code>K=32</code>，采用单梯度交替方向；在不退化约束下，根据验证事件 JS 选择 λ/β。</li>
+</ul>
+</li>
+<li><strong>成功标准</strong>：
+<ul>
+<li>坐标图方法在事件 JS/NLL 上实质性优于增强和 R-Drop，且置信区间不含 0；</li>
+<li>FID/KID 相对退化不超过 3%，COV 下降不超过 2 个百分点，多样性下降不超过 5%；</li>
+<li>仅当特征版本相对仅事件版本带来显著增益时才保留。</li>
+</ul>
+</li>
+<li><strong>失败解释</strong>：
+<ul>
+<li>与 R-Drop 持平：收益属于通用正则化，否定新颖性；</li>
+<li>与增强持平：配对语义并非必要；</li>
+<li>质量/多样性下降：即使坐标图 JS 改善，方法仍判定失败。</li>
+</ul>
+</li>
+<li><strong>目标表格/图</strong>：正文表 2（方法隔离），附一列简洁训练成本；附录报告超参数。</li>
+<li><strong>优先级</strong>：必须运行（MUST-RUN）。</li>
+</ul>
+<h3 id="b3-主要长场景锚定结果main-long-scene-anchor-result">B3 — 主要长场景锚定结果（Main Long-Scene Anchor Result）</h3>
+<ul>
+<li><strong>检验论断</strong>：C2——消除坐标图—事件跳变可在不改变推理的情况下改善场景扩展。</li>
+<li><strong>设置本模块的原因</strong>：这是论文真正的应用收益。</li>
+<li><strong>数据集/任务</strong>：3D-FRONT 大场景生成，范围为 4 m、8 m、12 m；分别沿 x、y 方向扩展，并使用共同场景种子。</li>
+<li><strong>比较系统</strong>：官方 GaussianGPT、原点增强、R-Drop、坐标图—事件一致性；仅当 B2 保留特征版本时才加入该版本。</li>
+<li><strong>指标</strong>：
+<ul>
+<li>主要指标 1：原点切换接缝超额，定义为标准化占用连通性缺损加相邻 LFQ/解码特征跳变，相对于匹配稳定边界的超额；</li>
+<li>主要指标 2：按距种子距离分箱的归一化 KID 斜率；</li>
+<li>强制次要指标：<code>|KID_x-KID_y|</code>、空列/重试率、适用时的几何 COV/MMD、总墙钟时间和峰值显存；</li>
+<li>重复报告分块 FID/KID/多样性作为安全指标。</li>
+</ul>
+</li>
+<li><strong>设置</strong>：至少 3 个模型种子；采样温度/top-p 相同并使用共同生成种子；禁止共识/重排序；按范围分阶段运行，以便失败时提前停止。</li>
+<li><strong>成功标准</strong>：
+<ul>
+<li>相比增强和 R-Drop，原点切换接缝超额至少降低 15%；</li>
+<li>距离—KID 斜率至少降低 10%，且置信区间不含 0；</li>
+<li>若基线 x/y 差异显著，则相对差异至少降低 20%；</li>
+<li>不违反预注册的分块质量/多样性边界，且推理开销可忽略。</li>
+</ul>
+</li>
+<li><strong>失败解释</strong>：
+<ul>
+<li>改进不集中于原点切换：因果叙事失败；</li>
+<li>只在 4 m 上改善：长时程证据不足；</li>
+<li>x/y 差异持续存在：报告为不完全成功；固定 xyz 因子分解仍是独立限制。</li>
+</ul>
+</li>
+<li><strong>目标表格/图</strong>：正文表 3；图 4 展示距离曲线和空间热图；图 5 展示定性边界裁剪图。</li>
+<li><strong>优先级</strong>：必须运行（MUST-RUN）。</li>
+</ul>
+<h3 id="b4-简洁性稳健性与失效边界simplicity-robustness-and-failure-envelope">B4 — 简洁性、稳健性与失效边界（Simplicity, Robustness and Failure Envelope）</h3>
+<ul>
+<li><strong>检验论断</strong>：C2 的支撑论断——最简仅事件方法已经足够，且其限制得到明确描述。</li>
+<li><strong>设置本模块的原因</strong>：在不引入第二项贡献的前提下论证方法的简洁性。</li>
+<li><strong>数据集/任务</strong>：验证配对、分块生成、选定的 8/12 m 场景；主要结果成功后可选做 ScanNet++。</li>
+<li><strong>比较变体</strong>：
+<ul>
+<li>若 G3 通过，比较仅事件与事件+特征；</li>
+<li><code>K ∈ {16,32,64}</code>；λ/β 取低、中、高三档；</li>
+<li>小位移与较大合法位移；x 与 y 方向；</li>
+<li>默认单列配置与可选配置的比较仅作为附录范围审计。</li>
+</ul>
+</li>
+<li><strong>指标</strong>：事件 JS、长场景主要终点、算力、熵/多样性、配对覆盖率。</li>
+<li><strong>成功标准</strong>：<code>K=32</code> 的仅事件版本应位于或接近帕累托前沿（Pareto frontier）；主要结果不应依赖额外组件。</li>
+<li><strong>失败解释</strong>：如果只有复杂版本有效，应在论文写作前修订简洁性论断。</li>
+<li><strong>目标表格/图</strong>：正文使用紧凑消融行；完整扫描与失败结果放入附录。</li>
+<li><strong>优先级</strong>：仅事件/特征决策为必须运行（MUST-RUN）；ScanNet++ 和可选解析器变体为可选（NICE-TO-HAVE）。</li>
+</ul>
+<h2 id="运行顺序与里程碑run-order-and-milestones">运行顺序与里程碑（Run Order and Milestones）</h2>
+<table>
+<thead>
+<tr>
+<th>里程碑（Milestone）</th>
+<th>目标（Goal）</th>
+<th>运行（Runs）</th>
+<th>决策门槛（Decision gate）</th>
+<th>预计成本（Estimated cost）</th>
+<th>主要风险（Main risk）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M0 — 确定性健全性检查</td>
+<td>精确解析器语义与工具</td>
+<td>R000–R002</td>
+<td>G0/G1 通过，否则终止项目</td>
+<td>2–4 个 CPU 日，0 GPUh</td>
+<td>真实提示允许的位移过少</td>
+</tr>
+<tr>
+<td>M1 — 冻结前提</td>
+<td>证明纯坐标图失效存在且可定位</td>
+<td>R003</td>
+<td>G2 通过；决定特征 G3</td>
+<td>2–6 GPUh</td>
+<td>信号接近重放噪声</td>
+</tr>
+<tr>
+<td>M2 — 实现健全性</td>
+<td>验证内存、梯度、过拟合和指标正确性</td>
+<td>R004–R006</td>
+<td>选定槽位路径符合预算；单批次损失行为正常</td>
+<td>2–8 GPUh</td>
+<td><code>logsumexp</code>/掩码错误或内存开销</td>
+</tr>
+<tr>
+<td>M3 — 单种子决策</td>
+<td>低成本比较四个核心分支</td>
+<td>R010–R014</td>
+<td>坐标图方法优于增强/R-Drop，且分块质量不退化</td>
+<td>40–90 GPUh</td>
+<td>通用正则化即可解释收益</td>
+</tr>
+<tr>
+<td>M4 — 完整方法证据</td>
+<td>3 种子全数据隔离实验</td>
+<td>R020–R024</td>
+<td>用统计证据确认 C1</td>
+<td>160–280 GPUh</td>
+<td>方差或训练不稳定</td>
+</tr>
+<tr>
+<td>M5 — 长场景锚点</td>
+<td>4/8/12 m 不变推理评估</td>
+<td>R030–R032</td>
+<td>C2 阈值通过</td>
+<td>100–220 GPUh</td>
+<td>评估墙钟时间占主导</td>
+</tr>
+<tr>
+<td>M6 — 完善</td>
+<td>消融、失败案例和可选迁移</td>
+<td>R040–R050</td>
+<td>仅用于论文完整性，不能挽救失败的 C1/C2</td>
+<td>20–80 GPUh</td>
+<td>范围蔓延（scope creep）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="首先启动的三项运行first-three-runs-to-launch">首先启动的三项运行（First Three Runs to Launch）</h2>
+<ol>
+<li><strong>R001 — 精确生产解析器属性测试（Exact production parser property test）</strong>：将 <code>A_o</code> 与默认单列路径中的每个真实词元/EOS 转移逐一比较；仅使用 CPU。</li>
+<li><strong>R002 — 逐字滚动提示配对覆盖扫描（Verbatim rollout pair coverage scan）</strong>：不得截断提示；生成覆盖率/偏差表与 G1 决策；仅使用 CPU。</li>
+<li><strong>R003 — 冻结反事实审计（Frozen counterfactual audit）</strong>：使用公共随机数进行纯坐标图干预并作出 G2/G3 决策；这是第一个 GPU 运行，只能在 R001/R002 通过后执行。</li>
+</ol>
+<h2 id="算力与数据预算compute-and-data-budget">算力与数据预算（Compute and Data Budget）</h2>
+<ul>
+<li><strong>仅门槛预算（Gate-only budget）</strong>：R001/R002 为 0 GPUh；R003 为 2–6 GPUh。</li>
+<li><strong>到 M3 的最低继续/停止试验预算（Minimum go/no-go pilot）</strong>：约 45–105 GPUh。</li>
+<li><strong>完整必做论文实验计划（Full must-run paper program）</strong>：约 300–550 GPUh，主要消耗来自 3 种子微调和 12 m 采样。</li>
+<li><strong>可选附录/ScanNet++（Nice-to-have appendix/ScanNet++）</strong>：额外 20–100 GPUh。</li>
+<li><strong>数据准备（Data preparation）</strong>：官方检查点、词元化完整场景载荷、生产滚动状态导出器、稳定的大场景评估器。</li>
+<li><strong>人工评估（Human evaluation）</strong>：不需要。</li>
+<li><strong>最大瓶颈（Biggest bottleneck）</strong>：大场景生成的墙钟时间；采用分阶段范围，并在 12 m 之前执行终止门槛。</li>
+</ul>
+<h2 id="风险与缓解措施risks-and-mitigations">风险与缓解措施（Risks and Mitigations）</h2>
+<ul>
+<li><strong>真实配对覆盖率低</strong>：终止；不得截断提示或扩展到不同证据。</li>
+<li><strong>解析器映射错误</strong>：任何前向传播前，针对真实状态转移运行穷举属性测试。</li>
+<li><strong>冻结效应不存在</strong>：微调前终止。</li>
+<li><strong>R-Drop/增强持平</strong>：否定新颖性并记录负结果。</li>
+<li><strong>特征信号缺失</strong>：最终采用仅事件方法。</li>
+<li><strong>长场景评估昂贵</strong>：仅在达到阈值后按 4 m → 8 m → 12 m 推进；公共种子与配对统计可减少所需样本数。</li>
+<li><strong>指标混杂</strong>：主要因果指标定位于原点切换；x/y 差异与全局 KID 仍必须报告，但相对机制检验属于次要指标。</li>
+<li><strong>可选配置不匹配</strong>：论文范围限定于默认解析器；可选变体只作为附录审计，不能成为隐藏假设。</li>
+</ul>
+<h2 id="最终检查表final-checklist">最终检查表（Final Checklist）</h2>
+<ul>
+<li>☑ 问题锚点（Problem Anchor）与论断已冻结。</li>
+<li>☑ 正文实验模块紧凑，并由论断驱动。</li>
+<li>☑ 已通过增强和 R-Drop 对照隔离新颖性。</li>
+<li>☑ 通过仅事件门控且不增加模块来论证简洁性。</li>
+<li>☑ 明确说明无需前沿模型组件，也未强行加入。</li>
+<li>☑ 可选运行与必须运行已分离。</li>
+<li>☑ 终止门槛位于昂贵训练和 12 m 生成之前。</li>
+<li>☐ 已获取官方检查点/数据并记录校验和。</li>
+<li>☐ 已执行 G1/G2/G3 经验门槛。</li>
+<li>☐ 当前研究发现任务尚未运行任何 GPU 工作。</li>
+</ul>
+
+
 
 <footer class="aris-footer">
-  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
-  source path <code>artifacts/EXPERIMENT_PLAN.md</code> ·
-  SHA256 <code>cef2d0485352</code> ·
-  generated at 2026-07-17 04:25 UTC.
-  This is a generated view — edit the source Markdown, then re-render.
+  由 <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> 生成 ·
+  源文件 <code>artifacts/EXPERIMENT_PLAN.md</code> ·
+  SHA256 <code>21603324eb69</code> ·
+  生成时间 2026-07-19 16:31 UTC。
+  这是由源文件生成的页面；请编辑源 Markdown 后重新渲染。
 </footer>
 </main>
 

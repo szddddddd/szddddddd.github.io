@@ -1,448 +1,458 @@
-# GaussianGPT 可发表改进方向：Idea Discovery Report
+# GaussianGPT 可发表改进方向：研究创意发现报告（Idea Discovery Report）
 
-- **Direction**: 基于 GaussianGPT 寻找可发表的改进方向
-- **Reference**: [GaussianGPT: Towards Autoregressive 3D Gaussian Scene Generation](https://arxiv.org/abs/2603.26661), arXiv:2603.26661v2 / ECCV 2026 repository status
-- **Local materials**: `2603.26661v2.pdf`, `GaussianGPT/`
-- **Date**: 2026-07-16
-- **Pipeline**: research-lit → idea-creator → novelty-check → research-review → research-refine-pipeline
-- **Retrieval cutoff**: 2026-07-16
-- **Ideas**: 12 mechanically deduplicated → 12 fresh-jury scored → 3 deep novelty checked → 0 GPU-piloted → 1 fully refined
-- **Assurance**: conference-ready planning; all model-family reviews are `same-family`, all novelty/acceptance judgments are `provisional`
-- **GPU experiments**: **none** — explicitly skipped per user request
+- **研究方向（Direction）**：基于 GaussianGPT 寻找可发表的改进方向
+- **参考论文（Reference）**：[GaussianGPT：迈向自回归三维高斯场景生成（Towards Autoregressive 3D Gaussian Scene Generation）](https://arxiv.org/abs/2603.26661)，arXiv:2603.26661v2 / ECCV 2026 仓库状态
+- **本地材料（Local materials）**：`2603.26661v2.pdf`、`GaussianGPT/`
+- **日期（Date）**：2026-07-16
+- **流程（Pipeline）**：文献研究（research-lit）→ 创意生成（idea-creator）→ 新颖性检查（novelty-check）→ 研究评审（research-review）→ 研究精炼流程（research-refine-pipeline）
+- **检索截止日期（Retrieval cutoff）**：2026-07-16
+- **创意数量（Ideas）**：12 个机械去重候选 → 12 个新评审团评分候选 → 3 个深度查新候选 → 0 个 GPU 试验 → 1 个完整精炼方案
+- **可信度说明（Assurance）**：已达到会议级实验规划详细度；所有模型家族评审均为同模型家族（`same-family`），所有新颖性/接收判断均为暂定（`provisional`）
+- **GPU 实验（GPU experiments）**：**无**——按用户要求明确跳过
 
-## Executive Summary
+## 执行摘要（Executive Summary）
 
-推荐主线是 **C01：Chart-Consistent Column Events for GaussianGPT**。它不再做宽泛的“不同滑窗一致性”，而是固定完全相同的物理 production prompt 与 target column，只改变合法 local window origin；随后把 GaussianGPT 的完整 position/EOS token 概率无损映射到共同 `{z0,...,z19, EXIT}` 事件空间，并对齐两个 chart 的条件分布。
+推荐主线是 **C01：面向 GaussianGPT 的坐标图一致列事件（Chart-Consistent Column Events）**。它不再研究宽泛的“不同滑窗一致性”，而是固定完全相同的物理生产提示（production prompt）与目标列（target column），只改变合法局部窗口原点（local window origin）；随后把 GaussianGPT 的完整位置/EOS 词元（position/EOS token）概率无损映射到共同 `{z0,...,z19, EXIT}` 事件空间，并对齐两个坐标图（chart）的条件分布。
 
 它优先于其他方向的原因：
 
-1. **直接命中论文/代码暴露的 failure**：大场景随距离退化、x/y 明显不对称，而代码在每个 window 中把相同全局 voxel 重写成新的 local position ID。
-2. **方法足够小**：零新参数，冻结 VQ-VAE/decoder，不增加 memory、planner、new head、consensus 或 inference pass。
-3. **最容易被严谨证伪**：真实 prompt pair coverage、冻结模型 chart effect、origin-change localization 任一失败都立即 kill。
-4. **静态定义已过第一道检查**：CPU audit 验证 48 个非零 synthetic translations、完整 8001→21 event partition、order 与 monotonic target-event support；但没有 checkpoint/data，因此尚无真实 pair coverage 或模型效果。
-5. **审稿收敛**：fresh jury 排名第 1；Top-3 brutal review 只允许它进入 refine；research-refine 从 6.30→8.15→9.05，最终仅判定“可进入实验规划”，不代表论文已验证。
+1. **直接命中论文/代码暴露的失效（failure）**：大场景质量随距离退化、x/y 明显不对称，而代码会在每个窗口中将同一全局体素（voxel）重写为新的局部位置 ID。
+2. **方法足够小**：零新增参数，冻结 VQ-VAE/解码器（decoder），不增加记忆（memory）、规划器（planner）、新预测头（new head）、共识机制（consensus）或额外推理轮次（inference pass）。
+3. **最容易被严谨证伪**：真实提示配对覆盖率（prompt pair coverage）、冻结模型坐标图效应（chart effect）、原点切换定位（origin-change localization）中任一项失败都立即终止。
+4. **静态定义已通过第一道检查**：CPU 审计（audit）验证了 48 个非零合成平移（synthetic translations）、完整的 8001→21 事件划分（event partition）、顺序保持和单调目标事件支撑集（monotonic target-event support）；但由于没有检查点/数据，尚无真实配对覆盖率或模型效果证据。
+5. **评审意见已收敛**：新评审团（fresh jury）排名第 1；前三名严苛评审（Top-3 brutal review）只允许该方向进入精炼；研究精炼评分从 6.30→8.15→9.05，最终仅判定“可进入实验规划”，不代表论文方法已获验证。
 
 备选：
 
-- **C02 Tri-State Probabilistic Gaussian Completion**：问题重要，但 AutoSDF、ShapeFormer、Probabilistic Implicit Scene Completion、CompleteSplat、GaussFiller 等近邻密集；只有“任意射线条件下严格观测一致的 Gaussian scene posterior”暂时存活。
-- **C06 Base-Compatible Render-Attributed Sparse Exceptions**：只能先做 oracle；若完整计费 10% token 不能收回至少 70% PSNR/LPIPS tokenizer gap，立即停止。
+- **C02 三状态概率高斯补全（Tri-State Probabilistic Gaussian Completion）**：问题重要，但 AutoSDF、ShapeFormer、Probabilistic Implicit Scene Completion、CompleteSplat、GaussFiller 等近邻工作密集；只有“任意射线条件下严格保持观测一致的高斯场景后验（Gaussian scene posterior）”暂时保留新颖性。
+- **C06 基座兼容的渲染归因稀疏例外（Base-Compatible Render-Attributed Sparse Exceptions）**：只能先做预言机实验（oracle）；如果完整计费的 10% 词元预算不能追回至少 70% 的 PSNR/LPIPS 分词器差距（tokenizer gap），立即停止。
 
-最先做的三个未来 runs：
+最先执行的三个未来运行（runs）：
 
-1. R001：default parser 与 `A_o` 的 exact property test，CPU。
-2. R002：verbatim rollout prompt pair-coverage scan，CPU；禁止截断 prompt。
-3. R003：冻结 checkpoint 的 chart-only counterfactual audit，2–6 GPUh，仅在 R001/R002 通过后运行。
+1. R001：默认解析器（default parser）与 `A_o` 的精确属性测试（exact property test），使用 CPU。
+2. R002：逐字保留滚动提示的配对覆盖扫描（verbatim rollout prompt pair-coverage scan），使用 CPU；禁止截断提示。
+3. R003：冻结检查点的纯坐标图反事实审计（chart-only counterfactual audit），耗时 2–6 GPUh，仅在 R001/R002 通过后运行。
 
-## Evidence Boundary
+## 证据边界（Evidence Boundary）
 
 本报告没有下列证据：
 
-- 没有 checkpoint forward；
-- 没有 tokenizer/GPT fine-tune；
-- 没有 FID/KID/COV/MMD/diversity 新结果；
+- 没有检查点前向传播（checkpoint forward）；
+- 没有分词器/GPT 微调（tokenizer/GPT fine-tune）；
+- 没有 FID/KID/COV/MMD/多样性（diversity）新结果；
 - 没有 4/8/12 m 新场景；
 - 没有速度或显存改进；
 - 没有跨模型/外部独立审稿。
 
-因此：`READY` 仅指方法和实验交接文档已经足够具体；**empirical acceptance remains unvalidated**。
+因此，`READY` 仅表示方法与实验交接文档已经足够具体；**经验性可接受度仍未验证（empirical acceptance remains unvalidated）**。
 
-## GaussianGPT Baseline Audit
+## GaussianGPT 基线审计（Baseline Audit）
 
-### Paper-level facts
+### 论文层事实（Paper-level facts）
 
-- 2.5 cm Gaussian grid 经 3-stage sparse CNN 压到 20 cm latent；平均约 3.2k occupied latents，每个 position+feature 两 token。
-- 固定 xyz serialization，GPT-2-medium，16,384 context，3D/4D RoPE。
-- 3D-FRONT 中 appearance/layout 优于 L3DG，但无条件 geometry COV/MMD 较弱。
+- 2.5 cm 高斯网格（Gaussian grid）经三级稀疏卷积神经网络（3-stage sparse CNN）压缩为 20 cm 潜变量（latent）；平均约有 3.2k 个已占用潜变量（occupied latents），每个位置+特征使用两个词元。
+- 采用固定 xyz 序列化（serialization）、GPT-2-medium、16,384 上下文长度（context）和 3D/4D RoPE。
+- 在 3D-FRONT 上，外观/布局（appearance/layout）优于 L3DG，但无条件几何 COV/MMD 较弱。
 - A100 无条件推理 78.1 s，对比 L3DG 23.8 s；峰值显存约 3.2–3.4×。
 - 12 m × 12 m 场景约 6000 s/GH200；随 seed 距离退化，x 方向显著差于 y。
-- tokenizer rate-distortion 明显：约 53k/14k/3.2k latents 对应 PSNR 24.34/23.73/21.11。
-- ScanNet++ 只给 qualitative，并指出高频细节丢失及 missing/unobserved 表达不足。
+- 分词器率失真（tokenizer rate-distortion）明显：约 53k/14k/3.2k 个潜变量分别对应 PSNR 24.34/23.73/21.11。
+- ScanNet++ 只提供定性结果（qualitative），并指出高频细节丢失以及缺失/未观测（missing/unobserved）区域表达不足。
 
-### Code-level facts
+### 代码层事实（Code-level facts）
 
-- Repository was clean at commit `e3be826`; 59 Python files passed import-free AST parsing; no tests/CI or local checkpoint。
-- Current environment has no torch, so no tensor CPU smoke was run。
-- `generate_scene.py` rebuilds local prompts and performs full prefill per column/group; sparse RoPE rebuilds prefix position indices per step。
-- Default large-scene config: `no_empty_columns=false`, `resample_empty_columns=true`, max retries 5。
-- Single-column parser accepts rows at target local xy and stops on the first other xy/end event。
-- Tokenized payload preserves `{coords, feature_ids}`; sampler exposes logits processor and return-logit intervention hooks。
-- GaussianGPT repository was not modified by this discovery workflow。
+- 审计时仓库在提交 `e3be826` 上保持干净；59 个 Python 文件通过了无需导入的抽象语法树解析（import-free AST parsing）；没有测试/持续集成（CI）或本地检查点。
+- 当前环境未安装 PyTorch，因此没有运行张量级 CPU 冒烟测试（tensor CPU smoke test）。
+- `generate_scene.py` 会重建局部提示，并对每个列/组执行完整预填充（prefill）；稀疏 RoPE 在每一步重建前缀位置索引。
+- 默认大场景配置为 `no_empty_columns=false`、`resample_empty_columns=true`，最多重试 5 次。
+- 单列解析器接受目标局部 xy 上的行，并在遇到第一个其他 xy/结束事件时停止。
+- 词元化载荷保留 `{coords, feature_ids}`；采样器暴露 logits 处理器和返回 logits 的干预钩子。
+- 本次创意发现流程没有修改 GaussianGPT 仓库。
 
-Detailed reference summary: `idea-stage/REF_PAPER_SUMMARY.md`。
+详细参考摘要见 `idea-stage/REF_PAPER_SUMMARY.md`。
 
-## Literature Landscape
+## 文献版图（Literature Landscape）
 
-### 1. Order and factorization
+### 1. 顺序与因子分解（Order and factorization）
 
-- [RandAR](https://arxiv.org/abs/2412.01827) already supports random-order decoder-only visual generation with position instructions。
-- [MAR-3D](https://arxiv.org/abs/2503.20519) uses random masked autoregressive denoising for high-resolution 3D generation。
-- [G3PT](https://arxiv.org/abs/2409.06322), SAR3D and [VAR-3D](https://arxiv.org/abs/2602.13818) occupy cross-scale/multiscale/view-aware 3D autoregression。
-- [PointNSP](https://openaccess.thecvf.com/content/CVPR2026/html/Meng_PointNSP_Autoregressive_3D_Point_Cloud_Generation_with_Next-Scale_Level-of-Detail_Prediction_CVPR_2026_paper.html) further weakens broad permutation/order novelty claims。
+- [RandAR](https://arxiv.org/abs/2412.01827) 已支持带位置指令的随机顺序、仅解码器视觉生成（random-order decoder-only visual generation）。
+- [MAR-3D](https://arxiv.org/abs/2503.20519) 使用随机掩码自回归去噪（random masked autoregressive denoising）生成高分辨率三维内容。
+- [G3PT](https://arxiv.org/abs/2409.06322)、SAR3D 和 [VAR-3D](https://arxiv.org/abs/2602.13818) 已覆盖跨尺度/多尺度/视角感知三维自回归（cross-scale/multiscale/view-aware 3D autoregression）。
+- [PointNSP](https://openaccess.thecvf.com/content/CVPR2026/html/Meng_PointNSP_Autoregressive_3D_Point_Cloud_Generation_with_Next-Scale_Level-of-Detail_Prediction_CVPR_2026_paper.html) 进一步削弱了宽泛的排列/顺序新颖性论断。
 
-**Implication**: random, arbitrary, masked, multiscale or simply axis-switched order cannot be the main contribution。C01 survives only by fixing evidence and action semantics while changing coordinate chart。
+**含义（Implication）**：随机、任意、掩码、多尺度或简单切换轴的顺序都不能成为主要贡献。C01 只有在固定证据与动作语义、仅改变坐标图时才能保留新颖性。
 
-### 2. Long-horizon scene growth and memory
+### 2. 长时程场景扩展与记忆（Long-horizon scene growth and memory）
 
-- [WorldGrow](https://arxiv.org/abs/2510.21682) handles infinite 3D worlds with block inpainting and coarse-to-fine generation。
-- [WorldExplorer](https://arxiv.org/abs/2506.01799), [Stream3D](https://arxiv.org/abs/2605.21472), [Captain Safari](https://arxiv.org/abs/2511.22815) and [LongStream](https://arxiv.org/abs/2602.13172) occupy navigable world generation, evidential/pose-aligned memory and cache-consistent streaming geometry。
-- [BAgger](https://arxiv.org/abs/2512.12080) directly addresses long-horizon autoregressive exposure bias with corrective rollouts。
+- [WorldGrow](https://arxiv.org/abs/2510.21682) 使用分块修补（block inpainting）和由粗到细生成处理无限三维世界。
+- [WorldExplorer](https://arxiv.org/abs/2506.01799)、[Stream3D](https://arxiv.org/abs/2605.21472)、[Captain Safari](https://arxiv.org/abs/2511.22815) 和 [LongStream](https://arxiv.org/abs/2602.13172) 已覆盖可导航世界生成、证据/位姿对齐记忆（evidential/pose-aligned memory）与缓存一致的流式几何（cache-consistent streaming geometry）。
+- [BAgger](https://arxiv.org/abs/2512.12080) 使用纠正滚动（corrective rollouts）直接处理长时程自回归暴露偏差。
 
-**Implication**: generic memory, coarse planning and self-rollout correction are banlisted as primary innovations。
+**含义**：通用记忆、粗粒度规划和自滚动纠正被列入主要创新禁区。
 
-### 3. Adaptive tokenization and rate-distortion
+### 3. 自适应词元化与率失真（Adaptive tokenization and rate-distortion）
 
-- [SuperVoxelGPT](https://arxiv.org/abs/2605.29655) provides adaptive ordered 3D supervoxels。
-- [CodecSplat](https://arxiv.org/abs/2605.25563), F4Splat, SplatWeaver, Differentiable Gaussian Hierarchies and Gaussian compression work crowd rate-distortion and adaptive allocation。
-- [Can3Tok](https://arxiv.org/abs/2508.01464) and [Native and Compact Structured Latents](https://arxiv.org/abs/2512.14692) occupy scene-level/structured 3D latent design。
+- [SuperVoxelGPT](https://arxiv.org/abs/2605.29655) 提供自适应有序三维超体素（adaptive ordered 3D supervoxels）。
+- [CodecSplat](https://arxiv.org/abs/2605.25563)、F4Splat、SplatWeaver、Differentiable Gaussian Hierarchies 及高斯压缩工作已密集覆盖率失真与自适应分配。
+- [Can3Tok](https://arxiv.org/abs/2508.01464) 和 [Native and Compact Structured Latents](https://arxiv.org/abs/2512.14692) 已覆盖场景级/结构化三维潜变量设计。
 
-**Implication**: C06 can only claim fixed-base compatibility plus a sparse render-attributed enhancement stream—not first adaptive tokenization or residual coding。
+**含义**：C06 只能主张固定基座兼容性与稀疏渲染归因增强流，不能主张首个自适应词元化或残差编码。
 
-### 4. Partial observation and completion
+### 4. 部分观测与补全（Partial observation and completion）
 
-- AutoSDF and ShapeFormer already support arbitrary spatial conditions/partial inputs。
-- Probabilistic Implicit Scene Completion models multimodal large-scene completion。
-- [CompleteSplat](https://arxiv.org/abs/2508.21542) produces diverse completed Gaussian splats from one image；GaussFiller, GSCompleter and PanoPlane further crowd recent Gaussian completion。
+- AutoSDF 与 ShapeFormer 已支持任意空间条件/部分输入。
+- Probabilistic Implicit Scene Completion 对多模态大场景补全进行建模。
+- [CompleteSplat](https://arxiv.org/abs/2508.21542) 可从单张图像生成多样化的完整高斯泼溅表示；GaussFiller、GSCompleter 和 PanoPlane 进一步使近期高斯补全方向变得拥挤。
 
-**Implication**: O/F/U states, arbitrary masks and diversity are individually not new。C02 needs a physically constrained Gaussian posterior with strict observed preservation and proper scoring。
+**含义**：已占用/自由/未知（O/F/U）状态、任意掩码和多样性各自都不新。C02 必须提出具有严格观测保持与适当评分（proper scoring）的物理约束高斯后验。
 
-### 5. Decoding and sampling efficiency
+### 5. 解码与采样效率（Decoding and sampling efficiency）
 
-- [FlashAR](https://arxiv.org/abs/2605.09430) and [Parallel Jacobi Decoding](https://arxiv.org/abs/2606.05703) occupy post-training and parallel AR acceleration。
-- [Entropy-Guided k-Guard Sampling](https://arxiv.org/abs/2601.19488) occupies simple entropy-adaptive candidate budgets。
+- [FlashAR](https://arxiv.org/abs/2605.09430) 和 [Parallel Jacobi Decoding](https://arxiv.org/abs/2606.05703) 已覆盖后训练与并行自回归加速。
+- [Entropy-Guided k-Guard Sampling](https://arxiv.org/abs/2601.19488) 已覆盖简单的熵自适应候选预算。
 
-**Implication**: parallel decoding or entropy-only branching is not a clean GaussianGPT paper thesis。
+**含义**：并行解码或仅依据熵的分支不是清晰的 GaussianGPT 论文主线。
 
-## Pre-Generation Banlist
+## 生成前禁区清单（Pre-Generation Banlist）
 
-| Broad direction | Why it is not a primary contribution |
+| 宽泛方向（Broad direction） | 不能作为主要贡献的原因 |
 |---|---|
-| random/arbitrary order | RandAR/RAR/PARD |
-| masked/random-order 3D | MAR-3D |
-| multiscale/coarse-to-fine | G3PT/SAR3D/VAR-3D/WorldGrow |
-| adaptive 3D token cells | SuperVoxelGPT |
-| generic adaptive visual tokens | DPAR/EVATok/AdapTok |
-| entropy-only sampling | ENkG |
-| generic parallel decoding | FlashAR/Parallel Jacobi |
-| generic long-term memory | LongStream/WorldExplorer/Stream3D/Captain Safari |
-| generic rollout correction | BAgger |
-| scene-level Gaussian latent alone | Can3Tok |
-| compact/native 3D latent alone | Structured/Native Compact Latents |
-| adaptive Gaussian allocation alone | F4Splat/SplatWeaver/hierarchies |
-| generic partial Gaussian completion | CompleteSplat/GaussFiller/GSCompleter |
-| generic uncertainty or compression | uncertainty GS / CodecSplat |
+| 随机/任意顺序 | RandAR/RAR/PARD |
+| 掩码/随机顺序三维生成 | MAR-3D |
+| 多尺度/由粗到细 | G3PT/SAR3D/VAR-3D/WorldGrow |
+| 自适应三维词元单元 | SuperVoxelGPT |
+| 通用自适应视觉词元 | DPAR/EVATok/AdapTok |
+| 仅依据熵的采样 | ENkG |
+| 通用并行解码 | FlashAR/Parallel Jacobi |
+| 通用长期记忆 | LongStream/WorldExplorer/Stream3D/Captain Safari |
+| 通用滚动纠正 | BAgger |
+| 仅场景级高斯潜变量 | Can3Tok |
+| 仅紧凑/原生三维潜变量 | Structured/Native Compact Latents |
+| 仅自适应高斯分配 | F4Splat/SplatWeaver/hierarchies |
+| 通用部分高斯补全 | CompleteSplat/GaussFiller/GSCompleter |
+| 通用不确定性或压缩 | uncertainty GS / CodecSplat |
 
-## Fresh-Jury Ranking
+## 新评审团排名（Fresh-Jury Ranking）
 
-Scales are 1–5; reviewer risk 5 is highest. Weighted total is from the fresh jury, not experimental evidence。
+评分范围为 1–5；评审风险 5 表示最高。加权总分来自新评审团，而非实验数据。
 
-| Rank | ID | Idea | Novelty | Problem leverage | Elegance | Falsifiability | Feasibility | Reviewer risk | Total / 100 | Jury verdict |
+| 排名 | ID | 创意（Idea） | 新颖性 | 问题杠杆 | 简洁性 | 可证伪性 | 可行性 | 评审风险 | 总分 / 100 | 评审结论 |
 |---:|---|---|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | C01 | Same-Evidence Gauge Consistency | 4 | 5 | 4 | 5 | 4 | 4 | 81 | RECOMMENDED, narrow claim |
-| 2 | C02 | Tri-State Probabilistic Completion | 3 | 5 | 4 | 5 | 3 | 4 | 74 | BACKUP |
-| 3 | C06 | Render-Attributed Sparse Exceptions | 3 | 4 | 4 | 5 | 3 | 4 | — | BACKUP / oracle first |
-| 4 | C03 | Exact Spatial Survival | 2 | 4 | 4 | 5 | 3 | 5 | — | kill standalone; CPU proof only |
-| 5 | C08 | Direction-Conditioned Multi-Order | 2 | 4 | 3 | 5 | 4 | 5 | — | merge into C01 ablation |
-| 6 | C12 | Metric-Equivariant RoPE | 3 | 3 | 3 | 4 | 3 | 4 | — | merge into C01 scope/ablation |
-| 7 | C09 | Geometry–Appearance Codes | 2 | 3 | 4 | 4 | 3 | 4 | — | tokenizer baseline for C06 |
-| 8 | C04 | RoPE-Transported KV | 2 | 5 | 2 | 5 | 1 | 5 | — | analytic claim invalid in current architecture |
-| 9 | C11 | Set-Aware Voxel Stem | 2 | 3 | 3 | 5 | 4 | 5 | — | early collision kill gate |
-| 10 | C05 | Coordinate Sparse KV | 2 | 4 | 3 | 3 | 3 | 5 | — | systems baseline only |
-| 11 | C07 | Progressive Residual-LFQ | 1 | 3 | 4 | 5 | 4 | 5 | — | merge into C06 |
-| 12 | C10 | LFQ Bit Prediction | 1 | 2 | 4 | 5 | 5 | 5 | — | kill standalone |
+| 1 | C01 | 同证据规范一致性（Same-Evidence Gauge Consistency） | 4 | 5 | 4 | 5 | 4 | 4 | 81 | 推荐，论断须收窄 |
+| 2 | C02 | 三状态概率补全（Tri-State Probabilistic Completion） | 3 | 5 | 4 | 5 | 3 | 4 | 74 | 备选 |
+| 3 | C06 | 渲染归因稀疏例外（Render-Attributed Sparse Exceptions） | 3 | 4 | 4 | 5 | 3 | 4 | — | 备选；先做预言机实验 |
+| 4 | C03 | 精确空间生存过程（Exact Spatial Survival） | 2 | 4 | 4 | 5 | 3 | 5 | — | 终止独立方向；仅保留 CPU 证明 |
+| 5 | C08 | 方向条件多顺序（Direction-Conditioned Multi-Order） | 2 | 4 | 3 | 5 | 4 | 5 | — | 并入 C01 消融 |
+| 6 | C12 | 度量等变 RoPE（Metric-Equivariant RoPE） | 3 | 3 | 3 | 4 | 3 | 4 | — | 并入 C01 范围/消融 |
+| 7 | C09 | 几何—外观编码（Geometry–Appearance Codes） | 2 | 3 | 4 | 4 | 3 | 4 | — | 作为 C06 的分词器基线 |
+| 8 | C04 | RoPE 传输 KV（RoPE-Transported KV） | 2 | 5 | 2 | 5 | 1 | 5 | — | 当前架构下解析论断不成立 |
+| 9 | C11 | 集合感知体素干（Set-Aware Voxel Stem） | 2 | 3 | 3 | 5 | 4 | 5 | — | 早期碰撞终止门槛 |
+| 10 | C05 | 坐标稀疏 KV（Coordinate Sparse KV） | 2 | 4 | 3 | 3 | 3 | 5 | — | 仅作为系统基线 |
+| 11 | C07 | 渐进残差 LFQ（Progressive Residual-LFQ） | 1 | 3 | 4 | 5 | 4 | 5 | — | 并入 C06 |
+| 12 | C10 | LFQ 比特预测（LFQ Bit Prediction） | 1 | 2 | 4 | 5 | 5 | 5 | — | 终止独立方向 |
 
-Full mechanically deduplicated pool: `.aris/traces/idea-creator/2026-07-16_run01/candidate_pool.md`。
+完整的机械去重候选池见 `.aris/traces/idea-creator/2026-07-16_run01/candidate_pool.md`。
 
-## Recommended Ideas
+## 推荐创意（Recommended Ideas）
 
-### Idea 1 — Chart-Consistent Column Events for GaussianGPT — RECOMMENDED
+### 创意 1 — 面向 GaussianGPT 的坐标图一致列事件（Chart-Consistent Column Events）— 推荐
 
-- **Method**:
-  1. Extract verbatim production state `(H,T)` with fixed global context rows and target column。
-  2. Re-encode the same H/T under two legal local origins without changing evidence or order。
-  3. Push all 8000 position outcomes plus EOS into the common parser event space `{z0...z19, EXIT}` with no discarded mass。
-  4. Train matched event distributions with selected-slot stop-gradient KL; keep architecture and inference unchanged。
-- **Hypothesis**: chart-only event jumps are a causal contributor to origin-switch seams and long-scene drift。
-- **Minimum experiment**: R001/R002 CPU gates, then frozen R003; no fine-tune unless real coverage and frozen effect pass。
-- **Expected success**: method beats origin augmentation and R-Drop; >=15% seam-excess and >=10% KID-slope reduction with no chunk/diversity regression。
-- **Novelty**: approximately 7/10 in Top-3 review; claim-level result `PARTIAL / provisional`。Closest conceptual work includes panorama crop consistency, SyncTweedies, group-equivariant positional work, RandAR/MAR-3D and LongStream, but no exact full tuple was found。
-- **Feasibility**: high after G0; zero new parameters, K selected slots, one gradient branch。Real pair coverage remains unknown。
-- **Risk**: MEDIUM-HIGH。It can die before training if G1/G2 fails。
-- **Contribution type**: method + causal diagnostic。
-- **Pilot result**: `SKIPPED — user requested no GPU`。
-- **Strongest objection**: a changed origin often changes physical support/evidence; the refined method survives only because it fixes verbatim H/T and uses parser-consumed action semantics, not raw window overlap。
-- **Why do it**: among all ideas, this has the cleanest documented failure, smallest intervention and strongest kill logic。
+- **方法（Method）**：
+  1. 提取逐字保留的生产状态 `(H,T)`，固定全局上下文行和目标列。
+  2. 在两个合法局部原点下重新编码相同 H/T，不改变证据或顺序。
+  3. 将全部 8000 个位置结果与 EOS 推送到共同解析器事件空间 `{z0...z19, EXIT}`，不丢弃任何概率质量。
+  4. 使用选定槽位停止梯度 KL（selected-slot stop-gradient KL）训练匹配事件分布；架构与推理保持不变。
+- **假设（Hypothesis）**：纯坐标图事件跳变是原点切换接缝与长场景漂移的因果贡献因素。
+- **最小实验（Minimum experiment）**：先运行 R001/R002 CPU 门槛，再运行冻结的 R003；真实覆盖率和冻结效应未通过时不得微调。
+- **预期成功（Expected success）**：方法优于原点增强和 R-Drop；接缝超额至少降低 15%、KID 斜率至少降低 10%，且分块质量/多样性不退化。
+- **新颖性（Novelty）**：前三名评审中约为 7/10；论断级结论为“部分成立/暂定（`PARTIAL / provisional`）”。最接近的概念包括全景裁剪一致性、SyncTweedies、群等变位置方法、RandAR/MAR-3D 和 LongStream，但尚未发现包含全部条件的完全相同工作。
+- **可行性（Feasibility）**：通过 G0 后较高；零新增参数、K 个选定槽位、单梯度分支。真实配对覆盖率仍未知。
+- **风险（Risk）**：中高（MEDIUM-HIGH）。如果 G1/G2 失败，可在训练前直接终止。
+- **贡献类型（Contribution type）**：方法 + 因果诊断。
+- **试验结果（Pilot result）**：`已跳过——用户要求不使用 GPU`。
+- **最强反对意见（Strongest objection）**：改变原点通常也会改变物理支撑集/证据；精炼后方法之所以成立，是因为它固定逐字 H/T，并使用解析器消费的动作语义，而不是直接比较原始重叠窗口。
+- **执行理由（Why do it）**：在所有创意中，该方向具有记录最清楚的失效、最小的干预和最强的终止逻辑。
 
-#### Static G0 result
+#### 静态 G0 结果（Static G0 result）
 
-`idea-stage/STATIC_PREMISE_AUDIT.md` verifies the synthetic/default grammar construction only. It does not establish model failure or quality gain。
+`idea-stage/STATIC_PREMISE_AUDIT.md` 只验证合成/默认语法构造，不能证明模型失效或质量增益。
 
-#### Refined method status
+#### 精炼方法状态（Refined method status）
 
-- Research-refine scores: 6.30 → 8.15 → 9.05。
-- Final verdict: READY for experiment planning only。
-- Clean proposal: `refine-logs/FINAL_PROPOSAL.md`。
-- Experiment plan: `refine-logs/EXPERIMENT_PLAN.md`。
+- 研究精炼评分：6.30 → 8.15 → 9.05。
+- 最终结论：仅表示已可进入实验规划（READY）。
+- 清理后的方案：`refine-logs/FINAL_PROPOSAL.md`。
+- 实验计划：`refine-logs/EXPERIMENT_PLAN.md`。
 
-### Idea 2 — Tri-State Probabilistic Gaussian Completion — BACKUP
+### 创意 2 — 三状态概率高斯补全（Tri-State Probabilistic Gaussian Completion）— 备选
 
-- **Method**:
-  1. Compile arbitrary RGB-D/ray observations into observed occupied / observed free / unknown。
-  2. Copy-through observed occupied, assign zero posterior support to known-free, and sample only unknown occupancy/features。
-  3. Use a permutation-invariant observation compiler and proper-scoring calibration; preserve observations after decode。
-  4. Evaluate real multi-view ray masks rather than prefix/box-only masks。
-- **Hypothesis**: physical tri-state posterior semantics improve unknown-region calibration/coverage beyond hard masking。
-- **Minimum experiment**: first compare partial-view vs full-scene visible-voxel LFQ exact match; if copy-through is not identifiable without GT leakage, kill raw-RGB-D framing。
-- **Expected success**: beat AutoSDF-like arbitrary query and hard-mask-only on unknown NLL/Brier/energy score, COV/MMD and diversity—not only free-space violation。
-- **Novelty**: `PARTIAL`, roughly 5–6/10。Arbitrary conditioning and O/F/U semantics are not new; strict scene-level Gaussian posterior is the only provisional delta。
-- **Feasibility**: medium; no new labels, but partial observation encoding and output-level preservation are nontrivial。
-- **Risk**: HIGH。GT latent leakage and observation-code mismatch are fatal。
-- **Contribution type**: conditional generative method + calibration protocol。
-- **Pilot result**: `SKIPPED — user requested no GPU`。
-- **Strongest objection**: AutoSDF + OctoMap semantics + CompleteSplat is an obvious composition unless unknown-region proper scores improve materially。
-- **Backup condition**: start only if C01 is killed and the visible-latent identifiability gate passes without GT leakage。
+- **方法**：
+  1. 将任意 RGB-D/射线观测编译为“已观测占用 / 已观测自由 / 未知”（observed occupied / observed free / unknown）三种状态。
+  2. 直接复制已观测占用区域，对已知自由空间赋予零后验支撑，只采样未知占用与特征。
+  3. 使用排列不变观测编译器（permutation-invariant observation compiler）与适当评分校准（proper-scoring calibration）；解码后仍保持观测。
+  4. 评估真实多视图射线掩码，而不是仅使用前缀/包围盒掩码。
+- **假设**：物理三状态后验语义相较硬掩码，能改善未知区域的校准与覆盖率。
+- **最小实验**：先比较部分视图与完整场景中可见体素 LFQ 的精确匹配；如果不泄漏真值（GT）就无法辨识直接复制结果，则终止原始 RGB-D 表述。
+- **预期成功**：在未知区域 NLL、Brier 分数、能量分数（energy score）、COV/MMD 和多样性上优于 AutoSDF 类任意查询及仅硬掩码方法，而不只是减少自由空间违规。
+- **新颖性**：部分成立（`PARTIAL`），约 5–6/10。任意条件与 O/F/U 语义并不新；严格的场景级高斯后验是唯一暂时保留的增量。
+- **可行性**：中等；无需新标签，但部分观测编码和输出级保持并不简单。
+- **风险**：高（HIGH）。真值潜变量泄漏和观测编码不匹配都属于致命问题。
+- **贡献类型**：条件生成方法 + 校准协议。
+- **试验结果**：`已跳过——用户要求不使用 GPU`。
+- **最强反对意见**：除非未知区域的适当评分有实质提升，否则 AutoSDF + OctoMap 语义 + CompleteSplat 很可能只是显而易见的组合。
+- **备选启动条件**：仅在 C01 被终止，且可见潜变量可辨识性门槛在无真值泄漏下通过时启动。
 
-### Idea 3 — Base-Compatible Render-Attributed Sparse Exceptions — BACKUP / ORACLE ONLY
+### 创意 3 — 基座兼容的渲染归因稀疏例外（Base-Compatible Render-Attributed Sparse Exceptions）— 备选 / 仅预言机实验
 
-- **Method**:
-  1. Freeze the existing 20 cm base lattice, LFQ, decoder and base token stream byte-for-byte。
-  2. Use visibility-normalized multi-view marginal render distortion to identify sparse exception support。
-  3. Condition on the completed base stream to generate exception coordinates and residual LFQ codes。
-  4. Count coordinates/separators/END/entropy cost in a strict <=10% enhancement budget；the layer is discardable。
-- **Hypothesis**: tokenizer distortion is concentrated enough that a sparse enhancement recovers most shallow-tokenizer quality。
-- **Minimum experiment**: no-GPT oracle at 1/2.5/5/10/20% full cost against random, latent magnitude, SuperVoxel/F4Splat saliency and same-position RVQ。
-- **Expected success**: at 10%, recover >=70% of both PSNR and LPIPS gaps on novel views; learned support reaches >=85% oracle gain。
-- **Novelty**: `PARTIAL`, about 5.5/10 now。Broad scalable/residual coding is not new；fixed-base generative exception channel is the provisional delta。
-- **Feasibility**: medium-low; AE residual path and GPT grammar changes required。
-- **Risk**: HIGH。Oracle support may not be predictable from the base stream。
-- **Contribution type**: tokenizer/rate-distortion method。
-- **Pilot result**: `SKIPPED — user requested no GPU`。
-- **Strongest objection**: PRIMU/GaussianPOP attribution + top-k RVQ or SuperVoxelGPT/F4Splat-style allocation may fully explain it。
-- **Backup condition**: only after C01/C02 are killed and the strict oracle gate passes。
+- **方法**：
+  1. 逐字节冻结现有 20 cm 基础晶格、LFQ、解码器和基础词元流。
+  2. 使用可见性归一化的多视图边际渲染失真（visibility-normalized multi-view marginal render distortion）识别稀疏例外支撑集。
+  3. 以完整基础流为条件，生成例外坐标和残差 LFQ 编码。
+  4. 在严格不超过 10% 的增强预算中完整计入坐标/分隔符/END/熵成本；该增强层可被丢弃。
+- **假设**：分词器失真足够集中，因此稀疏增强可追回浅层分词器的大部分质量。
+- **最小实验**：不使用 GPT，在完整成本的 1/2.5/5/10/20% 预算下做预言机实验，对比随机选择、潜变量幅度、SuperVoxel/F4Splat 显著性及同位置 RVQ。
+- **预期成功**：在 10% 预算下，针对新视角同时追回至少 70% 的 PSNR 和 LPIPS 差距；学习得到的支撑集达到至少 85% 的预言机增益。
+- **新颖性**：当前为部分成立（`PARTIAL`），约 5.5/10。宽泛的可扩展/残差编码并不新；固定基座的生成式例外通道是暂定增量。
+- **可行性**：中低；需要修改自编码器（AE）残差路径和 GPT 语法。
+- **风险**：高。仅根据基础流可能无法预测预言机支撑集。
+- **贡献类型**：分词器/率失真方法。
+- **试验结果**：`已跳过——用户要求不使用 GPU`。
+- **最强反对意见**：PRIMU/GaussianPOP 归因 + top-k RVQ，或 SuperVoxelGPT/F4Splat 式分配，可能已经能够完整解释该方案。
+- **备选启动条件**：仅在 C01/C02 均被终止且严格预言机门槛通过后启动。
 
-## Remaining Ranked Ideas
+## 其余排序创意（Remaining Ranked Ideas）
 
-### C03 — Exact Marked Spatial Survival GaussianGPT
+### C03 — 精确标记空间生存 GaussianGPT（Exact Marked Spatial Survival GaussianGPT）
 
-- **Method**: exact zero-run/extent survival → column count/subset → Gaussian feature marks；retry-free likelihood。
-- **Hypothesis**: temperature-changing retries create density/extent bias and harm geometry coverage。
-- **Minimum experiment**: CPU analytic/Monte-Carlo sampler-bias proof before training。
-- **Prior work**: ShapeFormer, VoxelDNN/MSVoxelDNN, OctSqueeze/OctAttention, ACNP child-count, occupancy→attribute compression, point processes。
-- **Feasibility**: medium；grammar/loss/sampler changes。
-- **Static verdict**: standalone KILL unless exact bias proof and scene-scale survival delta both hold。
-- **Pilot**: skipped; no GPU。
+- **方法**：精确零连续段/范围生存（zero-run/extent survival）→ 列计数/子集 → 高斯特征标记；使用免重试似然。
+- **假设**：改变温度的重试会造成密度/范围偏差，并损害几何覆盖率。
+- **最小实验**：训练前使用 CPU 完成解析/蒙特卡洛采样器偏差证明。
+- **相关工作（Prior work）**：ShapeFormer、VoxelDNN/MSVoxelDNN、OctSqueeze/OctAttention、ACNP 子节点计数、占用→属性压缩、点过程（point processes）。
+- **可行性**：中等；需修改语法/损失/采样器。
+- **静态结论（Static verdict）**：除非精确偏差证明和场景尺度生存增量同时成立，否则终止独立方向。
+- **试验（Pilot）**：已跳过；未使用 GPU。
 
-### C08 — Direction-Conditioned Multi-Order
+### C08 — 方向条件多顺序（Direction-Conditioned Multi-Order）
 
-- **Method**: finite axis traversal family, order instruction, frontier-aligned selection, cross-order distillation。
-- **Hypothesis**: fixed xyz causes directional KID gap。
-- **Minimum experiment**: xyz vs augmentation vs instruction on six directions。
-- **Prior work**: RandAR/RAR/MAR-3D and fixed Z/Hilbert ordering make independent novelty weak。
-- **Feasibility**: high。
-- **Verdict**: merge as C01 ablation only；not a paper thesis。
-- **Pilot**: skipped。
+- **方法**：有限轴遍历族、顺序指令、前沿对齐选择、跨顺序蒸馏。
+- **假设**：固定 xyz 会造成方向性 KID 差异。
+- **最小实验**：在六个方向上比较 xyz、增强和指令方法。
+- **相关工作**：RandAR/RAR/MAR-3D 以及固定 Z/Hilbert 顺序使独立新颖性较弱。
+- **可行性**：高。
+- **结论**：仅并入 C01 消融；不能成为论文主线。
+- **试验**：已跳过。
 
-### C12 — Gravity-Aligned Metric RoPE
+### C12 — 重力对齐度量 RoPE（Gravity-Aligned Metric RoPE）
 
-- **Method**: gravity alignment, metric coordinate phases, yaw consistency, weak Manhattan orientation token。
-- **Hypothesis**: fixed dataset axes hurt ScanNet++ and directional robustness。
-- **Minimum experiment**: continuous-yaw CE/completion and directional KID。
-- **Prior work**: SE(2)/SE(3) equivariant transformers, coordinate RoPE, canonicalization。
-- **Feasibility**: medium；categorical position tokens still leak gauge。
-- **Verdict**: C01 scope/ablation, not standalone。
-- **Pilot**: skipped。
+- **方法**：重力对齐、度量坐标相位、偏航一致性（yaw consistency）、弱曼哈顿方向词元。
+- **假设**：固定数据集坐标轴会损害 ScanNet++ 和方向稳健性。
+- **最小实验**：连续偏航交叉熵/补全和方向 KID。
+- **相关工作**：SE(2)/SE(3) 等变 Transformer、坐标 RoPE、规范化（canonicalization）。
+- **可行性**：中等；类别位置词元仍会泄漏规范信息（gauge）。
+- **结论**：作为 C01 的范围/消融，不独立成篇。
+- **试验**：已跳过。
 
-### C09 — Geometry–Appearance Successive Codes
+### C09 — 几何—外观逐级编码（Geometry–Appearance Successive Codes）
 
-- **Method**: shared stem, geometry LFQ then optional appearance LFQ, matched token budget。
-- **Hypothesis**: single codebook causes geometry/perceptual competition。
-- **Minimum experiment**: equal-token COV/MMD, FID/KID and leakage audit。
-- **Prior work**: disentangled/factorized codes, Can3Tok and structured latents。
-- **Feasibility**: medium; full AE+GPT retraining。
-- **Verdict**: baseline for C06, not independent claim。
-- **Pilot**: skipped。
+- **方法**：共享干网络，先使用几何 LFQ，再可选使用外观 LFQ；匹配词元预算。
+- **假设**：单代码本（codebook）会造成几何与感知目标竞争。
+- **最小实验**：等词元预算下比较 COV/MMD、FID/KID，并进行泄漏审计。
+- **相关工作**：解耦/因子化编码、Can3Tok 和结构化潜变量。
+- **可行性**：中等；需要完整重训 AE+GPT。
+- **结论**：作为 C06 的基线，不构成独立论断。
+- **试验**：已跳过。
 
-### C04 — RoPE-Transported Persistent KV
+### C04 — RoPE 传输的持久 KV（RoPE-Transported Persistent KV）
 
-- **Method**: phase-rotate cached keys under origin shift, persistent voxel-indexed cache, refresh/distill。
-- **Hypothesis**: avoid repeated prefill and 6000 s large-scene runtime。
-- **Minimum experiment**: logit equivalence and cache reuse audit。
-- **Fatal flaw**: local position token embeddings change content hidden states and values；RoPE phase transport cannot repair them。
-- **Feasibility**: low in current architecture。
-- **Verdict**: kill analytic equivalence；learned approximate cache belongs to C05 baseline。
-- **Pilot**: skipped。
+- **方法**：原点移动时对缓存键做相位旋转、使用体素索引持久缓存，并刷新/蒸馏。
+- **假设**：避免重复预填充和 6000 秒的大场景运行时间。
+- **最小实验**：logit 等价性与缓存复用审计。
+- **致命缺陷（Fatal flaw）**：局部位置词元嵌入会改变内容隐藏状态和值；RoPE 相位传输无法修复这些变化。
+- **可行性**：在当前架构中较低。
+- **结论**：否定解析等价性；学习式近似缓存归入 C05 基线。
+- **试验**：已跳过。
 
-### C11 — Set-Aware Voxel Stem + Mixture Decode
+### C11 — 集合感知体素干 + 混合解码（Set-Aware Voxel Stem + Mixture Decode）
 
-- **Method**: opacity-aware set pooling instead of RANDOM_SUBSAMPLE；1–3 components for collision voxels。
-- **Hypothesis**: real-scan detail loss comes from within-voxel collisions。
-- **Minimum experiment**: collision histogram；kill if >95% occupied voxels are singleton。
-- **Prior work**: DeepSets/PointNet/mixture decoder are standard。
-- **Feasibility**: medium-high if collisions exist。
-- **Verdict**: early kill gate；possible C06 auxiliary only。
-- **Pilot**: skipped。
+- **方法**：使用不透明度感知集合池化替代 `RANDOM_SUBSAMPLE`；对碰撞体素使用 1–3 个分量。
+- **假设**：真实扫描细节丢失来自体素内部碰撞。
+- **最小实验**：统计碰撞直方图；若超过 95% 的已占用体素为单元素，则终止。
+- **相关工作**：DeepSets/PointNet/混合解码器均为标准方法。
+- **可行性**：若碰撞确实存在，则为中高。
+- **结论**：设置早期终止门槛；最多作为 C06 的辅助模块。
+- **试验**：已跳过。
 
-### C05 — Frontier-Landmark Coordinate KV
+### C05 — 前沿地标坐标 KV（Frontier-Landmark Coordinate KV）
 
-- **Method**: local 3D KV plus compressed remote landmarks, selected by voxel coordinates。
-- **Hypothesis**: larger physical context at lower memory improves distant quality。
-- **Minimum experiment**: matched cost/memory with larger chunk, not FLOPs alone。
-- **Prior work**: sparse/local attention, octree transformers, LongStream, streaming memory。
-- **Feasibility**: medium with high kernel risk。
-- **Verdict**: systems baseline, not independent paper。
-- **Pilot**: skipped。
+- **方法**：局部三维 KV 加压缩远程地标，通过体素坐标选择。
+- **假设**：以较低内存提供更大物理上下文，可改善远距离质量。
+- **最小实验**：与更大分块在相同成本/内存下比较，不能只匹配 FLOPs。
+- **相关工作**：稀疏/局部注意力、八叉树 Transformer、LongStream、流式记忆。
+- **可行性**：中等，但内核风险高。
+- **结论**：作为系统基线，不独立成篇。
+- **试验**：已跳过。
 
-### C07 — Progressive Residual-LFQ Stop
+### C07 — 渐进残差 LFQ 停止（Progressive Residual-LFQ Stop）
 
-- **Method**: variable 1–3 residual LFQ codes per voxel with learned stop。
-- **Hypothesis**: average <=1.5 codes approaches 3-code quality。
-- **Minimum experiment**: fixed 1/2/3 vs learned stop, full control-symbol cost。
-- **Prior work**: residual VQ/LFQ and learned depth are mature; repository already implements ResidualLFQ。
-- **Feasibility**: high。
-- **Verdict**: merge into C06; no standalone novelty。
-- **Pilot**: skipped。
+- **方法**：每个体素使用可变的 1–3 个残差 LFQ 编码，并学习停止位置。
+- **假设**：平均不超过 1.5 个编码即可接近 3 编码质量。
+- **最小实验**：固定 1/2/3 编码与学习式停止比较，完整计入控制符成本。
+- **相关工作**：残差 VQ/LFQ 与学习深度已经成熟；仓库已实现 ResidualLFQ。
+- **可行性**：高。
+- **结论**：并入 C06；不具备独立新颖性。
+- **试验**：已跳过。
 
-### C10 — LFQ Bit-Structured Prediction
+### C10 — LFQ 比特结构化预测（LFQ Bit-Structured Prediction）
 
-- **Method**: predict 12 LFQ sign bits/nibbles instead of 4096-way class。
-- **Hypothesis**: structured errors improve long-tail sample efficiency。
-- **Minimum experiment**: exact code, decoded MSE, calibration and FID/KID at matched FLOPs。
-- **Prior work**: binary latents, bitwise AR, product codes。
-- **Feasibility**: high, possibly <=2 GPUh head-only pilot。
-- **Verdict**: kill standalone；head-size reduction is not a paper contribution。
-- **Pilot**: skipped。
+- **方法**：预测 12 个 LFQ 符号比特/半字节，而不是 4096 类分类。
+- **假设**：结构化错误可改善长尾样本效率。
+- **最小实验**：在匹配 FLOPs 下评估精确编码、解码均方误差（MSE）、校准和 FID/KID。
+- **相关工作**：二值潜变量、逐比特自回归、乘积码。
+- **可行性**：高；只训练预测头的试验可能不超过 2 GPUh。
+- **结论**：终止独立方向；仅缩小预测头不能构成论文贡献。
+- **试验**：已跳过。
 
-## Eliminated / Withheld Directions
+## 已淘汰/暂缓方向（Eliminated / Withheld Directions）
 
-| Direction | Decision | Reason |
+| 方向（Direction） | 决策（Decision） | 原因（Reason） |
 |---|---|---|
-| self-rollout corrective training / repair | KILL | BAgger directly occupies the mechanism; spatial corruption alone is insufficient delta |
-| generic persistent global memory | KILL | LongStream/Stream3D/WorldExplorer/Captain Safari crowded |
-| plan-then-splat coarse-to-fine | KILL | WorldGrow and multiscale 3D AR are direct |
-| entropy branching | KILL | ENkG direct mechanism overlap |
-| topology verifier/reranking | BASELINE ONLY | decoding engineering unless tied to a distributional training claim |
-| adaptive Gaussian allocation/refiner | KILL | F4Splat/SplatWeaver/hierarchies/post-refiners crowded |
+| 自滚动纠正训练/修复（self-rollout corrective training / repair） | 终止 | BAgger 已直接覆盖该机制；仅加入空间破坏不足以形成增量 |
+| 通用持久全局记忆 | 终止 | LongStream/Stream3D/WorldExplorer/Captain Safari 已使方向拥挤 |
+| 先规划后泼溅的由粗到细方法（plan-then-splat coarse-to-fine） | 终止 | WorldGrow 和多尺度三维自回归已直接覆盖 |
+| 熵分支（entropy branching） | 终止 | 与 ENkG 机制直接重合 |
+| 拓扑验证器/重排序 | 仅作基线 | 除非与分布训练论断绑定，否则只是解码工程 |
+| 自适应高斯分配/修复器 | 终止 | F4Splat/SplatWeaver/层次方法/后修复器已使方向拥挤 |
 
-## Deep Novelty Verification
+## 深度新颖性核验（Deep Novelty Verification）
 
-### C01 claim-level result
+### C01 论断级结果（claim-level result）
 
-| Claim | Verdict | Boundary |
+| 论断（Claim） | 结论（Verdict） | 边界（Boundary） |
 |---|---|---|
-| broad gauge/equivariant principle | PARTIAL | group/SE(3) equivariance already known |
-| same evidence, different local origin, global-remapped position + same-target feature predictive consistency | NOVEL — provisional | no exact scene-level sparse Gaussian AR tuple found |
-| arbitrary order/serialization invariance | NOT NOVEL | RandAR/RAR/MAR-3D/PARD |
-| broad patch/window consistency | PARTIAL | panorama/crop/synchronized diffusion precedents |
-| seam/drift improvement | PARTIAL | problem known; causal chart attribution must be proven |
+| 宽泛的规范/等变原则（gauge/equivariant principle） | 部分成立 | 群/SE(3) 等变性已经广为人知 |
+| 相同证据、不同局部原点、全局重映射位置 + 同目标特征预测一致性 | 暂定新颖（NOVEL — provisional） | 尚未发现完全相同的场景级稀疏高斯自回归条件组合 |
+| 任意顺序/序列化不变性 | 不新颖 | RandAR/RAR/MAR-3D/PARD |
+| 宽泛分块/窗口一致性 | 部分成立 | 已有全景/裁剪/同步扩散先例 |
+| 接缝/漂移改善 | 部分成立 | 问题已知；必须证明坐标图的因果归因 |
 
-Fatal condition: concurrent work with the full tuple—scene-level sparse Gaussian AR, same H/T, different legal origins, complete global action remap, position/feature conditional alignment, no different-evidence matching, long-scene validation—would kill the core novelty。
+致命条件：如果同期工作同时包含场景级稀疏高斯自回归、相同 H/T、不同合法原点、完整全局动作重映射、位置/特征条件对齐、不匹配不同证据以及长场景验证，则核心新颖性将被否定。
 
-### C02 claim-level result
+### C02 论断级结果
 
-- O/F/U semantics: partial, not new。
-- Arbitrary set conditioning: not new。
-- Multimodal calibrated completion: partial。
-- Strict arbitrary-ray, observation-preserving Gaussian scene posterior: provisional surviving claim。
+- O/F/U 语义：部分成立，但不新。
+- 任意集合条件：不新。
+- 多模态校准补全：部分成立。
+- 严格任意射线、保持观测的高斯场景后验：暂时保留的论断。
 
-### C06 claim-level result
+### C06 论断级结果
 
-- render attribution: partial；PRIMU/GaussianPOP/F4Splat neighbors。
-- base/enhancement coding: broadly not new。
-- fixed unchanged base plus sparse generative exception stream: partial provisional。
-- 10%/70% result: only a potential empirical finding, not evidence yet。
+- 渲染归因（render attribution）：部分成立；近邻包括 PRIMU/GaussianPOP/F4Splat。
+- 基础/增强编码：宽泛意义上不新。
+- 固定不变基座 + 稀疏生成式例外流：部分成立且为暂定。
+- 10%/70% 结果：目前只是一项潜在经验发现，尚非证据。
 
-Trace: `.aris/traces/novelty-check/2026-07-16_run01/`。
+查新轨迹见 `.aris/traces/novelty-check/2026-07-16_run01/`。
 
-## External Critical Review and Refinement
+## 外部批判性评审与精炼（External Critical Review and Refinement）
 
-### Top-3 brutal review
+### 前三名严苛评审（Top-3 brutal review）
 
-| Candidate | Significance | Novelty | Soundness | Feasibility | Submission-state overall |
+| 候选（Candidate） | 重要性（Significance） | 新颖性（Novelty） | 可靠性（Soundness） | 可行性（Feasibility） | 当前投稿状态总评 |
 |---|---:|---:|---:|---:|---:|
-| C01 | 8 | 7 | 6 | 8 | 4/10 Weak Reject before premise audit |
-| C02 | 8 | 5 | 5 | 6 | 3/10 Reject |
-| C06 | 7 | 5 | 5 | 5 | 3/10 Reject |
+| C01 | 8 | 7 | 6 | 8 | 4/10：前提审计前弱拒（Weak Reject） |
+| C02 | 8 | 5 | 5 | 6 | 3/10：拒稿（Reject） |
+| C06 | 7 | 5 | 5 | 5 | 3/10：拒稿（Reject） |
 
-The review selected exactly one mainline: C01。C02 requires a no-leakage visible-code identifiability gate；C06 requires the strict oracle gate。
+评审只选择一条主线：C01。C02 需要通过无泄漏的可见编码可辨识性门槛；C06 需要通过严格预言机门槛。
 
-### Research-refine evolution
+### 研究精炼演化（Research-refine evolution）
 
-| Round | Score | Verdict | Main resolution |
+| 轮次（Round） | 分数（Score） | 结论（Verdict） | 主要修正（Main resolution） |
 |---:|---:|---|---|
-| 1 | 6.30 | REVISE | active-domain mask invalid；must use production parser semantics |
-| 2 | 8.15 | REVISE | full token mass pushforward to z/EXIT；method and causal interface closed |
-| 3 | 9.05 | READY for planning only | CPU G0, exact scope, preregistered G1–G3, no empirical overclaim |
+| 1 | 6.30 | 修订（REVISE） | 活动域掩码（active-domain mask）无效；必须使用生产解析器语义 |
+| 2 | 8.15 | 修订（REVISE） | 将完整词元概率质量推送到 z/EXIT；方法与因果接口闭合 |
+| 3 | 9.05 | 仅可进入规划（READY for planning only） | CPU G0、精确范围、预注册 G1–G3、无经验性夸大 |
 
-`CALIBRATION: none`。No curated taste anchors were available。
+`校准（CALIBRATION）：无`。没有可用的人工精选审美锚点（curated taste anchors）。
 
-## Refined C01 Snapshot
+## 精炼后的 C01 快照（Refined C01 Snapshot）
 
-### Exact contribution
+### 精确贡献（Exact contribution）
 
-> Fix physical evidence and parser-consumed action semantics, change only the local coordinate chart, push the complete sparse-token distribution into a common physical column-event space, and train away the isolated window-origin dependence.
+> 固定物理证据和解析器消费的动作语义，只改变局部坐标图；将完整稀疏词元分布推送到共同物理列事件空间，并通过训练消除被隔离出的窗口原点依赖。
 
-### Production event map
+### 生产事件映射（Production event map）
 
 ```text
-8000 position tokens + EOS
+8000 个位置词元 + EOS
         |
-        | target local xy and z=0..19
-        +--------------------------> 20 z events
+        | 目标局部 xy 且 z=0..19
+        +--------------------------> 20 个 z 事件
         |
-        | all other valid positions or EOS
+        | 所有其他合法位置或 EOS
         +--------------------------> EXIT
 ```
 
-### Gates
+### 门槛（Gates）
 
-- G0 parser equivalence：synthetic/static partial pass；exact production property test pending。
-- G1 real pair coverage：pending；kill if inadequate。
-- G2 frozen chart effect/localization：pending；kill before fine-tune if noise-level。
-- G3 feature materiality：pending；delete feature loss if weak。
+- G0 解析器等价性：合成/静态设置部分通过；精确生产属性测试待完成。
+- G1 真实配对覆盖率：待完成；若不足则终止。
+- G2 冻结坐标图效应/定位：待完成；若处于噪声水平，则微调前终止。
+- G3 特征实质性：待完成；若信号弱则删除特征损失。
 
-### Experiment blocks
+### 实验模块（Experiment blocks）
 
-1. Grammar and real-pair premise gates。
-2. Frozen causal audit。
-3. Matched-compute method isolation。
-4. 4/8/12 m long-scene anchor result。
-5. Minimality/robustness/failure envelope。
+1. 语法与真实配对前提门槛。
+2. 冻结因果审计。
+3. 等算力方法隔离。
+4. 4/8/12 m 长场景锚定结果。
+5. 最小性/稳健性/失效边界。
 
-### Refined artifacts
+### 精炼产物（Refined artifacts）
 
-- Full proposal: `refine-logs/FINAL_PROPOSAL.md`。
-- Full plan: `refine-logs/EXPERIMENT_PLAN.md`。
-- Tracker: `refine-logs/EXPERIMENT_TRACKER.md`。
+- 完整方案：`refine-logs/FINAL_PROPOSAL.md`。
+- 完整计划：`refine-logs/EXPERIMENT_PLAN.md`。
+- 跟踪器：`refine-logs/EXPERIMENT_TRACKER.md`。
 
-## Compute and Execution
+## 算力与执行（Compute and Execution）
 
-- R001/R002: CPU only。
-- R003 frozen audit: 2–6 GPUh after checkpoint/data acquisition。
-- Minimum go/no-go pilot through single-seed comparison: 45–105 GPUh。
-- Full paper program: 300–550 GPUh；optional appendix/ScanNet++ +20–100 GPUh。
-- Dominant cost: 12 m scene generation；stage 4 m→8 m→12 m with hard stops。
+- R001/R002：仅使用 CPU。
+- R003 冻结审计：获取检查点/数据后耗时 2–6 GPUh。
+- 到单种子比较为止的最低继续/停止试验：45–105 GPUh。
+- 完整论文实验计划：300–550 GPUh；可选附录/ScanNet++ 额外需要 20–100 GPUh。
+- 主要成本：12 m 场景生成；按 4 m→8 m→12 m 分阶段执行，并设置硬终止条件。
 
-## Research Contract
+## 研究契约（Research Contract）
 
-Active idea contract: `idea-stage/docs/research_contract.md`。It contains only the selected idea, claims, gates, decisions and next-step pointer for session recovery。
+当前创意契约位于 `idea-stage/docs/research_contract.md`。其中只包含入选创意、论断、门槛、决策和用于恢复会话的下一步指针。
 
-## Retrieval and Assurance Notes
+## 检索与可信度说明（Retrieval and Assurance Notes）
 
-- Search covered arXiv, CVF/CVPR 2026 pages, OpenAlex, DOI/Crossref and local paper/code through 2026-07-16。
-- Semantic Scholar returned 429; Exa lacked an API key; arXiv/OpenAlex also rate-limited some later requests; DBLP had an SSL EOF on one route。
-- These failures were mitigated with direct arXiv/CVF/DOI/local evidence, but they prevent any claim of exhaustive novelty proof。
-- Every reviewer route used an OpenAI same-family Codex agent. `acceptance_status` is therefore provisional, never accepted。
+- 检索覆盖截至 2026-07-16 的 arXiv、CVF/CVPR 2026 页面、OpenAlex、DOI/Crossref 及本地论文/代码。
+- Semantic Scholar 返回 429；Exa 缺少 API 密钥；arXiv/OpenAlex 对部分后续请求限流；DBLP 的一条路径出现 SSL EOF。
+- 通过直接访问 arXiv/CVF/DOI 和本地证据缓解了这些失败，但因此不能宣称已经穷尽所有新颖性证据。
+- 每条评审路线均使用 OpenAI 同模型家族的 Codex 智能体。因此 `acceptance_status` 只能是暂定，从未被标记为已接收。
 
-## Final Recommendation
+## 最终建议（Final Recommendation）
 
-Proceed with **C01 only**, in gate order。Do not parallelize C02/C06 and do not add modules to rescue C01 if G1/G2 fails。The most valuable immediate result may be negative: if real pair coverage or frozen chart effect is negligible, stop early and switch to the backup whose own gate passes。
+只推进 **C01**，并严格按照门槛顺序执行。不要并行推进 C02/C06；如果 G1/G2 失败，也不要通过增加模块来挽救 C01。最有价值的近期结果可能是负结果：如果真实配对覆盖率或冻结坐标图效应可忽略，应尽早停止，并切换到通过自身门槛的备选方向。
 
-## Next Steps
+## 后续步骤（Next Steps）
 
-- ☐ R001 exact parser property test (CPU)
-- ☐ R002 verbatim rollout pair coverage (CPU)
-- ☐ Acquire/checksum official checkpoint and tokenized rollout data
-- ☐ R003 frozen counterfactual audit (first GPU run)
-- ☐ Only after G1/G2: matched-compute pilot
-- ☐ After positive evidence: full multi-seed and long-scene program
+- ☐ R001 精确解析器属性测试（CPU）
+- ☐ R002 逐字滚动提示配对覆盖率（CPU）
+- ☐ 获取官方检查点与词元化滚动数据并记录校验和
+- ☐ R003 冻结反事实审计（首个 GPU 运行）
+- ☐ 仅在 G1/G2 通过后：等算力试验
+- ☐ 获得正面证据后：完整多种子与长场景实验计划
 
-No GPU experiment was run in this report generation task。
+本报告生成任务未运行任何 GPU 实验。
+
+## 已发布的 Markdown 附件（Published Markdown Artifacts）
+
+- [完整研究创意发现报告（Idea Discovery Report）](/paper-analysis/gaussiangpt-research-topics/artifacts/IDEA_REPORT.md)
+- [Top 1 精炼研究方案](/paper-analysis/gaussiangpt-research-topics/artifacts/FINAL_PROPOSAL.md)
+- [论断驱动实验计划（Claim-driven Experiment Plan）](/paper-analysis/gaussiangpt-research-topics/artifacts/EXPERIMENT_PLAN.md)
+- [实验跟踪器（Experiment Tracker）](/paper-analysis/gaussiangpt-research-topics/artifacts/EXPERIMENT_TRACKER.md)
+- [研究流程摘要（Pipeline Summary）](/paper-analysis/gaussiangpt-research-topics/artifacts/PIPELINE_SUMMARY.md)
+- [静态前提审计（Static Premise Audit）](/paper-analysis/gaussiangpt-research-topics/artifacts/STATIC_PREMISE_AUDIT.md)
+- [研究契约（Research Contract）](/paper-analysis/gaussiangpt-research-topics/artifacts/research_contract.md)

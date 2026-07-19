@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chart-Consistent Column Events：Top 1 精炼方案</title>
-<meta name="description" content="GaussianGPT Top 1 精炼方案：在固定物理 evidence 下，通过 parser-aligned 21-way column events 消除 sliding-window local chart 依赖；零新参数、推理不变。">
+<title>坐标图一致列事件：首选精炼方案</title>
+<meta name="description" content="GaussianGPT 首选精炼方案：在固定物理证据下，通过解析器对齐的 21 类列事件消除滑动窗口局部坐标图依赖；零新增参数、推理不变。">
 <link rel="canonical" href="https://szddddddd.github.io/paper-analysis/gaussiangpt-research-topics/proposal/">
 
 <meta name="generator" content="ARIS render-html (academic, v1)">
 <meta name="aris:source-path" content="artifacts/FINAL_PROPOSAL.md">
-<meta name="aris:source-sha256" content="dd571061f6d60234ad2728e1d2b5306bb1d32c378e60a18dd4c9e4bb93e1d0e4">
-<meta name="aris:generated-at" content="2026-07-17 03:31 UTC">
+<meta name="aris:source-sha256" content="fc3d2f87e624a27504bb7cac9bbaa9c40316f0583f05cc4717dd710e1b5651dc">
+<meta name="aris:generated-at" content="2026-07-19 16:31 UTC">
 
 <!-- MathJax 3 -->
 <script>
@@ -324,150 +324,277 @@ footer.aris-footer a { color: var(--ink-muted); border-bottom: 1px dotted var(--
 </head>
 <body>
 <nav class="note-toolbar" aria-label="研究路线图版本">
-  <a class="note-toolbar__home" href="/zh/notes/">← 返回 Notes</a>
+  <a class="note-toolbar__home" href="/zh/notes/">← 返回笔记</a>
   <a href="/paper-analysis/gaussiangpt-research-topics/report/">完整候选报告</a>
-  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/" aria-current="page">Top 1 精炼方案</a>
+  <a href="/paper-analysis/gaussiangpt-research-topics/proposal/" aria-current="page">首选精炼方案</a>
   <a href="/paper-analysis/gaussiangpt-research-topics/experiment-plan/">实验路线图</a>
   <a href="/paper-analysis/gaussiangpt-research-topics/report/#published-artifacts">Markdown 附件</a>
 </nav>
 <div class="layout">
 
 <nav class="toc">
-  <h3>Contents</h3>
+  <h3>目录</h3>
   <ol>
-<li><a href="#problem-anchor">Problem Anchor</a>
+<li><a href="#问题锚点problem-anchor">问题锚点（Problem Anchor）</a>
 </li>
-<li><a href="#executive-thesis">Executive Thesis</a>
+<li><a href="#核心论点executive-thesis">核心论点（Executive Thesis）</a>
 </li>
-<li><a href="#why-the-baseline-can-fail">Why the Baseline Can Fail</a>
+<li><a href="#基线为何可能失败why-the-baseline-can-fail">基线为何可能失败（Why the Baseline Can Fail）</a>
 </li>
-<li><a href="#method">Method</a>
+<li><a href="#方法method">方法（Method）</a>
 <ul>
-<li><a href="#1-production-state-and-legal-chart-pair">1. Production State and Legal Chart Pair</a></li>
-<li><a href="#2-complete-token-to-event-pushforward">2. Complete Token-to-Event Pushforward</a></li>
-<li><a href="#3-counterfactual-consistency">3. Counterfactual Consistency</a></li>
-<li><a href="#4-training-objective">4. Training Objective</a></li>
-<li><a href="#5-efficient-interface">5. Efficient Interface</a></li>
-<li><a href="#6-formal-scope">6. Formal Scope</a></li>
-<li><a href="#7-inference">7. Inference</a></li>
+<li><a href="#1-生产状态与合法坐标图配对production-state-and-legal-chart-pair">1. 生产状态与合法坐标图配对（Production State and Legal Chart Pair）</a></li>
+<li><a href="#2-完整词元到事件的推送complete-token-to-event-pushforward">2. 完整词元到事件的推送（Complete Token-to-Event Pushforward）</a></li>
+<li><a href="#3-反事实一致性counterfactual-consistency">3. 反事实一致性（Counterfactual Consistency）</a></li>
+<li><a href="#4-训练目标training-objective">4. 训练目标（Training Objective）</a></li>
+<li><a href="#5-高效接口efficient-interface">5. 高效接口（Efficient Interface）</a></li>
+<li><a href="#6-形式化范围formal-scope">6. 形式化范围（Formal Scope）</a></li>
+<li><a href="#7-推理inference">7. 推理（Inference）</a></li>
 </ul>
 </li>
-<li><a href="#static-evidence-already-available">Static Evidence Already Available</a>
+<li><a href="#已有静态证据static-evidence-already-available">已有静态证据（Static Evidence Already Available）</a>
 </li>
-<li><a href="#preregistered-gates">Preregistered Gates</a>
+<li><a href="#预注册门槛preregistered-gates">预注册门槛（Preregistered Gates）</a>
 </li>
-<li><a href="#claim-driven-evidence-plan">Claim-Driven Evidence Plan</a>
+<li><a href="#论断驱动的证据计划claim-driven-evidence-plan">论断驱动的证据计划（Claim-Driven Evidence Plan）</a>
 <ul>
-<li><a href="#claim-1-real-origin-changes-expose-chart-only-event-jumps">Claim 1: Real origin changes expose chart-only event jumps</a></li>
-<li><a href="#claim-2-semantic-chart-pairing-beats-generic-regularization">Claim 2: Semantic chart pairing beats generic regularization</a></li>
-<li><a href="#claim-3-removing-chart-jumps-improves-long-scene-generation">Claim 3: Removing chart jumps improves long-scene generation</a></li>
+<li><a href="#论断-1真实原点切换暴露纯坐标图事件跳变">论断 1：真实原点切换暴露纯坐标图事件跳变</a></li>
+<li><a href="#论断-2语义坐标图配对优于通用正则化">论断 2：语义坐标图配对优于通用正则化</a></li>
+<li><a href="#论断-3消除坐标图跳变可改善长场景生成">论断 3：消除坐标图跳变可改善长场景生成</a></li>
 </ul>
 </li>
-<li><a href="#failure-modes">Failure Modes</a>
+<li><a href="#失效模式failure-modes">失效模式（Failure Modes）</a>
 </li>
-<li><a href="#novelty-boundary">Novelty Boundary</a>
+<li><a href="#新颖性边界novelty-boundary">新颖性边界（Novelty Boundary）</a>
 </li>
-<li><a href="#implementation-and-compute">Implementation and Compute</a>
+<li><a href="#实现与算力implementation-and-compute">实现与算力（Implementation and Compute）</a>
 </li>
-<li><a href="#first-three-runs">First Three Runs</a>
+<li><a href="#首先运行的三项实验first-three-runs">首先运行的三项实验（First Three Runs）</a>
 </li>
-<li><a href="#current-status">Current Status</a>
+<li><a href="#当前状态current-status">当前状态（Current Status）</a>
 </li>
-</ol>
+  </ol>
 </nav>
 
 <main>
 <header class="hero">
-  <div class="eyebrow">GaussianGPT Research Roadmap</div>
-  <h1>Chart-Consistent Column Events：Top 1 精炼方案</h1>
-  <p class="subtitle">固定物理证据，只消除滑窗 local chart 引入的条件分布差异；零新参数、推理不变</p>
+  <div class="eyebrow">GaussianGPT 研究路线图</div>
+  <h1>坐标图一致列事件：首选精炼方案</h1>
+  <p class="subtitle">固定物理证据，只消除滑动窗口局部坐标图引入的条件分布差异；零新增参数、推理不变</p>
 
   <div class="meta">
-    <span><strong>Source:</strong> <code>artifacts/FINAL_PROPOSAL.md</code></span>
-    <span><strong>SHA256:</strong> <code>dd571061f6d6</code></span>
-    <span><strong>Rendered:</strong> 2026-07-17 03:31 UTC</span>
-
+    <span><strong>来源：</strong> <code>artifacts/FINAL_PROPOSAL.md</code></span>
+    <span><strong>SHA256：</strong> <code>fc3d2f87e624</code></span>
+    <span><strong>渲染时间：</strong> 2026-07-19 16:31 UTC</span>
   </div>
 </header>
 
-<h1 id="research-proposal-chart-consistent-column-events-for-gaussiangpt">Research Proposal: Chart-Consistent Column Events for GaussianGPT</h1>
-<h2 id="problem-anchor">Problem Anchor</h2>
-<ul><li><strong>Bottom-line problem</strong>: GaussianGPT 在滑窗式大场景生成中会把物理上相同的稀疏 Gaussian 上下文编码到不同的 chunk-relative coordinate charts；如果预测仅因 local chart 改变而改变，这种 nuisance dependence 会累积为 seam、方向偏置与远距离退化。</li><li><strong>Must-solve bottleneck</strong>: 在物理证据、预测事件、因果顺序与全局合法 support 完全相同时，消除由局部坐标 re-embedding 单独造成的 next-position 与 feature 条件分布差异。</li><li><strong>Non-goals</strong>: 不做任意顺序或随机顺序生成；不宣称一般 SE(3) 等变；不约束证据或合法 support 不同的窗口；不增加全局 memory、coarse-to-fine planner、cache transport、consensus decoding、seam refiner 或新 tokenizer。</li><li><strong>Constraints</strong>: 基于本地 GaussianGPT 论文与代码；冻结 VQ-VAE/decoder；不新增人工标注；本轮不运行 GPU；后续以 3D-FRONT 为主、ScanNet++ 为迁移验证；方法必须保持现有推理接口并达到 CVPR/ICCV/ECCV 级可证伪标准。</li><li><strong>Success condition</strong>: (1) 能构造非平凡且通过机械断言的 support-equivalent chart pairs；(2) 冻结 checkpoint 在这些 pairs 上存在显著、可复现且与长程失稳相关的 gauge disagreement；(3) 单一 consistency objective 相比 origin augmentation 与等算力 self-distillation 更能降低 held-out chart disagreement、seam、distance-binned KID 和 x/y gap；(4) 无 consensus decoding 时单 chunk 质量与多样性不显著下降。</li></ul>
-<h2 id="executive-thesis">Executive Thesis</h2>
-<p>GaussianGPT 的 production outpainting parser 真正消费的空间事件不是完整的 8000-way local position ID，而是“目标全局 column 中的下一个 z row”或“离开该 column”。本方案把每个 chart 的完整 token 概率无损推送到共同的物理事件空间 <code>{z0,...,z19, EXIT}</code>，然后在固定物理 prompt/target、只改变合法 window origin 的 counterfactual pairs 上对齐条件分布。</p>
-<p>方法不增加参数、不修改 tokenizer/decoder/vocabulary/parser，也不改变推理。核心贡献不是通用 KL，而是一个与 production grammar 对齐的 same-state/same-action-space chart counterfactual interface。</p>
-<h2 id="why-the-baseline-can-fail">Why the Baseline Can Fail</h2>
-<p>同一全局 context row 在不同 window origins 下会得到不同的 local position token 与 3D RoPE coordinate。RoPE 的相对结构不能消除 categorical token embedding、output head 与 nonlinear hidden states 对 local chart 的依赖。当前 full-sequence teacher-forced CE 让每种编码独立拟合 one-hot target，但不要求完整 parser-consumed conditional 一致。</p>
-<p>简单替代方案不足：</p>
-<ul><li>origin augmentation 不约束非 target 概率质量；</li><li>R-Drop 只平滑同一 chart；</li><li>random/multi-order 改变因果 factorization，并已被 RandAR/RAR/MAR-3D 等覆盖；</li><li>overlap-window consistency 比较了不同证据，目标本身不成立；</li><li>memory/cache/coarse-to-fine 不修复相同证据的 chart nuisance。</li></ul>
-<h2 id="method">Method</h2>
-<h3 id="1-production-state-and-legal-chart-pair">1. Production State and Legal Chart Pair</h3>
-<p>一个状态写为 <code>(H,T)</code>：</p>
-<ul><li><code>H</code>：production prompt 中 verbatim 的全局 occupied context rows 及 LFQ feature IDs，保持原 xyz order；</li><li><code>T=(x,y)</code>：物理目标 column。</li></ul>
-<p>枚举两个不同 origins <code>o_a,o_b</code>，要求 <code>H</code> 的全部 rows 以及所有 <code>(T,z)</code> 均能映入 20×20×20 canvas。两支只重写 local coordinates，不添加、删除或截断任何 evidence。</p>
-<p>Pair compiler 对每个样本做机械断言：</p>
-<ul><li>global H/T/features 完全一致；</li><li>token-slot pattern 与长度一致；</li><li>local/global mapping 为双射；</li><li>xyz order 保持；</li><li>target z 与 feature labels 一致；</li><li>parser 的离开目标 column 语义一致。</li></ul>
-<h3 id="2-complete-token-to-event-pushforward">2. Complete Token-to-Event Pushforward</h3>
-<p>首个 paper scope 限定为仓库默认大场景配置：single-column tokenwise path，<code>no_empty_columns=false</code>，<code>resample_empty_columns=true</code>。</p>
-<p>在 existing slot/monotonic constraints 后，令 <code>r_o(v|h)</code> 为 position/EOS token 分布。定义确定性映射 <code>A_o</code>：</p>
-<ul><li>若 token <code>v</code> 解码到目标 local <code>(x,y)</code> 的高度 z，则 <code>A_o(v)=z</code>；</li><li>EOS 或任何其他合法 position token 都映射为 <code>EXIT</code>。</li></ul>
+
+<h1 id="研究方案面向-gaussiangpt-的坐标图一致列事件chart-consistent-column-events">研究方案：面向 GaussianGPT 的坐标图一致列事件（Chart-Consistent Column Events）</h1>
+<h2 id="问题锚点problem-anchor">问题锚点（Problem Anchor）</h2>
+<ul>
+<li><strong>根本问题（Bottom-line problem）</strong>：GaussianGPT 在滑窗式大场景生成中，会把物理上相同的稀疏高斯（Gaussian）上下文编码到不同的分块相对坐标图（chunk-relative coordinate charts）。如果预测仅因局部坐标图（local chart）改变而变化，这种干扰依赖（nuisance dependence）会累积为接缝（seam）、方向偏置与远距离退化。</li>
+<li><strong>必须解决的瓶颈（Must-solve bottleneck）</strong>：在物理证据、预测事件、因果顺序与全局合法支撑集（support）完全相同时，消除仅由局部坐标重新嵌入（re-embedding）造成的下一位置（next-position）与特征条件分布差异。</li>
+<li><strong>非目标（Non-goals）</strong>：不研究任意顺序或随机顺序生成；不宣称一般 SE(3) 等变性（equivariance）；不约束证据或合法支撑集不同的窗口；不增加全局记忆（memory）、由粗到细规划器（coarse-to-fine planner）、缓存传输（cache transport）、共识解码（consensus decoding）、接缝修复器（seam refiner）或新分词器（tokenizer）。</li>
+<li><strong>约束（Constraints）</strong>：基于本地 GaussianGPT 论文与代码；冻结 VQ-VAE/解码器（decoder）；不新增人工标注；本轮不运行 GPU；后续以 3D-FRONT 为主、ScanNet++ 为迁移验证；方法必须保持现有推理接口，并达到 CVPR/ICCV/ECCV 级可证伪标准。</li>
+<li><strong>成功条件（Success condition）</strong>：(1) 能构造非平凡且通过机械断言的支撑集等价坐标图配对（support-equivalent chart pairs）；(2) 冻结检查点（checkpoint）在这些配对上存在显著、可复现且与长程失稳相关的规范不一致（gauge disagreement）；(3) 单一一致性目标（consistency objective）相比原点增强（origin augmentation）与等算力自蒸馏（self-distillation），更能降低留出坐标图不一致、接缝、距离分箱 KID（distance-binned KID）和 x/y 差异；(4) 不使用共识解码时，单分块质量与多样性不显著下降。</li>
+</ul>
+<h2 id="核心论点executive-thesis">核心论点（Executive Thesis）</h2>
+<p>GaussianGPT 的生产级外扩解析器（production outpainting parser）真正消费的空间事件，并不是完整的 8000 类局部位置 ID，而是“目标全局列（column）中的下一个 z 行（row）”或“离开该列”。本方案将每个坐标图的完整词元（token）概率无损推送到共同物理事件空间 <code>{z0,...,z19, EXIT}</code>，随后在固定物理提示/目标（prompt/target）、只改变合法窗口原点（window origin）的反事实配对（counterfactual pairs）上对齐条件分布。</p>
+<p>方法不增加参数，不修改分词器/解码器/词表/解析器，也不改变推理。核心贡献不是通用 KL 散度，而是一个与生产语法（production grammar）一致的“同状态、同动作空间”坐标图反事实接口（same-state/same-action-space chart counterfactual interface）。</p>
+<h2 id="基线为何可能失败why-the-baseline-can-fail">基线为何可能失败（Why the Baseline Can Fail）</h2>
+<p>同一全局上下文行（context row）在不同窗口原点下，会得到不同的局部位置词元与三维旋转位置编码坐标（3D RoPE coordinate）。RoPE 的相对结构无法消除类别词元嵌入（categorical token embedding）、输出头（output head）和非线性隐藏状态对局部坐标图的依赖。当前全序列教师强制交叉熵（full-sequence teacher-forced CE）让每种编码独立拟合独热目标（one-hot target），却不要求完整的解析器消费条件分布（parser-consumed conditional）保持一致。</p>
+<p>简单替代方案并不足够：</p>
+<ul>
+<li>原点增强不约束非目标概率质量；</li>
+<li>R-Drop 只平滑同一坐标图；</li>
+<li>随机/多顺序（random/multi-order）会改变因果因子分解（factorization），且已被 RandAR、RAR、MAR-3D 等工作覆盖；</li>
+<li>重叠窗口一致性（overlap-window consistency）比较的是不同证据，目标本身并不成立；</li>
+<li>记忆/缓存/由粗到细方法不能修复相同证据下的坐标图干扰。</li>
+</ul>
+<h2 id="方法method">方法（Method）</h2>
+<h3 id="1-生产状态与合法坐标图配对production-state-and-legal-chart-pair">1. 生产状态与合法坐标图配对（Production State and Legal Chart Pair）</h3>
+<p>将一个状态写为 <code>(H,T)</code>：</p>
+<ul>
+<li><code>H</code>：生产提示中逐字保留（verbatim）的全局已占用上下文行及 LFQ 特征 ID，维持原始 xyz 顺序；</li>
+<li><code>T=(x,y)</code>：物理目标列。</li>
+</ul>
+<p>枚举两个不同原点 <code>o_a,o_b</code>，要求 <code>H</code> 的全部行以及所有 <code>(T,z)</code> 均可映射进 20×20×20 画布（canvas）。两条分支只重写局部坐标，不添加、删除或截断任何证据。</p>
+<p>配对编译器（pair compiler）对每个样本执行机械断言：</p>
+<ul>
+<li>全局 H/T/特征完全一致；</li>
+<li>词元槽位模式（token-slot pattern）与长度一致；</li>
+<li>局部/全局映射为双射；</li>
+<li>xyz 顺序保持不变；</li>
+<li>目标 z 与特征标签一致；</li>
+<li>解析器的“离开目标列”语义一致。</li>
+</ul>
+<h3 id="2-完整词元到事件的推送complete-token-to-event-pushforward">2. 完整词元到事件的推送（Complete Token-to-Event Pushforward）</h3>
+<p>首篇论文的范围限定为仓库默认大场景配置：单列逐词元路径（single-column tokenwise path），<code>no_empty_columns=false</code>、<code>resample_empty_columns=true</code>。</p>
+<p>施加现有槽位/单调约束（slot/monotonic constraints）后，令 <code>r_o(v|h)</code> 表示位置/EOS 词元分布。定义确定性映射 <code>A_o</code>：</p>
+<ul>
+<li>若词元 <code>v</code> 解码到目标局部 <code>(x,y)</code> 的高度 z，则 <code>A_o(v)=z</code>；</li>
+<li>EOS 或任何其他合法位置词元都映射为 <code>EXIT</code>。</li>
+</ul>
 <p>事件概率为：</p>
-<p><code>p_o(e|h)=sum_{v:A_o(v)=e} r_o(v|h)</code>，<code>e in {z0,...,z19,EXIT}</code>。</p>
-<p>实现使用 <code>logsumexp</code>。8000 个 position outcomes 与 EOS 全部被计入；没有 support intersection、截断或重新归一化。这个事件恰好对应 <code>_accept_sparse_rows_for_target</code> 的状态转移：目标 xy row 被接受，其他 position/end 终止该 column attempt。</p>
-<h3 id="3-counterfactual-consistency">3. Counterfactual Consistency</h3>
-<p>在 teacher-forced target column 上抽样 <code>K=32</code> 个 matched position slots，使用交替单向 stop-gradient KL：</p>
+<p><code>p_o(e|h)=sum_{v:A_o(v)=e} r_o(v|h)</code>，其中 <code>e in {z0,...,z19,EXIT}</code>。</p>
+<p>实现采用 <code>logsumexp</code>。8000 个位置结果与 EOS 全部计入，不使用支撑集交集、不截断，也不重新归一化。该事件精确对应 <code>_accept_sparse_rows_for_target</code> 的状态转移：接受目标 xy 行，其他位置/结束事件则终止本次列尝试（column attempt）。</p>
+<h3 id="3-反事实一致性counterfactual-consistency">3. 反事实一致性（Counterfactual Consistency）</h3>
+<p>在教师强制目标列上抽样 <code>K=32</code> 个匹配位置槽位（matched position slots），使用交替单向停止梯度 KL 散度（stop-gradient KL）：</p>
 <p><code>L_event(a-&gt;b)=KL(sg(p_a)||p_b)</code>。</p>
-<p>minibatches 交替 <code>a-&gt;b</code> 与 <code>b-&gt;a</code>，在期望意义上对称，但只保留一个 gradient graph。</p>
-<p>对 occupied target，强制输入 chart-specific position token 后读取 LFQ feature distribution。只有当 frozen audit 显示 feature JS 至少为 replay noise 的 2 倍且与 seam/event failure 有材料性关系时，才启用 <code>L_feat</code>；否则最终方法为 event-only。</p>
-<h3 id="4-training-objective">4. Training Objective</h3>
-<p>保留标准 full-sequence CE，并增加 paired column auxiliary batch：</p>
+<p>小批次（minibatch）交替使用 <code>a-&gt;b</code> 与 <code>b-&gt;a</code>，因此在期望意义上对称，但每次只保留一个梯度图。</p>
+<p>对于已占用目标，强制输入坐标图特定的位置词元，再读取 LFQ 特征分布。仅当冻结审计表明特征 JS 散度至少为重放噪声的 2 倍，且与接缝/事件失效存在实质关联时，才启用 <code>L_feat</code>；否则最终方法采用仅事件版本（event-only）。</p>
+<h3 id="4-训练目标training-objective">4. 训练目标（Training Objective）</h3>
+<p>保留标准全序列交叉熵，并增加配对列辅助批次（paired column auxiliary batch）：</p>
 <p><code>L_pair = 0.5(L_colCE_a+L_colCE_b) + lambda_e L_event + I_feat lambda_f L_feat</code></p>
 <p><code>L = L_fullCE + beta L_pair</code>。</p>
-<p><code>L_colCE</code> 监督 parser event（next z 或 EXIT）和 ordinary feature CE。对照：</p>
-<ul><li><strong>origin augmentation</strong>：同样 paired column/event CE，但 consistency weights 为 0；</li><li><strong>same-chart R-Drop</strong>：同一 chart 的两个 stochastic forwards，forward count 匹配；</li><li><strong>evidence-changed negative control</strong>：证明不应对齐不同 conditioning evidence。</li></ul>
-<h3 id="5-efficient-interface">5. Efficient Interface</h3>
-<ul><li>Forward 只返回 K 个 selected hidden states；shared lm head 仅作用于这些 states。</li><li>对 position slot，gather 20 个 target-z logits，EXIT 用 EOS 与其他合法 position logits 的 <code>logsumexp</code>。</li><li>直接在 21-way log-probability space 计算 KL。</li><li>Paired sequence 只含 verbatim context 与一个 teacher-forced target column，不保留两条 16k×vocab logits graphs。</li><li>一支 no-grad teacher、一支 student，下一 minibatch 交换方向。</li></ul>
-<h3 id="6-formal-scope">6. Formal Scope</h3>
-<p>理论对象是 parser-induced target-column marked process。若每个 reachable paired history 的 event/mark conditionals 相等，则 chain rule 给出 induced column distribution 相等；两种 chart-induced column distributions 的 KL 可分解为 matched histories 上的 expected stepwise conditional KL。</p>
-<p>训练 objective 只是对 GT/rollout sampled histories 的 Monte Carlo surrogate。本文不声称：</p>
-<ul><li>whole-scene joint 完全 gauge-invariant；</li><li>off-support branches 得到保证；</li><li>arbitrary order invariance；</li><li>general SE(3) equivariance。</li></ul>
-<h3 id="7-inference">7. Inference</h3>
-<p>完全不变。只使用单次原 GaussianGPT sampler；不做第二 chart、reranking、consensus 或额外 decoder。</p>
-<h2 id="static-evidence-already-available">Static Evidence Already Available</h2>
-<p>确定性 CPU/code audit 已验证：</p>
-<ul><li>scene position vocabulary 为 8000=20³；</li><li>默认 <code>no_empty_columns=false</code>；</li><li>full action space 无损分为 20 个 z events 与 EXIT：20 个 target tokens、7980 个其他 position tokens加 EOS；</li><li>一个 synthetic production-like context 上 48 个非零合法 xy translations 均保持 xyz order；</li><li>strict monotonic rule 后的剩余 target-z event support 在两 chart 下相同。</li></ul>
-<p>这只证明定义自洽、非平凡。没有 checkpoint/data，因此没有证明 real pair coverage、frozen disagreement 或质量提升。</p>
-<h2 id="preregistered-gates">Preregistered Gates</h2>
-<table><thead><tr><th>Gate</th><th>Test</th><th>Pass criterion</th><th>Failure action</th></tr></thead><tbody><tr><td>G0 Parser equivalence</td><td>exhaustive property test against exact default parser</td><td>every legal token/EOS yields the same <code>A_o</code> event and parser transition; probabilities sum to 1</td><td>repair definition or kill before model use</td></tr><tr><td>G1 Real pair coverage</td><td>verbatim validation rollouts only</td><td>&gt;=20% non-bootstrap origin-change target states have a nonzero pair; &gt;=10k states; covered/uncovered context length and occupancy standardized differences &lt;=0.25 after planned reweighting</td><td>kill; never truncate prompts</td></tr><tr><td>G2 Frozen chart effect</td><td>replay/dropout/chart intervention</td><td>median event JS &gt;=5× replay noise; origin-change states have &gt;=25% excess matched JS over stable states; coupled-sample divergence nontrivial</td><td>kill before fine-tuning</td></tr><tr><td>G3 Feature materiality</td><td>same-target feature audit</td><td>feature JS &gt;=2× replay noise and materially linked to failure</td><td>otherwise delete feature loss</td></tr></tbody></table>
-<h2 id="claim-driven-evidence-plan">Claim-Driven Evidence Plan</h2>
-<h3 id="claim-1-real-origin-changes-expose-chart-only-event-jumps">Claim 1: Real origin changes expose chart-only event jumps</h3>
-<ul><li>Extract verbatim <code>(H,T)</code> rollout states.</li><li>Hold H, T, model, temperature and random uniforms fixed; intervene only on legal origin.</li><li>Compare event JS, target NLL, coupled sample divergence and next-column seam.</li><li>Stratify actual runs by origin-change vs origin-stable steps with matching on context length, occupancy and target distance.</li></ul>
-<p>Kill if G1/G2 fails.</p>
-<h3 id="claim-2-semantic-chart-pairing-beats-generic-regularization">Claim 2: Semantic chart pairing beats generic regularization</h3>
-<p>Matched-compute arms:</p>
-<ol><li>standard fine-tune;</li><li>origin augmentation;</li><li>same-chart R-Drop;</li><li>chart-event consistency;</li><li>event+feature only if G3 passes.</li></ol>
-<p>Metrics: held-out event JS/NLL, chunk FID/KID/COV/MMD, entropy and pairwise diversity. Predeclared no-degradation margins: relative FID/KID &lt;=3%, COV decrease &lt;=2 percentage points, diversity decrease &lt;=5%.</p>
-<h3 id="claim-3-removing-chart-jumps-improves-long-scene-generation">Claim 3: Removing chart jumps improves long-scene generation</h3>
-<ul><li>Generate 4/8/12 m scenes, at least 3 seeds, unchanged inference.</li><li>Primary: &gt;=15% reduction in origin-switch-localized seam jump and &gt;=10% reduction in distance-KID slope relative to both augmentation and R-Drop, confidence intervals excluding zero.</li><li>Mandatory secondary: fully report <code>|KID_x-KID_y|</code>; when baseline directional gap is significant, target &gt;=20% relative reduction.</li><li>Reject causal claim if improvement is not localized to origin changes, depends on consensus, or harms chunk quality/diversity.</li></ul>
-<h2 id="failure-modes">Failure Modes</h2>
-<ul><li>No adequate real pairs: kill C01.</li><li>Frozen effect near noise: kill before training.</li><li>R-Drop matches: conclude generic smoothing, reject method novelty.</li><li>EXIT aggregation erases all signal: kill parser-level thesis; do not return to intersection KL.</li><li>Feature signal weak: delete feature loss.</li><li>Only global quality changes, no origin localization: reject causal mechanism.</li><li>x/y gap unchanged despite significant baseline gap: success condition is incomplete; report honestly.</li></ul>
-<h2 id="novelty-boundary">Novelty Boundary</h2>
-<p>Do not claim first equivariant model, first patch consistency, first random-order 3D AR, or first long-scene generator. The provisional delta is:</p>
-<blockquote><p>Fix physical evidence and parser-consumed action semantics, change only the local coordinate chart, push the complete sparse-token distribution into a common physical column-event space, and train away the isolated window-origin dependence.</p></blockquote>
-<p>Deep novelty status remains <code>PARTIAL / provisional</code>; absence of an exact 2024–2026 hit is not proof.</p>
-<h2 id="implementation-and-compute">Implementation and Compute</h2>
-<ul><li>G0/G1 compiler and coverage report: CPU, 2–4 days.</li><li>G2/G3 frozen audit: estimated 2–6 GPU-hours once checkpoint/tokenized rollouts are available.</li><li>One-batch selected-slot memory/throughput benchmark before training.</li><li>Minimal fine-tune: 12–30 GPU-hours per arm.</li><li>Full 3-seed/long-scene matrix: roughly 200–500 GPU-hours, staged behind gates.</li><li>Current run launched zero GPU jobs.</li></ul>
-<h2 id="first-three-runs">First Three Runs</h2>
-<ol><li><strong>G1 real-prompt pair coverage scan</strong> — CPU only; kill on inadequate coverage/bias.</li><li><strong>G2 frozen counterfactual audit</strong> — same H/T/randomness, chart-only intervention; kill on noise-level or non-localized effect.</li><li><strong>Selected-slot microbenchmark + minimal matched-compute pilot</strong> — only after G1/G2; compare augmentation, R-Drop and event consistency.</li></ol>
-<h2 id="current-status">Current Status</h2>
-<ul><li>Method proposal: READY for experiment planning.</li><li>Static parser construction: partial G0 pass in default synthetic single-column setting.</li><li>Empirical method validation: not started.</li><li>Paper acceptance: unvalidated.</li><li>Review independence: same-family.</li><li>Acceptance status: provisional.</li></ul>
+<p><code>L_colCE</code> 同时监督解析器事件（下一 z 或 EXIT）与普通特征交叉熵。对照方法包括：</p>
+<ul>
+<li><strong>原点增强（origin augmentation）</strong>：使用相同的配对列/事件交叉熵，但一致性权重为 0；</li>
+<li><strong>同坐标图 R-Drop（same-chart R-Drop）</strong>：在同一坐标图上做两次随机前向传播，并匹配前向次数；</li>
+<li><strong>证据改变负对照（evidence-changed negative control）</strong>：证明不同条件证据不应被强制对齐。</li>
+</ul>
+<h3 id="5-高效接口efficient-interface">5. 高效接口（Efficient Interface）</h3>
+<ul>
+<li>前向传播只返回 K 个选定隐藏状态（selected hidden states）；共享语言模型头（lm head）仅作用于这些状态。</li>
+<li>对位置槽位，收集 20 个目标 z 的 logits；<code>EXIT</code> 使用 EOS 与其他合法位置 logits 的 <code>logsumexp</code>。</li>
+<li>直接在 21 类对数概率空间中计算 KL 散度。</li>
+<li>配对序列只包含逐字上下文和一个教师强制目标列，不保留两条 16k×词表 logits 计算图。</li>
+<li>一条分支作为无梯度教师（no-grad teacher），另一条作为学生；下一小批次交换方向。</li>
+</ul>
+<h3 id="6-形式化范围formal-scope">6. 形式化范围（Formal Scope）</h3>
+<p>理论对象是解析器诱导的目标列标记过程（parser-induced target-column marked process）。如果每个可达配对历史上的事件/标记条件分布相同，则由概率链式法则可得诱导列分布相同；两种坐标图诱导列分布之间的 KL，可分解为匹配历史上逐步条件 KL 的期望。</p>
+<p>训练目标只是基于真值/滚动采样历史（GT/rollout sampled histories）的蒙特卡洛替代量（Monte Carlo surrogate）。本文不声称：</p>
+<ul>
+<li>整场景联合分布完全规范不变（gauge-invariant）；</li>
+<li>对支撑集外分支（off-support branches）提供保证；</li>
+<li>任意顺序不变性；</li>
+<li>一般 SE(3) 等变性。</li>
+</ul>
+<h3 id="7-推理inference">7. 推理（Inference）</h3>
+<p>推理完全不变。只运行一次原始 GaussianGPT 采样器；不使用第二坐标图、重排序、共识或额外解码器。</p>
+<h2 id="已有静态证据static-evidence-already-available">已有静态证据（Static Evidence Already Available）</h2>
+<p>确定性的 CPU/代码审计已验证：</p>
+<ul>
+<li>场景位置词表大小为 <code>8000=20³</code>；</li>
+<li>默认 <code>no_empty_columns=false</code>；</li>
+<li>完整动作空间无损划分为 20 个 z 事件和 <code>EXIT</code>：20 个目标词元、7980 个其他位置词元，再加 EOS；</li>
+<li>在一个仿生产合成上下文上，48 个非零合法 xy 平移均保持 xyz 顺序；</li>
+<li>施加严格单调规则后，两种坐标图中剩余的目标 z 事件支撑集相同。</li>
+</ul>
+<p>这些结果只证明定义自洽且非平凡。由于没有检查点/数据，尚未证明真实配对覆盖率、冻结模型不一致或质量提升。</p>
+<h2 id="预注册门槛preregistered-gates">预注册门槛（Preregistered Gates）</h2>
+<table>
+<thead>
+<tr>
+<th>门槛（Gate）</th>
+<th>测试（Test）</th>
+<th>通过标准（Pass criterion）</th>
+<th>失败动作（Failure action）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0 解析器等价性（Parser equivalence）</td>
+<td>针对精确默认解析器的穷举属性测试</td>
+<td>每个合法词元/EOS 都产生相同的 <code>A_o</code> 事件和解析器转移；概率和为 1</td>
+<td>修复定义，或在使用模型前终止</td>
+</tr>
+<tr>
+<td>G1 真实配对覆盖率（Real pair coverage）</td>
+<td>只使用逐字保留的验证集滚动状态</td>
+<td>至少 20% 的非自举原点切换目标状态具有非零配对；状态数至少 10k；计划重加权后，已覆盖/未覆盖状态的上下文长度和占用率标准化差异不超过 0.25</td>
+<td>终止；绝不截断提示</td>
+</tr>
+<tr>
+<td>G2 冻结坐标图效应（Frozen chart effect）</td>
+<td>重放/丢弃/坐标图干预</td>
+<td>事件 JS 中位数至少为重放噪声的 5 倍；原点切换状态相对稳定状态的匹配 JS 至少高 25%；耦合采样分歧不可忽略</td>
+<td>微调前终止</td>
+</tr>
+<tr>
+<td>G3 特征实质性（Feature materiality）</td>
+<td>同目标特征审计</td>
+<td>特征 JS 至少为重放噪声的 2 倍，并与失效具有实质关联</td>
+<td>否则删除特征损失</td>
+</tr>
+</tbody>
+</table>
+<h2 id="论断驱动的证据计划claim-driven-evidence-plan">论断驱动的证据计划（Claim-Driven Evidence Plan）</h2>
+<h3 id="论断-1真实原点切换暴露纯坐标图事件跳变">论断 1：真实原点切换暴露纯坐标图事件跳变</h3>
+<ul>
+<li>提取逐字保留的 <code>(H,T)</code> 滚动状态。</li>
+<li>固定 H、T、模型、温度和随机均匀变量，只干预合法原点。</li>
+<li>比较事件 JS、目标 NLL、耦合采样分歧和下一列接缝。</li>
+<li>将真实运行按原点切换与原点稳定步骤分层，并匹配上下文长度、占用率与目标距离。</li>
+</ul>
+<p>若 G1/G2 失败，立即终止。</p>
+<h3 id="论断-2语义坐标图配对优于通用正则化">论断 2：语义坐标图配对优于通用正则化</h3>
+<p>等算力实验分支：</p>
+<ol>
+<li>标准微调；</li>
+<li>原点增强；</li>
+<li>同坐标图 R-Drop；</li>
+<li>坐标图—事件一致性；</li>
+<li>仅在 G3 通过时加入事件+特征。</li>
+</ol>
+<p>指标包括留出事件 JS/NLL、分块 FID/KID/COV/MMD、熵和两两多样性。预注册的不退化边界为：FID/KID 相对退化不超过 3%，COV 下降不超过 2 个百分点，多样性下降不超过 5%。</p>
+<h3 id="论断-3消除坐标图跳变可改善长场景生成">论断 3：消除坐标图跳变可改善长场景生成</h3>
+<ul>
+<li>生成 4/8/12 m 场景，至少使用 3 个随机种子，推理过程不变。</li>
+<li>主要标准：相较增强和 R-Drop，原点切换局部化接缝跳变至少降低 15%，距离—KID 斜率至少降低 10%，且置信区间不含 0。</li>
+<li>强制次要标准：完整报告 <code>|KID_x-KID_y|</code>；若基线方向差异显著，目标为相对降低至少 20%。</li>
+<li>如果改进不集中于原点切换、依赖共识解码，或损害分块质量/多样性，则否定因果论断。</li>
+</ul>
+<h2 id="失效模式failure-modes">失效模式（Failure Modes）</h2>
+<ul>
+<li>真实配对不足：终止 C01。</li>
+<li>冻结效应接近噪声：训练前终止。</li>
+<li>R-Drop 与方法持平：结论为通用平滑，否定方法新颖性。</li>
+<li><code>EXIT</code> 聚合抹除全部信号：终止解析器层论点；不得退回支撑集交集 KL。</li>
+<li>特征信号弱：删除特征损失。</li>
+<li>只有全局质量变化、没有原点定位：否定因果机制。</li>
+<li>基线 x/y 差异显著但改进后不变：成功条件不完整，应如实报告。</li>
+</ul>
+<h2 id="新颖性边界novelty-boundary">新颖性边界（Novelty Boundary）</h2>
+<p>不得宣称首个等变模型、首个分块一致性方法、首个随机顺序三维自回归（3D AR）或首个长场景生成器。暂定的增量贡献为：</p>
+<blockquote>
+<p>固定物理证据和解析器消费的动作语义，只改变局部坐标图；将完整稀疏词元分布推送到共同物理列事件空间，并通过训练消除被隔离出的窗口原点依赖。</p>
+</blockquote>
+<p>深度查新状态仍为“部分成立/暂定（PARTIAL / provisional）”；没有检索到 2024–2026 年的完全相同工作并不能构成证明。</p>
+<h2 id="实现与算力implementation-and-compute">实现与算力（Implementation and Compute）</h2>
+<ul>
+<li>G0/G1 编译器与覆盖率报告：CPU，2–4 天。</li>
+<li>G2/G3 冻结审计：获得检查点和词元化滚动状态后，预计 2–6 GPU 小时。</li>
+<li>训练前先做单批次选定槽位内存/吞吐基准。</li>
+<li>最小微调：每个实验分支 12–30 GPU 小时。</li>
+<li>完整 3 种子/长场景矩阵：约 200–500 GPU 小时，并置于各项门槛之后分阶段执行。</li>
+<li>当前任务未启动任何 GPU 作业。</li>
+</ul>
+<h2 id="首先运行的三项实验first-three-runs">首先运行的三项实验（First Three Runs）</h2>
+<ol>
+<li><strong>G1 真实提示配对覆盖扫描（real-prompt pair coverage scan）</strong>——仅使用 CPU；若覆盖率或偏差不合格则终止。</li>
+<li><strong>G2 冻结反事实审计（frozen counterfactual audit）</strong>——固定 H/T/随机性，只做坐标图干预；若效应处于噪声水平或无法定位则终止。</li>
+<li><strong>选定槽位微基准 + 最小等算力试验（selected-slot microbenchmark + minimal matched-compute pilot）</strong>——仅在 G1/G2 通过后执行；比较增强、R-Drop 和事件一致性。</li>
+</ol>
+<h2 id="当前状态current-status">当前状态（Current Status）</h2>
+<ul>
+<li>方法方案：已可进入实验规划（READY）。</li>
+<li>静态解析器构造：默认合成单列设置下部分通过 G0。</li>
+<li>经验性方法验证：尚未开始。</li>
+<li>论文接收可能性：尚未验证。</li>
+<li>评审独立性：同模型家族（same-family）。</li>
+<li>接受状态：暂定（provisional）。</li>
+</ul>
+
+
 
 <footer class="aris-footer">
-  Generated by <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> ·
-  source path <code>artifacts/FINAL_PROPOSAL.md</code> ·
-  SHA256 <code>dd571061f6d6</code> ·
-  generated at 2026-07-17 03:31 UTC.
-  This is a generated view — edit the source Markdown, then re-render.
+  由 <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md">ARIS <code>/render-html</code></a> 生成 ·
+  源文件 <code>artifacts/FINAL_PROPOSAL.md</code> ·
+  SHA256 <code>fc3d2f87e624</code> ·
+  生成时间 2026-07-19 16:31 UTC。
+  这是由源文件生成的页面；请编辑源 Markdown 后重新渲染。
 </footer>
 </main>
 

@@ -121,11 +121,11 @@ export const en = {
     pageTitle: 'Projects',
     title: 'Research and Project Highlights',
     intro:
-      'Selected academic, technical, and course-based projects in computer vision, 3D reconstruction, neural rendering, medical imaging, and creative coding.',
+      'Selected academic, technical, course-based, and embedded-systems projects in computer vision, 3D reconstruction, neural rendering, medical imaging, creative coding, and robotics.',
     fullTitle: 'Projects',
     indexTitle: 'Indexed Works',
     fullIntro:
-      'Academic, technical, and course-based projects spanning visual computing, medical imaging, and creative coding.',
+      'Academic, technical, course-based, and embedded-systems projects spanning visual computing, medical imaging, creative coding, and robotics.',
     viewAll: 'View all projects',
     filters: {
       all: 'All',
@@ -133,6 +133,7 @@ export const en = {
       medical: 'Medical Imaging',
       creative: 'Creative Coding',
       coursework: 'Coursework',
+      embedded: 'Embedded Systems',
     },
     index: {
       railLabel: 'Research Index',
@@ -140,17 +141,19 @@ export const en = {
       statusPrefix: 'Showing',
       categoryPreview: 'Category preview',
       descriptions: {
-        all: 'Six course and research records spanning 3D vision, medical imaging, creative coding, and probability modelling.',
+        all: 'Eight academic, course, research, and competition records spanning visual computing, medical imaging, creative coding, probability modelling, and embedded systems.',
         '3d-vision': 'Object-centric reconstruction using SAM2-guided masks and Gaussian Splatting.',
         'medical-imaging': 'MRI reconstruction and glioma segmentation studies from medical imaging coursework.',
         'creative-coding': 'Procedural GLSL artworks and Shadertoy studies from pixel shading coursework.',
-        coursework: 'All six records are grounded in actual ShanghaiTech coursework.',
+        coursework: 'Seven records are grounded in actual ShanghaiTech coursework.',
+        'embedded-systems': 'Hardware-software systems combining embedded control, computer vision, and electromechanical design.',
       },
     },
     labels: {
       details: 'Project Page',
       shadertoy: 'Shadertoy',
       report: 'Report PDF',
+      award: 'Award List (Preliminary)',
       paper: 'Paper',
       code: 'Code',
       demo: 'Demo',

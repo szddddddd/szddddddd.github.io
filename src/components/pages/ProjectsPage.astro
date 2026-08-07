@@ -20,6 +20,7 @@ const filterDefinitions = [
   { id: 'medical-imaging', label: t.projects.filters.medical, description: t.projects.index.descriptions['medical-imaging'] },
   { id: 'creative-coding', label: t.projects.filters.creative, description: t.projects.index.descriptions['creative-coding'] },
   { id: 'coursework', label: t.projects.filters.coursework, description: t.projects.index.descriptions.coursework },
+  { id: 'embedded-systems', label: t.projects.filters.embedded, description: t.projects.index.descriptions['embedded-systems'] },
 ] as const;
 const filters = filterDefinitions.map((filter) => ({
   ...filter,

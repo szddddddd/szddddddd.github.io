@@ -62,7 +62,7 @@ export class SpatialRouteController {
 
   private readonly onProjectFilter = (event: ProjectFilterEvent): void => {
     const category = event.detail?.category;
-    if (category === 'all' || category === '3d-vision' || category === 'medical-imaging' || category === 'creative-coding' || category === 'coursework') {
+    if (category === 'all' || category === '3d-vision' || category === 'medical-imaging' || category === 'creative-coding' || category === 'coursework' || category === 'embedded-systems') {
       this.target.previewProjectCategory(category);
     }
   };

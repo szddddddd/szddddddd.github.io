@@ -3,7 +3,7 @@ import type { Locale } from '../../config/routes';
 export type LocalizedText = Readonly<Record<Locale, string>>;
 export type LinkValue = string | LocalizedText;
 
-export type ProjectCategory = '3d-vision' | 'medical-imaging' | 'creative-coding' | 'coursework';
+export type ProjectCategory = '3d-vision' | 'medical-imaging' | 'creative-coding' | 'coursework' | 'embedded-systems';
 
 export type ProjectCover = Readonly<{
   src: string;
@@ -14,6 +14,7 @@ export type ProjectLinkSet = Readonly<{
   details?: LinkValue;
   shadertoy?: LinkValue;
   report?: LinkValue;
+  award?: LinkValue;
   slides?: LinkValue;
   paper?: LinkValue;
   code?: LinkValue;

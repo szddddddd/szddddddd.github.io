@@ -22,7 +22,7 @@ export type RouteState = Readonly<{
   transition: RouteTransitionPreset;
 }>;
 
-export type ProjectCategorySceneId = 'all' | '3d-vision' | 'medical-imaging' | 'creative-coding' | 'coursework';
+export type ProjectCategorySceneId = 'all' | '3d-vision' | 'medical-imaging' | 'creative-coding' | 'coursework' | 'embedded-systems';
 
 export type ProjectCategorySceneState = Readonly<Pick<
   RouteState,
@@ -140,6 +140,15 @@ export const projectCategoryStates: Record<Exclude<ProjectCategorySceneId, 'all'
     secondaryColor: '#8b7cff',
     bloomIntensity: 0.24,
     vignetteIntensity: 0.24,
+  },
+  'embedded-systems': {
+    particleDensity: 0.64,
+    flowStrength: 0.22,
+    noiseScale: 2.86,
+    primaryColor: '#65d8cb',
+    secondaryColor: '#e7c46a',
+    bloomIntensity: 0.22,
+    vignetteIntensity: 0.23,
   },
 };
 

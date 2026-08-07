@@ -230,6 +230,7 @@ html[data-theme='light'] {
 .project-index-rail__flow[data-filter='medical-imaging'] { --flow-color: #71d5bc; }
 .project-index-rail__flow[data-filter='creative-coding'] { --flow-color: #d98ec8; }
 .project-index-rail__flow[data-filter='coursework'] { --flow-color: #e7c46a; }
+.project-index-rail__flow[data-filter='embedded-systems'] { --flow-color: #65d8cb; }
 
 .project-index-rail__flow[data-filter='medical-imaging'] i:nth-child(2),
 .project-index-rail__flow[data-filter='creative-coding'] i:nth-child(1) {

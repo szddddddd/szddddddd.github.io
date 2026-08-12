@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ReViV 论文按原结构组织的完整易读学术解析">
+<meta name="color-scheme" content="dark light">
+<title>ReViV：观看者与所见世界的统一 4D 重建——完整易读学术解析</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#f5f7fa;--paper:#fff;--text:#172033;--muted:#5c6879;--line:#dbe1e8;--accent:#2457a6;--soft:#eef4ff;--strict:#eef7f2;--bridge:#fff8e8;--code:#f3f5f8;--danger:#a43b31;--max:1280px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;font-size:16px;line-height:1.82}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.page{width:min(var(--max),calc(100% - 30px));margin:26px auto 70px;display:grid;grid-template-columns:278px minmax(0,1fr);gap:26px;align-items:start}
+.toc{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:17px;font-size:13px}.toc strong{display:block;margin-bottom:9px}.toc ol{margin:0;padding-left:19px}.toc li{margin:4px 0}.toc .level-3{margin-left:11px}
+main{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:clamp(23px,5vw,62px);box-shadow:0 8px 30px rgba(25,36,56,.05)}h1,h2,h3,h4{line-height:1.35;scroll-margin-top:22px}h1{font-size:clamp(30px,5vw,45px);margin:0 0 12px}h2{font-size:27px;margin:58px 0 18px;padding-bottom:9px;border-bottom:2px solid var(--line)}h3{font-size:21px;margin:35px 0 12px}h4{font-size:17px;margin:26px 0 8px}p{margin:13px 0}.meta{color:var(--muted);margin-bottom:24px}.meta span{display:inline-block;margin:0 18px 5px 0}
+.reading-guide{background:linear-gradient(135deg,#eef4ff,#f9fbff);border:1px solid #cadbf4;border-radius:12px;padding:20px 22px;margin:26px 0}.paper-unit{border-left:3px solid transparent;padding-left:15px;margin-left:-18px}.paper-unit:hover{border-left-color:#b7c9e8}.source-ref{color:var(--muted);font-size:13px}
+.evidence{display:inline-block;font-size:12px;line-height:1.5;padding:2px 7px;margin-right:6px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#fff}.evidence.paper{color:#174a83;background:#eef5ff;border-color:#c9daf0}.evidence.code{color:#5a3e8a;background:#f5f0ff;border-color:#ddd0f1}.evidence.background{color:#22633a;background:#eef8f1;border-color:#cce5d3}.evidence.analysis{color:#775714;background:#fff8e6;border-color:#ead9ad}.evidence.inferred{color:var(--danger);background:#fff1ef;border-color:#efc5bf}
+.strict,.bridge,.formula-card,.experiment-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:16px 0}.strict{background:var(--strict)}.bridge{background:var(--bridge)}.formula-card{background:#fbfbfd}.experiment-card{background:#f8faff}.formula-card .katex-display{overflow-x:auto;overflow-y:hidden;padding:8px 0}.symbol-table{font-size:14px}
+figure{margin:25px 0}figure img{display:block;max-width:100%;height:auto;margin:auto;border:1px solid var(--line);border-radius:8px;background:#fff}figcaption{color:var(--muted);font-size:14px;margin-top:9px}.image-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.image-grid.five{grid-template-columns:repeat(5,minmax(0,1fr))}.image-grid figure{margin:0}.image-grid img{width:100%;aspect-ratio:1/1;object-fit:contain}.image-grid figcaption{text-align:center;font-size:12px}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:#f4f6f9;font-weight:650}.best{font-weight:750;color:#174a83}.worse{color:#87352c}.scroll-table{overflow-x:auto;margin:18px 0}.scroll-table table{min-width:780px;margin:0}
+pre{background:var(--code);border:1px solid var(--line);border-radius:9px;padding:15px;overflow:auto;line-height:1.55}code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.89em}details{border:1px solid var(--line);border-radius:9px;margin:16px 0;background:#fcfcfd}summary{cursor:pointer;font-weight:650;padding:12px 15px}details>div{padding:0 15px 15px}
+.checkpoint{border-left:4px solid var(--accent);background:var(--soft);padding:13px 17px;margin:20px 0}.warning{border-left:4px solid var(--danger);background:#fff2f0;padding:13px 17px;margin:20px 0}.flow-table td:first-child,.flow-table th:first-child{white-space:nowrap}.coverage-ok{color:#1e6b39;font-weight:650}.coverage-gap{color:var(--danger);font-weight:650}blockquote{margin:18px 0;padding:8px 18px;border-left:4px solid #b9c6d8;color:#485468;background:#f8fafc}.footer{margin-top:58px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.mermaid{background:#fff;text-align:center;white-space:pre-wrap}.inline-list li{margin:6px 0}
+@media(max-width:920px){.page{display:block;width:min(100% - 16px,920px);margin-top:8px}.toc{position:relative;top:auto;max-height:none;margin-bottom:10px}main{padding:24px 17px}.paper-unit{margin-left:0;padding-left:11px}.image-grid.five{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.image-grid{grid-template-columns:1fr}.image-grid.five{grid-template-columns:1fr}}
+@media print{body{background:#fff}.page{display:block;width:100%;margin:0}.toc{display:none}main{border:0;box-shadow:none;padding:0}details>div{display:block}}
+</style>
+<link rel="stylesheet" href="/paper-analysis/theme.css">
+<script src="/paper-analysis/theme.js"></script>
+</head>
+<body>
+<div class="page">
+<nav class="toc" aria-label="文章目录"><strong>目录</strong><ol id="toc-list"></ol></nav>
+<main>
+<header>
+  <h1>ReViV：观看者与所见世界的统一 4D 重建</h1>
+  <p style="font-size:20px;color:#445168;margin-top:0">《ReViV: Reconstructing the Viewer and the View in 4D from Monocular Egocentric Video》完整易读学术解析</p>
+  <div class="meta">
+    <span>作者：Xiaozhong Lyu、Gen Li、Zhiyin Qian、Xucong Zhang、Marc Pollefeys、Siyu Tang</span>
+    <span>机构：ETH Zürich、TU Delft、Microsoft</span>
+    <span>版本：arXiv v1，2026-07-20；ECCV 2026</span>
+    <span>代码：官方完整实现与模型已公开</span>
+  </div>
+  <p><a href="https://arxiv.org/abs/2607.17790">arXiv</a> · <a href="https://arxiv.org/html/2607.17790">HTML</a> · <a href="https://arxiv.org/pdf/2607.17790">PDF</a> · <a href="https://reviv4d.github.io/">项目页</a> · <a href="https://github.com/lvsean/reviv4d">官方代码</a> · <a href="../">Paper Analyzer 版</a></p>
+</header>
+
+<section class="paper-unit" id="source-status" data-source-id="source-status">
+  <h2>论文元信息与来源状态</h2>
+  <div class="strict">
+    <span class="evidence paper">论文内容</span>
+    本文以 arXiv:2607.17790v1 为版本基准。完整 arXiv HTML 包含正文、Appendix 0.A–0.F、3 个编号公式、8 张表、7 幅编号图和 1 个算法；另用 ar5iv 渲染交叉检查章节与文本。项目页和官方 GitHub 用于核对代码及发布状态。
+  </div>
+  <div class="warning paper-unit" id="source-pdf" data-source-id="source-pdf">
+    <strong>来源缺口：</strong>论文 PDF 端点返回 35.3 MB 文件，但当前网络多次只能以数 KB/s 传输并超时，所得局部文件未被当作证据。由于完整 HTML 与独立 ar5iv 均含全部附录、公式、表格和原图路径，本文仍可进行完整结构解析；缺口主要影响逐页页码核对，不影响编号单元覆盖。
+  </div>
+</section>
+
+<section class="reading-guide" id="reading-guide">
+  <h2>读前导航</h2>
+  <div class="strict">
+    <strong>一句严格概括：</strong>ReViV 将 RGB、深度、相机轨迹、视线、全身和双手都转成离散 token，通过随机多模态掩码训练一个 encoder–decoder Transformer 学习它们的联合分布；推理时只给单目第一视角 RGB，三步并行采样其余 token，再把深度与预测人体尺度对齐到共同 4D 坐标系。
+  </div>
+  <pre class="mermaid">flowchart LR
+  O[RGB observation clip] --> R[Cosmos RGB tokens]
+  O --> C[Continuous ViT context]
+  D[Depth / camera / gaze / body / hands] --> T[Modality tokenizers]
+  R --> Z[Unified discrete state Z]
+  T --> Z
+  C --> M[MGET]
+  Z --> M
+  M --> P[Masked conditional distributions]
+  P --> S[Three-step parallel sampling]
+  S --> Y[Viewer and view states]
+  Y --> A[Floor or metric-depth alignment]
+  A --> F[Metric-aligned 4D reconstruction]
+  </pre>
+  <table class="flow-table"><thead><tr><th>问题要素</th><th>论文设定</th><th>易混淆边界</th></tr></thead><tbody>
+    <tr><td>输入</td><td>单目、第一视角 RGB 视频 clip</td><td>不需要测试时 SLAM，但训练和可选尺度对齐会使用外部模型生态</td></tr>
+    <tr><td>Viewer</td><td>全身、左/右手、视线</td><td>不是从画面直接可见的第三人称人体；大量关节被自身遮挡</td></tr>
+    <tr><td>View</td><td>相机轨迹、时间一致深度</td><td>网络先给相对深度，米制尺度需要轻量对齐</td></tr>
+    <tr><td>“4D”</td><td>3D 人体/场景状态随时间变化</td><td>不是带 action transition 和长期 rollout 的世界模型</td></tr>
+    <tr><td>生成式</td><td>对缺失离散 token 建模并采样</td><td>不是像素 diffusion；核心损失仍是 token cross-entropy</td></tr>
+  </tbody></table>
+  <h3>符号表</h3>
+  <table class="symbol-table"><thead><tr><th>符号</th><th>含义</th><th>形状/坐标说明</th></tr></thead><tbody>
+    <tr><td>$\mathcal X$</td><td>观测条件</td><td>正文先定义为 RGB；MGET 中扩展为 RGB token 与连续 ViT 特征</td></tr>
+    <tr><td>$\mathcal Y$</td><td>待恢复状态</td><td>手、身体、视线、深度、相机五组时序量</td></tr>
+    <tr><td>$\mathbf y_m$</td><td>模态 $m$ 的连续信号</td><td>人体/手为 $N\times J\times3$；其他形状由各 tokenizer 决定</td></tr>
+    <tr><td>$\mathbf z_m$</td><td>模态 $m$ 的离散 token 序列</td><td>长度 $L_m$、词表大小 $K_m$ 随模态变化</td></tr>
+    <tr><td>$\mathbf Z_{\mathcal V}$</td><td>训练样本中可见 token</td><td>进入 encoder 的条件集合</td></tr>
+    <tr><td>$\mathbf Z_{\mathcal M}$</td><td>被遮住的目标 token</td><td>decoder 预测并计算交叉熵</td></tr>
+    <tr><td>$\mathbf x_{\mathrm{ViT}}$</td><td>未经量化的 RGB 连续特征</td><td>保留高频像素上下文，不作为离散分类目标</td></tr>
+  </tbody></table>
+  <div class="checkpoint"><strong>建议阅读路径：</strong>先读 Abstract、1、4.1、4.3 和 Table 2–5，把握联合建模为何有用；再读 Section 3 与 4.2，理解数据和 token；最后读 Appendix B–F，核对训练、推理、尺度对齐和消融。</div>
+</section>
+
+<section class="paper-unit" id="abs" data-source-id="abs">
+  <div class="source-ref">对应原文：Abstract</div>
+  <h2>摘要逐句义项解析</h2>
+  <p><span class="evidence paper">论文内容</span>摘要先给场景：智能眼镜、头戴设备和前置相机持续记录“人怎样看世界、怎样在其中行动”。因此目标不只是重建场景，也要恢复佩戴者自己的动作。</p>
+  <p>随后指出三类现有问题：依赖预先计算的相机轨迹等辅助输入；把环境感知与人体 ego-motion 分开；推理常包含缓慢优化。ReViV 的主张是用一个单目 RGB 视频和一个统一前馈架构同时处理 viewer 与 view。</p>
+  <p>方法义项是“学习完整多模态联合概率”：RGB、相机、视线、身体、手和深度不再有固定的先后级联。Masked Generative Egocentric Transformer（MGET）通过预测随机缺失 token 同时学习模态内部时间动态与模态之间的对应关系。</p>
+  <p>结果义项是分层的：身体、手、视线和相机取得最优或强竞争精度与效率；深度是“highly competitive”而非最优。论文在摘要中已用不同措辞区分这些结论，后文 Table 4 也确实显示 EgoMono4D 的深度明显更好。</p>
+  <div class="bridge"><span class="evidence analysis">分析者解释</span>最简直觉是“同一经历的多语种翻译”：画面、相机运动、视线和身体动作描述同一时刻。训练随机遮住几种描述，让模型用其余描述补回；测试只保留画面。</div>
+</section>
+
+<section class="paper-unit" id="sec-1" data-source-id="sec-1">
+  <div class="source-ref">对应原文：Section 1 Introduction</div>
+  <h2>1. Introduction</h2>
+  <h3>本节任务</h3>
+  <p>Introduction 从第一视角设备应用出发，说明 viewer 与 view 的耦合为何值得统一建模，再将第三人称/多视图 4D 重建的进展与第一视角缺口连接起来，最后给出 ReViV 的完整问题设定与三项贡献。</p>
+
+  <figure class="paper-unit" id="fig-1" data-source-id="fig-1">
+    <img src="../assets/teaser.png" alt="ReViV Figure 1：身体、手、视线、相机和深度联合重建">
+    <figcaption><strong>Figure 1。</strong>蓝色人体/手、黄色视线、红色相机和深度共同构成 viewer–view 结果。图支持“一个 RGB 输入产生多模态时序输出”的功能主张；单张 teaser 不能证明时间一致性或精度，定量证据在 Section 5。</figcaption>
+  </figure>
+
+  <p>第一视角视觉直接记录人类感知、行动和交互，适用于 AR/VR、辅助机器人和人机交互。系统需要同时理解外部环境与佩戴者动作、手势和意图，而不是只做其中一半。</p>
+  <p>现有方法常分为两群：环境重建方法恢复深度、点云、对象或相机；人体方法恢复身体与手。分开处理忽略了自然约束：相机绑在头部，视线与场景目标相关，双手运动与可见物体相关，脚步与相机全局移动也相关。更现实的问题是许多人体方法还需要 SLAM、预建点云或外部手部追踪器。</p>
+  <p>第三人称或多视图 4D 重建已经能用持久 3D Gaussian 与运动基底恢复动态场景，也出现无需测试时优化的前馈模型；但摄像机在人体外部，因此不能直接解决“相机佩戴者的身体大量不可见”这一问题。</p>
+  <p>ReViV 将身体、双手、视线、相机和深度定义为一个 masked generative modeling 问题。推理时用 RGB 条件化；单目深度先保持仿射不变，再在有地面或外部 metric depth 锚点时放入米制 4D 坐标。</p>
+
+  <div class="experiment-card paper-unit" id="claim-1" data-source-id="claim-1"><strong>贡献 1：统一任务。</strong>从单目第一视角 RGB 同时建模场景、全身、手和视线，去掉测试时必须提供的外部相机轨迹。</div>
+  <div class="experiment-card paper-unit" id="claim-2" data-source-id="claim-2"><strong>贡献 2：大规模前馈预训练。</strong>数据扩展至 7B 个独特 token，训练消费约 500B token，并显式加入人体运动模态。</div>
+  <div class="experiment-card paper-unit" id="claim-3" data-source-id="claim-3"><strong>贡献 3：全面下游基准。</strong>身体、手、视线达到最优，深度和相机保持强竞争，同时显著加速推理。</div>
+
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>为什么第一视角人体运动天然是多解问题？</li><li>viewer 与 view 之间至少有哪些几何或语义耦合？</li><li>“单目输入”与“完全不使用外部模型”为什么不是同一主张？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="sec-2" data-source-id="sec-2">
+  <div class="source-ref">对应原文：Section 2 Related Work</div>
+  <h2>2. Related Work</h2>
+  <p>作者按三个问题域组织相关工作：一般 4D 重建、第一视角场景重建、第一视角人体运动。这个分类不是文献罗列，而是逐步缩小缺口：已有动态重建 → 已有 ego 场景理解 → 已有 ego 人体估计 → 尚缺统一 viewer–view 模型。</p>
+
+  <section class="paper-unit" id="sec-2-1" data-source-id="sec-2-1">
+    <h3>2.1 4D Reconstruction</h3>
+    <p>早期动态重建关注物体 3D 运动轨迹，随后发展到同步多视图视频的动态场景表示，再逐渐放松到单目视频。Shape of Motion 使用持久 3D Gaussian 与紧凑运动基底处理长时动态，但仍需每场景优化。</p>
+    <p>近期前馈式方法可在推理时直接重建并追踪动态场景，速度和跨场景泛化更好。然而这些方法主要针对第三人称或多视图，相机能看到被重建对象；第一视角中佩戴者身体处于视野外，信息结构不同。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-2-2" data-source-id="sec-2-2">
+    <h3>2.2 Scene Reconstruction from Egocentric Videos</h3>
+    <p>EgoM2P 已经联合 RGB、深度、视线和相机做多任务预训练；EgoGaussian 同时恢复场景与动态对象；EgoMono4D 以自监督点云序列重建应对标注稀缺。这些工作证明第一视角视频能支持整体场景建模，但关注点仍偏场景/对象几何，没有显式恢复完整人体与手部交互动态。</p>
+    <div class="bridge">ReViV 与 EgoM2P 的关系尤其近：MGET、任意条件掩码和多步并行解码都继承/扩展了其 any-to-any 框架；真正新增的是身体与双手 token、大规模数据、viewer–view 统一目标及对应基准。</div>
+  </section>
+
+  <section class="paper-unit" id="sec-2-3" data-source-id="sec-2-3">
+    <h3>2.3 Human Motion Estimation from Egocentric Videos</h3>
+    <p>一条路线使用鱼眼相机直接看身体，但失真和自遮挡严重；EgoEgo 先估头部再推全身，却不恢复手；Ego-Pose 与对象感知方法分别引入强化学习或场景对象。</p>
+    <p>更近的 HMD2、EgoAllo、UniEgoMotion 使用条件 diffusion 生成身体运动，精度强但普遍依赖 SLAM 轨迹、点云或外部手部模型。视线方向也被用于行为理解和未来预测，但很少与场景几何、相机、身体和手同时建模。</p>
+    <p>因此论文的具体空白不是“没人做第一视角人体”或“没人做第一视角场景”，而是没有一个单目模型把全身、手、视线、相机和深度放进共同 4D 分布。</p>
+  </section>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>为什么第三人称单目 4D 方法不能直接恢复相机佩戴者？</li><li>ReViV 从 EgoM2P 继承了什么，又增加了什么？</li><li>依赖 GT/估计相机轨迹会如何影响人体结果的误差链？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="sec-3" data-source-id="sec-3">
+  <div class="source-ref">对应原文：Section 3 Data Engine</div>
+  <h2>3. Data Engine</h2>
+  <h3>本节任务</h3>
+  <p>统一模型需要不同数据集共同训练，但各数据集模态缺失、坐标约定和传感器都不同。本节建立自动数据引擎：扩展几何伪标签，统一人体坐标，并把 EgoM2P 的约 4B token corpus 扩至 7B。</p>
+
+  <div class="scroll-table paper-unit" id="tab-1" data-source-id="tab-1">
+    <table><thead><tr><th>Table 1 / 数据集</th><th>RGB</th><th>深度</th><th>视线</th><th>相机</th><th>手</th><th>全身</th></tr></thead><tbody>
+      <tr><td>EgoExo4D</td><td>✓</td><td>×</td><td>✓</td><td>✓</td><td>×</td><td>×</td></tr>
+      <tr><td>HoloAssist</td><td>✓</td><td>✓* 伪标签</td><td>✓</td><td>✓</td><td>✓</td><td>×</td></tr>
+      <tr><td>HOT3D (Aria)</td><td>✓</td><td>✓*</td><td>✓</td><td>✓</td><td>✓</td><td>×</td></tr>
+      <tr><td>HOT3D (Quest)</td><td>✓</td><td>✓*</td><td>×</td><td>✓</td><td>✓</td><td>×</td></tr>
+      <tr><td>ARCTIC</td><td>✓</td><td>✓*</td><td>×</td><td>✓</td><td>✓</td><td>×</td></tr>
+      <tr><td>TACO</td><td>✓</td><td>✓*</td><td>×</td><td>✓</td><td>✓</td><td>×</td></tr>
+      <tr><td>H2O</td><td>✓</td><td>✓</td><td>×</td><td>✓</td><td>✓</td><td>×</td></tr>
+      <tr><td>EgoGen</td><td>✓</td><td>✓</td><td>×</td><td>✓</td><td>×</td><td>×</td></tr>
+      <tr><td>Nymeria</td><td>✓</td><td>✓*</td><td>✓</td><td>✓</td><td>×</td><td>✓</td></tr>
+    </tbody></table>
+  </div>
+  <p><strong>Table 1 解读：</strong>没有一行同时拥有全部六类标注；全身只来自 Nymeria，双手来自另一组数据。ReViV 能从“无身体标签”的样本获益，依赖的正是掩码模型允许每个样本只提供它拥有的模态。星号深度由作者生成，不能与硬件真值等价。</p>
+
+  <section class="paper-unit" id="sec-3-1" data-source-id="sec-3-1">
+    <h3>3.1 Temporally Consistent Geometric Pseudo-Labeling</h3>
+    <p>硬件与传感器流不完整导致许多数据没有稠密 3D 几何。作者用 Video Depth Anything 生成时间一致的视频深度伪标签，把几何监督从受限的手—物交互场景扩展到更开放环境。</p>
+    <p><span class="evidence analysis">证据边界</span>伪标签提供跨帧相对几何和更大覆盖，但其尺度、薄结构、反射与动态区域误差会成为训练分布一部分。主文消融只证明移除大型数据集会变差，没有将“更多样本”与“伪标签算法质量”完全解耦。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-3-2" data-source-id="sec-3-2">
+    <h3>3.2 Unified Kinematic Representation</h3>
+    <p><strong>相机坐标中的手：</strong>每一帧把手关节投到当前相机坐标。这样同一种抓取动作不会因佩戴者在房间里走了多远而改变表示，适合学习局部操作先验；代价是手的全局世界轨迹需要结合相机再恢复。</p>
+    <p><strong>重力对齐世界坐标中的身体：</strong>若直接用首帧相机坐标，头部初始俯仰或横滚会让整个世界“斜着”。作者取首帧相机姿态，并把 up vector 投影到与重力相反方向，建立水平参考系，从而把真实行走与相机初始倾斜分离。</p>
+    <p>这两种坐标不是矛盾：手优先保持视点相关的局部操作稳定，身体优先保持全局导航和地面关系稳定。后续 floor fitting 也依赖身体世界坐标中的脚部高度。</p>
+  </section>
+
+  <figure class="paper-unit" id="fig-2" data-source-id="fig-2">
+    <img src="../assets/architecture.png" alt="ReViV Figure 2 architecture">
+    <figcaption><strong>Figure 2 逐流程：</strong>左侧六类 tokenizer 把连续信号压成 token；中间 MGET 随机接收可见 token 并预测灰色缺失 token；右侧推理只提供 RGB，迭代解码其余状态。Floor fitting 是主网络之后的尺度/坐标对齐，不参与 token 预测本身。</figcaption>
+  </figure>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>Table 1 为什么要求模型支持缺失模态训练？</li><li>手与身体为何使用不同参考坐标？</li><li>伪深度扩大监督时引入了什么新风险？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="sec-4" data-source-id="sec-4">
+  <div class="source-ref">对应原文：Section 4 Method</div>
+  <h2>4. Method</h2>
+  <p>方法按三层展开：先把不可见人体问题写成联合概率；再用模态专属 VQ-VAE 建立统一离散接口；最后用 MGET 对随机缺失 token 做条件预测。</p>
+
+  <section class="paper-unit" id="sec-4-1" data-source-id="sec-4-1">
+    <h3>4.1 Problem Formulation</h3>
+    <p>观测集合 $\mathcal X=\{\mathbf x_{\mathrm{rgb}}\}$，目标集合 $\mathcal Y=\{\mathbf y_{\mathrm{hand}},\mathbf y_{\mathrm{body}},\mathbf y_{\mathrm{gaze}},\mathbf y_{\mathrm{depth}},\mathbf y_{\mathrm{cam}}\}$。由于身体严重遮挡，直接学习单值函数 $f:\mathcal X\to\mathcal Y$ 是 ill-posed：相同画面可能对应多个合理身体状态。</p>
+
+    <div class="formula-card paper-unit" id="eq-1" data-source-id="eq-1">
+      <strong>Equation (1)：完整多模态联合分布</strong>
+      $$p(\mathcal X,\mathcal Y)=p(\mathbf x_{\mathrm{rgb}},\mathbf y_{\mathrm{hand}},\mathbf y_{\mathrm{body}},\mathbf y_{\mathrm{gaze}},\mathbf y_{\mathrm{depth}},\mathbf y_{\mathrm{cam}}).$$
+      <p>$\mathbf x_{\mathrm{rgb}}$ 与每个 $\mathbf y$ 都是 clip 级时序信号。计算目标不是按这个书写顺序依次生成，而是用后续掩码机制近似任意条件 $p(\mathbf Z_{\mathcal M}\mid\mathbf Z_{\mathcal V})$；推理特例才是 $p(\mathcal Y\mid\mathcal X)$。</p>
+      <p>直觉上，联合建模让画面、相机、人体和几何互相提供约束，避免把一个预计算相机误差固化为身体模型输入。它仍是数据驱动相关性，不自动提供显式物理因果。</p>
+    </div>
+
+    <div class="paper-unit" id="metric-alignment" data-source-id="metric-alignment">
+      <h4>Metric Alignment of 4D Reconstruction</h4>
+      <p>网络先输出 temporally consistent affine-invariant depth。若地面可见，作者拟合场景地面并用预测身体尺度约束；若地面不可见，可选用 VIPE metric depth 作为锚点。于是 viewer 与 view 才被放入共同米制空间。Appendix D 给出具体最低点比例和最小二乘步骤。</p>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-4-2" data-source-id="sec-4-2">
+    <h3>4.2 Unified Discrete Representation</h3>
+    <p>连续域中的像素、位姿、2D 视线和 3D 关节具有完全不同的维度和统计尺度。论文不把它们直接回归到一个共同向量，而是让每个模态拥有自己的离散词表，统一的是“token 接口”，不是数值空间。</p>
+
+    <div class="formula-card paper-unit" id="def-vq" data-source-id="def-vq">
+      <strong>模态专属量化定义</strong>
+      $$Q_m:\mathbb R^{D_m}\rightarrow\mathcal Z_m,\qquad
+      \mathbf z_m=(z_{m,1},\ldots,z_{m,L_m}),\qquad
+      \mathcal C_m\in\mathbb R^{K_m\times d}.$$
+      <p>$D_m$ 是连续输入维度，$L_m$ 是压缩后的 token 数，$K_m$ 是该模态词表大小，$d$ 是 code latent dimension。论文上下文和 Appendix A 给出 $d=32$；RGB/深度 codebook 为 64,000，相机/视线/手/身体分别为 256/512/1024/2048。</p>
+      <p>执行顺序是 continuous signal → encoder latent → 最近/球面 code 量化 → integer token；解码反向进行。身体与手还使用单位球投影和 EMA codebook 更新，减少大规模异构数据上的 codebook collapse。</p>
+    </div>
+
+    <div class="formula-card paper-unit" id="eq-2" data-source-id="eq-2">
+      <strong>Equation (2)：统一 token 状态</strong>
+      $$\mathbf Z=[\mathbf z_{\mathrm{rgb}},\mathbf z_{\mathrm{depth}},\mathbf z_{\mathrm{cam}},\mathbf z_{\mathrm{gaze}},\mathbf z_{\mathrm{hand}},\mathbf z_{\mathrm{body}}].$$
+      <p>每段 $\mathbf z_m$ 保留自己的词表与长度，MGET 用 modality-type embedding 区分它们。这个式子完成的是序列组织，而非声称 RGB token 100 与身体 token 100 表示同一事物。</p>
+      <p>人体输入 $\mathbf y_m\in\mathbb R^{N\times J\times3}$。身体/手 tokenizer 对时间与关节拓扑做 2D convolution，再经 12-block Transformer；60 帧、21 关节和 $[2,3]$ tubelet 对身体产生 210 token。左右手分别训练，并用镜像另一只手的数据增强。</p>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-4-3" data-source-id="sec-4-3">
+    <h3>4.3 Masked Generative Egocentric Transformer</h3>
+    <p>MGET 基于 T5 encoder–decoder：encoder 12 blocks、decoder 12 blocks、hidden dimension 768。离散 token 先经模态专属 embedding，加可学习 modality type embedding 与固定正弦时空位置编码。</p>
+    <p>量化 RGB 会损失纹理和边缘，因此作者另设可训练 ViT，直接将 raw video 编为连续 $\mathbf x_{\mathrm{ViT}}$。这条旁路只提供上下文，不进入离散交叉熵；Appendix F.2 会验证其跨任务收益。</p>
+    <p>训练为每个样本随机取二值 mask $\mathbf M\in\{0,1\}^{|\mathbf Z|}$，划分可见 $\mathbf Z_{\mathcal V}$ 与目标 $\mathbf Z_{\mathcal M}$。随机性覆盖模态内部片段缺失与模态整体缺失，因此同一个目标同时承担时间补全和跨模态翻译。</p>
+
+    <div class="formula-card paper-unit" id="eq-3" data-source-id="eq-3">
+      <strong>Equation (3)：掩码 token 负对数似然</strong>
+      $$\mathcal L_{\mathrm{mask}}(\theta)=-\mathbb E_{\mathbf Z,\mathbf M}\left[\sum_{i\in\mathcal M,\,z_i\notin\mathbf x_{\mathrm{ViT}}}\log p_\theta(z_i\mid\mathbf Z_{\mathcal V})\right].$$
+      <p>$i\in\mathcal M$ 表示只对被选为目标的离散 token 求和；$z_i\notin\mathbf x_{\mathrm{ViT}}$ 排除连续 ViT 特征。模型对不同模态使用专属线性 head，分别输出其 $K_m$ 类 logits，然后统一累积 cross-entropy。</p>
+      <p>若同一身体序列部分可见，梯度推动模型学动作连续性；若只见 RGB，梯度推动视觉到人体/场景；若多个模态共同可见，又会学更复杂条件。论文据此把所有 mask 条件的集合视为对联合分布的高效代理。</p>
+    </div>
+    <p>推理将 RGB token 设为 $\mathbf Z_{\mathcal V}=\mathbf Z_{\mathcal X}$，所有目标状态设为 $\mathbf Z_{\mathcal M}=\mathbf Z_{\mathcal Y}$，再进行 iterative parallel decoding。具体三步 schedule、CFG 与 top-$p$ 在 Appendix C。</p>
+  </section>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>统一表示为什么仍需每模态独立 codebook？</li><li>$\mathbf x_{\mathrm{ViT}}$ 为什么不出现在损失求和里？</li><li>随机 mask 如何同时产生时间建模和跨模态学习？</li><li>Equation (1) 的联合分布与 Equation (3) 的训练代理是什么关系？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="sec-5" data-source-id="sec-5">
+  <div class="source-ref">对应原文：Section 5 Experiment</div>
+  <h2>5. Experiment</h2>
+  <h3>本节任务</h3>
+  <p>实验按五类下游任务与一组系统消融展开：身体、手、相机、视线、深度，以及统一训练/数据/容量/掩码策略。各任务使用的指标和对齐方式不同，不能只把数字横向混看。</p>
+  <div class="strict">
+    <strong>共同评测边界：</strong>身体、相机、视线和深度主要在完全未参与预训练的 Aria Digital Twin（ADT）上测，以考察跨数据集泛化；手部则在 HoloAssist、HOT3D、ARCTIC、TACO 上测。正文没有报告多随机种子均值、方差或显著性检验，因此表中差异只能按单次/官方结果解释，不能自动称为统计显著。
+  </div>
+
+  <section class="paper-unit" id="sec-5-1" data-source-id="sec-5-1">
+    <h3>5.1 Egocentric Body Motion Reconstruction</h3>
+    <div class="experiment-card paper-unit" id="exp-body" data-source-id="exp-body">
+      <h4>研究问题与协议</h4>
+      <p>比较对象是 diffusion-based EgoAllo 与 UniEgoMotion。两者不能只凭单目 RGB 工作，作者分别提供 VIPE 估计相机或 ground-truth camera；ReViV 不接收相机轨迹。ADT 严格排除在训练外，量化使用 3,185 个有 3D 身体标注的 clip。</p>
+      <p><strong>GA-MPJPE：</strong>整段序列只做一次旋转、平移、尺度 Procrustes，对全局轨迹较敏感。<strong>PA-MPJPE：</strong>每帧各自对齐，主要测局部姿态。<strong>Similarity/FID：</strong>先用预训练 TMR motion encoder 投到 latent，前者是配对 cosine similarity，后者测预测动作分布与真值分布的距离。</p>
+    </div>
+
+    <div class="scroll-table paper-unit" id="tab-2" data-source-id="tab-2">
+      <table><thead><tr><th>Table 2 / 方法</th><th>输入相机</th><th>GA-MPJPE ↓</th><th>PA-MPJPE ↓</th><th>Similarity ↑</th><th>FID ↓</th><th>时间/clip ↓</th></tr></thead><tbody>
+        <tr><td>EgoAllo</td><td>VIPE</td><td>227.6</td><td>167.5</td><td>0.529</td><td>1.069</td><td>101.0 s</td></tr>
+        <tr><td>EgoAllo</td><td>GT Cam</td><td>198.4</td><td>136.8</td><td>0.556</td><td>1.160</td><td>72.5 s</td></tr>
+        <tr><td>UniEgoMotion</td><td>VIPE</td><td>130.5</td><td>98.4</td><td>0.572</td><td>1.087</td><td>37.6 s</td></tr>
+        <tr><td>UniEgoMotion</td><td>GT Cam</td><td class="best">105.8</td><td>88.7</td><td>0.591</td><td>1.098</td><td>9.1 s</td></tr>
+        <tr><td><strong>ReViV</strong></td><td>None</td><td>111.5</td><td class="best">88.6</td><td class="best">0.751</td><td class="best">0.442</td><td class="best">0.7 s</td></tr>
+      </tbody></table>
+    </div>
+    <p><strong>Table 2 逐结论：</strong>若与 VIPE-camera baseline 比，ReViV 全指标更好且相对 EgoAllo 约快 144 倍、相对 UniEgoMotion 约快 54 倍。若给 baseline GT camera，UniEgoMotion 的 GA 仍以 105.8 优于 111.5；但 ReViV 的 PA、Similarity、FID 更好，且不需要轨迹。</p>
+    <p>这支持“避免中间相机误差级联”和“联合预训练形成动作先验”。它不能证明绝对世界坐标完全准确：GA 已去掉一个全局 Sim(3) 差异，且 ReViV 后续仍需尺度对齐。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-5-2" data-source-id="sec-5-2">
+    <h3>5.2 Egocentric Hand Motion Reconstruction</h3>
+    <div class="experiment-card paper-unit" id="exp-hand" data-source-id="exp-hand">
+      <h4>协议与指标</h4>
+      <p>基线 HaMeR 是强 frame-based hand model，Dyn-HaMR 使用动态/测试时优化。数据规模为 HoloAssist 27,910 个验证 clip、HOT3D 1,519、ARCTIC 449、TACO 998。Dyn-HaMR 在完整 HoloAssist 上计算代价过高，作者随机抽 3,000 个 clip 做其比较。</p>
+      <p>GA 与 PA 含义同身体；RA-MPJPE 每帧先减去手根节点，再计算关节误差，更强调手指相对形状。全部单位为毫米，越低越好。</p>
+    </div>
+
+    <div class="scroll-table paper-unit" id="tab-3" data-source-id="tab-3">
+      <table><thead><tr><th>Table 3</th><th>时间 ↓</th><th>HoloAssist GA/RA/PA ↓</th><th>HOT3D GA/RA/PA ↓</th><th>ARCTIC GA/RA/PA ↓</th><th>TACO GA/RA/PA ↓</th></tr></thead><tbody>
+        <tr><td>HaMeR</td><td>72 s</td><td>59.5 / 57.9 / 32.9</td><td>94.4 / 74.1 / 48.1</td><td>95.9 / 39.2 / 28.6</td><td>52.0 / 39.3 / 29.1</td></tr>
+        <tr><td>Dyn-HaMR</td><td>280 s</td><td>49.6 / 31.5 / 23.0</td><td>107.7 / 46.9 / 32.0</td><td>76.9 / 33.3 / 22.4</td><td>48.0 / 32.5 / 23.5</td></tr>
+        <tr><td><strong>ReViV</strong></td><td class="best">0.7 s</td><td class="best">23.5 / 29.7 / 10.5</td><td class="best">38.2 / 48.1 / 13.6</td><td class="best">35.1 / 33.0 / 13.7</td><td class="best">20.3 / 25.2 / 9.4</td></tr>
+      </tbody></table>
+    </div>
+    <p>ReViV 在四个数据集的 GA 与 PA 都最好；RA 在 HOT3D 上 Dyn-HaMR 的 46.9 略好于 ReViV 的 48.1，在 ARCTIC 上 ReViV 33.0 与 Dyn-HaMR 33.3 基本接近。论文 caption 的“SOTA across four benchmarks”应理解为总体/主要指标，而非每个单元格都获胜。</p>
+
+    <figure class="paper-unit" id="fig-3" data-source-id="fig-3">
+      <img src="../assets/hand-results.png" alt="ReViV Figure 3 hand reconstruction qualitative results">
+      <figcaption><strong>Figure 3。</strong>两段序列选取非连续帧，突出手被严重遮挡或出画时的补全。图中预测仍保持骨架合理与时间过渡，支持模型学到时空运动先验；但作者没有展示失败样本比例或多样采样，因此无法从该图判断不确定性校准。</figcaption>
+    </figure>
+    <p>速度上 0.7 秒约为 HaMeR 的 1/103、Dyn-HaMR 的 1/400。这个比较凸显前馈与优化式方法的差异；硬件和具体计时边界以论文协议为准，正文未给所有 baseline 的统一 profiler 细节。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-5-3" data-source-id="sec-5-3">
+    <h3>5.3 Egocentric Camera Tracking</h3>
+    <div class="experiment-card paper-unit" id="exp-camera" data-source-id="exp-camera">
+      <p>基线包括 EgoM2P、EgoMono4D 与 VIPE。后两者都使用显式几何：EgoMono4D 结合 optical flow 和深度 correspondence，VIPE 对 flow、tracks 和 metric depth 做 dense bundle adjustment；ReViV 直接回归/生成相机 token。</p>
+      <p>全部 ADT 序列用于评测；预测轨迹先用整段 Sim(3) 对齐 GT。ATE 测绝对平移形状，RTE/RRE 测相邻或相对位姿误差。对齐移除了绝对 gauge，因而指标聚焦轨迹几何而非原始世界坐标。</p>
+    </div>
+
+    <div class="scroll-table paper-unit" id="tab-4" data-source-id="tab-4">
+      <table><thead><tr><th>Table 4 / 方法</th><th>时间 ↓</th><th>Camera ATE ↓</th><th>RTE ↓</th><th>RRE ↓</th><th>Gaze MSE ↓</th><th>Depth Abs Rel ↓</th><th>$\delta_{1.25}$ ↑</th></tr></thead><tbody>
+        <tr><td>EgoM2P</td><td>0.7 s</td><td>0.030</td><td class="best">0.009</td><td>1.290</td><td>0.0311</td><td>0.458</td><td>30.3</td></tr>
+        <tr><td>EgoMono4D</td><td>14.2 s</td><td>0.051</td><td>0.015</td><td>1.307</td><td>—</td><td class="best">0.150</td><td class="best">83.9</td></tr>
+        <tr><td>VIPE</td><td>25.8 s</td><td class="best">0.005</td><td class="best">0.009</td><td>1.307</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td><strong>ReViV</strong></td><td class="best">0.7 s</td><td>0.015</td><td class="best">0.009</td><td class="best">1.279</td><td class="best">0.0211</td><td>0.265</td><td>56.5</td></tr>
+      </tbody></table>
+    </div>
+    <p>相机结果中 VIPE 的 ATE 最好，这是利用整段 dense bundle adjustment 的预期优势；ReViV 在 RTE 并列最好、RRE 最好，并把时间降至 0.7 秒。论文对结果的准确表述是“except VIPE on ATE”。</p>
+  </section>
+
+  <section class="paper-unit" id="sec-5-4" data-source-id="sec-5-4">
+    <h3>5.4 Egocentric Gaze Estimation</h3>
+    <div class="experiment-card paper-unit" id="exp-gaze" data-source-id="exp-gaze">
+      <p>与 EgoM2P 比较 ADT 上的 2D gaze location。预测与真值都按输入分辨率归一化至 $[0,1]^2$，以 MSE 评测。ReViV 从 0.0311 降至 0.0211，绝对下降 0.0100，约为 32.2% 相对下降。</p>
+      <p>这个指标测的是图像平面注视点，不是三维 gaze ray 的角度、交点深度或注视对象识别。因而论文支持“更准确的 2D gaze prediction”，而非完整三维注意力恢复。</p>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-5-5" data-source-id="sec-5-5">
+    <h3>5.5 Egocentric Video Depth Estimation</h3>
+    <div class="experiment-card paper-unit" id="exp-depth" data-source-id="exp-depth">
+      <p>评测使用 ADT 中有深度标注且 RGB/Depth timestamp 差不超过 10 ms 的 clip。所有方法的预测先按 clip 拟合尺度与平移，再计算 Abs Rel 和 $\delta_{1.25}$，因此这里测相对深度结构而不是原始 metric scale。</p>
+      <p>ReViV 的 Abs Rel 0.265、$\delta_{1.25}=56.5$，明显优于 EgoM2P 的 0.458/30.3，却落后 EgoMono4D 的 0.150/83.9。作者给出两项原因：EgoMono4D 从专业 UniDepth 初始化获得强深度先验；ReViV 的 Cosmos 离散量化损失细粒度深度。</p>
+      <p>效率交换为 ReViV 0.7 秒对 EgoMono4D 14.2 秒，快约 20.3 倍。结果支持统一模型在没有 depth expert initialization 时仍有较强深度能力，但不支持其达到专门深度方法的质量上限。</p>
+    </div>
+  </section>
+
+  <section class="paper-unit" id="sec-5-6" data-source-id="sec-5-6">
+    <h3>5.6 Ablation Studies</h3>
+    <div class="experiment-card paper-unit" id="exp-ablation-main" data-source-id="exp-ablation-main">
+      <p>主消融围绕四个假设：统一模型是否优于任务专家；容量是否重要；mask 分配是否需要多样且平衡；没有目标标签的数据是否仍可通过跨模态学习带来收益。</p>
+    </div>
+    <div class="scroll-table paper-unit" id="tab-5" data-source-id="tab-5">
+      <table><thead><tr><th>Table 5 / 变体</th><th>Body GA ↓</th><th>PA ↓</th><th>Sim ↑</th><th>FID ↓</th><th>Cam ATE ↓</th><th>RRE ↓</th><th>Depth Rel ↓</th><th>$\delta_{1.25}$ ↑</th></tr></thead><tbody>
+        <tr><td><strong>ReViV</strong></td><td class="best">111.5</td><td class="best">88.6</td><td class="best">0.751</td><td class="best">0.442</td><td class="best">0.015</td><td>1.279</td><td class="best">0.265</td><td class="best">56.5</td></tr>
+        <tr><td>BodyData</td><td>134.0</td><td>109.3</td><td>0.645</td><td>0.478</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>BodySpec.</td><td class="worse">200.3</td><td class="worse">139.9</td><td>0.545</td><td>0.623</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>w/o Nymeria</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0.031</td><td>1.293</td><td>0.432</td><td>32.0</td></tr>
+        <tr><td>w/o Nymeria &amp; HoloAssist</td><td>—</td><td>—</td><td>—</td><td>—</td><td>0.032</td><td>1.335</td><td>0.452</td><td>30.1</td></tr>
+        <tr><td>1-to-1 Mask</td><td>158.3</td><td>120.6</td><td>0.615</td><td>0.548</td><td>0.036</td><td class="best">1.267</td><td>0.401</td><td>36.8</td></tr>
+        <tr><td>Uniform</td><td>172.7</td><td>119.8</td><td>0.598</td><td class="worse">0.665</td><td class="worse">0.053</td><td class="worse">1.529</td><td class="worse">0.494</td><td class="worse">26.7</td></tr>
+        <tr><td>Tiny (~127M)</td><td>143.1</td><td>116.7</td><td>0.634</td><td>0.486</td><td>0.026</td><td>1.269</td><td>0.337</td><td>44.7</td></tr>
+      </tbody></table>
+    </div>
+    <p><strong>Task-specific vs unified：</strong>BodySpec 只做 RGB→body，结果全线大幅下降；说明所谓“专家”失去了其他模态形成的监督与共享表示。BodyData 只用有身体标注的数据也更差，表明无身体标签的数据可通过视觉、相机、深度等任务改善底层表征。</p>
+    <p><strong>Masking：</strong>1-to-1Mask 用极小 Dirichlet $\alpha=0.001$ 强化单条件—单目标，无法充分学复杂多条件关系；Uniform 又让数千个密集视频 token 挤压只有几十/几百 token 的稀疏人体模态。混合 Dirichlet 的作用正是在稀疏与均匀分配之间覆盖多种题型。</p>
+    <p><strong>容量与数据：</strong>Tiny 约 127M，性能普遍低于 full；但只有两个规模点，不能推出完整 scaling law。移除 Nymeria 或再移除 HoloAssist 后相机与深度进一步下降，支持数据规模和多样性有益。</p>
+  </section>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>身体 GA 与 PA 分别保留/消除了哪些误差？</li><li>为什么 Table 3 不能说 ReViV 每个手部单元格都最优？</li><li>Table 4 中 VIPE 与 EgoMono4D 各自在哪一项明显领先？</li><li>Uniform mask 为什么会对稀疏人体模态不公平？</li><li>哪些实验真正支持联合学习，而哪些只支持更大容量或更多数据？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="sec-6" data-source-id="sec-6">
+  <div class="source-ref">对应原文：Section 6 Conclusion</div>
+  <h2>6. Conclusion</h2>
+  <p>作者将 ReViV 总结为第一套在第一视角域统一连接场景重建与不可见人体运动的生成式框架。通过联合概率与共享时序 latent，单目 RGB 足以预测环境与佩戴者的身体、手和视线，不需要推理时提供专门硬件或预计算 SLAM。</p>
+  <p>MGET 的意义在于把异构模态组织成共同 token 任务，并用大规模预训练学习 viewer 与 view 的时间一致关联。论文把它定位为 holistic egocentric perception 的基础 baseline，并展望用于更自然的人本 embodied reasoning。</p>
+
+  <div class="warning paper-unit" id="lim-1" data-source-id="lim-1">
+    <h3>Limitations and Future Directions</h3>
+    <p><span class="evidence paper">作者自述</span>VQ-VAE 解决模态异构并允许单一 Transformer 扩展，但对 dense regression 有内在取舍：离散量化必然丢失高频空间细节，使深度不如任务专用连续回归。作者建议在解码阶段结合 conditional diffusion 等 continuous generative prior，在保留多模态推理的同时恢复精细几何。</p>
+    <p><span class="evidence analysis">分析者补充</span>论文窗口和发布 demo 主要覆盖约 2 秒，没有长期闭环/重访一致性；主训练需要 256 H100、tokenizer 也需多卡长时训练；多数据集许可与伪标签难以完整复制。生成出的不可见身体可能“运动学合理但与真实动作不同”，现有单 GT MPJPE 不能充分评估多解性与校准度。</p>
+  </div>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>作者承认的核心表示瓶颈是什么？</li><li>为什么连续 refinement 与离散全局 reasoning 可能互补？</li><li>论文的短时结果还不能支持哪些更强的“世界模型”主张？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="app-a" data-source-id="app-a">
+  <div class="source-ref">对应原文：Appendix 0.A Tokenizer Details</div>
+  <h2>Appendix 0.A Tokenizer Details</h2>
+  <h3>本节任务</h3>
+  <p>主文只说明每模态使用 VQ-VAE/Cosmos；附录给出网络、codebook、压缩率、损失和训练资源，决定 token 质量与主模型可复现性。</p>
+  <p>RGB 与深度沿用 EgoM2P pipeline，使用 codebook 64,000 的 Cosmos tokenizer。相机和视线使用时间 1D convolution（kernel 2）把序列时间降采样 2 倍、channel 投到 768，再经 12 层 ViT-B。视线硬件遮挡/跟踪丢失时用 binary mask 与 masked MSE，让网络平滑性插补无效值。</p>
+  <p>身体和手使用时间×关节的 2D convolution，同时压缩时间 2 倍、关节 3 倍，再经 12-block Transformer。身体 codebook 2048、手 1024；左右手分开训练，并用镜像另一侧动作将每个 tokenizer 的有效训练量翻倍。每个 tokenizer 约用 4 张 H100 训练 72 小时。</p>
+
+  <div class="scroll-table paper-unit" id="tab-6" data-source-id="tab-6">
+    <table><thead><tr><th>Table 6 / 配置</th><th>Body</th><th>Hands</th><th>Gaze</th><th>Camera</th></tr></thead><tbody>
+      <tr><td>Codebook size</td><td>2048</td><td>1024</td><td>512</td><td>256</td></tr>
+      <tr><td>Temporal compression</td><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+      <tr><td>Spatial/joint compression</td><td>3</td><td>3</td><td>—</td><td>—</td></tr>
+      <tr><td>Code latent dimension</td><td>32</td><td>32</td><td>32</td><td>32</td></tr>
+      <tr><td>EMA dead-code threshold / decay</td><td colspan="4">2 / 0.99</td></tr>
+      <tr><td>Code normalization</td><td colspan="4">$\ell_2$-normalized spherical codes</td></tr>
+      <tr><td>Codebook / commitment weight</td><td colspan="4">1.0 / 1.0</td></tr>
+      <tr><td>Loss</td><td>MSE</td><td>MSE</td><td>Masked MSE</td><td>MSE</td></tr>
+      <tr><td>Base LR</td><td>5e-6</td><td>5e-6</td><td>5e-5</td><td>2.5e-5</td></tr>
+      <tr><td>实际 LR</td><td>2e-5</td><td>2e-5</td><td>1e-4</td><td>5e-5</td></tr>
+      <tr><td>Batch size</td><td>64</td><td>64</td><td>128</td><td>128</td></tr>
+      <tr><td>Encoder / Decoder</td><td colspan="4">ViT-B / ViT-B</td></tr>
+      <tr><td>Optimizer</td><td colspan="4">AdamW, $\beta_1=0.9,\beta_2=0.95$, weight decay 0.05, grad norm 1</td></tr>
+      <tr><td>Schedule</td><td colspan="4">Cosine decay, 200 epochs, 5 warmup epochs, float32</td></tr>
+    </tbody></table>
+  </div>
+  <p><strong>表格解读：</strong>更复杂的人体自由度对应更大 codebook；视线用 masked MSE 处理无效标注。code latent 都固定为 32，说明容量差异主要由词表大小和 token 数承担。主文/附录选择 200 epochs，而仓库当前示例 body config 可出现 1000 epochs；这是“论文规定”与“发布配置/后续工程”的版本差异，复现时应锁定具体 commit 与 config。</p>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>为什么手/身体既要时间压缩又要关节压缩？</li><li>视线为什么需要 masked MSE？</li><li>codebook 大小与 latent dimension 分别控制什么？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="app-b" data-source-id="app-b">
+  <div class="source-ref">对应原文：Appendix 0.B Masked Generative Egocentric Transformer Details</div>
+  <h2>Appendix 0.B MGET Details</h2>
+  <h3>本节任务</h3>
+  <p>附录把“随机多模态掩码”写成完整训练算法：如何抽数据集、如何抽每模态 token 比例、如何分可见/目标、encoder/decoder 如何连接以及如何更新。</p>
+
+  <div class="paper-unit" id="alg-1" data-source-id="alg-1">
+    <h3>Algorithm 1：Multimodal Masked Pretraining for MGET</h3>
+    <div class="strict">
+      <ol class="inline-list">
+        <li><strong>输入：</strong>数据集 $\{D_1,\ldots,D_N\}$；模态 $\mathcal M=\{\mathrm{rgb,ViT,depth,cam,gaze,hand,body}\}$；最大序列长度 $L_{\max}=2048$。</li>
+        <li><strong>抽数据集：</strong>$i\sim\mathrm{Categorical}(p_1,\ldots,p_N)$，按各数据集规模加权。</li>
+        <li><strong>抽稀疏程度：</strong>$\alpha$ 从四组浓度（约 0.01、0.1、1、10）中取，再令 $\boldsymbol\pi\sim\mathrm{Dirichlet}(\alpha')$。</li>
+        <li><strong>分配 token：</strong>对模态 $j$，预算 $T_j=L_{\max}\pi_j$。小 $\alpha$ 常让少数模态占主要预算，大 $\alpha$ 更均匀。</li>
+        <li><strong>互斥采样：</strong>从当前样本的模态 $D_{i,j}$ 取可见 $\mathbf z_{j,\mathcal V}$，再从剩余 token 取目标 $\mathbf z_{j,\mathcal M}$，避免同一 token 同时是答案和条件。</li>
+        <li><strong>embedding：</strong>离散 token 加位置和模态类型编码；连续 ViT 特征作为可见上下文。</li>
+        <li><strong>encoder：</strong>$\mathbf C_{\mathrm{enc}}=\mathrm{Encoder}_\theta(\mathbf Z_{\mathrm{emb}}[\mathbf Z_{\mathcal V}])$，条件 token 之间做不受限全局 self-attention。</li>
+        <li><strong>decoder：</strong>$\hat{\mathbf P}=\mathrm{Decoder}_\theta(\mathbf Z_{\mathrm{emb}}[\mathbf Z_{\mathcal M}],\mathbf C_{\mathrm{enc}})$，目标内按模态 self-attention，并 cross-attend 全部 encoder context。</li>
+        <li><strong>更新：</strong>$\mathcal L_{\mathrm{mask}}=\mathrm{CE}(\hat{\mathbf P},\mathbf Z_{\mathcal M})$，AdamW 用其梯度更新 $\theta$。</li>
+      </ol>
+    </div>
+    <p>Algorithm 1 的关键不是普通 mask，而是<strong>预算也随机</strong>。模型有时面对几乎单一模态条件，有时面对多模态联合条件；这解释了 Table 5 中 1-to-1 和 uniform 两个极端为何都不如混合 Dirichlet。</p>
+  </div>
+
+  <div class="experiment-card paper-unit" id="exp-training" data-source-id="exp-training">
+    <h3>MGET 训练设置</h3>
+    <p>AdamW，base learning rate $1\times10^{-4}$，global batch 1024；训练总消费约 500B token，前 10B token warmup（论文文字写“first 10 epochs”，仓库 config 则明确为 <code>warmup_tokens: 10</code> billion，属于实现更具体的口径）。完整训练约 24 小时、256 张 NVIDIA H100。</p>
+    <p>主配置每张 GPU batch 4，$4\times256=1024$；输入与目标预算各 2048。base model 是 12 encoder / 12 decoder、SwiGLU、bfloat16。论文消融 Tiny 约 127M，README 将 released base 描述为约 400M。</p>
+  </div>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>为什么可见 token 与目标 token 必须互斥？</li><li>Dirichlet 浓度小/大分别产生什么训练题型？</li><li>decoder 为何同时需要目标 self-attention 和 encoder cross-attention？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="app-c" data-source-id="app-c">
+  <div class="source-ref">对应原文：Appendix 0.C Inference Details</div>
+  <h2>Appendix 0.C Inference Details</h2>
+  <p>推理遵循 EgoM2P 的 order-agnostic multi-step parallel decoding。若共有 $n$ 个待预测人体/场景 token，设 $s=3$，每一步均匀选择约 $n/s$ 个尚未预测 token；已经生成的状态会在后续步成为条件。</p>
+
+  <div class="formula-card paper-unit" id="eq-cfg" data-source-id="eq-cfg">
+    <strong>条件/无条件两次前向与采样</strong>
+    $$\ell_{\mathrm{cfg}}=\ell_u+w(\ell_c-\ell_u),\qquad w=2,qquad z\sim\mathrm{TopP}(\mathrm{softmax}(\ell_{\mathrm{cfg}}),p=0.8).$$
+    <p>$\ell_c$ 以可见 RGB 与之前已预测状态为条件；$\ell_u$ 隐去视频条件但保留已预测状态。CFG 放大视频对当前 token 的影响，随后 top-$p=0.8$ 只在累计概率达到 0.8 的高概率候选中采样。</p>
+    <p>三步并行意味着每步能同时填很多 token，速度高于严格逐 token 自回归；但每步需要 conditional 与 unconditional 两次前向，所以“single feed-forward architecture”不应误读为整个 clip 只执行一次网络。</p>
+  </div>
+  <p><span class="evidence code">官方代码</span>发布 demo 直接使用 <code>autoregression_schemes=["roar"]</code>、<code>decoding_steps=[3]</code>、<code>cfg_scales=[2.0]</code>。demo 为节省显存逐目标模态生成，但共享同一 MGET 权重。</p>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>为什么三步并行仍是生成式采样，而非确定性回归？</li><li>unconditional pass 为何保留已生成状态？</li><li>top-$p$ 与 CFG 分别控制候选范围和条件强度中的哪一项？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="app-d" data-source-id="app-d">
+  <div class="source-ref">对应原文：Appendix 0.D Ego-body anchored depth scale optimization</div>
+  <h2>Appendix 0.D Ego-body Anchored Depth Scale</h2>
+  <p>目标是用预测人体的已知尺度，为相对深度补上 metric scale。先取整个视频脚关节 $z$ 坐标，将最低 50% 的值求平均，得到人体地面高度 $h_{\mathrm{feet}}$；再把相对深度反投影为未定尺度点云，取其中最低 5% 的点作为候选场景地面。</p>
+
+  <div class="formula-card paper-unit" id="eq-depth-scale" data-source-id="eq-depth-scale">
+    <strong>分析者对文字算法的形式化</strong>
+    $$h_{\mathrm{feet}}=\operatorname{mean}(\operatorname{bottom}_{50\%}\{z^{\mathrm{foot}}_t\}),$$
+    $$\min_{s,t}\sum_{q_z\in\operatorname{bottom}_{5\%}(\mathcal Q)}(s q_z+t-h_{\mathrm{feet}})^2.$$
+    <p>$z^{\mathrm{foot}}_t$ 位于重力对齐世界坐标；$\mathcal Q$ 是由相对深度和相机内参/位姿 lift 出的点云，$q_z$ 是竖直坐标。最小二乘输出全局尺度 $s$ 与平移 $t$，随后作用于整段深度。</p>
+    <p>假设是“脚的最低部分”和“场景最低可见部分”都近似落在地面。楼梯、桌下遮挡、脚腾空、画面不含地面或预测身体错误都会破坏它。地面不可见时，作者改用 VIPE metric depth $\mathbf d_{\mathrm{vipe}}$，拟合 $s\mathbf y_{\mathrm{depth}}+t$ 到外部锚点。</p>
+  </div>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>最低 50% 脚点与最低 5% 场景点分别在抑制什么噪声？</li><li>该对齐解决尺度、平移还是也解决旋转？</li><li>为什么使用 VIPE 锚点不否定“主网络不需要 SLAM”的主张，但会限制“完全无外部先验”的说法？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="app-e" data-source-id="app-e">
+  <div class="source-ref">对应原文：Appendix 0.E Additional Experiment Results</div>
+  <h2>Appendix 0.E Additional Experiment Results</h2>
+  <p>本附录用定性结果补充正文数字。图片能说明轨迹形态、局部语义与遮挡下的视觉表现，但不能代替指标，也没有给出失败案例分布。</p>
+
+  <section class="paper-unit" id="app-e-1" data-source-id="app-e-1">
+    <h3>0.E.1 Egocentric Camera Tracking</h3>
+    <p>作者声称 ReViV 在快速头部运动、有限视差的第一视角序列中保持平滑并贴近 GT；baseline 随时间更易出现平移漂移、旋转偏差和抖动。</p>
+    <div class="image-grid five paper-unit" id="fig-4" data-source-id="fig-4">
+      <figure><img src="../assets/cam-input.webp" alt="Figure 4 input frame"><figcaption>Input</figcaption></figure>
+      <figure><img src="../assets/cam-reviv.png" alt="Figure 4 ReViV camera"><figcaption>ReViV</figcaption></figure>
+      <figure><img src="../assets/cam-egom2p.png" alt="Figure 4 EgoM2P camera"><figcaption>EgoM2P</figcaption></figure>
+      <figure><img src="../assets/cam-egomono4d.png" alt="Figure 4 EgoMono4D camera"><figcaption>EgoMono4D</figcaption></figure>
+      <figure><img src="../assets/cam-vipe.png" alt="Figure 4 VIPE camera"><figcaption>VIPE</figcaption></figure>
+    </div>
+    <p><strong>Figure 4。</strong>这里展示原 Figure 4 中 Frame 25 的代表行：黑色 wireframe 是 GT，彩色为预测。完整原图还含 Frames 05/45 与多序列；本文没有静默省略其结论，而是以代表行显示视觉编码，完整时间趋势按 caption/正文说明。</p>
+
+    <div class="image-grid paper-unit" id="fig-5" data-source-id="fig-5">
+      <figure><img src="../assets/camera-trajectory-01.png" alt="Figure 5 camera trajectory 1"><figcaption>Trajectory example 1</figcaption></figure>
+      <figure><img src="../assets/camera-trajectory-02.png" alt="Figure 5 camera trajectory 2"><figcaption>Trajectory example 2</figcaption></figure>
+    </div>
+    <p><strong>Figure 5。</strong>把 3D 相机轨迹投到二维平面比较路径形状。曲线接近直观显示 drift 较小，但投影会丢掉第三个维度，且不能单独反映旋转；因此应与 Table 4 的 ATE/RTE/RRE 合看。</p>
+  </section>
+
+  <section class="paper-unit" id="app-e-2" data-source-id="app-e-2">
+    <h3>0.E.2 Egocentric Gaze Estimation</h3>
+    <p>作者用两组图展示 ReViV gaze point 更接近 GT，解释为能从全图上下文更好地推断意图。</p>
+    <div class="image-grid paper-unit" id="fig-6" data-source-id="fig-6">
+      <figure><img src="../assets/gaze-01.webp" alt="Figure 6 gaze example 1"><figcaption>Gaze example 1</figcaption></figure>
+      <figure><img src="../assets/gaze-02.webp" alt="Figure 6 gaze example 2"><figcaption>Gaze example 2</figcaption></figure>
+    </div>
+    <p><strong>Figure 6。</strong>每幅图中的点/轨迹对应图像平面注视位置。它支持定性定位，不证明三维注视射线或对象级意图；正文 MSE 才是总体量化。</p>
+  </section>
+
+  <section class="paper-unit" id="app-e-3" data-source-id="app-e-3">
+    <h3>0.E.3 Egocentric Body Motion Reconstruction</h3>
+    <p>完整 Figure 7 比较两个序列、Frames 05/30/55，并分别给 baseline VIPE camera 与 GT camera。作者举例：第一序列向右转并停在桌前，第二序列向左转并伸手取物；ReViV 的骨架更符合输入语义。</p>
+    <div class="image-grid five paper-unit" id="fig-7" data-source-id="fig-7">
+      <figure><img src="../assets/body-input.webp" alt="Figure 7 input"><figcaption>Input</figcaption></figure>
+      <figure><img src="../assets/body-gt.png" alt="Figure 7 ground truth"><figcaption>GT</figcaption></figure>
+      <figure><img src="../assets/body-reviv.png" alt="Figure 7 ReViV"><figcaption>ReViV</figcaption></figure>
+      <figure><img src="../assets/body-egoallo.png" alt="Figure 7 EgoAllo"><figcaption>EgoAllo</figcaption></figure>
+      <figure><img src="../assets/body-uniegomotion.png" alt="Figure 7 UniEgoMotion"><figcaption>UniEgoMotion</figcaption></figure>
+    </div>
+    <p><strong>Figure 7。</strong>这里显示原图第一序列 Frame 30 的代表行。ReViV 不接收相机轨迹，而 baseline 在上半图使用 VIPE、下半图可使用 GT；作者据此强调联合视觉—身体分布对 unseen ADT 的泛化。定性图仍可能有样本选择偏差，应以 Table 2 配合判断。</p>
+  </section>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>Figure 5 二维轨迹投影漏掉哪些信息？</li><li>Figure 6 的“gaze”与三维视线有什么指标差异？</li><li>Figure 7 为什么要同时展示 estimated camera 与 GT camera 条件 baseline？</li></ol></div>
+</section>
+
+<section class="paper-unit" id="app-f" data-source-id="app-f">
+  <div class="source-ref">对应原文：Appendix 0.F Additional Ablation Studies</div>
+  <h2>Appendix 0.F Additional Ablation Studies</h2>
+
+  <section class="paper-unit" id="app-f-1" data-source-id="app-f-1">
+    <h3>0.F.1 Hand Reconstruction Ablation</h3>
+    <div class="scroll-table paper-unit" id="tab-7" data-source-id="tab-7">
+      <table><thead><tr><th>Table 7 / 变体</th><th>HoloAssist GA/RA/PA ↓</th><th>HOT3D GA/RA/PA ↓</th><th>ARCTIC GA/RA/PA ↓</th><th>TACO GA/RA/PA ↓</th></tr></thead><tbody>
+        <tr><td><strong>ReViV</strong></td><td class="best">23.5 / 29.7 / 10.5</td><td class="best">38.2 / 48.1 / 13.6</td><td class="best">35.1 / 33.0 / 13.7</td><td class="best">20.3 / 25.2 / 9.4</td></tr>
+        <tr><td>HandData</td><td>26.4 / 28.6 / 10.5</td><td>39.1 / 48.3 / 14.4</td><td>42.2 / 39.2 / 15.5</td><td>32.8 / 36.9 / 13.0</td></tr>
+        <tr><td>HandSpec.</td><td>38.7 / 48.7 / 15.7</td><td class="worse">82.0 / 73.9 / 21.7</td><td class="worse">75.8 / 77.2 / 22.6</td><td class="worse">53.2 / 52.1 / 17.9</td></tr>
+        <tr><td>1-to-1Mask</td><td>34.9 / 43.9 / 13.7</td><td>60.9 / 58.6 / 16.1</td><td>55.0 / 49.0 / 16.4</td><td>34.9 / 39.7 / 13.1</td></tr>
+        <tr><td>Uniform</td><td>37.7 / 41.2 / 13.2</td><td>70.1 / 65.0 / 17.8</td><td>67.0 / 60.5 / 19.5</td><td>42.8 / 48.3 / 15.3</td></tr>
+        <tr><td>Tiny</td><td>33.8 / 42.1 / 14.0</td><td>54.2 / 59.9 / 16.9</td><td>50.8 / 45.6 / 15.8</td><td>30.0 / 35.8 / 12.1</td></tr>
+      </tbody></table>
+    </div>
+    <p>趋势与身体一致：单任务 HandSpec 全数据集严重退化；只用手标注数据 HandData 小幅到明显退化，说明无手标注大数据仍提供有用视觉/场景先验；mask 两极和 Tiny 都不如 full。</p>
+    <p>HoloAssist 的 HandData RA 28.6 略优于 full 29.7、PA 相同 10.5，因此 full 也不是每个子指标都赢。跨四数据集整体与全局/局部姿态仍由 full 占优。</p>
+  </section>
+
+  <section class="paper-unit" id="app-f-2" data-source-id="app-f-2">
+    <h3>0.F.2 Vision Transformer Encoding Branch</h3>
+    <p>离散视觉 token 丢失高频像素细节；连续 $\mathbf x_{\mathrm{ViT}}$ 旁路直接保留 raw RGB context。Table 8 比较去掉该支路与完整模型。</p>
+    <div class="scroll-table paper-unit" id="tab-8" data-source-id="tab-8">
+      <table><thead><tr><th>Table 8 / 变体</th><th>Cam ATE ↓</th><th>RTE ↓</th><th>RRE ↓</th><th>Gaze MSE ↓</th><th>Depth Abs Rel ↓</th><th>$\delta_{1.25}$ ↑</th><th>TACO Hand GA/RA/PA ↓</th></tr></thead><tbody>
+        <tr><td>w/o $\mathbf x_{\mathrm{ViT}}$</td><td>0.018</td><td class="best">0.009</td><td class="best">1.258</td><td>0.0233</td><td>0.296</td><td>51.7</td><td>22.0 / 27.0 / 9.6</td></tr>
+        <tr><td><strong>Full Model</strong></td><td class="best">0.015</td><td class="best">0.009</td><td>1.279</td><td class="best">0.0211</td><td class="best">0.265</td><td class="best">56.5</td><td class="best">20.3 / 25.2 / 9.4</td></tr>
+      </tbody></table>
+    </div>
+    <p>连续支路改善 ATE、视线、深度和全部手指标；RTE 不变，RRE 反而由 1.258 变到 1.279，略差。因此 caption 的“consistently degrades all modalities”按每个任务整体理解可以成立，但不是每个相机子指标都同方向。</p>
+    <p>机制上，深度边缘、视线目标小纹理、手指局部证据和全局 egomotion 特征都需要量化前信息。它是绕过输入量化瓶颈，不会修复目标深度 tokenizer 本身的离散上限。</p>
+  </section>
+
+  <section class="paper-unit" id="app-f-3" data-source-id="app-f-3">
+    <h3>0.F.3 VQ-VAE Ablation</h3>
+    <div class="experiment-card paper-unit" id="exp-vq-ablation" data-source-id="exp-vq-ablation">
+      <p>以身体 tokenizer 为例，codebook 512/1024/2048 的重建误差依次为 11.06/8.67/8.26 mm；扩到 4096 反而变为 9.02 mm，作者归因于 codebook utilization 低效。因此容量不是单调越大越好。</p>
+      <p>时空压缩 $[2,3]$ 得 8.26 mm；更强关节压缩 $[2,7]$ 为 15.47 mm，更强时间压缩 $[4,3]$ 为 13.05 mm。动作的时间细节与骨架拓扑都不能被过度压缩，$[2,3]$ 在 token 长度与重建之间最平衡。</p>
+    </div>
+  </section>
+  <div class="checkpoint"><strong>学习检查点：</strong><ol><li>为什么 4096 codebook 反而不如 2048？</li><li>连续 ViT 旁路改善输入信息，却为什么仍不能让深度超过专业模型？</li><li>Table 7/8 中有哪些小例外提醒我们不要把 caption 读成“所有单元格都更好”？</li></ol></div>
+</section>
+
+<section id="code-mapping">
+  <h2>官方代码对应表</h2>
+  <p><span class="evidence code">官方代码</span>仓库于 2026-08-12 获取，commit <code>de23a67</code>。下表用于澄清实现，不把仓库后续发布路径的工程选择冒充论文 v1 新公式。</p>
+
+  <div class="paper-unit" id="code-tokenizers" data-source-id="code-tokenizers">
+    <h3>Tokenizer 对应</h3>
+    <table><thead><tr><th>论文组件</th><th>官方文件</th><th>实现证据</th></tr></thead><tbody>
+      <tr><td>身体/手 VQ-VAE</td><td><code>reviv/vq/vqvae.py</code>、<code>reviv/vq/models/body_transformer.py</code>、<code>hand_transformer.py</code></td><td>60 帧、21 关节、tubelet $[2,3]$；body/hand codebook 2048/1024</td></tr>
+      <tr><td>相机/视线 tokenizer</td><td><code>reviv/vq/models/cam_transformer.py</code>、<code>gaze_transformer.py</code></td><td>低维时序 VQ-VAE，与 motion tokenizer 共用训练入口</td></tr>
+      <tr><td>RGB/Depth tokenizer</td><td><code>cosmos_tokenizer/</code></td><td>公开 demo 下载 NVIDIA Cosmos encoder/decoder；512 与 256 两条路径使用不同 DV tokenizer</td></tr>
+    </tbody></table>
+    <pre><code># README_TOKENIZATION.md:23-31
+With num_frames = 60 and tubelet_size = [2, 3]
+the body tokenizer emits (60/2) x (21/3) = 210 tokens.
+Body and the two hands are kept as three separate streams:
+tok_body, tok_lhand, tok_rhand.</code></pre>
+    <p>这补充了主文 Equation (2) 的 “hand” 简写：官方实现实际将左手和右手保持为两个 21-joint token stream，而不是一个共享序列。</p>
+  </div>
+
+  <div class="paper-unit" id="code-masking" data-source-id="code-masking">
+    <h3>Dirichlet 多模态掩码对应</h3>
+    <pre><code># reviv/data/masking.py:157-164
+input_alphas = torch.tensor([mod["input_alphas"] for mod in modality_info.values()])
+self.input_dirichlets = [Dirichlet(torch.clamp(a, min=eps)) for a in input_alphas.T]
+target_alphas = torch.tensor([mod["target_alphas"] for mod in modality_info.values()])
+self.target_dirichlets = [Dirichlet(torch.clamp(a, min=eps)) for a in target_alphas.T]</code></pre>
+    <p>随后 <code>input_token_budget()</code> 和 <code>target_token_budget()</code> 将 sampled ratio 乘总预算、处理整数余数、限制每模态最大/最小 token，并排除当前样本不存在的模态。配置文件为 RGB、depth、camera、gaze、左右手、body 等设置 $\alpha=0.01,0.1,1,10$ 的混合。</p>
+  </div>
+
+  <div class="paper-unit" id="code-model" data-source-id="code-model">
+    <h3>MGET encoder–decoder 对应</h3>
+    <pre><code># reviv/models/reviv_model.py:474-477
+if self.decoder_sep_mask:
+    sep_mask = repeat(mod_mask, "b n2 -> b n1 n2", n1=N) != \
+               repeat(mod_mask, "b n1 -> b n1 n2", n2=N)
+    adapted_attention_mask = adapted_attention_mask | sep_mask</code></pre>
+    <p><code>forward_encoder</code> 对可见 token 做 encoder self-attention；<code>forward_decoder</code> 同时接 decoder self-attention mask 与 encoder cross-attention mask；<code>forward_logits</code> 按 modality id 调用各自输出 head。这与 Algorithm 1 的“全局条件编码 + 模态内目标建模 + 跨模态条件读取”一致。</p>
+    <p>主模型配置 <code>reviv_base_500b_2048.yaml</code> 固定输入/目标各 2048、12e/12d SwiGLU、bfloat16、500B token、global batch 1024。</p>
+  </div>
+
+  <div class="paper-unit" id="code-inference" data-source-id="code-inference">
+    <h3>发布推理路径对应</h3>
+    <table><thead><tr><th>公开路径</th><th>输入</th><th>预测</th><th>实现说明</th></tr></thead><tbody>
+      <tr><td>512 metric-depth</td><td>32 帧、16 fps、512×512；<code>tok_rgb_512</code></td><td>512 depth、camera、gaze、body（手由 hand demo）</td><td>Cosmos DV8x16x16；RGB 离散 token 条件</td></tr>
+      <tr><td>256 relative-depth</td><td>16 帧、8 fps、256×256；<code>tok_rgb</code> + <code>rgb@256</code></td><td>256 relative depth、camera、gaze、body</td><td>离散 token + raw continuous clip，直接体现 ViT 旁路</td></tr>
+    </tbody></table>
+    <pre><code># demo_infer.py:395-408
+autoregression_schemes=["roar"]
+decoding_steps=[3]
+token_decoding_schedules=["linear"]
+temps=[0.01]
+cfg_scales=[2.0]
+cfg_grow_conditioning=True</code></pre>
+    <p>发布 demo 逐目标模态调用 sampler 以节省显存，再各自 detokenize。README 称主模型约 400M parameters；检查点含 main model、五个 motion detokenizer 与 norm stats，depth decoder 需另取 Cosmos gated checkpoint。</p>
+  </div>
+</section>
+
+<section class="paper-unit" id="refs-main" data-source-id="refs-main">
+  <h2>参考文献处理说明</h2>
+  <p>主 References 不逐条复制。Section 2 已覆盖作者用于建立技术谱系的三组代表工作：动态/前馈 4D reconstruction、ego scene reconstruction（EgoM2P/EgoGaussian/EgoMono4D）与 ego human motion（EgoEgo/EgoAllo/UniEgoMotion 等）。实验与附录中使用的 VIPE、Video Depth Anything、Cosmos、TMR、UniDepth 也已在对应环节说明角色。</p>
+</section>
+<section class="paper-unit" id="refs-supp" data-source-id="refs-supp">
+  <p>Supplementary References 同样不逐条复述；其中与 Algorithm、发布代码或定性比较直接相关的 EgoM2P、VIPE、EgoMono4D、UniEgoMotion、EgoAllo 已被实质覆盖。</p>
+</section>
+
+<section id="coverage-audit">
+  <h2>完整覆盖审计</h2>
+  <p>paper map：<a href="reviv-paper-map.json"><code>reviv-paper-map.json</code></a>。本文每个原文单元使用同名 <code>data-source-id</code>；最终状态不含 <code>pending</code>。</p>
+  <table><thead><tr><th>类别</th><th>原文/登记数量</th><th>已覆盖</th><th>不可获得</th><th>不适用</th><th>备注</th></tr></thead><tbody>
+    <tr><td>来源状态</td><td>2</td><td>1</td><td>1</td><td>0</td><td>完整 HTML/ar5iv 已取；PDF 传输超时且未作证据</td></tr>
+    <tr><td>Abstract / Sections / Subsections / Appendices</td><td>31</td><td>31</td><td>0</td><td>0</td><td>保持原论文顺序，含 Limitations 与 Appendix A–F</td></tr>
+    <tr><td>贡献 / 定义 / 公式与公式组</td><td>10</td><td>10</td><td>0</td><td>0</td><td>3 个编号公式；推理与尺度对齐公式明确标为分析者形式化</td></tr>
+    <tr><td>Figures</td><td>7</td><td>7</td><td>0</td><td>0</td><td>Figure 4/7 用代表行显示，完整 panel 结论逐项文字覆盖</td></tr>
+    <tr><td>Tables / Algorithm</td><td>9</td><td>9</td><td>0</td><td>0</td><td>Table 1–8 与 Algorithm 1</td></tr>
+    <tr><td>实验设置与实验组</td><td>9</td><td>9</td><td>0</td><td>0</td><td>身体、手、相机、视线、深度、主/附加消融、训练、VQ</td></tr>
+    <tr><td>代码映射</td><td>4</td><td>4</td><td>0</td><td>0</td><td>tokenizer、mask、MGET、inference</td></tr>
+    <tr><td>参考文献列表</td><td>2</td><td>0</td><td>0</td><td>2</td><td>按 coverage protocol 不逐条复述，正文关键谱系均覆盖</td></tr>
+  </tbody></table>
+  <div class="strict"><span class="coverage-ok">覆盖结论：</span>完整论文包的学术内容已由可获得的完整 HTML、ar5iv、项目页与官方代码覆盖。唯一来源缺口是 PDF 分页版本未完整下载；因此不报告纸面页码，但没有把章节、附录、公式、图表或实验静默省略。</div>
+</section>
+
+<div class="footer">本文按论文原结构生成。论文事实、官方代码、外部背景、分析者解释与上下文推断已在可能混淆证据边界的位置区分。实验数字均来自 arXiv v1，未运行模型重新测量。</div>
+</main>
+</div>
+<script>
+mermaid.initialize({startOnLoad:true,theme:"neutral",securityLevel:"loose"});
+(function buildToc(){const list=document.getElementById("toc-list");document.querySelectorAll("main h2, main h3").forEach((heading,index)=>{if(!heading.id){const parent=heading.closest("[id]");heading.id=parent&&parent.id?parent.id+"-heading":"heading-"+index}const item=document.createElement("li");item.className=heading.tagName==="H3"?"level-3":"level-2";const link=document.createElement("a");link.href="#"+heading.id;link.textContent=heading.textContent;item.appendChild(link);list.appendChild(item)})})();
+</script>
+</body>
+</html>

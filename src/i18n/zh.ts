@@ -98,6 +98,9 @@ export const zh = {
       '兼顾视觉质量与结构几何的神经渲染与 Gaussian Splatting 方法。',
       '连接感知、生成与空间推理的 World Model 风格视觉表示。',
     ],
+    honorsTitle: '荣誉与获奖',
+    honorsIntro: '竞赛成绩与官方获奖记录。',
+    honorsSource: '查看官方公示',
     creativeTitle: '视觉计算 / 创意作品',
     creativeIntro: '除研究型项目外，我也通过创意编程与 shader 实验探索程序化图像生成、运动、色彩和像素级视觉表达。',
     creativeItems: [

@@ -100,6 +100,9 @@ export const en = {
       'Neural rendering and Gaussian Splatting methods that balance visual fidelity with structured geometry.',
       'World-model-style visual representations for connecting perception, generation, and spatial reasoning.',
     ],
+    honorsTitle: 'Honors & Awards',
+    honorsIntro: 'Selected competition achievement and official recognition.',
+    honorsSource: 'Official announcement',
     creativeTitle: 'Visual Computing / Creative Work',
     creativeIntro:
       'I also use creative coding and shader experiments to explore procedural image synthesis, motion, color, and pixel-level visual expression.',

@@ -31,6 +31,28 @@ export const profile = {
     'Gaussian Splatting',
     'Generative World Models',
   ],
+  honors: [
+    {
+      year: '2026',
+      title: {
+        en: 'National Third Prize',
+        zh: '全国三等奖',
+      },
+      competition: {
+        en: 'NSCSCC 2026 CPU Design Competition (Loongson Cup)',
+        zh: '2026 年全国大学生计算机系统能力大赛 CPU 设计赛（龙芯杯）',
+      },
+      institution: {
+        en: 'ShanghaiTech University',
+        zh: '上海科技大学',
+      },
+      team: {
+        en: 'Team GeekPie_2 · Zhang Haotian · Jiang Yunze · Ning Zidong · Song Zidong',
+        zh: 'GeekPie_2 · 张皓天 · 蒋韫泽 · 宁梓栋 · 宋梓冬',
+      },
+      source: 'https://www.nscscc.com/?p=943',
+    },
+  ],
   cv: {
     label: 'Coming soon',
     url: '',

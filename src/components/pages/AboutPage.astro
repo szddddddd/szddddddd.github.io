@@ -58,6 +58,22 @@ const identityRows = [
     </div>
   </Section>
 
+  <Section id="honors" eyebrow={t.about.honorsTitle} title={t.about.honorsTitle} intro={t.about.honorsIntro}>
+    <div class="about-honors-list">
+      {profile.honors.map((honor) => (
+        <article class="about-honor-item">
+          <div class="about-honor-year">{honor.year}</div>
+          <div class="about-honor-copy">
+            <p class="panel-label">{honor.title[lang]}</p>
+            <h3>{honor.competition[lang]}</h3>
+            <p>{honor.institution[lang]} · {honor.team[lang]}</p>
+            <a class="text-link" href={honor.source} target="_blank" rel="noreferrer" data-astro-reload>{t.about.honorsSource}</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </Section>
+
   <Section id="contact" eyebrow={t.about.contactTitle} title={t.about.contactTitle} intro={t.about.contactIntro}>
     <div class="contact-grid about-contact-grid">
       <article class="about-contact-item">

@@ -8,28 +8,16 @@ interface Props {
 const { lang } = Astro.props as Props;
 const copy = lang === 'zh'
   ? {
-      eyebrow: 'SIDE QUEST / 像素栖居',
-      title: '在世界之间，搭一间小屋。',
-      description: '一座临水的多层树屋：房间、工坊、梯子和壁炉共同组成可探索的像素剖面。',
       label: '黄昏天空下，建在树木与水岸之间的多层像素木屋剖面',
       credit: '像素素材：Buch，CC0',
     }
   : {
-      eyebrow: 'SIDE QUEST / PIXEL HABITAT',
-      title: 'A small place to build between worlds.',
-      description: 'A waterside tree house assembled as an explorable pixel cutaway, with rooms, a workshop, ladders, and a warm hearth.',
       label: 'A cutaway pixel tree house between a forest and the water at dusk',
       credit: 'Pixel assets by Buch, CC0',
     };
 ---
 
-<section class="pixel-habitat" aria-labelledby="pixel-habitat-title">
-  <header class="pixel-habitat__copy">
-    <p>{copy.eyebrow}</p>
-    <h2 id="pixel-habitat-title">{copy.title}</h2>
-    <span>{copy.description}</span>
-  </header>
-
+<figure class="pixel-habitat">
   <div class="pixel-habitat__frame">
     <div class="pixel-scene" role="img" aria-label={copy.label}>
       <div class="pixel-scene__sky">
@@ -106,51 +94,23 @@ const copy = lang === 'zh'
     </div>
   </div>
 
-  <a class="pixel-habitat__credit" href="https://opengameart.org/content/a-platformer-in-the-forest" target="_blank" rel="noreferrer">
-    {copy.credit} ↗
-  </a>
-</section>
+  <figcaption>
+    <a class="pixel-habitat__credit" href="https://opengameart.org/content/a-platformer-in-the-forest" target="_blank" rel="noreferrer">
+      {copy.credit} ↗
+    </a>
+  </figcaption>
+</figure>
 
 <style>
   .pixel-habitat {
-    width: min(1400px, calc(100% - 4rem));
-    margin: 0 auto;
-    padding: 2rem 0 5rem;
-  }
-
-  .pixel-habitat__copy {
-    display: grid;
-    grid-template-columns: minmax(0, .48fr) minmax(0, 1fr);
-    gap: .65rem 2rem;
-    align-items: end;
-    margin-bottom: 1.25rem;
-  }
-
-  .pixel-habitat__copy p {
-    grid-column: 1 / -1;
-    color: var(--accent-home);
-    font-family: var(--font-mono);
-    font-size: .7rem;
-    letter-spacing: .14em;
-  }
-
-  .pixel-habitat__copy h2 {
-    color: var(--color-text);
-    font-size: clamp(1.8rem, 3.4vw, 3.7rem);
-    line-height: .98;
-  }
-
-  .pixel-habitat__copy span {
-    max-width: 42rem;
-    color: var(--color-text-muted);
-    font-size: .92rem;
-    line-height: 1.6;
+    width: min(100%, 34rem);
+    margin: .15rem 0 0;
   }
 
   .pixel-habitat__frame {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 96 / 52;
+    aspect-ratio: 16 / 9;
     border: 1px solid color-mix(in srgb, var(--accent-home) 38%, var(--color-line));
     background: #303a83;
     box-shadow: 0 28px 80px rgba(0, 0, 0, .24);
@@ -169,7 +129,7 @@ const copy = lang === 'zh'
     position: absolute;
     top: 0;
     left: 50%;
-    width: max(100%, 760px);
+    width: max(100%, 620px);
     aspect-ratio: 96 / 52;
     overflow: hidden;
     image-rendering: pixelated;
@@ -410,7 +370,7 @@ const copy = lang === 'zh'
 
   .pixel-habitat__credit {
     display: inline-block;
-    margin-top: .8rem;
+    margin-top: .35rem;
     color: var(--color-text-muted);
     font-family: var(--font-mono);
     font-size: .66rem;
@@ -425,19 +385,13 @@ const copy = lang === 'zh'
   @keyframes firefly { to { opacity: .22; transform: translate(4px, -5px); } }
 
   @media (max-width: 820px) {
-    .pixel-habitat { width: min(100% - 2rem, 1400px); padding-top: 0; }
-    .pixel-habitat__copy { grid-template-columns: 1fr; }
-    .pixel-habitat__copy p { grid-column: 1; }
-    .pixel-habitat__frame { aspect-ratio: 4 / 3; }
-    .pixel-scene { height: 100%; width: 760px; aspect-ratio: auto; }
+    .pixel-habitat { width: min(100%, 32rem); }
+    .pixel-scene { height: 100%; width: 620px; aspect-ratio: auto; }
   }
 
   @media (max-width: 520px) {
-    .pixel-habitat { width: calc(100% - 1.5rem); padding-bottom: 3.5rem; }
-    .pixel-habitat__copy h2 { font-size: 2rem; }
-    .pixel-habitat__copy span { font-size: .82rem; }
-    .pixel-habitat__frame { aspect-ratio: 3 / 4; }
-    .pixel-scene { width: 720px; }
+    .pixel-habitat__frame { aspect-ratio: 16 / 10; }
+    .pixel-scene { width: 600px; }
   }
 
   @media (prefers-reduced-motion: reduce) {

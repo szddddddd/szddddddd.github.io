@@ -3,6 +3,7 @@ import type { Lang } from '../../i18n';
 import { primaryRoutes } from '../../i18n';
 import type { RouteDefinition } from '../../config/routes';
 import { profile } from '../../data/profile';
+import PixelTreehouse from '../home/PixelTreehouse.astro';
 
 interface Props {
   lang: Lang;
@@ -80,6 +81,8 @@ const statement = lang === 'zh'
     ))}
   </nav>
 </section>
+
+<PixelTreehouse lang={lang} />
 
 <script>
   const bindHomeRouteLocks = () => {

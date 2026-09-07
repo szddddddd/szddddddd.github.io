@@ -1,0 +1,28 @@
+@font-face {
+  font-family: "Linux Biolinum";
+  src: url("/fonts/linux-biolinum/LinBiolinum_R.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --sans: "Linux Biolinum", "Noto Sans SC", "PingFang SC", sans-serif;
+  --serif: "Linux Biolinum", "Noto Serif SC", "Songti SC", serif;
+  --font-sans: "Linux Biolinum", "Noto Sans SC", "PingFang SC", sans-serif;
+  --font-serif: "Linux Biolinum", "Noto Serif SC", "Songti SC", serif;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Linux Biolinum", "Noto Sans SC", "PingFang SC", sans-serif;
+}

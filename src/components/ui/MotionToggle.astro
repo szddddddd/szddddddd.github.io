@@ -27,6 +27,8 @@ const labels = getCopy(lang).common.motionToggle;
 
 <script is:inline>
   (() => {
+    if (window.__motionToggleBound) return;
+    window.__motionToggleBound = true;
     const storageKey = 'motion';
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let transientPreference = null;
@@ -34,13 +36,14 @@ const labels = getCopy(lang).common.motionToggle;
     const getStoredPreference = () => {
       if (transientPreference !== null) return transientPreference;
       try {
-        return localStorage.getItem(storageKey) !== 'off';
+        const stored = localStorage.getItem(storageKey);
+        return stored === 'on' ? true : stored === 'off' ? false : null;
       } catch {
-        return true;
+        return null;
       }
     };
 
-    const getMotionEnabled = () => getStoredPreference() && !reducedMotion.matches;
+    const getMotionEnabled = () => getStoredPreference() ?? !reducedMotion.matches;
 
     const syncButtons = (enabled) => {
       document.querySelectorAll('[data-motion-toggle]').forEach((button) => {
@@ -70,17 +73,11 @@ const labels = getCopy(lang).common.motionToggle;
     };
 
     const bindMotionToggles = () => {
-      if (window.__motionToggleBound) {
-        applyMotion();
-        return;
-      }
-
-      window.__motionToggleBound = true;
       document.addEventListener('click', (event) => {
         const target = event.target instanceof Element ? event.target : null;
         const toggle = target?.closest('[data-motion-toggle]');
         if (!toggle) return;
-        applyMotion(!getStoredPreference());
+        applyMotion(!getMotionEnabled());
       });
 
       const handlePreferenceChange = () => applyMotion();

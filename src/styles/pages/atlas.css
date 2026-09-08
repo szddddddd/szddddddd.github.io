@@ -1574,13 +1574,13 @@ html[data-theme='light'] .publication-archive-legend {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .atlas-home__nodes a,
-  .project-row-links {
+  html:not([data-motion='enabled']) .atlas-home__nodes a,
+  html:not([data-motion='enabled']) .project-row-links {
     transition: none;
   }
 
-  .atlas-home__nodes a:hover,
-  .atlas-home__nodes a:focus-visible {
+  html:not([data-motion='enabled']) .atlas-home__nodes a:hover,
+  html:not([data-motion='enabled']) .atlas-home__nodes a:focus-visible {
     transform: none;
   }
 }

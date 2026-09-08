@@ -17,7 +17,6 @@ export class VoxelHabitat extends HTMLElement {
   private last = 0;
   private time = 0;
   private drawnTime = -1;
-  private media = matchMedia("(prefers-reduced-motion: reduce)");
 
   connectedCallback() {
     const canvas = this.querySelector("canvas")!;
@@ -128,7 +127,6 @@ export class VoxelHabitat extends HTMLElement {
       attributes: true,
       attributeFilter: ["data-motion"],
     });
-    this.media.addEventListener("change", this.sync, options);
     document.addEventListener("visibilitychange", this.sync, options);
     this.dataset.ready = "";
   }
@@ -154,7 +152,6 @@ export class VoxelHabitat extends HTMLElement {
     if (
       this.visible &&
       !document.hidden &&
-      !this.media.matches &&
       document.documentElement.dataset.motion !== "reduced" &&
       this.renderer &&
       !this.renderer.getContext().isContextLost()

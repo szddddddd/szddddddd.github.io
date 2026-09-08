@@ -60,14 +60,15 @@ const alternateZh = new URL(localizedPaths?.zh ?? getPath('zh', canonicalPage), 
         try {
           const storedTheme = localStorage.getItem('theme');
           const theme = storedTheme === 'light' ? 'light' : 'dark';
-          const motion = localStorage.getItem('motion') !== 'off' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const storedMotion = localStorage.getItem('motion');
+          const motion = storedMotion === 'on' || (storedMotion !== 'off' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
           document.documentElement.dataset.theme = theme;
           document.documentElement.dataset.motion = motion ? 'enabled' : 'reduced';
           document.documentElement.style.colorScheme = theme;
           document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? lightThemeColor : darkThemeColor);
         } catch {
           document.documentElement.dataset.theme = 'dark';
-          document.documentElement.dataset.motion = 'enabled';
+          document.documentElement.dataset.motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'enabled';
         }
       })();
     </script>

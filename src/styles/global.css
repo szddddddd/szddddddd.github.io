@@ -1477,23 +1477,23 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html:not([data-motion='enabled']) {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
+  html:not([data-motion='enabled']) *,
+  html:not([data-motion='enabled']) *::before,
+  html:not([data-motion='enabled']) *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
 
-  .button:hover,
-  .project-card:hover,
-  .project-row:hover,
-  .portal-card:hover {
+  html:not([data-motion='enabled']) .button:hover,
+  html:not([data-motion='enabled']) .project-card:hover,
+  html:not([data-motion='enabled']) .project-row:hover,
+  html:not([data-motion='enabled']) .portal-card:hover {
     transform: none;
   }
 }

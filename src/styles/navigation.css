@@ -437,12 +437,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spatial-ribbon,
-  .spatial-ribbon__global-progress i,
-  .spatial-ribbon__compact-progress i,
-  .spatial-route-tab,
-  .spatial-route-tab::before,
-  .spatial-route-tab__progress i {
+  html:not([data-motion='enabled']) .spatial-ribbon,
+  html:not([data-motion='enabled']) .spatial-ribbon__global-progress i,
+  html:not([data-motion='enabled']) .spatial-ribbon__compact-progress i,
+  html:not([data-motion='enabled']) .spatial-route-tab,
+  html:not([data-motion='enabled']) .spatial-route-tab::before,
+  html:not([data-motion='enabled']) .spatial-route-tab__progress i {
     transition: none;
   }
 }

@@ -64,10 +64,11 @@ export class VoxelHabitat extends HTMLElement {
       const bounds = canvas.getBoundingClientRect();
       if (!bounds.width || !bounds.height) return;
       const aspect = bounds.width / bounds.height;
-      this.camera.left = -14.8 * aspect;
-      this.camera.right = 14.8 * aspect;
-      this.camera.top = 14.8;
-      this.camera.bottom = -14.8;
+      const halfHeight = Math.max(14.8, 19.7 / aspect);
+      this.camera.left = -halfHeight * aspect;
+      this.camera.right = halfHeight * aspect;
+      this.camera.top = halfHeight;
+      this.camera.bottom = -halfHeight;
       this.renderer.setSize(bounds.width, bounds.height, false);
       this.draw();
     };

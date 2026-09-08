@@ -1,0 +1,90 @@
+/* Home is a viewport composition; article and index routes retain scrolling. */
+html:has(body[data-page-key='home']),
+body[data-page-key='home'] {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body[data-page-key='home'] .site-footer { display: none; }
+
+.site-main--home {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.site-main--home .atlas-home {
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
+  align-content: stretch;
+  padding-top: calc(var(--ribbon-height) + 1rem);
+  padding-bottom: 1rem;
+}
+
+.site-main--home .atlas-home__intro {
+  min-height: 0;
+  grid-template-rows: repeat(5, auto) minmax(0, 1fr);
+  align-content: stretch;
+  gap: .65rem;
+}
+
+.site-main--home .atlas-home h1 { font-size: 3.5rem; }
+.site-main--home .atlas-home__statement { font-size: 1.45rem; }
+
+.site-main--home voxel-habitat {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 36rem;
+  aspect-ratio: auto;
+  margin-top: 0;
+  align-self: end;
+}
+
+.site-main--home .atlas-home__entries {
+  min-height: 0;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.site-main--home .atlas-home__entry {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.site-main--home .atlas-home__entry-visual { min-height: 0; }
+
+@media (max-height: 720px) and (min-width: 821px) {
+  .site-main--home .atlas-home__entry { grid-template-rows: 1fr; }
+  .site-main--home .atlas-home__entry-visual { display: none; }
+  .site-main--home .atlas-home__entry-copy { align-content: center; }
+  .site-main--home .atlas-home h1 { font-size: 2.75rem; }
+  .site-main--home .atlas-home__statement { font-size: 1.2rem; }
+}
+
+@media (max-width: 820px) {
+  .site-main--home .atlas-home {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    padding: calc(var(--ribbon-height) + .65rem) 1rem calc(5rem + env(safe-area-inset-bottom));
+    gap: 0;
+  }
+  .site-main--home .atlas-home__entries { display: none; }
+  .site-main--home .atlas-home h1 { font-size: 2.6rem; }
+  .site-main--home .atlas-home__statement { font-size: 1.15rem; }
+  .site-main--home .atlas-home__identity,
+  .site-main--home .atlas-home__interests { font-size: .67rem; }
+}
+
+@media (max-width: 820px) and (max-height: 500px) {
+  .site-main--home .atlas-home__intro {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(5, auto);
+    gap: .4rem 1rem;
+  }
+  .site-main--home .atlas-home__intro > :not(voxel-habitat) { grid-column: 1; }
+  .site-main--home voxel-habitat { grid-column: 2; grid-row: 1 / 6; }
+  .site-main--home .atlas-home h1 { font-size: 2rem; }
+  .site-main--home .atlas-home__statement { font-size: 1rem; }
+}

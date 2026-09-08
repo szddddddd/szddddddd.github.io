@@ -352,7 +352,6 @@ export function buildHabitat(scene: THREE.Scene) {
       i % 3 === 1 ? "#b36e61" : "#e2d9bb",
     );
   box(8, 3.65, -6, 1.65, 0.18, 1.65, dark);
-  box(8, 4.13, -6, 1.08, 0.75, 1.08, "#e5ca8e");
   for (const x of [7.43, 8.57])
     for (const z of [-6.57, -5.43]) box(x, 4.13, z, 0.1, 0.8, 0.1, dark);
   box(8, 4.58, -6, 1.65, 0.18, 1.65, "#567e79");
@@ -459,6 +458,7 @@ export function buildHabitat(scene: THREE.Scene) {
     item.position.set(x, y, z);
     item.scale.set(w, h, d);
     item.castShadow = true;
+    item.receiveShadow = true;
     parent.add(item);
     return item;
   };
@@ -519,11 +519,11 @@ export function buildHabitat(scene: THREE.Scene) {
   const rigidParts=sailboat.children.filter((item):item is THREE.Mesh<THREE.BoxGeometry,THREE.MeshStandardMaterial>=>item instanceof THREE.Mesh&&!clothSet.has(item));
   const shipHull=new THREE.InstancedMesh(geometry,material,rigidParts.length);
   rigidParts.forEach((item,i)=>{item.updateMatrix();shipHull.setMatrixAt(i,item.matrix);shipHull.setColorAt(i,item.material.color);sailboat.remove(item);});
-  shipHull.castShadow=true;sailboat.add(shipHull);
+  shipHull.castShadow=true;shipHull.receiveShadow=true;sailboat.add(shipHull);
   const shipCloth=new THREE.InstancedMesh(geometry,material,sailPanels.length);
   shipCloth.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   sailPanels.forEach((panel,i)=>{panel.mesh.updateMatrix();shipCloth.setMatrixAt(i,panel.mesh.matrix);shipCloth.setColorAt(i,(panel.mesh.material as THREE.MeshStandardMaterial).color);sailboat.remove(panel.mesh);});
-  shipCloth.castShadow=true;sailboat.add(shipCloth);
+  shipCloth.castShadow=true;shipCloth.receiveShadow=true;sailboat.add(shipCloth);
   scene.add(sailboat);
   // Seated angler: boots over the edge, straw hat, hands and a moving rod.
   const fisher = new THREE.Group();
@@ -609,6 +609,7 @@ export function buildHabitat(scene: THREE.Scene) {
   seabedGeometry.rotateX(-Math.PI / 2);
   const seabed = new THREE.Mesh(seabedGeometry, seabedMaterial);
   seabed.position.y = -4.2;
+  seabed.receiveShadow = true;
   scene.add(seabed);
   ocean.renderOrder = 2;
   ocean.name = "ocean-surface";
@@ -651,8 +652,51 @@ export function buildHabitat(scene: THREE.Scene) {
     Math.sin(x * 1.6 + z * 0.7 - t * 1.7) * 0.085 +
     Math.sin(z * 2.2 - t * 1.1) * 0.045;
   const tip = new THREE.Vector3();
+  // All animation uses one accelerated clock, including water normals and fishing.
+  const ambient = scene.children.find((item): item is THREE.HemisphereLight => item instanceof THREE.HemisphereLight)!;
+  const sunlight = scene.children.find((item): item is THREE.DirectionalLight => item instanceof THREE.DirectionalLight)!;
+  const daySky = new THREE.Color('#e0eeff'), nightSky = new THREE.Color('#819fc8');
+  const daySun = new THREE.Color('#ffe0ab'), duskSun = new THREE.Color('#f6a579');
+  const dayWater = new THREE.Color('#489ead'), nightWater = new THREE.Color('#244755');
+  const dayBed = new THREE.Color('#438b92'), nightBed = new THREE.Color('#243e51');
+  const lighthouse = new THREE.Group(); lighthouse.position.set(8,4.13,-6); lighthouse.name='lighthouse-light';scene.add(lighthouse);
+  const beaconMaterial = new THREE.MeshStandardMaterial({color:'#ffe8ad',emissive:'#ffd078',emissiveIntensity:1});
+  const beacon = new THREE.Mesh(geometry,beaconMaterial);
+  beacon.scale.set(1.08,.75,1.08);beacon.position.copy(lighthouse.position);scene.add(beacon);
+  // Surface lighting and occlusion come from the same shadow map, with no fake cone.
+  const spotlight = new THREE.SpotLight('#ffe2a0',0,45,.18,.65,1.2);
+  spotlight.name = 'lighthouse-spotlight';
+  spotlight.position.set(0,0,0);
+  spotlight.target.position.set(18,-5.2,0);
+  spotlight.castShadow = true;
+  spotlight.shadow.mapSize.set(1024,1024);
+  spotlight.shadow.camera.near = .1;
+  spotlight.shadow.camera.far = 45;
+  spotlight.shadow.bias = -.0001;
+  spotlight.shadow.normalBias = .02;
+  lighthouse.add(spotlight,spotlight.target);
+  const houseLights = [[-2,2.5,2.1],[.6,1.8,1.9],[-2.2,5,2.2],[5.8,1.8,3.35]].map(([x,y,z])=>{
+    const light = new THREE.PointLight('#ffcb82',0,5,1.5);light.position.set(x,y,z);scene.add(light);return light;
+  });
   return {
-    update: (time: number) => {
+    update: (elapsed: number) => {
+      const time = elapsed * 2;
+      const sunHeight = Math.cos(time * Math.PI * 2 / 90);
+      const daylight = smooth((sunHeight+.25)/.95);
+      const night = 1-daylight;
+      scene.userData.daylight = daylight;
+      ambient.intensity=.85+daylight*1.75;
+      ambient.color.copy(nightSky).lerp(daySky,daylight);
+      sunlight.intensity=.22+daylight*3.58;
+      sunlight.color.copy(duskSun).lerp(daySun,daylight);
+      oceanMaterial.color.copy(nightWater).lerp(dayWater,daylight);
+      seabedMaterial.color.copy(nightBed).lerp(dayBed,daylight);
+      lanternMaterial.emissiveIntensity=1.3+night*3;
+      houseLights.forEach(light=>light.intensity=night*9);
+      lighthouse.rotation.y=-time*.42;
+      beaconMaterial.emissiveIntensity=.7+night*4;
+      spotlight.intensity=night*650;
+      spotlight.shadow.autoUpdate=night>.01;
       const positions = oceanGeometry.attributes.position;
       for (let i = 0; i < positions.count; i++)
         positions.setY(i, wave(positions.getX(i), positions.getZ(i), time));
@@ -763,6 +807,7 @@ export function buildHabitat(scene: THREE.Scene) {
       lineGeometry.computeBoundingSphere();
     },
     dispose: () => {
+      spotlight.shadow.dispose();beaconMaterial.dispose();
       shipHull.dispose();
       shipCloth.dispose();
       riggingGeometry.dispose();

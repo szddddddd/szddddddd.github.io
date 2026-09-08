@@ -24,10 +24,10 @@ const statement = lang === 'zh'
   <div class="atlas-home__intro">
     <p class="atlas-home__eyebrow" transition:name="page-index">00 / {lang === 'zh' ? '空间研究图谱' : 'SPATIAL RESEARCH ATLAS'}</p>
     <h1 id="home-title" transition:name="page-main-title">{display.name}</h1>
-    <PixelTreehouse lang={lang} />
     <p class="atlas-home__statement">{statement}</p>
     <p class="atlas-home__identity">{display.role} / {display.university} / {profile.lab} / {display.major}</p>
     <p class="atlas-home__interests">{interests}</p>
+    <PixelTreehouse lang={lang} />
   </div>
 
   <nav class="atlas-home__entries" aria-label={lang === 'zh' ? '研究索引' : 'Research index'}>

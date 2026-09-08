@@ -60,8 +60,12 @@ export function buildHabitat(scene: THREE.Scene) {
     const left = cx - width / 2,
       right = cx + width / 2;
     box(cx, base, -0.75, width + 0.18, 0.2, 4.6, wood);
-    for (const z of [-2.95, 1.45])
-      box(cx, base + 1.3, z, width, 2.6, 0.2, cream);
+    box(cx, base + 1.3, -2.95, width, 2.6, .2, cream);
+    if (base < 1) {
+      box((left+.12)/2,base+1.3,1.45,.12-left,2.6,.2,cream);
+      box((1.08+right)/2,base+1.3,1.45,right-1.08,2.6,.2,cream);
+      box(.6,base+2.35,1.45,.96,.5,.2,cream);
+    } else box(cx,base+1.3,1.45,width,2.6,.2,cream);
     for (const x of [left, right])
       box(x, base + 1.3, -0.75, 0.2, 2.6, 4.2, cream);
     for (const x of [left, right])
@@ -146,10 +150,8 @@ export function buildHabitat(scene: THREE.Scene) {
   roof(-1.9, 5.99, 5.55);
   // The lower wing joins the upper shell, with no separate tall gable.
   roof(1.55, 3.39, 2.1);
-  box(0.6, 1.78, 1.64, 0.96, 2.06, 0.12, dark);
-  box(0.6, 1.78, 1.735, 0.76, 1.86, 0.05, "#a47d50");
-  box(0.6, 2.2, 1.78, 0.5, 0.6, 0.03, "#e9cf91");
-  box(0.86, 1.62, 1.8, 0.07, 0.07, 0.04, "#e9c568");
+  for(const x of [.12,1.08])box(x,1.78,1.64,.1,2.06,.12,dark);
+  box(.6,2.84,1.64,1.06,.12,.12,dark);
   box(-2.2, 3.37, 1.92, 4.3, 0.16, 0.65, wood);
   for (let i = 0; i < 14; i++)
     box(-4.15 + i * 0.3, 3.87, 2.19, 0.08, 0.84, 0.08, wood);
@@ -234,8 +236,8 @@ export function buildHabitat(scene: THREE.Scene) {
       box(x, 0.94 + dy, z + 0.34, 0.69, 0.07, 0.06, "#5d4832");
     box(x, 0.94, z + 0.38, 0.08, 0.65, 0.04, "#5d4832");
   };
-  crate(4.3, 2.6);
-  crate(5.1, 2.7);
+  crate(4.3, 2.22);
+  crate(5.1, 2.22);
   const boatStart = blocks.length;
   // A tiny boat moored next to the pier.
   box(5.4, -0.78, 4.65, 1.7, 0.16, 0.7, "#59432f");
@@ -363,6 +365,66 @@ export function buildHabitat(scene: THREE.Scene) {
     box(x, 1.83, z, 0.25, 0.35, 0.25, "#efd59a");
     box(x, 2.04, z, 0.37, 0.09, 0.37, dark);
   }
+  // Deterministic shore contours leave the dock, shipping lane and gardens clear.
+  const shoreCells: { x: number; z: number; height: number }[] = [];
+  for (let x = -15; x <= 1; x++) for (let z = -11; z <= 8; z++) {
+    const west = Math.pow((x + 10) / 4.7, 2) + Math.pow((z + 1) / 8.6, 2);
+    const north = Math.pow((x + 6) / 6.2, 2) + Math.pow((z + 6) / 3.8, 2);
+    const edge = Math.min(west, north);
+    if (edge > .97 + Math.sin(x * 2.1 + z) * .09) continue;
+    // Existing mainland already occupies this area.
+    if (x >= -10 && z >= -5 && z <= 5) continue;
+    if (x <= -8 && x >= -10 && z >= -6 && z <= 6) continue;
+    const height = edge > .72 ? -.48 : -.12;
+    box(x, (height - 1.35) / 2, z, 1, height + 1.35, 1, '#a7a38c');
+    box(x, height + .035, z, 1, .07, 1, edge > .72 ? '#c3bb96' : '#d8c99d');
+    if (edge < .48) box(x, height + .12, z, .96, .1, .96, '#98a372');
+    shoreCells.push({ x, z, height });
+  }
+  const palm = (x: number, z: number, base: number, height: number) => {
+    for (let i = 0; i < 9; i++) {
+      const lean = i * i * .007;
+      box(x + lean, base + (i + .5) * height / 9, z, .27, height / 9, .27, i % 2 ? '#91734d' : '#a58b5e');
+    }
+    const crownX = x + .5;
+    for (let arm = 0; arm < 7; arm++) {
+      const angle = arm * Math.PI * 2 / 7;
+      for (let segment = 0; segment < 5; segment++) {
+        const reach = .22 + segment * .32;
+        box(crownX + Math.cos(angle) * reach, base + height + .24 - segment * segment * .035, z + Math.sin(angle) * reach,
+          .44, .13, .44, segment % 2 ? '#638655' : '#77945b');
+      }
+    }
+    for (const dx of [-.16, .17]) box(crownX + dx, base + height - .17, z + .1, .22, .24, .22, '#836748');
+  };
+  palm(-12, -3, .05, 3.6);
+  palm(-11, -7, .05, 3.1);
+  palm(-4, -8, .05, 3.5);
+  palm(-13, 3, -.25, 2.6);
+  for (const cell of shoreCells) {
+    const { x, z, height } = cell;
+    if (rand() > .75) {
+      box(x + .12, height + .17, z, .48, .26, .4, '#85916c');
+      box(x, height + .32, z + .12, .34, .16, .32, '#9fa775');
+    } else if (rand() > .8) {
+      for (let i = 0; i < 3; i++) box(x - .2 + i * .19, height + .21, z + (i % 2) * .15, .065, .37, .065, '#859466');
+    }
+  }
+  // Irregular rock shelves sit in shallow water and soften the island silhouette.
+  for (const [cx, cz] of [[-14, -5], [-12, 7], [-5, -10], [11, -7], [10, -3]]) {
+    for (let i = 0; i < 5; i++) {
+      const x = cx + (rand() - .5) * 1.8, z = cz + (rand() - .5) * 1.6;
+      const h = .35 + rand() * .65;
+      box(x, -.8 + h / 2, z, .55 + rand() * .5, h, .55 + rand() * .4, ['#828f88', '#98a19a', '#aab0a1'][i % 3]);
+    }
+  }
+  // Driftwood and small shell clusters on the western beach.
+  box(-12.6, -.04, .5, 1.6, .17, .22, '#a18c6d');
+  box(-13.15, .06, .62, .11, .25, .4, '#938062');
+  for (let i = 0; i < 12; i++) {
+    const cell = shoreCells[Math.floor(rand() * shoreCells.length)];
+    box(cell.x + .2, cell.height + .1, cell.z - .2, .13, .07, .1, i % 2 ? '#e3d9c0' : '#c5a999');
+  }
   const mesh = new THREE.InstancedMesh(geometry, material, blocks.length);
   const transform = new THREE.Object3D();
   blocks.forEach((block, i) => {
@@ -465,16 +527,18 @@ export function buildHabitat(scene: THREE.Scene) {
   scene.add(sailboat);
   // Seated angler: boots over the edge, straw hat, hands and a moving rod.
   const fisher = new THREE.Group();
+  fisher.name = 'fisher';
   fisher.position.set(6.15, 0.66, 2.68);
   scene.add(fisher);
   part(fisher, 0, 0.46, 0, 0.42, 0.62, 0.48, "#456b79");
   part(fisher, 0, 0.99, 0, 0.36, 0.37, 0.36, "#d9ab83");
   part(fisher, 0, 1.19, 0, 0.66, 0.09, 0.62, "#d5b778");
   part(fisher, 0, 1.3, 0, 0.4, 0.18, 0.38, "#c9a267");
+  const legs: THREE.Group[] = [];
   for (const z of [-0.16, 0.16]) {
-    part(fisher, 0.22, 0.14, z, 0.58, 0.2, 0.19, "#596358");
-    part(fisher, 0.46, -0.1, z, 0.19, 0.42, 0.19, "#596358");
-    part(fisher, 0.53, -0.34, z, 0.32, 0.15, 0.23, "#453c35");
+    const leg = new THREE.Group(); leg.position.set(0,.18,z); fisher.add(leg); legs.push(leg);
+    part(leg,0,-.27,0,.19,.54,.19,'#596358');
+    part(leg,.07,-.57,0,.32,.15,.23,'#453c35');
   }
   const arm = new THREE.Group();
   arm.position.set(0.07, 0.68, 0);
@@ -501,9 +565,27 @@ export function buildHabitat(scene: THREE.Scene) {
   scene.add(floatGroup);
   part(floatGroup, 0, 0, 0, 0.09, 0.2, 0.09, "#d66e51");
   part(floatGroup, 0, 0.12, 0, 0.09, 0.09, 0.09, "#fff0bf");
+  const catchFish = new THREE.Group(); catchFish.name='fishing-catch'; scene.add(catchFish);
+  part(catchFish,0,0,0,.5,.2,.14,'#c5d8ca');
+  part(catchFish,-.3,0,0,.16,.31,.08,'#789f98');
+  part(catchFish,.19,.045,.08,.035,.035,.025,dark);
+  const basket = new THREE.Group(); scene.add(basket);
+  basket.position.set(.6,.86,.7);
+  part(basket,0,.12,0,.64,.2,.4,'#a78051');
+  for(const z of [-.22,.22])part(basket,0,.25,z,.68,.3,.065,wood);
+  for(const x of [-.32,.32])part(basket,x,.25,0,.065,.3,.4,wood);
+  const door = new THREE.Group(); door.position.set(.2,.85,1.73); scene.add(door);
+  part(door,.4,.93,0,.76,1.86,.07,'#a47d50');
+  part(door,.4,1.35,.055,.5,.6,.035,'#e9cf91');
+  part(door,.66,.77,.08,.07,.07,.04,'#e9c568');
+  const smooth = (value:number) => {const t=THREE.MathUtils.clamp(value,0,1);return t*t*(3-2*t);};
+  const dock = new THREE.Vector3(6.15,.66,2.98);
+  const porch = new THREE.Vector3(.6,.66,2.98);
+  const home = new THREE.Vector3(.6,.86,1.12);
+  const hand = new THREE.Vector3();
   // Real surface displacement, not just sliding marks on a flat plane.
   // Cover the full orthographic frustum at every orbit angle, including corners.
-  const oceanGeometry = new THREE.PlaneGeometry(120, 120, 160, 160);
+  const oceanGeometry = new THREE.PlaneGeometry(240, 240, 160, 160);
   oceanGeometry.rotateX(-Math.PI / 2);
   const oceanMaterial = new THREE.MeshPhysicalMaterial({
     color: "#489ead",
@@ -523,7 +605,7 @@ export function buildHabitat(scene: THREE.Scene) {
     color: "#438b92",
     roughness: 1,
   });
-  const seabedGeometry = new THREE.PlaneGeometry(120, 120);
+  const seabedGeometry = new THREE.PlaneGeometry(240, 240);
   seabedGeometry.rotateX(-Math.PI / 2);
   const seabed = new THREE.Mesh(seabedGeometry, seabedMaterial);
   seabed.position.y = -4.2;
@@ -626,18 +708,57 @@ export function buildHabitat(scene: THREE.Scene) {
           puff as THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial>
         ).material.opacity = Math.sin(phase * Math.PI) * 0.36;
       });
-      arm.rotation.z =
-        Math.sin(time * 1.1) * 0.075 +
-        Math.pow(Math.max(0, Math.sin(time * 0.48)), 12) * 0.22;
-      fisher.rotation.z = Math.sin(time * 1.1) * 0.018;
+      // One absolute timeline makes pauses and repeated cycles deterministic.
+      const cycle = time % 32;
+      const reeling = cycle >= 7 && cycle < 10;
+      const outbound = cycle >= 11 && cycle < 17;
+      const unloading = cycle >= 17 && cycle < 21;
+      const returning = cycle >= 21 && cycle < 27;
+      const standing = smooth((cycle-10)/1) * (1-smooth((cycle-27)/1));
+      fisher.userData.phase = cycle < 7 ? 'fishing' : cycle < 10 ? 'reeling' : cycle < 11 ? 'standing' : outbound ? 'going-home' : unloading ? 'depositing' : returning ? 'returning' : 'casting';
+      fisher.position.copy(dock);
+      fisher.rotation.set(0,0,0);
+      if (outbound || returning) {
+        const travel = outbound ? (cycle-11)/6 : 1-(cycle-21)/6;
+        if(travel < .82) fisher.position.lerpVectors(dock,porch,travel/.82);
+        else fisher.position.lerpVectors(porch,home,(travel-.82)/.18);
+        const facing = travel < .82 ? Math.PI : Math.PI/2;
+        fisher.rotation.y = facing + (returning ? Math.PI : 0);
+      } else if(unloading) {
+        fisher.position.copy(home); fisher.rotation.y=Math.PI/2;
+      }
+      fisher.position.y += standing*.47;
+      const walking = outbound || returning;
+      if(walking)fisher.position.y+=Math.abs(Math.sin(time*8))*.035;
+      legs.forEach((leg,i)=>{leg.rotation.z=(1-standing)*Math.PI/2 + (walking?Math.sin(time*8+i*Math.PI)*.45:0);});
+      fisher.rotation.z = unloading ? -.15*Math.sin((cycle-17)/4*Math.PI) : 0;
+      arm.rotation.z = cycle < 7 ? Math.sin(time*1.1)*.045 : reeling ? smooth((cycle-7)/3)*.95 : cycle < 27 ? .95 : .95*(1-smooth((cycle-27)/2));
+      door.rotation.y = -1.3*smooth((cycle-15.5)/.5)*(1-smooth((cycle-22)/.5));
+      rod.visible = !unloading;
+      fishingLine.visible = cycle < 10 || cycle >= 28;
+      floatGroup.visible = fishingLine.visible;
       scene.updateMatrixWorld(true);
       tip.set(0, 0.95, 0);
       rod.localToWorld(tip);
       floatGroup.position.set(7.4, wave(7.4, 3.5, time) + 0.09, 3.5);
+      const lift = smooth((cycle-7)/3);
+      if(reeling)floatGroup.position.lerp(new THREE.Vector3(tip.x,tip.y-.6,tip.z),lift);
+      if(cycle>=28)floatGroup.position.lerp(new THREE.Vector3(tip.x,tip.y-.6,tip.z),1-smooth((cycle-28)/2));
+      catchFish.visible=cycle>=7 && cycle<24;
+      catchFish.rotation.set(0,0,0);
+      if(reeling) {
+        catchFish.position.copy(floatGroup.position);catchFish.position.y-=.23;
+        catchFish.rotation.z=Math.sin(time*12)*.3;
+      } else if(cycle>=10 && cycle<19) {
+        hand.set(.5,-.1,.25);arm.localToWorld(hand);catchFish.position.copy(hand);
+        if(cycle>=17)catchFish.position.lerp(new THREE.Vector3(.6,1.13,.7),smooth((cycle-17)/2));
+      } else if(cycle>=19) {
+        catchFish.position.set(.6,1.13,.7);
+      }
       const points = lineGeometry.attributes.position;
       points.setXYZ(0, tip.x, tip.y, tip.z);
-      points.setXYZ(1, (tip.x + 7.4) / 2, tip.y * 0.4, 3.15);
-      points.setXYZ(2, 7.4, floatGroup.position.y, 3.5);
+      points.setXYZ(1, (tip.x + floatGroup.position.x) / 2, (tip.y+floatGroup.position.y)/2-.12, (tip.z+floatGroup.position.z)/2);
+      points.setXYZ(2, floatGroup.position.x, floatGroup.position.y, floatGroup.position.z);
       points.needsUpdate = true;
       lineGeometry.computeBoundingSphere();
     },

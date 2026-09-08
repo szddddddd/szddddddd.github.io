@@ -133,9 +133,9 @@ export class VoxelHabitat extends HTMLElement {
   private draw() {
     if (!this.renderer || !this.scene || !this.camera || !this.habitat) return;
     this.camera.position.set(
-      Math.sin(this.angle) * 19,
-      13,
-      Math.cos(this.angle) * 19,
+      Math.sin(this.angle) * 57,
+      35,
+      Math.cos(this.angle) * 57,
     );
     this.camera.lookAt(0, 2, 0);
     this.camera.zoom = this.zoom;

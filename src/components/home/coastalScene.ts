@@ -462,6 +462,34 @@ export function buildHabitat(scene: THREE.Scene) {
     parent.add(item);
     return item;
   };
+  const campfire = new THREE.Group();campfire.name='beach-campfire';
+  campfire.position.set(-10.6,-.36,7);scene.add(campfire);
+  for(let i=0;i<10;i++) {
+    const angle=i*Math.PI/5;
+    const stone=part(campfire,Math.cos(angle)*.68,.08,Math.sin(angle)*.68,.32,.22,.26,i%2?'#8b9189':'#6e7975');
+    stone.rotation.y=-angle;
+  }
+  for(const side of [-1,1]) {
+    const log=part(campfire,0,.16,side*.16,1.02,.2,.2,'#584636');
+    log.rotation.y=side*.55;
+  }
+  const flameMaterials=['#e96c23','#ffad38','#ffe29b'].map(color=>new THREE.MeshBasicMaterial({color}));
+  animatedMaterials.push(...flameMaterials);
+  const flames=Array.from({length:7},(_,i)=>{
+    const flame=new THREE.Mesh(geometry,flameMaterials[i%3]);campfire.add(flame);return flame;
+  });
+  const embers=Array.from({length:5},()=>{
+    const mat=new THREE.MeshBasicMaterial({color:'#ffba59',transparent:true,depthWrite:false});
+    animatedMaterials.push(mat);
+    const ember=new THREE.Mesh(geometry,mat);ember.scale.setScalar(.035);campfire.add(ember);return ember;
+  });
+  const fireSmoke=Array.from({length:4},()=>{
+    const mat=new THREE.MeshStandardMaterial({color:'#9d9e96',transparent:true,opacity:0,depthWrite:false,roughness:1});
+    animatedMaterials.push(mat);
+    const puff=new THREE.Mesh(geometry,mat);campfire.add(puff);return puff;
+  });
+  const fireLight=new THREE.PointLight('#ff9c46',8,4.5,2);
+  fireLight.position.set(0,.85,0);campfire.add(fireLight);
   const boat = new THREE.Group();
   boatBlocks.forEach((b) =>
     part(
@@ -525,6 +553,20 @@ export function buildHabitat(scene: THREE.Scene) {
   sailPanels.forEach((panel,i)=>{panel.mesh.updateMatrix();shipCloth.setMatrixAt(i,panel.mesh.matrix);shipCloth.setColorAt(i,(panel.mesh.material as THREE.MeshStandardMaterial).color);sailboat.remove(panel.mesh);});
   shipCloth.castShadow=true;shipCloth.receiveShadow=true;sailboat.add(shipCloth);
   scene.add(sailboat);
+  // A closed water-only route keeps the heading continuous at the berth.
+  const fishingRoute = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(4.8,0,9), new THREE.Vector3(10,0,10),
+    new THREE.Vector3(15,0,7), new THREE.Vector3(17,0,2),
+    new THREE.Vector3(19,0,3), new THREE.Vector3(17,0,9),
+    new THREE.Vector3(11,0,12), new THREE.Vector3(6,0,11),
+  ],true,'centripetal');
+  const routePosition = new THREE.Vector3();
+  const routeHeading = new THREE.Vector3();
+  const netGeometry = new THREE.PlaneGeometry(2,2,7,7);
+  const netMaterial = new THREE.MeshStandardMaterial({color:'#586858',roughness:1,wireframe:true,side:THREE.DoubleSide});
+  const fishingNet = new THREE.Mesh(netGeometry,netMaterial);
+  fishingNet.name='ship-fishing-net';fishingNet.position.set(.4,.4,1.15);
+  fishingNet.rotation.x=-Math.PI/3;sailboat.add(fishingNet);
   // Seated angler: boots over the edge, straw hat, hands and a moving rod.
   const fisher = new THREE.Group();
   fisher.name = 'fisher';
@@ -549,17 +591,17 @@ export function buildHabitat(scene: THREE.Scene) {
   }
   const rod = part(arm, 1.04, 0.5, 0, 0.045, 1.9, 0.045, "#5c4731");
   rod.rotation.z = -0.8;
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(),
-    new THREE.Vector3(),
-    new THREE.Vector3(),
-  ]);
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: "#e7d8b3",
-    transparent: true,
-    opacity: 0.8,
-  });
-  const fishingLine = new THREE.Line(lineGeometry, lineMaterial);
+  const lineGeometry = new THREE.CylinderGeometry(.008,.008,1,5);
+  const lineMaterial = new THREE.MeshStandardMaterial({ color: "#887f6e", roughness: 1 });
+  const fishingLine = new THREE.InstancedMesh(lineGeometry, lineMaterial, 2);
+  fishingLine.name = 'fishing-line';
+  fishingLine.receiveShadow = true;
+  fishingLine.frustumCulled = false;
+  fishingLine.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const lineTransform = new THREE.Object3D();
+  const lineMidpoint = new THREE.Vector3();
+  const lineDirection = new THREE.Vector3();
+  const lineUp = new THREE.Vector3(0,1,0);
   scene.add(fishingLine);
   const floatGroup = new THREE.Group();
   scene.add(floatGroup);
@@ -592,15 +634,12 @@ export function buildHabitat(scene: THREE.Scene) {
     roughness: 0.72,
     metalness: 0,
     specularIntensity: 0.2,
-    transparent: true,
-    opacity: 0.38,
-    depthWrite: false,
     flatShading: false,
   });
   const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
   ocean.receiveShadow = true;
   scene.add(ocean);
-  // Opaque seabed preserves full frame coverage below the translucent surface.
+  // The opaque water receives lighting at wave height, not on the deeper seabed.
   const seabedMaterial = new THREE.MeshStandardMaterial({
     color: "#438b92",
     roughness: 1,
@@ -609,7 +648,6 @@ export function buildHabitat(scene: THREE.Scene) {
   seabedGeometry.rotateX(-Math.PI / 2);
   const seabed = new THREE.Mesh(seabedGeometry, seabedMaterial);
   seabed.position.y = -4.2;
-  seabed.receiveShadow = true;
   scene.add(seabed);
   ocean.renderOrder = 2;
   ocean.name = "ocean-surface";
@@ -666,14 +704,17 @@ export function buildHabitat(scene: THREE.Scene) {
   // Surface lighting and occlusion come from the same shadow map, with no fake cone.
   const spotlight = new THREE.SpotLight('#ffe2a0',0,45,.18,.65,1.2);
   spotlight.name = 'lighthouse-spotlight';
-  spotlight.position.set(0,0,0);
-  spotlight.target.position.set(18,-5.2,0);
+  // The rotating lens sits outside the cage so its own posts cannot interrupt the sweep.
+  spotlight.position.set(.95,0,0);
+  spotlight.target.position.set(18.95,-5.2,0);
+  const lens = new THREE.Mesh(geometry,beaconMaterial);
+  lens.position.copy(spotlight.position);lens.scale.set(.12,.28,.32);lighthouse.add(lens);
   spotlight.castShadow = true;
   spotlight.shadow.mapSize.set(1024,1024);
   spotlight.shadow.camera.near = .1;
   spotlight.shadow.camera.far = 45;
   spotlight.shadow.bias = -.0001;
-  spotlight.shadow.normalBias = .02;
+  spotlight.shadow.normalBias = .005;
   lighthouse.add(spotlight,spotlight.target);
   const houseLights = [[-2,2.5,2.1],[.6,1.8,1.9],[-2.2,5,2.2],[5.8,1.8,3.35]].map(([x,y,z])=>{
     const light = new THREE.PointLight('#ffcb82',0,5,1.5);light.position.set(x,y,z);scene.add(light);return light;
@@ -681,13 +722,20 @@ export function buildHabitat(scene: THREE.Scene) {
   return {
     update: (elapsed: number) => {
       const time = elapsed * 2;
-      const sunHeight = Math.cos(time * Math.PI * 2 / 90);
+      const solarAngle = time * Math.PI * 2 / 90;
+      const sunHeight = Math.cos(solarAngle);
+      // Orthogonal orbit axes preserve the noon direction while crossing the horizon.
+      sunlight.position.set(
+        32 * (-7 / Math.sqrt(309) * sunHeight + 8 / Math.sqrt(113) * Math.sin(solarAngle)),
+        32 * 14 / Math.sqrt(309) * sunHeight,
+        32 * (8 / Math.sqrt(309) * sunHeight + 7 / Math.sqrt(113) * Math.sin(solarAngle)),
+      );
       const daylight = smooth((sunHeight+.25)/.95);
       const night = 1-daylight;
       scene.userData.daylight = daylight;
       ambient.intensity=.85+daylight*1.75;
       ambient.color.copy(nightSky).lerp(daySky,daylight);
-      sunlight.intensity=.22+daylight*3.58;
+      sunlight.intensity=3.8*smooth(sunHeight/.35);
       sunlight.color.copy(duskSun).lerp(daySun,daylight);
       oceanMaterial.color.copy(nightWater).lerp(dayWater,daylight);
       seabedMaterial.color.copy(nightBed).lerp(dayBed,daylight);
@@ -696,7 +744,27 @@ export function buildHabitat(scene: THREE.Scene) {
       lighthouse.rotation.y=-time*.42;
       beaconMaterial.emissiveIntensity=.7+night*4;
       spotlight.intensity=night*650;
-      spotlight.shadow.autoUpdate=night>.01;
+      const flicker=.8+.12*Math.sin(time*8.3)+.08*Math.sin(time*13.7);
+      fireLight.intensity=(6+night*5)*flicker;
+      flames.forEach((flame,i)=>{
+        const pulse=.5+.5*Math.sin(time*7+i*2.4);
+        const height=.3+pulse*.46+(i===0?.25:0);
+        flame.position.set(Math.sin(i*2.4)*.24+Math.sin(time*4+i)*.035,.22+height/2,Math.cos(i*2.4)*.24);
+        flame.scale.set(.16+pulse*.06,height,.17);
+        flame.rotation.z=Math.sin(time*5+i)*.12;
+      });
+      embers.forEach((ember,i)=>{
+        const rise=(time*.55+i/5)%1;
+        ember.position.set(Math.sin(i*2+rise*4)*.18+rise*.35,.5+rise*1.8,Math.cos(i*3+rise)*.2);
+        ember.material.opacity=Math.sin(rise*Math.PI)*.75;
+      });
+      fireSmoke.forEach((puff,i)=>{
+        const rise=(time*.24+i/4)%1;
+        puff.position.set(rise*.65,1+rise*2.1,Math.sin(rise*3+i)*.12);
+        puff.scale.setScalar(.15+rise*.45);
+        puff.rotation.y=rise*.8;
+        puff.material.opacity=Math.sin(rise*Math.PI)*.12;
+      });
       const positions = oceanGeometry.attributes.position;
       for (let i = 0; i < positions.count; i++)
         positions.setY(i, wave(positions.getX(i), positions.getZ(i), time));
@@ -726,16 +794,27 @@ export function buildHabitat(scene: THREE.Scene) {
       });
       ripples.instanceMatrix.needsUpdate = true;
       boat.position.y = Math.sin(time * 1.3) * 0.055;
-      sailboat.position.set(
-        4.8 + Math.sin(time * 0.1) * 1.1,
-        wave(4.8, 9, time),
-        9 + Math.cos(time * 0.1) * 0.3,
-      );
+      // Dawn is one quarter-cycle before noon; the ship is home by sunset.
+      const voyage = ((elapsed+11.25)%45)/45;
+      const departing = voyage < .1;
+      const fishing = voyage >= .1 && voyage < .38;
+      const returningToPort = voyage >= .38 && voyage < .5;
+      const routeProgress = departing ? .22*smooth(voyage/.1)
+        : fishing ? .22+.48*smooth((voyage-.1)/.28)
+        : returningToPort ? .7+.3*smooth((voyage-.38)/.12) : 0;
+      fishingRoute.getPointAt(routeProgress,routePosition);
+      fishingRoute.getTangentAt(routeProgress,routeHeading);
+      sailboat.userData.phase=departing?'departing':fishing?'fishing':returningToPort?'returning':'moored';
+      sailboat.position.set(routePosition.x,wave(routePosition.x,routePosition.z,time),routePosition.z);
       sailboat.rotation.set(
         Math.sin(time * 0.9) * 0.03,
-        -0.3 + Math.cos(time * 0.13) * 0.12,
+        Math.atan2(-routeHeading.z,routeHeading.x),
         Math.sin(time * 0.8) * 0.035,
       );
+      const netDrop=smooth((voyage-.1)/.025)*(1-smooth((voyage-.35)/.03));
+      fishingNet.visible=netDrop>.001;
+      fishingNet.scale.y=Math.max(.001,netDrop);
+      fishingNet.position.y=.4-netDrop*.45;
       sailPanels.forEach((panel,i)=>{panel.mesh.rotation.z=Math.sin(time*1.4+panel.phase)*.035;panel.mesh.updateMatrix();shipCloth.setMatrixAt(i,panel.mesh.matrix);});
       shipCloth.instanceMatrix.needsUpdate=true;
       boat.rotation.x = Math.sin(time * 0.9) * 0.014;
@@ -799,15 +878,22 @@ export function buildHabitat(scene: THREE.Scene) {
       } else if(cycle>=19) {
         catchFish.position.set(.6,1.13,.7);
       }
-      const points = lineGeometry.attributes.position;
-      points.setXYZ(0, tip.x, tip.y, tip.z);
-      points.setXYZ(1, (tip.x + floatGroup.position.x) / 2, (tip.y+floatGroup.position.y)/2-.12, (tip.z+floatGroup.position.z)/2);
-      points.setXYZ(2, floatGroup.position.x, floatGroup.position.y, floatGroup.position.z);
-      points.needsUpdate = true;
-      lineGeometry.computeBoundingSphere();
+      lineMidpoint.copy(tip).lerp(floatGroup.position,.5);lineMidpoint.y-=.12;
+      for (let i=0;i<2;i++) {
+        const start = i===0 ? tip : lineMidpoint;
+        const end = i===0 ? lineMidpoint : floatGroup.position;
+        lineDirection.subVectors(end,start);
+        lineTransform.position.copy(start).lerp(end,.5);
+        lineTransform.scale.set(1,lineDirection.length(),1);
+        lineTransform.quaternion.setFromUnitVectors(lineUp,lineDirection.normalize());
+        lineTransform.updateMatrix();fishingLine.setMatrixAt(i,lineTransform.matrix);
+      }
+      fishingLine.instanceMatrix.needsUpdate=true;
     },
     dispose: () => {
       spotlight.shadow.dispose();beaconMaterial.dispose();
+      netGeometry.dispose();netMaterial.dispose();
+      fishingLine.dispose();
       shipHull.dispose();
       shipCloth.dispose();
       riggingGeometry.dispose();

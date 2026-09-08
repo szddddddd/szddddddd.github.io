@@ -1,11 +1,13 @@
 import * as THREE from "three";
 import { buildHabitat } from "./coastalScene";
+import { createLighthouseVolume } from "./lighthouseVolume";
 
 export class VoxelHabitat extends HTMLElement {
   private renderer?: THREE.WebGLRenderer;
   private scene?: THREE.Scene;
   private camera?: THREE.OrthographicCamera;
   private habitat?: ReturnType<typeof buildHabitat>;
+  private volume?: ReturnType<typeof createLighthouseVolume>;
   private resize?: ResizeObserver;
   private intersection?: IntersectionObserver;
   private preferences?: MutationObserver;
@@ -44,19 +46,20 @@ export class VoxelHabitat extends HTMLElement {
     const sun = new THREE.DirectionalLight("#ffe0ab", 3.8);
     sun.position.set(-7, 14, 8);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.mapSize.set(2048, 2048);
     Object.assign(sun.shadow.camera, {
-      left: -17,
-      right: 17,
-      top: 17,
-      bottom: -17,
+      left: -32,
+      right: 32,
+      top: 32,
+      bottom: -32,
       near: 1,
-      far: 40,
+      far: 80,
     });
-    sun.shadow.normalBias = 0.035;
+    sun.shadow.normalBias = 0.01;
     sun.shadow.bias = -0.00015;
     this.scene.add(sun);
     this.habitat = buildHabitat(this.scene);
+    this.volume = createLighthouseVolume(this.scene.getObjectByName("lighthouse-spotlight") as THREE.SpotLight);
     this.drawnTime = -1;
     const fit = () => {
       if (!this.renderer || !this.camera) return;
@@ -144,7 +147,7 @@ export class VoxelHabitat extends HTMLElement {
       this.habitat.update(this.time);
       this.drawnTime = this.time;
     }
-    this.renderer.render(this.scene, this.camera);
+    this.volume!.render(this.renderer, this.scene, this.camera);
   }
   private sync = () => {
     cancelAnimationFrame(this.frame);
@@ -173,6 +176,8 @@ export class VoxelHabitat extends HTMLElement {
     this.intersection?.disconnect();
     this.preferences?.disconnect();
     this.habitat?.dispose();
+    this.volume?.dispose();
+    this.volume = undefined;
     this.scene?.traverse((object) => {
       if (object instanceof THREE.DirectionalLight) object.shadow.dispose();
     });

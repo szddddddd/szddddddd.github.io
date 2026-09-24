@@ -3,6 +3,7 @@ import { createCoastalResidents } from './coastalResidents';
 import { createIslandEcology } from './islandEcology';
 import { createStardustDragon } from './stardustDragon';
 import { createHarborAndCave } from './harborAndCave';
+import { createLifeTree } from './lifeTree';
 import { createFishery } from './islandFishery';
 import { farmLayout } from './farmLayout';
 import { buildIslandTerrain, groundHeight, islandLayout, sampleRoute } from './islandTerrain';
@@ -12,6 +13,8 @@ export function buildHabitat(scene: THREE.Scene) {
   const terrain = buildIslandTerrain(scene);
   const ecology = createIslandEcology(scene);
   const dragon = createStardustDragon(scene);
+  const lifeTree = createLifeTree(scene);
+  let reducedMotion=false;
   const harborAndCave = createHarborAndCave(scene);
   let offset = islandLayout.house;
   const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -608,6 +611,7 @@ export function buildHabitat(scene: THREE.Scene) {
   const fishery=createFishery(scene,{root:fisher,legs,arm,route:walkingRoute,onReturn:()=>{fishingOffset=currentAnimationTime;}});
   return {
     fishery,
+    setReducedMotion(reduced:boolean){reducedMotion=reduced;},
     update: (elapsed: number) => {
       const time = elapsed * 2;
       currentAnimationTime=time;
@@ -622,6 +626,7 @@ export function buildHabitat(scene: THREE.Scene) {
       const daylight = smooth((sunHeight+.25)/.95);
       const night = 1-daylight;
       dragon.update(elapsed,night);
+      lifeTree.update(reducedMotion?0:elapsed,night);
       harborAndCave.update(elapsed,night);
       scene.userData.daylight = daylight;
       ambient.intensity=.85+daylight*1.75;
@@ -784,6 +789,7 @@ export function buildHabitat(scene: THREE.Scene) {
     },
     dispose: () => {
       dragon.dispose();
+      lifeTree.dispose();
       harborAndCave.dispose();
       ecology.dispose();
       fishery.dispose();

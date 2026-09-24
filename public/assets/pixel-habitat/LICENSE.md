@@ -38,7 +38,7 @@ locally; this scene uses no Minecraft, Stonehearth, or third-party art assets.
 
 The live scene includes procedural voxel fan-art interpretations of Terraria's
 Guide, Pirate, Angler, Stylist, Merchant, Stardust Dragon, Glowing Snail,
-glowing mushrooms and Ocean Pylon. Terraria and these character and
+glowing mushrooms, Dryad, Living Tree and Ocean Pylon. Terraria and these character and
 object designs belong to Re-Logic. Their geometry is built locally in
 the scene modules under `src/components/home/`; no game sprites or textures are bundled.
 The static fallback predates these additions.

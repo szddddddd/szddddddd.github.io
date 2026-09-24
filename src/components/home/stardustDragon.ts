@@ -54,7 +54,7 @@ export function createStardustDragon(scene:THREE.Scene) {
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;root.add(mesh);
   blocks.forEach((b,i)=>mesh.setColorAt(i,new THREE.Color(b.color)));
   const curve=new THREE.CatmullRomCurve3(Array.from({length:12},(_,i)=>{
-    const a=i*Math.PI/6;return new THREE.Vector3(-3+Math.cos(a)*12,13.1+Math.sin(a*2)*1.05,-2+Math.sin(a)*10);
+    const a=i*Math.PI/6,south=Math.sin(a);return new THREE.Vector3(-3+Math.cos(a)*12,13.1+Math.sin(a*2)*1.05,-2+south*(south<0?18:10));
   }),true,'centripetal');
   const length=curve.getLength(),spacing=.64;
   const segmentMatrices=Array.from({length:segments},()=>new THREE.Matrix4());
@@ -111,7 +111,7 @@ export function createStardustDragon(scene:THREE.Scene) {
   for(let i=0;i<segments;i++)aura.setColorAt(i,new THREE.Color('#59bbff'));
   const light=new THREE.PointLight('#96e5ff',1,5,2);root.add(light);
   // Include the aerial route in default framing without changing land or actor scale.
-  islandBounds.expandByPoint(new THREE.Vector3(-16,16,-13));islandBounds.expandByPoint(new THREE.Vector3(10,16,9));
+  islandBounds.expandByPoint(new THREE.Vector3(-16,16,-21));islandBounds.expandByPoint(new THREE.Vector3(10,16,9));
   const update=(time:number,night:number)=>{
     const travel=time/34;
     for(let i=0;i<segments;i++) {

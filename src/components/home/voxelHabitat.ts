@@ -84,6 +84,8 @@ export class VoxelHabitat extends HTMLElement {
     sun.shadow.bias = -0.00015;
     this.scene.add(sun);
     this.habitat = buildHabitat(this.scene);
+    this.habitat.setReducedMotion(document.documentElement.dataset.motion==='reduced');
+    islandBounds.getCenter(this.viewTarget);
     this.volume = createLighthouseVolume(this.scene.getObjectByName("lighthouse-spotlight") as THREE.SpotLight);
     this.drawnTime = -1;
     const fit = () => {
@@ -93,7 +95,7 @@ export class VoxelHabitat extends HTMLElement {
       const aspect = bounds.width / bounds.height;
       const size=islandBounds.getSize(new THREE.Vector3());
       const radius=Math.hypot(size.x,size.z)/2;
-      const halfHeight = Math.max(25, radius / aspect);
+      const halfHeight = Math.max(25, radius / aspect, size.y*.5+radius*.6);
       this.camera.left = -halfHeight * aspect;
       this.camera.right = halfHeight * aspect;
       this.camera.top = halfHeight;
@@ -203,6 +205,7 @@ this.draw();}
   private sync = () => {
     cancelAnimationFrame(this.frame);
     this.last = 0;
+    this.habitat?.setReducedMotion(document.documentElement.dataset.motion==='reduced');
     if(document.documentElement.dataset.motion==='reduced'){this.habitat?.fishery.setReduced();this.drawnTime=-1;this.draw();}
     if (
       this.visible &&

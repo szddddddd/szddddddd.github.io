@@ -9,6 +9,9 @@ export const islandLayout = {
   salon: new THREE.Vector3(15,1.97,-5),
   lighthouse: new THREE.Vector3(5,3.25,-6),
   dock: new THREE.Vector3(9,0,4),
+  lifeTree: {x:-4,z:-11,height:12,canopyRadius:3.4},
+  dryadGarden: {x:-1.4,z:-10.5,width:2.8,depth:2.4,height:5},
+  groveSteps: {x:1,fromZ:-8.43,toZ:-12,fromY:2.43,toY:5,count:12},
   pads: [
     {name:'farm',x:-12.8,z:0,width:11.6,depth:13,height:2},
     {name:'north-garden',x:-13.5,z:-6.2,width:7.6,depth:2.8,height:2},
@@ -20,6 +23,8 @@ export const islandLayout = {
     {name:'archery',x:-3,z:10,width:7,depth:7,height:.03},
     {name:'pylon',x:-5.6,z:6.35,width:2.4,depth:2.4,height:.03},
     {name:'campfire',x:-2,z:4.4,width:2,depth:2,height:.03},
+    {name:'life-tree',x:-4,z:-11,width:2.8,depth:2.8,height:5},
+    {name:'dryad-garden',x:-1.4,z:-10.5,width:2.8,depth:2.4,height:5},
   ] as Pad[],
   roads: [
     [[5.6,2,-.02],[8.7,2,-.02],[10,2,-2.5]],
@@ -30,6 +35,7 @@ export const islandLayout = {
     [[-2,.03,7],[-2,.03,9]],
     [[1,2,1],[-2,2,-8],[5,3,-9],[10,3.8,-10],[13,3.8,-11.1]],
     [[-5,2,1],[-4,2,-8],[-9,4.6,-12],[-7,5.1,-16]],
+    [[1,2.43,-8.43],[1,5,-12],[-1.4,5,-12],[-1.4,5,-10.5]],
   ] as number[][][],
   anglerRoute: [[15.15,.66,6.98],[8.65,.66,6.98],[8.65,.66,9.4],[6.5,.66,9.4]],
   shipRoute: [[18,0,8],[25,0,11],[33,0,8],[36,0,0],[40,0,4],[35,0,17],[25,0,20],[18,0,15]],
@@ -66,6 +72,12 @@ function legacyArea() {
 export const originalLandArea=legacyArea();
 const noise=(x:number,z:number)=>{let n=Math.imul(x+718,374761393)^Math.imul(z+913,668265263);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;};
 const insidePad=(x:number,z:number,p:Pad,margin=0)=>Math.abs(x-p.x)<=p.width/2+margin&&Math.abs(z-p.z)<=p.depth/2+margin;
+// An uneven woodland mound blends both grove foundations into the highland.
+export function groveBlend(x:number,z:number) {
+  const dx=(x+3.2)/5.2,dz=(z+11)/4.1;
+  const radius=Math.hypot(dx,dz)+.065*Math.sin(x*1.4+z*.7)+.035*Math.cos(z*2.1);
+  return 1-THREE.MathUtils.smoothstep(radius,.48,1);
+}
 function contour(x:number,z:number,scale:number) {
   const ellipse=((x+4)/(22*scale))**2+((z+3)/(19*scale))**2;
   const bay=((x-16)/13)**2+((z-11)/13)**2;
@@ -96,6 +108,13 @@ for(let x=-40;x<=40;x++)for(let z=-35;z<=30;z++) {
     }
   }
   const foundation=islandLayout.pads.find(p=>insidePad(x,z,p));
+  const grove=groveBlend(x,z);
+  if(grove>0&&!foundation&&!coastal) {
+    const mound=5+.2*Math.sin(x*.8+z*.6)*Math.sin(z*.9);
+    height=THREE.MathUtils.lerp(height,mound,grove);
+    height=Math.round(height*8)/8;
+    if(grove>.15)kind='grass';
+  }
   if(foundation){height=foundation.height;kind=foundation.name==='pylon'?'sand':'grass';}
   const cell={x,z,height,kind};grid.set(`${x},${z}`,cell);terrainCells.push(cell);
 }
@@ -123,6 +142,7 @@ export function buildIslandTerrain(scene:THREE.Scene) {
   const put=(x:number,y:number,z:number,w:number,h:number,d:number,c:string)=>blocks.push({x,y,z,w,h,d,c});
   for(const c of terrainCells) {
     const {x,z,height:h,kind}=c;
+    const grove=groveBlend(x,z);
     const layers=h>3?Math.ceil((h+2.36)/.8):1;
     const layerHeight=(h+2.36)/layers;
     const cave=x>=caveLayout.minX&&x<=caveLayout.maxX&&z>=caveLayout.minZ&&z<=caveLayout.maxZ;
@@ -133,15 +153,16 @@ export function buildIslandTerrain(scene:THREE.Scene) {
         put(x,h-.04,z,1,.08,1,'#919d8b');
       }
     } else {
-      for(let i=0;i<layers;i++)put(x,-2.5+(i+.5)*layerHeight,z,1,layerHeight,1,h>3?['#7e877e','#92988a','#a3a58f'][i%3]:'#a89b79');
+      for(let i=0;i<layers;i++)put(x,-2.5+(i+.5)*layerHeight,z,1,layerHeight,1,
+        grove>.15&&i>=layers-2?['#748064','#82906c','#909b73'][(i+Math.floor(noise(x,z)*3))%3]:h>3?['#7e877e','#92988a','#a3a58f'][i%3]:'#a89b79');
       const road=roadSamples.reduce<typeof roadSamples[number]|undefined>((best,p)=>{
         const distance=Math.hypot(x-p.x,z-p.z);
         return distance<.72&&(!best||distance<Math.hypot(x-best.x,z-best.z))?p:best;
       },undefined);
       // One top face per land cell: paving replaces grass instead of overlapping it.
-      put(x,h-.07,z,1,.14,1,road?(road.stairs?'#b0b4a5':'#c7c4ab'):kind==='grass'?['#899f6b','#96aa76','#91a36e'][Math.floor(noise(x,z)*3)]:kind==='sand'?'#d8c69b':'#9a9d87');
+      put(x,h-.07,z,1,.14,1,road?(road.stairs?'#b0b4a5':'#c7c4ab'):grove>.15?['#7c9660','#8ba76c','#92ab73'][Math.floor(noise(x,z)*3)]:kind==='grass'?['#899f6b','#96aa76','#91a36e'][Math.floor(noise(x,z)*3)]:kind==='sand'?'#d8c69b':'#9a9d87');
     }
-    if(kind==='rock'&&h>4.4&&noise(x,z)>.9&&!roadSamples.some(p=>Math.hypot(x-p.x,z-p.z)<1.4)) {
+    if(kind==='rock'&&h>4.4&&noise(x,z)>.9&&!islandLayout.pads.some(p=>insidePad(x,z,p))&&!roadSamples.some(p=>Math.hypot(x-p.x,z-p.z)<1.4)) {
       put(x,h+.24,z,.7,.48,.65,'#78877a');
     }
   }

@@ -14,10 +14,15 @@ export function createIslandEcology(scene:THREE.Scene) {
   const blocks:{x:number;y:number;z:number;w:number;h:number;d:number;c:string}[]=[];
   const box=(x:number,y:number,z:number,w:number,h:number,d:number,c:string)=>blocks.push({x,y,z,w,h,d,c});
   const candidates=terrainCells.map(c=>({...c,rank:random()})).sort((a,b)=>a.rank-b.rank);
-  const trees=candidates.filter(c=>shoreDistance(c.x,c.z)>=3 && !protectedAt(c.x,c.z,1.3) && roadDistance(c.x,c.z)>1.7);
+  // Smaller sampling intervals retain the inland grove when new landmarks reserve
+  // part of the highland. The tall Living Tree permits understory beyond its roots.
+  const trees=candidates.flatMap(c=>[[0,0],[.4,.4],[-.4,-.4]].map(([dx,dz])=>({x:c.x+dx,z:c.z+dz}))).filter(c=>
+    shoreDistance(c.x,c.z)>=3 && roadDistance(c.x,c.z)>1.7 &&
+    reserved.every(p=>p.name==='life-tree'?Math.hypot(c.x-p.x,c.z-p.z)>2.7:
+      Math.abs(c.x-p.x)>=p.width/2+1.3||Math.abs(c.z-p.z)>=p.depth/2+1.3));
   for(const c of trees) {
     if(positions.length===11)break;
-    if(positions.some(p=>Math.hypot(p.x-c.x,p.z-c.z)<1.9))continue;
+    if(positions.some(p=>Math.hypot(p.x-c.x,p.z-c.z)<1.5))continue;
     const palm=positions.length>=8,base=groundHeight(c.x,c.z),height=palm?2.8:2.6+random()*.9;
     positions.push({x:c.x,z:c.z,height:base,kind:palm?'palm':'tree'});
     if(palm) {

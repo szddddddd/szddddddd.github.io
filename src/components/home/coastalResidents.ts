@@ -87,7 +87,8 @@ export function createCoastalResidents(scene: THREE.Scene, pirateShip: THREE.Gro
   box(shop,1.97,1.54,1.43,.6,.51,.1,'#69503b');
   box(shop,1.97,1.54,1.49,.32,.32,.035,'#dfb863');
   box(shop,1.97,1.54,1.515,.07,.23,.02,'#a97e38');
-  const merchant=person('terraria-merchant',-.35,.2,.21,'#936946','#716552');
+  // Greet visitors outside the canopy, leaving the eastern doorway clear.
+  const merchant=person('terraria-merchant',-.7,groundHeight(shopPad.x-.7,shopPad.z+2.6)-shop.position.y,2.6,'#936946','#716552');
   shop.add(merchant.root);merchant.root.userData.character='terraria-merchant';
   box(merchant.root,0,.93,.19,.2,.48,.035,'#e5d5b7');
   for(const x of [-.22,.22])box(merchant.root,x,.9,.18,.12,.57,.055,'#795338');

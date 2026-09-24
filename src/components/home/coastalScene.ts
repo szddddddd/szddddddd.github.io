@@ -1,10 +1,22 @@
 import * as THREE from "three";
+import { createCoastalResidents } from './coastalResidents';
+import { createIslandEcology } from './islandEcology';
+import { createStardustDragon } from './stardustDragon';
+import { createHarborAndCave } from './harborAndCave';
+import { createFishery } from './islandFishery';
+import { farmLayout } from './farmLayout';
+import { buildIslandTerrain, groundHeight, islandLayout, sampleRoute } from './islandTerrain';
 
-// All shapes and colors are original; no Minecraft assets are used.
+// Procedural coastal architecture with voxel interpretations of Terraria residents.
 export function buildHabitat(scene: THREE.Scene) {
+  const terrain = buildIslandTerrain(scene);
+  const ecology = createIslandEcology(scene);
+  const dragon = createStardustDragon(scene);
+  const harborAndCave = createHarborAndCave(scene);
+  let offset = islandLayout.house;
   const geometry = new THREE.BoxGeometry(1, 1, 1);
   const material = new THREE.MeshStandardMaterial({ roughness: 0.88 });
-  const blocks: { position: number[]; size: number[]; color: string }[] = [];
+  const blocks: { position: number[]; size: number[]; color: string; origin: THREE.Vector3 }[] = [];
   const box = (
     x: number,
     y: number,
@@ -13,7 +25,7 @@ export function buildHabitat(scene: THREE.Scene) {
     h: number,
     d: number,
     color: string,
-  ) => blocks.push({ position: [x, y, z], size: [w, h, d], color });
+  ) => blocks.push({ position: [x+offset.x, y+offset.y, z+offset.z], size: [w, h, d], color, origin:offset });
   let seed = 718;
   const rand = () =>
     (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296;
@@ -21,32 +33,6 @@ export function buildHabitat(scene: THREE.Scene) {
     dark = "#493a2d",
     cream = "#d8cda2",
     green = "#65894c";
-  // The land rises directly out of continuous water, without a display plinth.
-  for (let x = -7; x <= 2; x++)
-    for (let z = -5; z <= 5; z++) {
-      if ((x > 0 && z > 1) || (x === 2 && z < -3)) continue;
-      const h = 0.8 + (x < -3 ? 0.35 : 0);
-      box(
-        x,
-        -0.85 + h / 2,
-        z,
-        0.99,
-        h,
-        0.99,
-        ["#7b7660", "#8c8268", "#777e6b"][Math.floor(rand() * 3)],
-      );
-      box(
-        x,
-        -0.85 + h + 0.09,
-        z,
-        1,
-        0.18,
-        1,
-        ["#829763", "#92a66e", "#718952"][Math.floor(rand() * 3)],
-      );
-      if (rand() > 0.75)
-        box(x + 0.15, 0.38, z - 0.1, 0.22, 0.28, 0.22, "#a4b37a");
-    }
   // One continuous shell per storey. Decorative windows sit outside it;
   // they never punch accidental gaps through the facade.
   const windowFront = (x: number, y: number, z: number) => {
@@ -220,15 +206,13 @@ export function buildHabitat(scene: THREE.Scene) {
   pot(-2.8, 4.2, 0.5);
   pot(1.5, 0.87, 1.1);
   pot(-4.9, 0.7, 1.9);
-  // Porch and pier over the water, including posts and rope-like rails.
-  for (let x = -4.8; x < 6.4; x += 0.3)
-    box(x, 0.56, 2.7, 0.28, 0.18, 1.6, wood);
-  for (const x of [-4.5, -1, 2.4, 5.8]) {
-    for (const z of [2.05, 3.35]) {
-      box(x, -0.13, z, 0.2, 1.6, 0.2, dark);
-      box(x, 1.06, z, 0.16, 0.9, 0.16, wood);
-    }
-    if (x < 5) box(x + 1.5, 1.34, 3.35, 3, 0.07, 0.07, "#b6a887");
+  // House veranda and the separate low-level harbor use independent origins.
+  for(let x=-4.8;x<2.7;x+=.3)box(x,.66,2.7,.28,.18,1.6,wood);
+  offset=islandLayout.dock;
+  for(let x=-7.8;x<6.4;x+=.3)box(x,.66,2.7,.28,.18,1.6,wood);
+  for(const x of [-4.5,-1,2.4,5.8])for(const z of [2.05,3.35]) {
+    box(x,-.8,z,.2,2.9,.2,dark);
+    if(z<3)box(x,1.06,z,.16,.9,.16,wood);
   }
   const crate = (x: number, z: number) => {
     box(x, 0.94, z, 0.65, 0.65, 0.65, "#a77a4f");
@@ -238,46 +222,7 @@ export function buildHabitat(scene: THREE.Scene) {
   };
   crate(4.3, 2.22);
   crate(5.1, 2.22);
-  const boatStart = blocks.length;
-  // A tiny boat moored next to the pier.
-  box(5.4, -0.78, 4.65, 1.7, 0.16, 0.7, "#59432f");
-  for (const z of [4.2, 5.1]) box(5.4, -0.53, z, 1.7, 0.45, 0.16, wood);
-  for (const x of [4.5, 6.3]) box(x, -0.54, 4.65, 0.16, 0.4, 0.7, wood);
-  box(5.2, -0.38, 4.65, 0.23, 0.12, 0.8, "#c09765");
-  const boatBlocks = blocks.splice(boatStart);
-  // Block canopies, branch structure, shrubs and grassy edge.
-  const tree = (x: number, z: number, height: number) => {
-    box(x, height / 2 + 0.4, z, 0.45, height, 0.45, "#6b5237");
-    box(x + 0.42, height * 0.7, z, 0.7, 0.22, 0.22, wood);
-    for (let a = -2; a <= 2; a++)
-      for (let b = -2; b <= 2; b++)
-        for (let c = -1; c <= 1; c++) {
-          if (Math.abs(a) + Math.abs(b) + Math.abs(c) > 4 || rand() < 0.16)
-            continue;
-          box(
-            x + a * 0.58,
-            height + c * 0.5,
-            z + b * 0.58,
-            0.58,
-            0.5,
-            0.58,
-            ["#557549", "#648550", "#77975d", "#92a96c"][
-              Math.floor(rand() * 4)
-            ],
-          );
-        }
-  };
-  tree(-5.9, -2.5, 4.3);
-  tree(-5.5, 3.7, 2.9);
-  tree(0.6, -4.6, 3.7);
-  tree(-3.8, -4.8, 4.4);
-  for (let i = 0; i < 35; i++) {
-    const x = -6.7 + rand() * 8,
-      z = -5 + rand() * 10;
-    if (x > -4.8 && z > -3.5 && z < 3.5) continue;
-    box(x, 0.58, z, 0.28, 0.5, 0.28, ["#6a884c", "#a8b46b", "#8e9f55"][i % 3]);
-    if (i % 4 === 0) box(x, 0.88, z, 0.18, 0.18, 0.18, "#e7b28b");
-  }
+  offset=islandLayout.house;
   // Warm fixtures use emissive blocks, avoiding a shadow map per lamp.
   const lanternMaterial = new THREE.MeshStandardMaterial({
     color: "#ffe1a0",
@@ -294,18 +239,10 @@ export function buildHabitat(scene: THREE.Scene) {
     box(x, y - 0.2, z, 0.26, 0.08, 0.26, dark);
     const lamp = new THREE.Mesh(geometry, lanternMaterial);
     lamp.scale.set(0.17, 0.3, 0.17);
-    lamp.position.set(x, y, z);
+    lamp.position.set(x+offset.x, y+offset.y, z+offset.z);
     scene.add(lamp);
   }
-  // Extend the mainland westward; new buildings stay clear of the original house.
-  for (let x = -10; x <= -8; x++)
-    for (let z = -6; z <= 6; z++) {
-      box(x, -0.15, z, 1, 1.4, 1, "#858273");
-      box(x, 0.6, z, 1, 0.1, 1, "#97a776");
-    }
-  for (let z = -5; z <= 5; z++) {
-    box(-7.7, 0.68, z, 0.75, 0.08, 0.7, z % 2 ? "#bdc0a5" : "#adb49e");
-  }
+  offset=new THREE.Vector3(0,1.35,0);
   // Garden shed, closed walls and stepped roof.
   box(-9, 1.55, -4.6, 2.1, 1.8, 2, "#a3b8a0");
   box(-9, 0.72, -4.6, 2.3, 0.18, 2.2, wood);
@@ -315,32 +252,39 @@ export function buildHabitat(scene: THREE.Scene) {
   box(-9, 1.4, -3.47, 0.6, 1.35, 0.04, "#b68c5f");
   box(-8.45, 1.8, -3.53, 0.5, 0.55, 0.1, dark);
   box(-8.45, 1.8, -3.46, 0.37, 0.4, 0.04, "#e3ca91");
-  // Three raised beds and a low picket fence.
-  for (const z of [-1.9, -0.2, 1.5]) {
-    box(-9, 0.8, z, 1.75, 0.25, 1.05, wood);
-    box(-9, 0.95, z, 1.52, 0.06, 0.83, "#594d38");
+  // Two staggered rows of beds retain the shared southern farm entrance.
+  const beds=[[-9,-1.9],[-9,-.2],[-9,1.5],[-6.5,-5],[-6.5,-3.3],[-6.5,-1.6],[-16,-6.2],[-13.5,-6.2],[-11,-6.2]];
+  scene.userData.farmBeds=beds;
+  for (const [bed,[cx,z]] of beds.entries()) {
+    box(cx, 0.8, z, 1.75, 0.25, 1.05, wood);
+    box(cx, 0.95, z, 1.52, 0.06, 0.83, "#594d38");
     for (let i = 0; i < 4; i++)
       for (const dz of [-0.23, 0.23]) {
-        const x = -9.55 + i * 0.36;
+        const x = cx-.55 + i * .36;
         box(x, 1.15, z + dz, 0.18, 0.35, 0.16, "#729651");
-        box(x, 1.36, z + dz, 0.27, 0.13, 0.26, z < -1 ? "#c79859" : "#91ae5f");
+        box(x, 1.36, z + dz, 0.27, 0.13, 0.26, ["#c79859", "#91ae5f", "#c18c83", "#e3b36c", "#86ad62", "#bf829f", "#cc9654", "#aac16c", "#c57666"][bed]);
       }
   }
-  for (let z = -2.8; z < 2.7; z += 0.45)
-    box(-10.2, 1.07, z, 0.1, 0.8, 0.12, "#d4c8a8");
-  box(-10.2, 1.17, -0.1, 0.12, 0.1, 5.7, "#c9bb97");
+  const farmPathY=.65+.025;
+  box(-13.5,farmPathY,-7.1,7.6,.05,.55,'#c6bea0');
+  box(-10.35,farmPathY,-5.25,.65,.05,4.25,'#c6bea0');
+  box(-7.75,farmPathY,-1.4,.55,.05,8.1,'#c6bea0');
+  for(const z of [-5.85,-4.15,-2.45,-.75])box(-6.5,farmPathY,z,2.1,.05,.42,'#c6bea0');
+  box(farmLayout.laneX,farmPathY,-.35,.72,.05,6.7,'#c6bea0');
+  for(const z of [-2.95,-1.05,.65,farmLayout.entranceZ]) {
+    box(-9,farmPathY,z,1.95,.05,.45,'#c6bea0');
+    box(-10.02,farmPathY,z,.13,.05,.45,'#c6bea0');
+    box(-7.93,farmPathY,z,.2,.05,.45,'#c6bea0');
+  }
+  // Shared southern entrance connects the main-house path and the pasture gate.
+  box(-9.65,farmPathY,farmLayout.entranceZ,3.2,.05,.8,'#c6bea0');
+  box(-7.75,farmPathY,farmLayout.entranceZ,.6,.05,.8,'#c6bea0');
+  box(farmLayout.laneX,farmPathY,3.75,.72,.05,1.4,'#c6bea0');
   table(-9, 0.68, 4.35, 1.8);
   box(-9, 1.1, 3.65, 1.9, 0.15, 0.35, wood);
   box(-9, 1.1, 5.05, 1.9, 0.15, 0.35, wood);
-  tree(-9.2, 6, 2.8);
-  // Lighthouse island and a narrow breakwater connection.
-  for (let x = 2; x <= 8; x++) box(x, -0.2, -5.9, 1, 1.2, 0.9, "#939584");
-  box(2, -0.2, -4.9, 1, 1.2, 1.1, "#939584");
-  for (let x = 7; x <= 9; x++)
-    for (let z = -7; z <= -5; z++) {
-      box(x, -0.3, z, 0.99, 1.3, 0.99, "#939584");
-      box(x, 0.4, z, 0.99, 0.12, 0.99, "#c5c1a2");
-    }
+
+  offset=islandLayout.lighthouse;
   for (let i = 0; i < 6; i++)
     box(
       8,
@@ -358,84 +302,18 @@ export function buildHabitat(scene: THREE.Scene) {
   box(8, 4.78, -6, 1.16, 0.22, 1.16, "#567e79");
   box(8, 4.98, -6, 0.7, 0.2, 0.7, "#567e79");
   box(8, 1.15, -5.35, 0.55, 1.2, 0.09, dark);
-  for (const x of [-7.6, 3.1, 6]) {
-    const z = x < 0 ? 3.8 : -5.9;
-    box(x, 1.05, z, 0.11, 1.5, 0.11, dark);
-    box(x, 1.83, z, 0.25, 0.35, 0.25, "#efd59a");
-    box(x, 2.04, z, 0.37, 0.09, 0.37, dark);
+  offset=new THREE.Vector3();
+  const staticMeshes:THREE.InstancedMesh[]=[];
+  const origins=[...new Set(blocks.map(b=>b.origin))];
+  for(const origin of origins) {
+    const batch=blocks.filter(b=>b.origin===origin);
+    const root=new THREE.Group();root.position.copy(origin);
+    root.name=origin===islandLayout.house?'village-house':origin===islandLayout.dock?'harbor-pier':origin===islandLayout.lighthouse?'clifftop-lighthouse':origin.y===1.35?'farm-garden':'island-vegetation';
+    const mesh=new THREE.InstancedMesh(geometry,material,batch.length);
+    const transform=new THREE.Object3D();
+    batch.forEach((block,i)=>{transform.position.fromArray(block.position).sub(origin);transform.scale.fromArray(block.size);transform.updateMatrix();mesh.setMatrixAt(i,transform.matrix);mesh.setColorAt(i,new THREE.Color(block.color));});
+    mesh.castShadow=true;mesh.receiveShadow=true;root.add(mesh);scene.add(root);staticMeshes.push(mesh);
   }
-  // Deterministic shore contours leave the dock, shipping lane and gardens clear.
-  const shoreCells: { x: number; z: number; height: number }[] = [];
-  for (let x = -15; x <= 1; x++) for (let z = -11; z <= 8; z++) {
-    const west = Math.pow((x + 10) / 4.7, 2) + Math.pow((z + 1) / 8.6, 2);
-    const north = Math.pow((x + 6) / 6.2, 2) + Math.pow((z + 6) / 3.8, 2);
-    const edge = Math.min(west, north);
-    if (edge > .97 + Math.sin(x * 2.1 + z) * .09) continue;
-    // Existing mainland already occupies this area.
-    if (x >= -10 && z >= -5 && z <= 5) continue;
-    if (x <= -8 && x >= -10 && z >= -6 && z <= 6) continue;
-    const height = edge > .72 ? -.48 : -.12;
-    box(x, (height - 1.35) / 2, z, 1, height + 1.35, 1, '#a7a38c');
-    box(x, height + .035, z, 1, .07, 1, edge > .72 ? '#c3bb96' : '#d8c99d');
-    if (edge < .48) box(x, height + .12, z, .96, .1, .96, '#98a372');
-    shoreCells.push({ x, z, height });
-  }
-  const palm = (x: number, z: number, base: number, height: number) => {
-    for (let i = 0; i < 9; i++) {
-      const lean = i * i * .007;
-      box(x + lean, base + (i + .5) * height / 9, z, .27, height / 9, .27, i % 2 ? '#91734d' : '#a58b5e');
-    }
-    const crownX = x + .5;
-    for (let arm = 0; arm < 7; arm++) {
-      const angle = arm * Math.PI * 2 / 7;
-      for (let segment = 0; segment < 5; segment++) {
-        const reach = .22 + segment * .32;
-        box(crownX + Math.cos(angle) * reach, base + height + .24 - segment * segment * .035, z + Math.sin(angle) * reach,
-          .44, .13, .44, segment % 2 ? '#638655' : '#77945b');
-      }
-    }
-    for (const dx of [-.16, .17]) box(crownX + dx, base + height - .17, z + .1, .22, .24, .22, '#836748');
-  };
-  palm(-12, -3, .05, 3.6);
-  palm(-11, -7, .05, 3.1);
-  palm(-4, -8, .05, 3.5);
-  palm(-13, 3, -.25, 2.6);
-  for (const cell of shoreCells) {
-    const { x, z, height } = cell;
-    if (rand() > .75) {
-      box(x + .12, height + .17, z, .48, .26, .4, '#85916c');
-      box(x, height + .32, z + .12, .34, .16, .32, '#9fa775');
-    } else if (rand() > .8) {
-      for (let i = 0; i < 3; i++) box(x - .2 + i * .19, height + .21, z + (i % 2) * .15, .065, .37, .065, '#859466');
-    }
-  }
-  // Irregular rock shelves sit in shallow water and soften the island silhouette.
-  for (const [cx, cz] of [[-14, -5], [-12, 7], [-5, -10], [11, -7], [10, -3]]) {
-    for (let i = 0; i < 5; i++) {
-      const x = cx + (rand() - .5) * 1.8, z = cz + (rand() - .5) * 1.6;
-      const h = .35 + rand() * .65;
-      box(x, -.8 + h / 2, z, .55 + rand() * .5, h, .55 + rand() * .4, ['#828f88', '#98a19a', '#aab0a1'][i % 3]);
-    }
-  }
-  // Driftwood and small shell clusters on the western beach.
-  box(-12.6, -.04, .5, 1.6, .17, .22, '#a18c6d');
-  box(-13.15, .06, .62, .11, .25, .4, '#938062');
-  for (let i = 0; i < 12; i++) {
-    const cell = shoreCells[Math.floor(rand() * shoreCells.length)];
-    box(cell.x + .2, cell.height + .1, cell.z - .2, .13, .07, .1, i % 2 ? '#e3d9c0' : '#c5a999');
-  }
-  const mesh = new THREE.InstancedMesh(geometry, material, blocks.length);
-  const transform = new THREE.Object3D();
-  blocks.forEach((block, i) => {
-    transform.position.fromArray(block.position);
-    transform.scale.fromArray(block.size);
-    transform.updateMatrix();
-    mesh.setMatrixAt(i, transform.matrix);
-    mesh.setColorAt(i, new THREE.Color(block.color));
-  });
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  scene.add(mesh);
   const animatedMaterials: THREE.Material[] = [];
   const partMaterials = new Map<string, THREE.MeshStandardMaterial>();
   const part = (
@@ -463,7 +341,8 @@ export function buildHabitat(scene: THREE.Scene) {
     return item;
   };
   const campfire = new THREE.Group();campfire.name='beach-campfire';
-  campfire.position.set(-10.6,-.36,7);scene.add(campfire);
+  // Sit on the front lawn beyond the porch; the stone ring rests on the grass.
+  campfire.position.set(-2,groundHeight(-2,4.4),4.4);scene.add(campfire);
   for(let i=0;i<10;i++) {
     const angle=i*Math.PI/5;
     const stone=part(campfire,Math.cos(angle)*.68,.08,Math.sin(angle)*.68,.32,.22,.26,i%2?'#8b9189':'#6e7975');
@@ -490,26 +369,16 @@ export function buildHabitat(scene: THREE.Scene) {
   });
   const fireLight=new THREE.PointLight('#ff9c46',8,4.5,2);
   fireLight.position.set(0,.85,0);campfire.add(fireLight);
-  const boat = new THREE.Group();
-  boatBlocks.forEach((b) =>
-    part(
-      boat,
-      ...(b.position as [number, number, number]),
-      ...(b.size as [number, number, number]),
-      b.color,
-    ),
-  );
-  scene.add(boat);
   const sailboat = new THREE.Group();
-  sailboat.name = 'large-sailing-ship';
+  sailboat.name = 'pirate-ship';
   // Tapered hull sections, a planked deck and a raised stern cabin.
   for(let i=0;i<13;i++) {
     const x=-2.7+i*.45;
     const beam=1.85-Math.pow(Math.abs(x)/3,3)*1.3;
-    part(sailboat,x,.08,0,.45,.58,beam,'#76543d');
+    part(sailboat,x,.08,0,.45,.58,beam,'#45392f');
     part(sailboat,x,.42,0,.44,.12,beam-.12,'#c49b67');
     for(const side of [-1,1]) {
-      part(sailboat,x,.55,side*beam/2,.45,.36,.12,'#80513c');
+      part(sailboat,x,.55,side*beam/2,.45,.36,.12,'#633b35');
       part(sailboat,x,.76,side*beam/2,.45,.08,.16,'#d3b37b');
     }
   }
@@ -528,15 +397,24 @@ export function buildHabitat(scene: THREE.Scene) {
       for(let row=0;row<5;row++)for(let col=0;col<7;col++) {
         const z=(col-3)*width/7;
         const billow=Math.sin((col+1)/8*Math.PI)*.17;
-        const panel=part(sailboat,x+billow,y+.49-row*.19,z,.045,.19,width/7-.008,row===4?'#749e98':'#f1dfb6');
+        const skull = (row===1 && Math.abs(col-3)<=1) || (row===2 && col===3) || (row===3 && (col===1 || col===5));
+        const panel=part(sailboat,x+billow,y+.49-row*.19,z,.045,.19,width/7-.008,skull?'#eee5cf':row===4?'#813d3d':'#30313c');
         sailPanels.push({mesh:panel,z:billow,phase:row*.3+col*.4});
       }
     }
     for(const side of [-1,1]) {
       riggingPoints.push(new THREE.Vector3(x,height+.35,0),new THREE.Vector3(x-.5,.74,side*.82));
     }
-    part(sailboat,x+.25,height+.36,0,.5,.22,.05,'#b86851');
+    part(sailboat,x+.25,height+.36,0,.5,.22,.05,'#292a32');
+    part(sailboat,x+.25,height+.36,.03,.09,.12,.025,'#eee5cf');
   }
+  // Broadside cannons and a treasure chest mark the ship as a pirate vessel.
+  for (const side of [-1,1]) for (const x of [-.2,.7]) {
+    part(sailboat,x,.58,side*.85,.26,.24,.62,'#30343a');
+    part(sailboat,x,.58,side*1.17,.2,.18,.035,'#151e26');
+  }
+  part(sailboat,-1.8,1.58,0,.58,.25,.43,'#70462d');
+  for(const x of [-1.98,-1.62])part(sailboat,x,1.59,0,.065,.28,.45,'#c3a358');
   const bowsprit=part(sailboat,3.02,.91,0,1.35,.08,.08,wood);bowsprit.rotation.z=.18;
   riggingPoints.push(new THREE.Vector3(1.25,4.32,0),new THREE.Vector3(3.65,1.04,0));
   const riggingGeometry=new THREE.BufferGeometry().setFromPoints(riggingPoints);
@@ -554,40 +432,43 @@ export function buildHabitat(scene: THREE.Scene) {
   shipCloth.castShadow=true;shipCloth.receiveShadow=true;sailboat.add(shipCloth);
   scene.add(sailboat);
   // A closed water-only route keeps the heading continuous at the berth.
-  const fishingRoute = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(4.8,0,9), new THREE.Vector3(10,0,10),
-    new THREE.Vector3(15,0,7), new THREE.Vector3(17,0,2),
-    new THREE.Vector3(19,0,3), new THREE.Vector3(17,0,9),
-    new THREE.Vector3(11,0,12), new THREE.Vector3(6,0,11),
-  ],true,'centripetal');
+  const fishingRoute = new THREE.CatmullRomCurve3(islandLayout.shipRoute.map(p=>new THREE.Vector3(...p as [number,number,number])),true,'centripetal');
   const routePosition = new THREE.Vector3();
   const routeHeading = new THREE.Vector3();
-  const netGeometry = new THREE.PlaneGeometry(2,2,7,7);
-  const netMaterial = new THREE.MeshStandardMaterial({color:'#586858',roughness:1,wireframe:true,side:THREE.DoubleSide});
-  const fishingNet = new THREE.Mesh(netGeometry,netMaterial);
-  fishingNet.name='ship-fishing-net';fishingNet.position.set(.4,.4,1.15);
-  fishingNet.rotation.x=-Math.PI/3;sailboat.add(fishingNet);
-  // Seated angler: boots over the edge, straw hat, hands and a moving rod.
+  // The Angler inherits the complete cast, reel, catch and return-home cycle.
   const fisher = new THREE.Group();
-  fisher.name = 'fisher';
+  fisher.name = 'terraria-angler';
   fisher.position.set(6.15, 0.66, 2.68);
   scene.add(fisher);
-  part(fisher, 0, 0.46, 0, 0.42, 0.62, 0.48, "#456b79");
-  part(fisher, 0, 0.99, 0, 0.36, 0.37, 0.36, "#d9ab83");
-  part(fisher, 0, 1.19, 0, 0.66, 0.09, 0.62, "#d5b778");
-  part(fisher, 0, 1.3, 0, 0.4, 0.18, 0.38, "#c9a267");
+  fisher.userData.character = 'terraria-angler';
+  part(fisher, 0, 0.46, 0, 0.42, 0.62, 0.48, "#c5793e");
+  for(const z of [-.15,.15])part(fisher,.216,.47,z,.025,.5,.055,'#715039');
+  part(fisher, .22, .72, 0, .035, .12, .16, '#e3b18b');
+  part(fisher, 0, 0.99, 0, 0.36, 0.37, 0.36, "#e3b18b");
+  part(fisher, -.025, 1.19, 0, .43, .14, .42, '#dfa94a');
+  part(fisher, -.18, 1.07, 0, .1, .3, .4, '#dfa94a');
+  part(fisher, 0, 1.26, 0, .7, .09, .62, '#d9bc7c');
+  part(fisher, 0, 1.38, 0, .43, .18, .4, '#cda868');
+  part(fisher, .22, 1.32, 0, .03, .055, .41, '#94603d');
+  for (const side of [-1, 1]) {
+    part(fisher, -.02, 1.12, side*.19, .36, .15, .055, '#dfa94a');
+    part(fisher, .16, 1.15, side*.12, .09, .13, .14, '#dfa94a');
+    part(fisher, .187, 1.02, side*.105, .025, .055, .045, '#302b26');
+  }
+  part(fisher, .2, .96, 0, .07, .07, .09, '#cf9972');
+  part(fisher, .188, .885, 0, .02, .025, .12, '#9a654e');
   const legs: THREE.Group[] = [];
   for (const z of [-0.16, 0.16]) {
     const leg = new THREE.Group(); leg.position.set(0,.18,z); fisher.add(leg); legs.push(leg);
-    part(leg,0,-.27,0,.19,.54,.19,'#596358');
+    part(leg,0,-.27,0,.19,.54,.19,'#496d9e');
     part(leg,.07,-.57,0,.32,.15,.23,'#453c35');
   }
   const arm = new THREE.Group();
   arm.position.set(0.07, 0.68, 0);
   fisher.add(arm);
   for (const z of [-0.27, 0.27]) {
-    part(arm, 0.2, -0.05, z, 0.48, 0.18, 0.18, "#456b79");
-    part(arm, 0.44, -0.05, z, 0.18, 0.16, 0.16, "#d9ab83");
+    part(arm, 0.1, -0.05, z, 0.28, 0.2, 0.2, "#c5793e");
+    part(arm, 0.35, -0.05, z, 0.36, 0.16, 0.16, "#e3b18b");
   }
   const rod = part(arm, 1.04, 0.5, 0, 0.045, 1.9, 0.045, "#5c4731");
   rod.rotation.z = -0.8;
@@ -612,18 +493,18 @@ export function buildHabitat(scene: THREE.Scene) {
   part(catchFish,-.3,0,0,.16,.31,.08,'#789f98');
   part(catchFish,.19,.045,.08,.035,.035,.025,dark);
   const basket = new THREE.Group(); scene.add(basket);
-  basket.position.set(.6,.86,.7);
+  basket.position.set(6.5,.78,8.9);
   part(basket,0,.12,0,.64,.2,.4,'#a78051');
   for(const z of [-.22,.22])part(basket,0,.25,z,.68,.3,.065,wood);
   for(const x of [-.32,.32])part(basket,x,.25,0,.065,.3,.4,wood);
-  const door = new THREE.Group(); door.position.set(.2,.85,1.73); scene.add(door);
+  const door = new THREE.Group(); door.position.set(.2,.85,1.73).add(islandLayout.house); scene.add(door);
   part(door,.4,.93,0,.76,1.86,.07,'#a47d50');
   part(door,.4,1.35,.055,.5,.6,.035,'#e9cf91');
   part(door,.66,.77,.08,.07,.07,.04,'#e9c568');
   const smooth = (value:number) => {const t=THREE.MathUtils.clamp(value,0,1);return t*t*(3-2*t);};
-  const dock = new THREE.Vector3(6.15,.66,2.98);
-  const porch = new THREE.Vector3(.6,.66,2.98);
-  const home = new THREE.Vector3(.6,.86,1.12);
+  const walkingRoute=islandLayout.anglerRoute.map(p=>new THREE.Vector3(...p as [number,number,number]));
+  const dock=walkingRoute[0],home=walkingRoute[walkingRoute.length-1];
+  const basketDrop=new THREE.Vector3(6.5,1.05,8.9);
   const hand = new THREE.Vector3();
   // Real surface displacement, not just sliding marks on a flat plane.
   // Cover the full orthographic frustum at every orbit angle, including corners.
@@ -635,6 +516,9 @@ export function buildHabitat(scene: THREE.Scene) {
     metalness: 0,
     specularIntensity: 0.2,
     flatShading: false,
+    transparent: true,
+    opacity: .68,
+    depthWrite: false,
   });
   const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
   ocean.receiveShadow = true;
@@ -684,7 +568,7 @@ export function buildHabitat(scene: THREE.Scene) {
     animatedMaterials.push(mat);
     smoke.add(new THREE.Mesh(geometry, mat));
   }
-  scene.add(smoke);
+  smoke.position.copy(islandLayout.house);scene.add(smoke);
   const wave = (x: number, z: number, t: number) =>
     -0.84 +
     Math.sin(x * 1.6 + z * 0.7 - t * 1.7) * 0.085 +
@@ -697,7 +581,7 @@ export function buildHabitat(scene: THREE.Scene) {
   const daySun = new THREE.Color('#ffe0ab'), duskSun = new THREE.Color('#f6a579');
   const dayWater = new THREE.Color('#489ead'), nightWater = new THREE.Color('#244755');
   const dayBed = new THREE.Color('#438b92'), nightBed = new THREE.Color('#243e51');
-  const lighthouse = new THREE.Group(); lighthouse.position.set(8,4.13,-6); lighthouse.name='lighthouse-light';scene.add(lighthouse);
+  const lighthouse = new THREE.Group(); lighthouse.position.set(8,4.13,-6).add(islandLayout.lighthouse); lighthouse.name='lighthouse-light';scene.add(lighthouse);
   const beaconMaterial = new THREE.MeshStandardMaterial({color:'#ffe8ad',emissive:'#ffd078',emissiveIntensity:1});
   const beacon = new THREE.Mesh(geometry,beaconMaterial);
   beacon.scale.set(1.08,.75,1.08);beacon.position.copy(lighthouse.position);scene.add(beacon);
@@ -717,21 +601,28 @@ export function buildHabitat(scene: THREE.Scene) {
   spotlight.shadow.normalBias = .005;
   lighthouse.add(spotlight,spotlight.target);
   const houseLights = [[-2,2.5,2.1],[.6,1.8,1.9],[-2.2,5,2.2],[5.8,1.8,3.35]].map(([x,y,z])=>{
-    const light = new THREE.PointLight('#ffcb82',0,5,1.5);light.position.set(x,y,z);scene.add(light);return light;
+    const light = new THREE.PointLight('#ffcb82',0,5,1.5);light.position.set(x,y,z).add(islandLayout.house);scene.add(light);return light;
   });
+  const residents = createCoastalResidents(scene, sailboat);
+  let currentAnimationTime=0,fishingOffset=0;
+  const fishery=createFishery(scene,{root:fisher,legs,arm,route:walkingRoute,onReturn:()=>{fishingOffset=currentAnimationTime;}});
   return {
+    fishery,
     update: (elapsed: number) => {
       const time = elapsed * 2;
+      currentAnimationTime=time;
       const solarAngle = time * Math.PI * 2 / 90;
       const sunHeight = Math.cos(solarAngle);
       // Orthogonal orbit axes preserve the noon direction while crossing the horizon.
       sunlight.position.set(
-        32 * (-7 / Math.sqrt(309) * sunHeight + 8 / Math.sqrt(113) * Math.sin(solarAngle)),
-        32 * 14 / Math.sqrt(309) * sunHeight,
-        32 * (8 / Math.sqrt(309) * sunHeight + 7 / Math.sqrt(113) * Math.sin(solarAngle)),
+        55 * (-7 / Math.sqrt(309) * sunHeight + 8 / Math.sqrt(113) * Math.sin(solarAngle)),
+        55 * 14 / Math.sqrt(309) * sunHeight,
+        55 * (8 / Math.sqrt(309) * sunHeight + 7 / Math.sqrt(113) * Math.sin(solarAngle)),
       );
       const daylight = smooth((sunHeight+.25)/.95);
       const night = 1-daylight;
+      dragon.update(elapsed,night);
+      harborAndCave.update(elapsed,night);
       scene.userData.daylight = daylight;
       ambient.intensity=.85+daylight*1.75;
       ambient.color.copy(nightSky).lerp(daySky,daylight);
@@ -793,31 +684,28 @@ export function buildHabitat(scene: THREE.Scene) {
         ripples.setMatrixAt(i, rippleTransform.matrix);
       });
       ripples.instanceMatrix.needsUpdate = true;
-      boat.position.y = Math.sin(time * 1.3) * 0.055;
+
       // Dawn is one quarter-cycle before noon; the ship is home by sunset.
       const voyage = ((elapsed+11.25)%45)/45;
       const departing = voyage < .1;
-      const fishing = voyage >= .1 && voyage < .38;
+      const cruising = voyage >= .1 && voyage < .38;
       const returningToPort = voyage >= .38 && voyage < .5;
       const routeProgress = departing ? .22*smooth(voyage/.1)
-        : fishing ? .22+.48*smooth((voyage-.1)/.28)
+        : cruising ? .22+.48*smooth((voyage-.1)/.28)
         : returningToPort ? .7+.3*smooth((voyage-.38)/.12) : 0;
       fishingRoute.getPointAt(routeProgress,routePosition);
       fishingRoute.getTangentAt(routeProgress,routeHeading);
-      sailboat.userData.phase=departing?'departing':fishing?'fishing':returningToPort?'returning':'moored';
+      sailboat.userData.phase=departing?'departing':cruising?'patrolling':returningToPort?'returning':'moored';
       sailboat.position.set(routePosition.x,wave(routePosition.x,routePosition.z,time),routePosition.z);
       sailboat.rotation.set(
         Math.sin(time * 0.9) * 0.03,
         Math.atan2(-routeHeading.z,routeHeading.x),
         Math.sin(time * 0.8) * 0.035,
       );
-      const netDrop=smooth((voyage-.1)/.025)*(1-smooth((voyage-.35)/.03));
-      fishingNet.visible=netDrop>.001;
-      fishingNet.scale.y=Math.max(.001,netDrop);
-      fishingNet.position.y=.4-netDrop*.45;
+      residents.update(time, night);
       sailPanels.forEach((panel,i)=>{panel.mesh.rotation.z=Math.sin(time*1.4+panel.phase)*.035;panel.mesh.updateMatrix();shipCloth.setMatrixAt(i,panel.mesh.matrix);});
       shipCloth.instanceMatrix.needsUpdate=true;
-      boat.rotation.x = Math.sin(time * 0.9) * 0.014;
+
       smoke.children.forEach((puff, i) => {
         const phase = (time * 0.17 + i / 9) % 1;
         puff.position.set(
@@ -832,21 +720,25 @@ export function buildHabitat(scene: THREE.Scene) {
         ).material.opacity = Math.sin(phase * Math.PI) * 0.36;
       });
       // One absolute timeline makes pauses and repeated cycles deterministic.
-      const cycle = time % 32;
+      fishery.update(elapsed,night);
+      if(fishery.ownsActor) {
+        rod.visible=false;fishingLine.visible=false;floatGroup.visible=false;catchFish.visible=false;door.rotation.y=0;
+        scene.updateMatrixWorld(true);return;
+      }
+      const cycle = (time-fishingOffset) % 32;
       const reeling = cycle >= 7 && cycle < 10;
       const outbound = cycle >= 11 && cycle < 17;
       const unloading = cycle >= 17 && cycle < 21;
       const returning = cycle >= 21 && cycle < 27;
       const standing = smooth((cycle-10)/1) * (1-smooth((cycle-27)/1));
-      fisher.userData.phase = cycle < 7 ? 'fishing' : cycle < 10 ? 'reeling' : cycle < 11 ? 'standing' : outbound ? 'going-home' : unloading ? 'depositing' : returning ? 'returning' : 'casting';
+      fisher.userData.phase = cycle < 7 ? 'fishing' : cycle < 10 ? 'reeling' : cycle < 11 ? 'standing' : outbound ? 'delivering-to-harbor' : unloading ? 'depositing' : returning ? 'returning' : 'casting';
       fisher.position.copy(dock);
       fisher.rotation.set(0,0,0);
       if (outbound || returning) {
         const travel = outbound ? (cycle-11)/6 : 1-(cycle-21)/6;
-        if(travel < .82) fisher.position.lerpVectors(dock,porch,travel/.82);
-        else fisher.position.lerpVectors(porch,home,(travel-.82)/.18);
-        const facing = travel < .82 ? Math.PI : Math.PI/2;
-        fisher.rotation.y = facing + (returning ? Math.PI : 0);
+        const segment=sampleRoute(walkingRoute,travel,fisher.position);
+        const heading=walkingRoute[segment+1].clone().sub(walkingRoute[segment]);
+        fisher.rotation.y=Math.atan2(-heading.z,heading.x)+(returning?Math.PI:0);
       } else if(unloading) {
         fisher.position.copy(home); fisher.rotation.y=Math.PI/2;
       }
@@ -856,14 +748,14 @@ export function buildHabitat(scene: THREE.Scene) {
       legs.forEach((leg,i)=>{leg.rotation.z=(1-standing)*Math.PI/2 + (walking?Math.sin(time*8+i*Math.PI)*.45:0);});
       fisher.rotation.z = unloading ? -.15*Math.sin((cycle-17)/4*Math.PI) : 0;
       arm.rotation.z = cycle < 7 ? Math.sin(time*1.1)*.045 : reeling ? smooth((cycle-7)/3)*.95 : cycle < 27 ? .95 : .95*(1-smooth((cycle-27)/2));
-      door.rotation.y = -1.3*smooth((cycle-15.5)/.5)*(1-smooth((cycle-22)/.5));
+      door.rotation.y = 0;
       rod.visible = !unloading;
       fishingLine.visible = cycle < 10 || cycle >= 28;
       floatGroup.visible = fishingLine.visible;
       scene.updateMatrixWorld(true);
       tip.set(0, 0.95, 0);
       rod.localToWorld(tip);
-      floatGroup.position.set(7.4, wave(7.4, 3.5, time) + 0.09, 3.5);
+      floatGroup.position.set(16.4, wave(16.4, 7.5, time) + 0.09, 7.5);
       const lift = smooth((cycle-7)/3);
       if(reeling)floatGroup.position.lerp(new THREE.Vector3(tip.x,tip.y-.6,tip.z),lift);
       if(cycle>=28)floatGroup.position.lerp(new THREE.Vector3(tip.x,tip.y-.6,tip.z),1-smooth((cycle-28)/2));
@@ -874,9 +766,9 @@ export function buildHabitat(scene: THREE.Scene) {
         catchFish.rotation.z=Math.sin(time*12)*.3;
       } else if(cycle>=10 && cycle<19) {
         hand.set(.5,-.1,.25);arm.localToWorld(hand);catchFish.position.copy(hand);
-        if(cycle>=17)catchFish.position.lerp(new THREE.Vector3(.6,1.13,.7),smooth((cycle-17)/2));
+        if(cycle>=17)catchFish.position.lerp(basketDrop,smooth((cycle-17)/2));
       } else if(cycle>=19) {
-        catchFish.position.set(.6,1.13,.7);
+        catchFish.position.copy(basketDrop);
       }
       lineMidpoint.copy(tip).lerp(floatGroup.position,.5);lineMidpoint.y-=.12;
       for (let i=0;i<2;i++) {
@@ -891,14 +783,19 @@ export function buildHabitat(scene: THREE.Scene) {
       fishingLine.instanceMatrix.needsUpdate=true;
     },
     dispose: () => {
+      dragon.dispose();
+      harborAndCave.dispose();
+      ecology.dispose();
+      fishery.dispose();
+      terrain.dispose();
+      residents.dispose();
       spotlight.shadow.dispose();beaconMaterial.dispose();
-      netGeometry.dispose();netMaterial.dispose();
       fishingLine.dispose();
       shipHull.dispose();
       shipCloth.dispose();
       riggingGeometry.dispose();
       riggingMaterial.dispose();
-      mesh.dispose();
+      staticMeshes.forEach(mesh=>mesh.dispose());
       ripples.dispose();
       geometry.dispose();
       material.dispose();
